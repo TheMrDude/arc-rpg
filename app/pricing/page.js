@@ -55,10 +55,11 @@ export default function PricingPage() {
     setCheckoutLoading(true);
 
     try {
+      // SECURE: No need to send userId - API gets it from session
       const response = await fetch('/api/create-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user.id }),
+        body: JSON.stringify({}),
       });
 
       const data = await response.json();
