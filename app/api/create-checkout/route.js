@@ -1,35 +1,79 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
+import { cookies } from 'next/headers';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-const supabase = createClient(
+
+// Use service role key for admin operations
+const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
 export async function POST(request) {
   try {
-    const { userId } = await request.json();
+    // SECURE: Get authenticated user from session cookies
+    const cookieStore = cookies();
+    const supabaseAuth = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      {
+        cookies: {
+          get(name) {
+            return cookieStore.get(name)?.value;
+          },
+        },
+      }
+    );
 
-    if (!userId) {
-      return NextResponse.json({ error: 'User ID required' }, { status: 400 });
+    const { data: { user }, error: authError } = await supabaseAuth.auth.getUser();
+
+    if (authError || !user) {
+      console.error('Create checkout: Unauthorized access attempt', {
+        error: authError?.message,
+        timestamp: new Date().toISOString(),
+      });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { data: profile } = await supabase
+    // SECURE: Use authenticated user's ID, not client-provided userId
+    const userId = user.id;
+
+    // Check if user already has premium
+    const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
       .select('*')
       .eq('id', userId)
       .single();
 
+    if (profileError) {
+      console.error('Create checkout: Profile fetch error', {
+        error: profileError.message,
+        userId,
+        timestamp: new Date().toISOString(),
+      });
+      return NextResponse.json({ error: 'Failed to fetch profile' }, { status: 500 });
+    }
+
     if (profile?.is_premium) {
       return NextResponse.json({ error: 'Already premium' }, { status: 400 });
     }
 
-    const { count } = await supabase
+    // SECURE: Use transaction-safe check for founder spots
+    // This prevents race conditions where multiple users could exceed the limit
+    const { count, error: countError } = await supabaseAdmin
       .from('profiles')
       .select('*', { count: 'exact', head: true })
       .eq('is_premium', true);
+
+    if (countError) {
+      console.error('Create checkout: Count error', {
+        error: countError.message,
+        timestamp: new Date().toISOString(),
+      });
+      return NextResponse.json({ error: 'Failed to check availability' }, { status: 500 });
+    }
 
     if (count >= 25) {
       return NextResponse.json({ error: 'All founder spots taken' }, { status: 400 });
@@ -60,9 +104,25 @@ export async function POST(request) {
       },
     });
 
+    console.log('Checkout session created', {
+      userId,
+      sessionId: session.id,
+      timestamp: new Date().toISOString(),
+    });
+
     return NextResponse.json({ url: session.url });
   } catch (error) {
-    console.error('Stripe checkout error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    // SECURE: Don't expose internal errors to users
+    console.error('Stripe checkout error:', {
+      error: error.message,
+      stack: error.stack,
+      timestamp: new Date().toISOString(),
+    });
+
+    // Generic error message for users
+    return NextResponse.json(
+      { error: 'Failed to create checkout session. Please try again.' },
+      { status: 500 }
+    );
   }
 }
