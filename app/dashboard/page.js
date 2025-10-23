@@ -155,11 +155,8 @@ export default function DashboardPage() {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <div className="bg-red-500 text-white p-4 mb-4 rounded">
-              DEBUG: subscription_status = "{profile?.subscription_status}" | is_premium = "{profile?.is_premium}" | Should show premium = {String(profile?.is_premium || profile?.subscription_status === 'active')}
-            </div>
             <div className="flex items-center gap-3">
-              <h1 className="text-4xl font-bold">🔥 TESTING 123 🔥 {profile?.archetype?.toUpperCase()} - Level {profile?.level}</h1>
+              <h1 className="text-4xl font-bold">{profile?.archetype?.toUpperCase()} - Level {profile?.level}</h1>
               {(profile?.is_premium || profile?.subscription_status === 'active') && (
                 <span className="px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-black rounded-lg font-bold text-sm">
                   ⭐ PREMIUM
