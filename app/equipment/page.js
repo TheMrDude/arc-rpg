@@ -90,18 +90,38 @@ export default function EquipmentPage() {
       return;
     }
 
-    try {
-      const { error } = await supabase
-        .from('user_equipment')
-        .insert({
-          user_id: user.id,
-          equipment_id: equipment.id,
-        });
+    if (profile.gold < equipment.cost) {
+      alert(`You need ${equipment.cost} gold but only have ${profile.gold} gold.\n\nEarn gold by completing quests or purchase gold packs in the shop!`);
+      return;
+    }
 
-      if (error) throw error;
+    // Confirm purchase
+    const confirmed = confirm(`Purchase ${equipment.name} for ${equipment.cost} gold?`);
+    if (!confirmed) return;
+
+    try {
+      // SECURITY: Use server-side API for equipment purchase
+      const response = await fetch('/api/purchase-equipment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ equipment_id: equipment.id }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error('Failed to purchase equipment:', data.error);
+        alert(data.message || 'Failed to purchase equipment');
+        return;
+      }
+
+      alert(`Successfully purchased ${equipment.name}!\n\n-${data.cost} gold\nNew balance: ${data.new_balance} gold`);
+
+      // Reload equipment and profile
       loadEquipment();
 
-      // Reload profile to get updated data
       const { data: profileData } = await supabase
         .from('profiles')
         .select('*')
@@ -219,15 +239,26 @@ export default function EquipmentPage() {
           <div>
             <h1 className="text-4xl font-bold mb-2">Equipment Shop</h1>
             <p className="text-gray-300">Unlock and equip gear to boost your XP gains</p>
-            {totalXPBonus > 0 && (
-              <p className="text-yellow-400 font-semibold mt-2">
-                Current XP Bonus: +{(totalXPBonus * 100).toFixed(0)}%
-              </p>
-            )}
+            <div className="flex items-center gap-6 mt-2">
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">💰</span>
+                <span className="text-yellow-400 font-bold text-xl">{profile?.gold || 0} Gold</span>
+              </div>
+              {totalXPBonus > 0 && (
+                <p className="text-yellow-400 font-semibold">
+                  Current XP Bonus: +{(totalXPBonus * 100).toFixed(0)}%
+                </p>
+              )}
+            </div>
           </div>
-          <button onClick={() => router.push('/dashboard')} className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg">
-            Back to Dashboard
-          </button>
+          <div className="flex gap-3">
+            <button onClick={() => router.push('/shop')} className="px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black rounded-lg font-semibold">
+              Buy Gold
+            </button>
+            <button onClick={() => router.push('/dashboard')} className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg">
+              Back to Dashboard
+            </button>
+          </div>
         </div>
 
         {/* Currently Equipped */}
@@ -307,11 +338,21 @@ export default function EquipmentPage() {
                 <h3 className="text-xl font-bold mb-2">{equipment.name}</h3>
                 <p className="text-sm text-gray-300 mb-4">{equipment.description}</p>
 
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-sm text-gray-400 uppercase">{equipment.slot}</span>
-                  <span className="text-yellow-400 font-bold">
-                    +{((equipment.xp_multiplier - 1.0) * 100).toFixed(0)}% XP
-                  </span>
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-400 uppercase">{equipment.slot}</span>
+                    <span className="text-yellow-400 font-bold">
+                      +{((equipment.xp_multiplier - 1.0) * 100).toFixed(0)}% XP
+                    </span>
+                  </div>
+                  {!owned && (
+                    <div className="flex items-center justify-between border-t border-gray-600 pt-2">
+                      <span className="text-gray-400">Cost:</span>
+                      <span className="text-yellow-400 font-bold flex items-center gap-1">
+                        <span>💰</span>{equipment.cost} Gold
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 {equipped ? (
@@ -333,7 +374,7 @@ export default function EquipmentPage() {
                     onClick={() => unlockEquipment(equipment)}
                     className="w-full px-4 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black rounded-lg font-semibold"
                   >
-                    Unlock
+                    Purchase for {equipment.cost} Gold
                   </button>
                 ) : (
                   <button
