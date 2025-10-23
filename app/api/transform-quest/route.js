@@ -66,11 +66,11 @@ export async function POST(request) {
     // Load user profile and story progress for premium users
     const { data: profile } = await supabase
       .from('profiles')
-      .select('*, story:story_progress(*)')
+      .select('subscription_status, story:story_progress(*)')
       .eq('id', user.id)
       .single();
 
-    const isPremium = profile?.is_premium || profile?.subscription_status === 'active';
+    const isPremium = profile?.subscription_status === 'active';
     let storyContext = '';
 
     if (isPremium && profile?.story?.length > 0) {
