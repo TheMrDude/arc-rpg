@@ -57,7 +57,15 @@ export default function TemplatesPage() {
 
   async function loadTemplates() {
     try {
-      const response = await fetch('/api/recurring-templates');
+      // Get auth token
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const response = await fetch('/api/recurring-templates', {
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`
+        }
+      });
       const data = await response.json();
       setTemplates(data.templates || []);
     } catch (error) {
@@ -171,9 +179,19 @@ export default function TemplatesPage() {
     if (!confirm('Are you sure you want to delete this template?')) return;
 
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        alert('Please log in again');
+        router.push('/login');
+        return;
+      }
+
       const response = await fetch('/api/recurring-templates', {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
         body: JSON.stringify({ template_id: templateId }),
       });
 
@@ -187,9 +205,19 @@ export default function TemplatesPage() {
 
   async function toggleTemplate(templateId, isActive) {
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        alert('Please log in again');
+        router.push('/login');
+        return;
+      }
+
       const response = await fetch('/api/recurring-templates', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
         body: JSON.stringify({ template_id: templateId, is_active: !isActive }),
       });
 
