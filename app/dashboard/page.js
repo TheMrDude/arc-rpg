@@ -102,33 +102,45 @@ export default function DashboardPage() {
 
   async function completeQuest(questId, xpValue) {
     try {
-      await supabase
-        .from('quests')
-        .update({ completed: true, completed_at: new Date().toISOString() })
-        .eq('id', questId);
+      // SECURITY: Use server-side API for quest completion
+      const response = await fetch('/api/complete-quest', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ quest_id: questId }),
+      });
 
-      const comebackBonus = checkComebackBonus(profile.last_quest_date);
-      const bonusXP = comebackBonus ? 20 : 0;
-      const totalXP = xpValue + bonusXP;
+      const data = await response.json();
 
-      const newXP = profile.xp + totalXP;
-      const newLevel = Math.floor(newXP / 100) + 1;
-      const newStreak = calculateStreak(profile.last_quest_date, profile.current_streak);
+      if (!response.ok) {
+        console.error('Failed to complete quest:', data.error);
+        alert(data.message || 'Failed to complete quest');
+        return;
+      }
 
-      await supabase
-        .from('profiles')
-        .update({
-          xp: newXP,
-          level: newLevel,
-          current_streak: newStreak,
-          longest_streak: Math.max(newStreak, profile.longest_streak),
-          last_quest_date: new Date().toISOString(),
-        })
-        .eq('id', user.id);
+      // Show rewards notification
+      const rewards = data.rewards;
+      let rewardMessage = `Quest Complete!\n\n`;
+      rewardMessage += `+${rewards.xp} XP`;
+      if (rewards.equipment_bonus_xp > 0) {
+        rewardMessage += ` (+${rewards.equipment_bonus_xp} equipment bonus)`;
+      }
+      if (rewards.comeback_bonus) {
+        rewardMessage += `\n+20 Comeback Bonus!`;
+      }
+      rewardMessage += `\n+${rewards.gold} Gold`;
+      if (rewards.level_up) {
+        rewardMessage += `\n\n🎉 LEVEL UP! You are now level ${rewards.new_level}!`;
+      }
 
+      alert(rewardMessage);
+
+      // Reload user data to reflect changes
       loadUserData();
     } catch (error) {
       console.error('Error completing quest:', error);
+      alert('Failed to complete quest');
     }
   }
 
