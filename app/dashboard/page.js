@@ -155,12 +155,26 @@ export default function DashboardPage() {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-4xl font-bold">{profile?.archetype?.toUpperCase()} - Level {profile?.level}</h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-4xl font-bold">{profile?.archetype?.toUpperCase()} - Level {profile?.level}</h1>
+              {(profile?.is_premium || profile?.subscription_status === 'active') && (
+                <span className="px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-black rounded-lg font-bold text-sm">
+                  ⭐ PREMIUM
+                </span>
+              )}
+            </div>
             <p className="text-gray-300">XP: {profile?.xp} / {(profile?.level || 0) * 100} | Streak: {profile?.current_streak} days</p>
+            {profile?.skill_points > 0 && (
+              <p className="text-yellow-400 font-semibold mt-1">💎 {profile.skill_points} Skill Points Available!</p>
+            )}
           </div>
           <div className="flex gap-4">
             <button onClick={() => router.push('/history')} className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg">History</button>
-            <button onClick={() => router.push('/pricing')} className="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg">Pricing</button>
+            {!(profile?.is_premium || profile?.subscription_status === 'active') && (
+              <button onClick={() => router.push('/pricing')} className="px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black rounded-lg font-bold">
+                Upgrade to Premium
+              </button>
+            )}
             <button onClick={handleLogout} className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg">Logout</button>
           </div>
         </div>
@@ -187,6 +201,66 @@ export default function DashboardPage() {
                 <h3 className="text-2xl font-bold">{bossEncounter.name}</h3>
                 <p className="text-gray-300">{bossEncounter.description}</p>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Premium Features Navigation */}
+        {(profile?.is_premium || profile?.subscription_status === 'active') ? (
+          <div className="grid md:grid-cols-3 gap-4 mb-8">
+            <button
+              onClick={() => router.push('/templates')}
+              className="bg-gradient-to-br from-blue-600 to-blue-800 border-2 border-blue-500 rounded-xl p-6 text-left hover:scale-105 transition-transform"
+            >
+              <div className="text-4xl mb-3">🔄</div>
+              <h3 className="text-xl font-bold mb-2">Quest Templates</h3>
+              <p className="text-sm text-gray-200">Auto-generate recurring quests daily, weekly, or custom schedules</p>
+            </button>
+            <button
+              onClick={() => router.push('/equipment')}
+              className="bg-gradient-to-br from-purple-600 to-purple-800 border-2 border-purple-500 rounded-xl p-6 text-left hover:scale-105 transition-transform"
+            >
+              <div className="text-4xl mb-3">⚔️</div>
+              <h3 className="text-xl font-bold mb-2">Equipment Shop</h3>
+              <p className="text-sm text-gray-200">Unlock weapons, armor, and accessories to boost XP gains</p>
+            </button>
+            <button
+              onClick={() => router.push('/skills')}
+              className="bg-gradient-to-br from-green-600 to-green-800 border-2 border-green-500 rounded-xl p-6 text-left hover:scale-105 transition-transform"
+            >
+              <div className="text-4xl mb-3">🌳</div>
+              <h3 className="text-xl font-bold mb-2">Skill Trees</h3>
+              <p className="text-sm text-gray-200">Unlock powerful abilities with skill points earned from leveling</p>
+            </button>
+          </div>
+        ) : (
+          <div className="bg-gradient-to-br from-yellow-600/20 to-orange-600/20 border-2 border-yellow-500 rounded-xl p-8 mb-8">
+            <div className="text-center">
+              <h3 className="text-3xl font-bold mb-4">Unlock Premium Features</h3>
+              <p className="text-gray-200 mb-6">Get access to recurring quest templates, equipment system, skill trees, AI Dungeon Master narration, and more!</p>
+              <div className="grid md:grid-cols-3 gap-4 mb-6">
+                <div className="bg-gray-800/50 p-4 rounded-lg">
+                  <div className="text-3xl mb-2">🔄</div>
+                  <div className="font-bold">Quest Templates</div>
+                  <div className="text-sm text-gray-400">Automate daily tasks</div>
+                </div>
+                <div className="bg-gray-800/50 p-4 rounded-lg">
+                  <div className="text-3xl mb-2">⚔️</div>
+                  <div className="font-bold">Equipment Shop</div>
+                  <div className="text-sm text-gray-400">Boost XP gains</div>
+                </div>
+                <div className="bg-gray-800/50 p-4 rounded-lg">
+                  <div className="text-3xl mb-2">🌳</div>
+                  <div className="font-bold">Skill Trees</div>
+                  <div className="text-sm text-gray-400">Unlock abilities</div>
+                </div>
+              </div>
+              <button
+                onClick={() => router.push('/pricing')}
+                className="px-8 py-4 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black rounded-lg font-bold text-lg"
+              >
+                Upgrade to Premium - $15/month
+              </button>
             </div>
           </div>
         )}
