@@ -34,11 +34,11 @@ export async function GET(request) {
     // Check if user is premium
     const { data: profile } = await supabaseAdmin
       .from('profiles')
-      .select('is_premium, subscription_status')
+      .select('subscription_status')
       .eq('id', user.id)
       .single();
 
-    const isPremium = profile?.is_premium || profile?.subscription_status === 'active';
+    const isPremium = profile?.subscription_status === 'active';
 
     if (!isPremium) {
       return NextResponse.json({
@@ -116,24 +116,21 @@ export async function POST(request) {
     // Check if user is premium
     const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
-      .select('is_premium, subscription_status')
+      .select('subscription_status')
       .eq('id', user.id)
       .single();
 
-    console.log('=== PREMIUM CHECK DEBUG ===');
-    console.log('User ID:', user.id);
-    console.log('Profile:', profile);
-    console.log('Profile Error:', profileError);
-    console.log('subscription_status:', profile?.subscription_status);
-    console.log('is_premium:', profile?.is_premium);
+    if (profileError) {
+      console.error('Error fetching profile:', profileError);
+      return NextResponse.json({ error: 'Failed to verify premium status' }, { status: 500 });
+    }
 
-    const isPremium = profile?.is_premium || profile?.subscription_status === 'active';
-    console.log('isPremium result:', isPremium);
+    const isPremium = profile?.subscription_status === 'active';
 
     if (!isPremium) {
       return NextResponse.json({
         error: 'Premium feature',
-        message: `Recurring quest templates are a premium feature. Debug: status=${profile?.subscription_status}, is_premium=${profile?.is_premium}`
+        message: 'Recurring quest templates are a premium feature. Upgrade to premium!'
       }, { status: 403 });
     }
 
