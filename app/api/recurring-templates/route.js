@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { authenticateRequest, checkPremiumStatus, getSupabaseAdmin } from '@/lib/api-auth';
 
+// Force dynamic rendering to prevent caching of authenticated requests
+export const dynamic = 'force-dynamic';
+
 const supabaseAdmin = getSupabaseAdmin();
 
 // GET - List user's recurring quest templates

@@ -38,11 +38,11 @@ export async function POST(request) {
     // Check if user is premium
     const { data: profile } = await supabaseAdmin
       .from('profiles')
-      .select('is_premium, subscription_status, archetype')
+      .select('subscription_status, archetype')
       .eq('id', user.id)
       .single();
 
-    const isPremium = profile?.is_premium || profile?.subscription_status === 'active';
+    const isPremium = profile?.subscription_status === 'active';
 
     if (!isPremium) {
       return NextResponse.json({
