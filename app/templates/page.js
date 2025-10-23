@@ -112,12 +112,18 @@ export default function TemplatesPage() {
     }
 
     try {
+      // Convert tasks to match API format
+      const formattedTasks = validTasks.map(t => ({
+        task_text: t.text,
+        difficulty: t.difficulty
+      }));
+
       const body = {
         name: templateName,
         description: templateDescription,
         recurrence_type: recurrenceType,
         recurrence_interval: recurrenceInterval,
-        tasks: validTasks,
+        tasks: formattedTasks,
       };
 
       if (editingTemplate) {
