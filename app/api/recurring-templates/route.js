@@ -11,23 +11,40 @@ const supabaseAdmin = createClient(
 // GET - List user's recurring quest templates
 export async function GET(request) {
   try {
-    // Authenticate user
-    const cookieStore = cookies();
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-      {
-        cookies: {
-          get(name) {
-            return cookieStore.get(name)?.value;
-          },
-        },
+    // Try Authorization header first, then cookies
+    const authHeader = request.headers.get('Authorization');
+    let user = null;
+
+    if (authHeader?.startsWith('Bearer ')) {
+      const token = authHeader.substring(7);
+      const { data, error } = await supabaseAdmin.auth.getUser(token);
+      if (!error && data.user) {
+        user = data.user;
       }
-    );
+    }
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    // Fallback to cookie-based auth if no header
+    if (!user) {
+      const cookieStore = cookies();
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+        {
+          cookies: {
+            get(name) {
+              return cookieStore.get(name)?.value;
+            },
+          },
+        }
+      );
 
-    if (authError || !user) {
+      const { data: { user: cookieUser }, error: authError } = await supabase.auth.getUser();
+      if (!authError && cookieUser) {
+        user = cookieUser;
+      }
+    }
+
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
