@@ -114,18 +114,26 @@ export async function POST(request) {
     }
 
     // Check if user is premium
-    const { data: profile } = await supabaseAdmin
+    const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
       .select('is_premium, subscription_status')
       .eq('id', user.id)
       .single();
 
+    console.log('=== PREMIUM CHECK DEBUG ===');
+    console.log('User ID:', user.id);
+    console.log('Profile:', profile);
+    console.log('Profile Error:', profileError);
+    console.log('subscription_status:', profile?.subscription_status);
+    console.log('is_premium:', profile?.is_premium);
+
     const isPremium = profile?.is_premium || profile?.subscription_status === 'active';
+    console.log('isPremium result:', isPremium);
 
     if (!isPremium) {
       return NextResponse.json({
         error: 'Premium feature',
-        message: 'Recurring quest templates are a premium feature. Upgrade to Legend tier!'
+        message: `Recurring quest templates are a premium feature. Debug: status=${profile?.subscription_status}, is_premium=${profile?.is_premium}`
       }, { status: 403 });
     }
 
