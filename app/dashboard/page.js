@@ -43,12 +43,8 @@ export default function DashboardPage() {
 
       setProfile(profileData);
 
-      // DEBUG: Check what we're getting from database
-      console.log('=== PROFILE DEBUG ===');
-      console.log('Profile data:', profileData);
-      console.log('subscription_status:', profileData?.subscription_status);
-      console.log('is_premium:', profileData?.is_premium);
-      console.log('Should show premium?', profileData?.is_premium || profileData?.subscription_status === 'active');
+      // DEBUG: Show alert with subscription status
+      alert(`DEBUG INFO:\nsubscription_status: ${profileData?.subscription_status}\nis_premium: ${profileData?.is_premium}\nShould show premium: ${profileData?.is_premium || profileData?.subscription_status === 'active'}`);
 
       const { data: questsData } = await supabase
         .from('quests')
