@@ -3,6 +3,9 @@ import Anthropic from '@anthropic-ai/sdk';
 import { createClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 
+// Force dynamic rendering to prevent caching of authenticated requests
+export const dynamic = 'force-dynamic';
+
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
@@ -59,7 +62,7 @@ export async function GET(request) {
     // Check if summary already exists for this week
     const { data: existingSummary } = await supabaseAdmin
       .from('weekly_summaries')
-      .select('subscription_status, archetype')
+      .select('*')
       .eq('user_id', user.id)
       .eq('week_start_date', weekStart.toISOString().split('T')[0])
       .single();
@@ -71,7 +74,7 @@ export async function GET(request) {
     // Get completed quests from this week
     const { data: quests } = await supabaseAdmin
       .from('quests')
-      .select('subscription_status, archetype')
+      .select('*')
       .eq('user_id', user.id)
       .eq('completed', true)
       .gte('completed_at', weekStart.toISOString())
@@ -161,7 +164,7 @@ ${questsByDifficulty.hard > 0 ? `You conquered ${questsByDifficulty.hard} hard q
     if (isPremium) {
       const { data: storyProgress } = await supabaseAdmin
         .from('story_progress')
-        .select('subscription_status, archetype')
+        .select('*')
         .eq('user_id', user.id)
         .single();
 
@@ -240,7 +243,7 @@ export async function POST(request) {
     // Get completed quests from that week
     const { data: quests } = await supabaseAdmin
       .from('quests')
-      .select('subscription_status, archetype')
+      .select('*')
       .eq('user_id', user.id)
       .eq('completed', true)
       .gte('completed_at', weekStart.toISOString())
