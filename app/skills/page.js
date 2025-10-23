@@ -86,7 +86,7 @@ export default function SkillsPage() {
       setProfile(profileData);
 
       // Check if user is premium
-      if (!profileData.is_premium && profileData.subscription_status !== 'active') {
+      if (profileData.subscription_status !== 'active') {
         router.push('/dashboard');
         return;
       }
