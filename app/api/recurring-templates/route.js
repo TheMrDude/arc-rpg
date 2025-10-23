@@ -249,23 +249,40 @@ export async function POST(request) {
 // DELETE - Delete a template
 export async function DELETE(request) {
   try {
-    // Authenticate user
-    const cookieStore = cookies();
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-      {
-        cookies: {
-          get(name) {
-            return cookieStore.get(name)?.value;
-          },
-        },
+    // Try Authorization header first, then cookies
+    const authHeader = request.headers.get('Authorization');
+    let user = null;
+
+    if (authHeader?.startsWith('Bearer ')) {
+      const token = authHeader.substring(7);
+      const { data, error } = await supabaseAdmin.auth.getUser(token);
+      if (!error && data.user) {
+        user = data.user;
       }
-    );
+    }
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    // Fallback to cookie-based auth if no header
+    if (!user) {
+      const cookieStore = cookies();
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+        {
+          cookies: {
+            get(name) {
+              return cookieStore.get(name)?.value;
+            },
+          },
+        }
+      );
 
-    if (authError || !user) {
+      const { data: { user: cookieUser }, error: authError } = await supabase.auth.getUser();
+      if (!authError && cookieUser) {
+        user = cookieUser;
+      }
+    }
+
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -292,6 +309,106 @@ export async function DELETE(request) {
 
   } catch (error) {
     console.error('Templates DELETE error:', {
+      error: error.message,
+      timestamp: new Date().toISOString(),
+    });
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+// PUT - Update a template
+export async function PUT(request) {
+  try {
+    // Try Authorization header first, then cookies
+    const authHeader = request.headers.get('Authorization');
+    let user = null;
+
+    if (authHeader?.startsWith('Bearer ')) {
+      const token = authHeader.substring(7);
+      const { data, error } = await supabaseAdmin.auth.getUser(token);
+      if (!error && data.user) {
+        user = data.user;
+      }
+    }
+
+    // Fallback to cookie-based auth if no header
+    if (!user) {
+      const cookieStore = cookies();
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+        {
+          cookies: {
+            get(name) {
+              return cookieStore.get(name)?.value;
+            },
+          },
+        }
+      );
+
+      const { data: { user: cookieUser }, error: authError } = await supabase.auth.getUser();
+      if (!authError && cookieUser) {
+        user = cookieUser;
+      }
+    }
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const { template_id, name, description, recurrence_type, recurrence_interval, is_active, tasks } = body;
+
+    if (!template_id) {
+      return NextResponse.json({ error: 'Template ID required' }, { status: 400 });
+    }
+
+    // Build update object
+    const updates = {};
+    if (name !== undefined) updates.name = name.trim();
+    if (description !== undefined) updates.description = description?.trim() || null;
+    if (recurrence_type !== undefined) updates.recurrence_type = recurrence_type;
+    if (recurrence_interval !== undefined) updates.recurrence_interval = recurrence_interval;
+    if (is_active !== undefined) updates.is_active = is_active;
+    updates.updated_at = new Date().toISOString();
+
+    // Update template
+    const { error: updateError } = await supabaseAdmin
+      .from('recurring_quest_templates')
+      .update(updates)
+      .eq('id', template_id)
+      .eq('user_id', user.id);
+
+    if (updateError) {
+      console.error('Error updating template:', updateError);
+      return NextResponse.json({ error: 'Failed to update template' }, { status: 500 });
+    }
+
+    // If tasks provided, update them
+    if (tasks) {
+      // Delete existing tasks
+      await supabaseAdmin
+        .from('template_tasks')
+        .delete()
+        .eq('template_id', template_id);
+
+      // Insert new tasks
+      const taskInserts = tasks.map((task, index) => ({
+        template_id,
+        task_text: task.task_text.trim(),
+        difficulty: task.difficulty,
+        sort_order: index,
+      }));
+
+      await supabaseAdmin
+        .from('template_tasks')
+        .insert(taskInserts);
+    }
+
+    return NextResponse.json({ success: true });
+
+  } catch (error) {
+    console.error('Templates PUT error:', {
       error: error.message,
       timestamp: new Date().toISOString(),
     });
