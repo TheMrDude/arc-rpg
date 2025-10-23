@@ -112,6 +112,14 @@ export default function TemplatesPage() {
     }
 
     try {
+      // Get auth token from Supabase session
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        alert('Please log in again');
+        router.push('/login');
+        return;
+      }
+
       // Convert tasks to match API format
       const formattedTasks = validTasks.map(t => ({
         task_text: t.text,
@@ -126,11 +134,16 @@ export default function TemplatesPage() {
         tasks: formattedTasks,
       };
 
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`
+      };
+
       if (editingTemplate) {
         // Update existing template
         const response = await fetch('/api/recurring-templates', {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          headers,
           body: JSON.stringify({ ...body, template_id: editingTemplate.id }),
         });
 
@@ -139,7 +152,7 @@ export default function TemplatesPage() {
         // Create new template
         const response = await fetch('/api/recurring-templates', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers,
           body: JSON.stringify(body),
         });
 
