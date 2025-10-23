@@ -43,9 +43,6 @@ export default function DashboardPage() {
 
       setProfile(profileData);
 
-      // DEBUG: Show alert with subscription status
-      alert(`DEBUG INFO:\nsubscription_status: ${profileData?.subscription_status}\nis_premium: ${profileData?.is_premium}\nShould show premium: ${profileData?.is_premium || profileData?.subscription_status === 'active'}`);
-
       const { data: questsData } = await supabase
         .from('quests')
         .select('*')
@@ -158,6 +155,9 @@ export default function DashboardPage() {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
+            <div className="bg-red-500 text-white p-4 mb-4 rounded">
+              DEBUG: subscription_status = "{profile?.subscription_status}" | is_premium = "{profile?.is_premium}" | Should show premium = {String(profile?.is_premium || profile?.subscription_status === 'active')}
+            </div>
             <div className="flex items-center gap-3">
               <h1 className="text-4xl font-bold">{profile?.archetype?.toUpperCase()} - Level {profile?.level}</h1>
               {(profile?.is_premium || profile?.subscription_status === 'active') && (
