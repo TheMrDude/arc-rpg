@@ -40,7 +40,7 @@ export default function EquipmentPage() {
         return;
       }
 
-      loadEquipment();
+      loadEquipment(user);
     } catch (error) {
       console.error('Error loading data:', error);
     } finally {
@@ -48,8 +48,12 @@ export default function EquipmentPage() {
     }
   }
 
-  async function loadEquipment() {
+  async function loadEquipment(userData) {
     try {
+      // Use passed user data or state
+      const userId = userData?.id || user?.id;
+      if (!userId) return;
+
       // Load equipment catalog
       const { data: catalog } = await supabase
         .from('equipment_catalog')
@@ -62,7 +66,7 @@ export default function EquipmentPage() {
       const { data: userEquip } = await supabase
         .from('user_equipment')
         .select('*, equipment:equipment_catalog(*)')
-        .eq('user_id', user.id);
+        .eq('user_id', userId);
 
       setUserEquipment(userEquip || []);
     } catch (error) {
