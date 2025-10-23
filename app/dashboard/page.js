@@ -157,7 +157,7 @@ export default function DashboardPage() {
           <div>
             <div className="flex items-center gap-3">
               <h1 className="text-4xl font-bold">{profile?.archetype?.toUpperCase()} - Level {profile?.level}</h1>
-              {(profile?.is_premium || profile?.subscription_status === 'active') && (
+              {(profile?.subscription_status === 'active') && (
                 <span className="px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-black rounded-lg font-bold text-sm">
                   ⭐ PREMIUM
                 </span>
@@ -170,7 +170,7 @@ export default function DashboardPage() {
           </div>
           <div className="flex gap-4">
             <button onClick={() => router.push('/history')} className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg">History</button>
-            {!(profile?.is_premium || profile?.subscription_status === 'active') && (
+            {!(profile?.subscription_status === 'active') && (
               <button onClick={() => router.push('/pricing')} className="px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black rounded-lg font-bold">
                 Upgrade to Premium
               </button>
@@ -206,7 +206,7 @@ export default function DashboardPage() {
         )}
 
         {/* Premium Features Navigation */}
-        {(profile?.is_premium || profile?.subscription_status === 'active') ? (
+        {(profile?.subscription_status === 'active') ? (
           <div className="grid md:grid-cols-3 gap-4 mb-8">
             <button
               onClick={() => router.push('/templates')}
