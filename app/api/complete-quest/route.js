@@ -19,25 +19,15 @@ const GOLD_REWARDS = {
 
 export async function POST(request) {
   try {
-    // FORCE RECOMPILE - Modified at Fri Oct 24 15:40
-    console.log('===== COMPLETE QUEST API CALLED v3 - NEW CODE =====');
-
-    // SECURITY: Authenticate using shared function (supports Bearer + Cookie)
+    // SECURITY: Authenticate using hybrid auth (supports Bearer tokens + Cookies)
     const { user, error: authError } = await authenticateRequest(request);
 
     if (authError || !user) {
-      console.error('Quest completion: Authentication failed', {
-        error: authError,
-        timestamp: new Date().toISOString(),
-      });
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    console.log('✅ User authenticated:', user.id);
-
     // SECURITY: Validate input
     const { quest_id } = await request.json();
-    console.log('Quest ID received:', quest_id, 'Type:', typeof quest_id);
 
     if (!quest_id || typeof quest_id !== 'string') {
       return NextResponse.json({ error: 'Invalid quest ID' }, { status: 400 });
