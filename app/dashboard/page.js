@@ -108,11 +108,15 @@ export default function DashboardPage() {
 
   async function completeQuest(questId, xpValue) {
     try {
+      // Get session token for auth
+      const { data: { session } } = await supabase.auth.getSession();
+
       // SECURITY: Use server-side API for quest completion
       const response = await fetch('/api/complete-quest', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
         },
         body: JSON.stringify({ quest_id: questId }),
       });
@@ -181,7 +185,11 @@ export default function DashboardPage() {
                 </span>
               )}
             </div>
-            <p className="text-gray-300">XP: {profile?.xp} / {(profile?.level || 0) * 100} | Streak: {profile?.current_streak} days</p>
+            <div className="flex items-center gap-4 mt-1">
+              <p className="text-gray-300">XP: {profile?.xp} / {(profile?.level || 0) * 100}</p>
+              <p className="text-gray-300">Streak: {profile?.current_streak} days</p>
+              <p className="text-yellow-400 font-semibold">💰 {profile?.gold || 0} Gold</p>
+            </div>
             {profile?.skill_points > 0 && (
               <p className="text-yellow-400 font-semibold mt-1">💎 {profile.skill_points} Skill Points Available!</p>
             )}

@@ -1,33 +1,36 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
-import { cookies } from 'next/headers';
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-// Use service role key for admin operations
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
+const supabaseAnon = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
+
 export async function POST(request) {
   try {
-    // SECURE: Get authenticated user from session cookies
-    const cookieStore = cookies();
-    const supabaseAuth = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-      {
-        cookies: {
-          get(name) {
-            return cookieStore.get(name)?.value;
-          },
-        },
-      }
-    );
+    // SECURITY: Authenticate via Bearer token
+    const authHeader = request.headers.get('Authorization');
 
-    const { data: { user }, error: authError } = await supabaseAuth.auth.getUser();
+    if (!authHeader?.startsWith('Bearer ')) {
+      console.error('Create checkout: No bearer token', {
+        timestamp: new Date().toISOString(),
+      });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const token = authHeader.substring(7);
+    const { data: { user }, error: authError } = await supabaseAnon.auth.getUser(token);
 
     if (authError || !user) {
       console.error('Create checkout: Unauthorized access attempt', {
