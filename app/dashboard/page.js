@@ -15,6 +15,7 @@ export default function DashboardPage() {
   const [newQuestText, setNewQuestText] = useState('');
   const [newQuestDifficulty, setNewQuestDifficulty] = useState('medium');
   const [adding, setAdding] = useState(false);
+  const [generating, setGenerating] = useState(false);
 
   useEffect(() => {
     loadUserData();
@@ -154,6 +155,46 @@ export default function DashboardPage() {
     }
   }
 
+  async function generateQuestsFromTemplates() {
+    if (generating) return;
+
+    setGenerating(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        alert('Please log in again');
+        router.push('/login');
+        return;
+      }
+
+      const response = await fetch('/api/generate-from-templates', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.message || 'Failed to generate quests');
+        return;
+      }
+
+      if (data.questsCreated === 0) {
+        alert('No new quests to generate. Templates may have already generated quests recently based on their schedule.');
+      } else {
+        alert(`Successfully generated ${data.questsCreated} quests!`);
+        loadUserData(); // Reload to show new quests
+      }
+    } catch (error) {
+      console.error('Error generating quests:', error);
+      alert('Failed to generate quests');
+    } finally {
+      setGenerating(false);
+    }
+  }
+
   async function handleLogout() {
     await supabase.auth.signOut();
     router.push('/');
@@ -241,32 +282,43 @@ export default function DashboardPage() {
 
         {/* Premium Features Navigation */}
         {(profile?.subscription_status === 'active') ? (
-          <div className="grid md:grid-cols-3 gap-4 mb-8">
-            <button
-              onClick={() => router.push('/templates')}
-              className="bg-gradient-to-br from-blue-600 to-blue-800 border-2 border-blue-500 rounded-xl p-6 text-left hover:scale-105 transition-transform"
-            >
-              <div className="text-4xl mb-3">🔄</div>
-              <h3 className="text-xl font-bold mb-2">Quest Templates</h3>
-              <p className="text-sm text-gray-200">Auto-generate recurring quests daily, weekly, or custom schedules</p>
-            </button>
-            <button
-              onClick={() => router.push('/equipment')}
-              className="bg-gradient-to-br from-purple-600 to-purple-800 border-2 border-purple-500 rounded-xl p-6 text-left hover:scale-105 transition-transform"
-            >
-              <div className="text-4xl mb-3">⚔️</div>
-              <h3 className="text-xl font-bold mb-2">Equipment Shop</h3>
-              <p className="text-sm text-gray-200">Unlock weapons, armor, and accessories to boost XP gains</p>
-            </button>
-            <button
-              onClick={() => router.push('/skills')}
-              className="bg-gradient-to-br from-green-600 to-green-800 border-2 border-green-500 rounded-xl p-6 text-left hover:scale-105 transition-transform"
-            >
-              <div className="text-4xl mb-3">🌳</div>
-              <h3 className="text-xl font-bold mb-2">Skill Trees</h3>
-              <p className="text-sm text-gray-200">Unlock powerful abilities with skill points earned from leveling</p>
-            </button>
-          </div>
+          <>
+            <div className="grid md:grid-cols-3 gap-4 mb-4">
+              <button
+                onClick={() => router.push('/templates')}
+                className="bg-gradient-to-br from-blue-600 to-blue-800 border-2 border-blue-500 rounded-xl p-6 text-left hover:scale-105 transition-transform"
+              >
+                <div className="text-4xl mb-3">🔄</div>
+                <h3 className="text-xl font-bold mb-2">Quest Templates</h3>
+                <p className="text-sm text-gray-200">Auto-generate recurring quests daily, weekly, or custom schedules</p>
+              </button>
+              <button
+                onClick={() => router.push('/equipment')}
+                className="bg-gradient-to-br from-purple-600 to-purple-800 border-2 border-purple-500 rounded-xl p-6 text-left hover:scale-105 transition-transform"
+              >
+                <div className="text-4xl mb-3">⚔️</div>
+                <h3 className="text-xl font-bold mb-2">Equipment Shop</h3>
+                <p className="text-sm text-gray-200">Unlock weapons, armor, and accessories to boost XP gains</p>
+              </button>
+              <button
+                onClick={() => router.push('/skills')}
+                className="bg-gradient-to-br from-green-600 to-green-800 border-2 border-green-500 rounded-xl p-6 text-left hover:scale-105 transition-transform"
+              >
+                <div className="text-4xl mb-3">🌳</div>
+                <h3 className="text-xl font-bold mb-2">Skill Trees</h3>
+                <p className="text-sm text-gray-200">Unlock powerful abilities with skill points earned from leveling</p>
+              </button>
+            </div>
+            <div className="mb-8">
+              <button
+                onClick={generateQuestsFromTemplates}
+                disabled={generating}
+                className="w-full px-6 py-4 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-lg font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {generating ? 'Generating Quests...' : '✨ Generate Quests from Templates Now'}
+              </button>
+            </div>
+          </>
         ) : (
           <div className="bg-gradient-to-br from-yellow-600/20 to-orange-600/20 border-2 border-yellow-500 rounded-xl p-8 mb-8">
             <div className="text-center">
