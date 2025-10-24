@@ -135,20 +135,9 @@ export default function DashboardPage() {
   }
 
   async function completeQuest(questId, xpValue) {
-    console.log('===== COMPLETE QUEST CALLED =====');
-    console.log('Quest ID:', questId, 'Type:', typeof questId);
-    console.log('XP Value:', xpValue);
-
     try {
       // Get session token for auth
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-
-      console.log('Session check:', {
-        hasSession: !!session,
-        hasAccessToken: !!session?.access_token,
-        tokenLength: session?.access_token?.length,
-        error: sessionError
-      });
 
       if (sessionError || !session || !session.access_token) {
         console.error('Session error:', sessionError);
@@ -156,8 +145,6 @@ export default function DashboardPage() {
         router.push('/login');
         return;
       }
-
-      console.log('Making API request to /api/complete-quest');
 
       // SECURITY: Use server-side API for quest completion
       const response = await fetch('/api/complete-quest', {
@@ -169,10 +156,7 @@ export default function DashboardPage() {
         body: JSON.stringify({ quest_id: questId }),
       });
 
-      console.log('API Response status:', response.status, response.statusText);
-
       const data = await response.json();
-      console.log('API Response data:', data);
 
       if (!response.ok) {
         console.error('Failed to complete quest:', data.error);
