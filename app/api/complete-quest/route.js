@@ -19,7 +19,8 @@ const GOLD_REWARDS = {
 
 export async function POST(request) {
   try {
-    console.log('===== COMPLETE QUEST API CALLED v2 =====');
+    // FORCE RECOMPILE - Modified at Fri Oct 24 15:40
+    console.log('===== COMPLETE QUEST API CALLED v3 - NEW CODE =====');
 
     // SECURITY: Authenticate using shared function (supports Bearer + Cookie)
     const { user, error: authError } = await authenticateRequest(request);
