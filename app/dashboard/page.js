@@ -65,9 +65,15 @@ export default function DashboardPage() {
       const xpValues = { easy: 10, medium: 25, hard: 50 };
       const xp = xpValues[newQuestDifficulty];
 
+      // Get session token for auth
+      const { data: { session } } = await supabase.auth.getSession();
+
       const response = await fetch('/api/transform-quest', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
         body: JSON.stringify({
           questText: newQuestText,
           archetype: profile.archetype,

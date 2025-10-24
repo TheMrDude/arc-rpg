@@ -1,29 +1,38 @@
 import { NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { createClient } from '@supabase/supabase-js';
-import { cookies } from 'next/headers';
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
 
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
+
+const supabaseAnon = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
+
 export async function POST(request) {
   try {
-    // SECURE: Verify user is authenticated
-    const cookieStore = cookies();
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-      {
-        cookies: {
-          get(name) {
-            return cookieStore.get(name)?.value;
-          },
-        },
-      }
-    );
+    // SECURE: Authenticate via Bearer token
+    const authHeader = request.headers.get('Authorization');
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (!authHeader?.startsWith('Bearer ')) {
+      console.error('Transform quest: No bearer token', {
+        timestamp: new Date().toISOString(),
+      });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const token = authHeader.substring(7);
+    const { data: { user }, error: authError } = await supabaseAnon.auth.getUser(token);
 
     if (authError || !user) {
       console.error('Transform quest: Unauthorized access attempt', {
@@ -64,7 +73,7 @@ export async function POST(request) {
       .trim();
 
     // Load user profile and story progress for premium users
-    const { data: profile } = await supabase
+    const { data: profile } = await supabaseAdmin
       .from('profiles')
       .select('subscription_status, story:story_progress(*)')
       .eq('id', user.id)
@@ -118,11 +127,6 @@ Quest:`;
 
     // Save story beat for premium users
     if (isPremium) {
-      const supabaseAdmin = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL,
-        process.env.SUPABASE_SERVICE_ROLE_KEY
-      );
-
       // Get or create story progress
       let { data: storyProgress } = await supabaseAdmin
         .from('story_progress')
