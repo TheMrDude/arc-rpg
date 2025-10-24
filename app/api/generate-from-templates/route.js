@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { cookies } from 'next/headers';
 import Anthropic from '@anthropic-ai/sdk';
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -12,24 +14,23 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
+const supabaseAnon = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
+
 // POST - Generate quests from active templates
 export async function POST(request) {
   try {
-    // Authenticate user
-    const cookieStore = cookies();
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-      {
-        cookies: {
-          get(name) {
-            return cookieStore.get(name)?.value;
-          },
-        },
-      }
-    );
+    // SECURITY: Authenticate via Bearer token
+    const authHeader = request.headers.get('Authorization');
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (!authHeader?.startsWith('Bearer ')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const token = authHeader.substring(7);
+    const { data: { user }, error: authError } = await supabaseAnon.auth.getUser(token);
 
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
