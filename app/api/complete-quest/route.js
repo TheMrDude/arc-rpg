@@ -23,29 +23,39 @@ const GOLD_REWARDS = {
 
 export async function POST(request) {
   try {
+    console.log('===== COMPLETE QUEST API CALLED =====');
+
     // SECURITY: Authenticate via Bearer token
     const authHeader = request.headers.get('Authorization');
+    console.log('Auth header present:', !!authHeader);
 
     if (!authHeader?.startsWith('Bearer ')) {
       console.error('Quest completion: No bearer token', {
+        authHeader: authHeader?.substring(0, 20),
         timestamp: new Date().toISOString(),
       });
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized - No Bearer token' }, { status: 401 });
     }
 
     const token = authHeader.substring(7);
+    console.log('Token length:', token.length);
+
     const { data: { user }, error: authError } = await supabaseAnon.auth.getUser(token);
 
     if (authError || !user) {
       console.error('Quest completion: Unauthorized', {
         error: authError?.message,
+        hasUser: !!user,
         timestamp: new Date().toISOString(),
       });
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: `Unauthorized - ${authError?.message || 'No user'}` }, { status: 401 });
     }
+
+    console.log('✅ User authenticated:', user.id);
 
     // SECURITY: Validate input
     const { quest_id } = await request.json();
+    console.log('Quest ID received:', quest_id, 'Type:', typeof quest_id);
 
     if (!quest_id || typeof quest_id !== 'string') {
       return NextResponse.json({ error: 'Invalid quest ID' }, { status: 400 });
