@@ -234,10 +234,13 @@ export default function TemplatesPage() {
 
     setGenerating(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        alert('Please log in again');
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+      if (sessionError || !session || !session.access_token) {
+        console.error('Session error:', sessionError);
+        alert('Session expired. Please log in again.');
         router.push('/login');
+        setGenerating(false);
         return;
       }
 
@@ -251,7 +254,9 @@ export default function TemplatesPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        alert(data.message || 'Failed to generate quests');
+        console.error('Generate from templates error:', data);
+        alert(data.message || data.error || 'Failed to generate quests');
+        setGenerating(false);
         return;
       }
 
@@ -262,7 +267,7 @@ export default function TemplatesPage() {
       }
     } catch (error) {
       console.error('Error generating quests:', error);
-      alert('Failed to generate quests');
+      alert(`Failed to generate quests: ${error.message || 'Unknown error'}`);
     } finally {
       setGenerating(false);
     }
