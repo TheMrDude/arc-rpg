@@ -12,6 +12,7 @@ export default function TemplatesPage() {
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState(null);
+  const [generating, setGenerating] = useState(false);
 
   // Form state
   const [templateName, setTemplateName] = useState('');
@@ -228,6 +229,45 @@ export default function TemplatesPage() {
     }
   }
 
+  async function generateQuestsNow() {
+    if (generating) return;
+
+    setGenerating(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        alert('Please log in again');
+        router.push('/login');
+        return;
+      }
+
+      const response = await fetch('/api/generate-from-templates', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.message || 'Failed to generate quests');
+        return;
+      }
+
+      if (data.questsCreated === 0) {
+        alert('No new quests to generate. Templates may have already generated quests recently based on their schedule.');
+      } else {
+        alert(`Successfully generated ${data.questsCreated} quests! Check your dashboard to complete them.`);
+      }
+    } catch (error) {
+      console.error('Error generating quests:', error);
+      alert('Failed to generate quests');
+    } finally {
+      setGenerating(false);
+    }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
@@ -248,6 +288,13 @@ export default function TemplatesPage() {
           <div className="flex gap-4">
             <button onClick={() => router.push('/dashboard')} className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg">
               Back to Dashboard
+            </button>
+            <button
+              onClick={generateQuestsNow}
+              disabled={generating || templates.length === 0}
+              className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {generating ? 'Generating...' : 'Generate Quests Now'}
             </button>
             <button onClick={openCreateModal} className="px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black rounded-lg font-semibold">
               Create Template
