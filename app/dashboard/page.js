@@ -195,7 +195,15 @@ export default function DashboardPage() {
         {creature && (
           <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-4 mb-8">
             <div className="flex items-center gap-4">
-              <span className="text-4xl">{creature.emoji}</span>
+              {creature.image ? (
+                <img
+                  src={creature.image}
+                  alt={creature.name}
+                  className="w-16 h-16 object-contain rounded-lg"
+                />
+              ) : (
+                <span className="text-4xl">{creature.emoji}</span>
+              )}
               <div>
                 <h3 className="font-bold">{creature.name}</h3>
                 <p className="text-sm text-gray-400">{creature.description}</p>
