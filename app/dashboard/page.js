@@ -67,7 +67,15 @@ export default function DashboardPage() {
       const xp = xpValues[newQuestDifficulty];
 
       // Get session token for auth
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+      if (sessionError || !session || !session.access_token) {
+        console.error('Session error:', sessionError);
+        alert('Session expired. Please log in again.');
+        router.push('/login');
+        setAdding(false);
+        return;
+      }
 
       const response = await fetch('/api/transform-quest', {
         method: 'POST',
@@ -84,6 +92,20 @@ export default function DashboardPage() {
 
       const data = await response.json();
 
+      if (!response.ok) {
+        console.error('Transform quest API error:', data);
+        alert(`Failed to transform quest: ${data.error || 'Unknown error'}`);
+        setAdding(false);
+        return;
+      }
+
+      if (!data.transformedText) {
+        console.error('No transformed text in response:', data);
+        alert('Failed to transform quest: No transformed text returned');
+        setAdding(false);
+        return;
+      }
+
       const { error } = await supabase
         .from('quests')
         .insert({
@@ -95,13 +117,18 @@ export default function DashboardPage() {
           completed: false,
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Database insert error:', error);
+        alert(`Failed to save quest: ${error.message}`);
+        setAdding(false);
+        return;
+      }
 
       setNewQuestText('');
       loadUserData();
     } catch (error) {
       console.error('Error adding quest:', error);
-      alert('Failed to add quest');
+      alert(`Failed to add quest: ${error.message || 'Unknown error'}`);
     } finally {
       setAdding(false);
     }
@@ -110,7 +137,14 @@ export default function DashboardPage() {
   async function completeQuest(questId, xpValue) {
     try {
       // Get session token for auth
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+      if (sessionError || !session || !session.access_token) {
+        console.error('Session error:', sessionError);
+        alert('Session expired. Please log in again.');
+        router.push('/login');
+        return;
+      }
 
       // SECURITY: Use server-side API for quest completion
       const response = await fetch('/api/complete-quest', {
@@ -160,10 +194,13 @@ export default function DashboardPage() {
 
     setGenerating(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        alert('Please log in again');
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+      if (sessionError || !session || !session.access_token) {
+        console.error('Session error:', sessionError);
+        alert('Session expired. Please log in again.');
         router.push('/login');
+        setGenerating(false);
         return;
       }
 
@@ -177,7 +214,9 @@ export default function DashboardPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        alert(data.message || 'Failed to generate quests');
+        console.error('Generate from templates error:', data);
+        alert(data.message || data.error || 'Failed to generate quests');
+        setGenerating(false);
         return;
       }
 
@@ -189,7 +228,7 @@ export default function DashboardPage() {
       }
     } catch (error) {
       console.error('Error generating quests:', error);
-      alert('Failed to generate quests');
+      alert(`Failed to generate quests: ${error.message || 'Unknown error'}`);
     } finally {
       setGenerating(false);
     }
