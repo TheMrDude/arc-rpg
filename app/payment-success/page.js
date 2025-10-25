@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 
-export default function PaymentSuccessPage() {
+function PaymentSuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const sessionId = searchParams.get('session_id');
@@ -14,7 +14,7 @@ export default function PaymentSuccessPage() {
 
   useEffect(() => {
     let pollCount = 0;
-    const maxPolls = 10; // Poll for up to 20 seconds (10 * 2 seconds)
+    const maxPolls = 10;
 
     async function verifyPayment() {
       if (!sessionId) {
@@ -32,7 +32,6 @@ export default function PaymentSuccessPage() {
           return;
         }
 
-        // SECURE: Check if user is premium (set by webhook, not by client)
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('is_premium, stripe_session_id, premium_since')
@@ -46,28 +45,22 @@ export default function PaymentSuccessPage() {
           return;
         }
 
-        // Check if user is premium with matching session ID
         if (profile.is_premium && profile.stripe_session_id === sessionId) {
           setStatus('success');
           setMessage('🎉 Welcome, Founder! You now have lifetime access.');
         } else if (profile.is_premium) {
-          // Already premium but different session (edge case)
           setStatus('success');
           setMessage('🎉 You already have Founder access!');
         } else {
-          // Not premium yet - webhook might not have processed
           pollCount++;
 
           if (pollCount < maxPolls) {
             setStatus('verifying');
             setMessage('Payment received! Processing your upgrade... (' + pollCount + '/' + maxPolls + ')');
-
-            // Poll again after 2 seconds
             setTimeout(() => {
               verifyPayment();
             }, 2000);
           } else {
-            // Webhook still hasn't processed after 20 seconds
             setStatus('error');
             setMessage('Payment processing is taking longer than expected. Your upgrade will be activated shortly. If you don\'t see it in 5 minutes, contact support with session ID: ' + sessionId);
           }
@@ -132,5 +125,17 @@ export default function PaymentSuccessPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function PaymentSuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 text-white flex items-center justify-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-yellow-500"></div>
+      </div>
+    }>
+      <PaymentSuccessContent />
+    </Suspense>
   );
 }
