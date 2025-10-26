@@ -90,17 +90,37 @@ export default function SelectArchetypePage() {
 
     setSaving(true);
     try {
+      // Use UPSERT to handle both insert and update cases
+      // This works even if profile row doesn't exist yet
       const { error } = await supabase
         .from('profiles')
-        .update({ archetype: selectedArchetype })
-        .eq('id', user.id);
+        .upsert(
+          {
+            id: user.id,
+            archetype: selectedArchetype
+          },
+          {
+            onConflict: 'id',
+            ignoreDuplicates: false
+          }
+        );
 
-      if (error) throw error;
+      if (error) {
+        // If table doesn't exist, redirect to setup page
+        if (error.message.includes('does not exist') || error.code === '42P01') {
+          console.log('Tables not found, redirecting to setup...');
+          alert('Database setup required. You will be redirected to the setup page.');
+          router.push('/setup');
+          return;
+        }
+
+        throw error;
+      }
 
       router.push('/dashboard');
     } catch (error) {
       console.error('Error selecting archetype:', error);
-      alert('Failed to select archetype. Please try again.');
+      alert(`Failed to select archetype: ${error.message}\n\nPlease try again or contact support.`);
     } finally {
       setSaving(false);
     }
