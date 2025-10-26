@@ -254,31 +254,48 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 text-white p-8">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-4xl font-bold">{profile?.archetype?.toUpperCase()} - Level {profile?.level}</h1>
-              {(profile?.subscription_status === 'active') && (
-                <span className="px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-black rounded-lg font-bold text-sm">
-                  ⭐ PREMIUM
-                </span>
+        {/* Header with Character */}
+        <div className="flex justify-between items-start mb-8">
+          {/* Left side: Character Image + Stats */}
+          <div className="flex gap-6 items-center">
+            {/* Archetype Character Image */}
+            {profile?.archetype && (
+              <div className="flex-shrink-0">
+                <img
+                  src={`/images/archetypes/${profile.archetype}.png`}
+                  alt={profile.archetype}
+                  className="w-32 h-32 object-cover rounded-xl border-4 border-yellow-500 shadow-lg"
+                />
+              </div>
+            )}
+
+            {/* Stats */}
+            <div>
+              <div className="flex items-center gap-3">
+                <h1 className="text-4xl font-bold">{profile?.archetype?.toUpperCase()} - Level {profile?.level}</h1>
+                {(profile?.subscription_status === 'active') && (
+                  <span className="px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-black rounded-lg font-bold text-sm">
+                    ⭐ PREMIUM
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-4 mt-1">
+                <p className="text-gray-300">XP: {profile?.xp} / {(profile?.level || 0) * 100}</p>
+                <p className="text-gray-300">Streak: {profile?.current_streak} days</p>
+                <p className="text-yellow-400 font-semibold">💰 {profile?.gold || 0} Gold</p>
+              </div>
+              {profile?.skill_points > 0 && (
+                <p className="text-yellow-400 font-semibold mt-1">💎 {profile.skill_points} Skill Points Available!</p>
               )}
             </div>
-            <div className="flex items-center gap-4 mt-1">
-              <p className="text-gray-300">XP: {profile?.xp} / {(profile?.level || 0) * 100}</p>
-              <p className="text-gray-300">Streak: {profile?.current_streak} days</p>
-              <p className="text-yellow-400 font-semibold">💰 {profile?.gold || 0} Gold</p>
-            </div>
-            {profile?.skill_points > 0 && (
-              <p className="text-yellow-400 font-semibold mt-1">💎 {profile.skill_points} Skill Points Available!</p>
-            )}
           </div>
+
+          {/* Right side: Buttons */}
           <div className="flex gap-4">
             <button onClick={() => router.push('/history')} className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg">History</button>
             {!(profile?.subscription_status === 'active') && (
               <button onClick={() => router.push('/pricing')} className="px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black rounded-lg font-bold">
-                Upgrade to Premium
+                🔥 Lifetime Access - $47
               </button>
             )}
             <button onClick={handleLogout} className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg">Logout</button>
@@ -358,37 +375,7 @@ export default function DashboardPage() {
               </button>
             </div>
           </>
-        ) : (
-          <div className="bg-gradient-to-br from-yellow-600/20 to-orange-600/20 border-2 border-yellow-500 rounded-xl p-8 mb-8">
-            <div className="text-center">
-              <h3 className="text-3xl font-bold mb-4">Unlock Premium Features</h3>
-              <p className="text-gray-200 mb-6">Get access to recurring quest templates, equipment system, skill trees, AI Dungeon Master narration, and more!</p>
-              <div className="grid md:grid-cols-3 gap-4 mb-6">
-                <div className="bg-gray-800/50 p-4 rounded-lg">
-                  <div className="text-3xl mb-2">🔄</div>
-                  <div className="font-bold">Quest Templates</div>
-                  <div className="text-sm text-gray-400">Automate daily tasks</div>
-                </div>
-                <div className="bg-gray-800/50 p-4 rounded-lg">
-                  <div className="text-3xl mb-2">⚔️</div>
-                  <div className="font-bold">Equipment Shop</div>
-                  <div className="text-sm text-gray-400">Boost XP gains</div>
-                </div>
-                <div className="bg-gray-800/50 p-4 rounded-lg">
-                  <div className="text-3xl mb-2">🌳</div>
-                  <div className="font-bold">Skill Trees</div>
-                  <div className="text-sm text-gray-400">Unlock abilities</div>
-                </div>
-              </div>
-              <button
-                onClick={() => router.push('/pricing')}
-                className="px-8 py-4 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black rounded-lg font-bold text-lg"
-              >
-                Upgrade to Premium - $15/month
-              </button>
-            </div>
-          </div>
-        )}
+        ) : null}
 
         {/* Skills */}
         {unlockedSkills.length > 0 && (
@@ -434,6 +421,39 @@ export default function DashboardPage() {
             </button>
           </div>
         </div>
+
+        {/* Unlock Premium Section (for non-premium users) */}
+        {!(profile?.subscription_status === 'active') && (
+          <div className="bg-gradient-to-br from-yellow-600/20 to-orange-600/20 border-2 border-yellow-500 rounded-xl p-8 mb-8">
+            <div className="text-center">
+              <h3 className="text-3xl font-bold mb-4">🔥 Limited-Time Founder's Deal</h3>
+              <p className="text-gray-200 mb-6">Get LIFETIME access to all premium features for a one-time payment!</p>
+              <div className="grid md:grid-cols-3 gap-4 mb-6">
+                <div className="bg-gray-800/50 p-4 rounded-lg">
+                  <div className="text-3xl mb-2">🔄</div>
+                  <div className="font-bold">Quest Templates</div>
+                  <div className="text-sm text-gray-400">Automate daily tasks</div>
+                </div>
+                <div className="bg-gray-800/50 p-4 rounded-lg">
+                  <div className="text-3xl mb-2">⚔️</div>
+                  <div className="font-bold">Equipment Shop</div>
+                  <div className="text-sm text-gray-400">Boost XP gains</div>
+                </div>
+                <div className="bg-gray-800/50 p-4 rounded-lg">
+                  <div className="text-3xl mb-2">🌳</div>
+                  <div className="font-bold">Skill Trees</div>
+                  <div className="text-sm text-gray-400">Unlock abilities</div>
+                </div>
+              </div>
+              <button
+                onClick={() => router.push('/pricing')}
+                className="px-8 py-4 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black rounded-lg font-bold text-lg"
+              >
+                🔥 Get Lifetime Access - $47 (Limited Spots!)
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Active Quests */}
         <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6">
