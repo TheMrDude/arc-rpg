@@ -95,10 +95,18 @@ export default function PricingPage() {
           ← Back to Dashboard
         </button>
 
-        <h1 className="text-5xl font-bold text-center mb-4">Choose Your Path</h1>
-        <p className="text-center text-gray-300 mb-12 text-lg">
-          Start free forever. Or grab lifetime access while spots last.
-        </p>
+        <div className="text-center mb-12">
+          <h1 className="text-5xl font-bold mb-4">🔥 Founder's Sale 🔥</h1>
+          <p className="text-gray-300 text-lg mb-2">
+            Start free forever. Or grab <span className="text-yellow-400 font-bold">LIFETIME access</span> for a one-time payment.
+          </p>
+          <p className="text-red-400 font-bold text-xl">
+            Only {lifetimeSpotsLeft} of 25 spots remaining!
+          </p>
+          <p className="text-gray-400 text-sm mt-2">
+            After 25 founders join, this deal disappears forever.
+          </p>
+        </div>
 
         {profile?.is_premium && (
           <div className="bg-green-600/20 border border-green-500 rounded-lg p-4 mb-8 text-center">
@@ -184,12 +192,13 @@ export default function PricingPage() {
               {lifetimeSpotsLeft > 0 ? `${lifetimeSpotsLeft}/25 LEFT` : 'SOLD OUT'}
             </div>
 
-            <h2 className="text-3xl font-bold mb-2">Founder Access</h2>
+            <h2 className="text-3xl font-bold mb-2">⚡ Founder Access</h2>
             <p className="text-gray-300 mb-6">Lifetime. No subscriptions. Ever.</p>
             <div className="text-4xl font-bold mb-2">
               $47<span className="text-xl text-gray-400"> one-time</span>
             </div>
-            <p className="text-sm text-gray-400 mb-6">Limited to first 25 people only</p>
+            <p className="text-sm text-red-400 font-bold mb-2">⚠️ Limited to first 25 people only</p>
+            <p className="text-xs text-gray-400 mb-6">Regular price will be $15/month after launch</p>
             
             <ul className="space-y-4 mb-8">
               <li className="flex items-start">
