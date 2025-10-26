@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { getUnlockedSkills } from '@/lib/skills';
 import { checkBossEncounter, calculateStreak, checkComebackBonus, getCreatureCompanion } from '@/lib/encounters';
+import OnboardingTutorial from '@/app/components/OnboardingTutorial';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -16,6 +17,7 @@ export default function DashboardPage() {
   const [newQuestDifficulty, setNewQuestDifficulty] = useState('medium');
   const [adding, setAdding] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
     loadUserData();
@@ -51,10 +53,114 @@ export default function DashboardPage() {
         .order('created_at', { ascending: false });
 
       setQuests(questsData || []);
+
+      // Check if user should see onboarding
+      const hasSeenOnboarding = localStorage.getItem(`onboarding_${user.id}`);
+      const demoQuestsCreated = localStorage.getItem(`demo_quests_${user.id}`);
+
+      if (!hasSeenOnboarding && questsData && questsData.length === 0) {
+        // New user with no quests - show onboarding
+        setShowOnboarding(true);
+      }
+
+      // Create demo quests for new users
+      if (!demoQuestsCreated && questsData && questsData.length === 0) {
+        // Delay demo quest creation slightly to let page load
+        setTimeout(() => {
+          createDemoQuests();
+        }, 1000);
+      }
     } catch (error) {
       console.error('Error loading data:', error);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleOnboardingComplete() {
+    if (user) {
+      localStorage.setItem(`onboarding_${user.id}`, 'completed');
+    }
+    setShowOnboarding(false);
+  }
+
+  async function handleOnboardingSkip() {
+    if (user) {
+      localStorage.setItem(`onboarding_${user.id}`, 'skipped');
+    }
+    setShowOnboarding(false);
+  }
+
+  async function createDemoQuests() {
+    if (!user || !profile) return;
+
+    // Check if demo quests already created
+    const demoCreated = localStorage.getItem(`demo_quests_${user.id}`);
+    if (demoCreated) return;
+
+    const demoQuests = [
+      {
+        original_text: 'Make your bed',
+        difficulty: 'easy',
+        xp_value: 10
+      },
+      {
+        original_text: 'Exercise for 30 minutes',
+        difficulty: 'medium',
+        xp_value: 25
+      },
+      {
+        original_text: 'Complete an important project task',
+        difficulty: 'hard',
+        xp_value: 50
+      }
+    ];
+
+    try {
+      // Get session for API call
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      // Transform and insert each quest
+      for (const quest of demoQuests) {
+        // Transform the quest
+        const response = await fetch('/api/transform-quest', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`
+          },
+          body: JSON.stringify({
+            questText: quest.original_text,
+            archetype: profile.archetype,
+            difficulty: quest.difficulty,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.transformedText) {
+          // Insert the quest
+          await supabase
+            .from('quests')
+            .insert({
+              user_id: user.id,
+              original_text: quest.original_text,
+              transformed_text: data.transformedText,
+              difficulty: quest.difficulty,
+              xp_value: quest.xp_value,
+              completed: false,
+            });
+        }
+      }
+
+      // Mark demo quests as created
+      localStorage.setItem(`demo_quests_${user.id}`, 'created');
+
+      // Reload quests to show the new demo quests
+      loadUserData();
+    } catch (error) {
+      console.error('Error creating demo quests:', error);
     }
   }
 
@@ -482,6 +588,15 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* Onboarding Tutorial */}
+      {showOnboarding && profile && (
+        <OnboardingTutorial
+          profile={profile}
+          onComplete={handleOnboardingComplete}
+          onSkip={handleOnboardingSkip}
+        />
+      )}
     </div>
   );
 }

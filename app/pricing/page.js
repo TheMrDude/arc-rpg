@@ -55,10 +55,24 @@ export default function PricingPage() {
     setCheckoutLoading(true);
 
     try {
-      // SECURE: No need to send userId - API gets it from session
+      // Get session token for authentication
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+      if (sessionError || !session || !session.access_token) {
+        console.error('Session error:', sessionError);
+        alert('Session expired. Please log in again.');
+        router.push('/login');
+        setCheckoutLoading(false);
+        return;
+      }
+
+      // SECURE: Send Bearer token for authentication
       const response = await fetch('/api/create-checkout', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
         body: JSON.stringify({}),
       });
 
@@ -67,7 +81,8 @@ export default function PricingPage() {
       if (data.url) {
         window.location.href = data.url;
       } else {
-        alert('Failed to create checkout session. Please try again.');
+        console.error('Checkout failed:', data);
+        alert(`Failed to create checkout: ${data.error || 'Unknown error'}. Please try again.`);
         setCheckoutLoading(false);
       }
     } catch (error) {
