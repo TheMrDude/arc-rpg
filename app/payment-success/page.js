@@ -3,6 +3,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import { FOUNDER_PRICE } from '@/lib/founder-plan';
 
 function PaymentSuccessContent() {
   const router = useRouter();
@@ -108,7 +109,9 @@ function PaymentSuccessContent() {
         }
 
         if (result.status === 'wrong_product') {
-          const currency = result.currency ? result.currency.toUpperCase() : 'USD';
+          const currency = result.currency
+            ? result.currency.toUpperCase()
+            : FOUNDER_PRICE.currency.toUpperCase();
           const amount =
             typeof result.amountTotal === 'number'
               ? `$${(result.amountTotal / 100).toFixed(2)} ${currency}`
@@ -116,7 +119,7 @@ function PaymentSuccessContent() {
 
           setStatus('error');
           setMessage(
-            `This payment session is for ${amount}. Please complete the Founder checkout for $47.00 USD or contact support with session ID: ${sessionId}.`
+            `This payment session is for ${amount}. Please complete the Founder checkout for $${(FOUNDER_PRICE.amount / 100).toFixed(2)} ${FOUNDER_PRICE.currency.toUpperCase()} or contact support with session ID: ${sessionId}.`
           );
           return;
         }
