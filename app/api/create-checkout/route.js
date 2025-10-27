@@ -11,7 +11,15 @@ import {
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+const STRIPE_KEY = process.env.STRIPE_SECRET_KEY;
+
+if (!STRIPE_KEY) {
+  throw new Error('Missing STRIPE_SECRET_KEY');
+}
+
+const stripe = new Stripe(STRIPE_KEY, {
+  apiVersion: '2024-06-20',
+});
 
 const supabaseAdmin = getSupabaseAdminClient();
 const supabaseAnon = getSupabaseAnonClient();
@@ -19,16 +27,19 @@ const supabaseAnon = getSupabaseAnonClient();
 export async function POST(request) {
   try {
     // SECURITY: Authenticate via Bearer token
-    const authHeader = request.headers.get('Authorization');
+    const authHeader =
+      request.headers.get('authorization') ?? request.headers.get('Authorization');
+    const token = authHeader?.startsWith('Bearer ')
+      ? authHeader.slice('Bearer '.length)
+      : null;
 
-    if (!authHeader?.startsWith('Bearer ')) {
+    if (!token) {
       console.error('Create checkout: No bearer token', {
         timestamp: new Date().toISOString(),
       });
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const token = authHeader.substring(7);
     const { data: { user }, error: authError } = await supabaseAnon.auth.getUser(token);
 
     if (authError || !user) {
@@ -70,7 +81,7 @@ export async function POST(request) {
     }
 
     // SECURE: Use transaction-safe check for founder spots via RPC to avoid race conditions
-    let claimOutcome;
+    let canClaim = true;
 
     const { data: claimResult, error: claimError } = await supabaseAdmin
       .rpc('claim_founder_spot', { user_id_param: userId });
@@ -96,23 +107,29 @@ export async function POST(request) {
         return NextResponse.json({ error: 'Failed to check availability' }, { status: 500 });
       }
 
-      if (count >= 25) {
-        return NextResponse.json({ error: 'All founder spots taken' }, { status: 400 });
+      const claimedCount = typeof count === 'number' ? count : 0;
+
+      if (claimedCount >= 25) {
+        canClaim = false;
       }
     } else {
-      claimOutcome = claimResult?.[0];
+      const outcome = Array.isArray(claimResult) ? claimResult?.[0] : claimResult;
 
-      if (!claimOutcome?.can_claim) {
-        if (claimOutcome?.failure_reason === 'already_premium') {
+      if (!outcome?.can_claim) {
+        if (outcome?.failure_reason === 'already_premium') {
           return NextResponse.json({ error: 'Already premium' }, { status: 400 });
         }
 
-        if (claimOutcome?.failure_reason === 'sold_out') {
+        if (outcome?.failure_reason === 'sold_out') {
           return NextResponse.json({ error: 'All founder spots taken' }, { status: 400 });
         }
 
-        return NextResponse.json({ error: 'Founder spots temporarily unavailable' }, { status: 400 });
+        canClaim = false;
       }
+    }
+
+    if (!canClaim) {
+      return NextResponse.json({ error: 'Founder spots temporarily unavailable' }, { status: 400 });
     }
 
     let origin;
