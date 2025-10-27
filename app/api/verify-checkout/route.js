@@ -3,7 +3,9 @@ import Stripe from 'stripe';
 import { getSupabaseAdminClient, getSupabaseAnonClient } from '@/lib/supabase-server';
 import { getOrCreateProfile } from '@/lib/profile-service';
 import {
+  FOUNDER_PLAN_METADATA,
   FOUNDER_PRICE,
+  FOUNDER_PRODUCT,
   isFounderCheckoutSession,
 } from '@/lib/founder-plan';
 
@@ -126,6 +128,11 @@ export async function POST(request) {
           paymentStatus: checkoutSession.payment_status,
           amountTotal: paidAmount,
           currency: paidCurrency,
+          expectedPlan: FOUNDER_PLAN_METADATA.plan,
+          expectedTransactionType: FOUNDER_PLAN_METADATA.transactionType,
+          expectedAmount: FOUNDER_PRICE.amount,
+          expectedCurrency: FOUNDER_PRICE.currency,
+          expectedProductName: FOUNDER_PRODUCT.name,
         },
         { status: 400 }
       );
@@ -173,6 +180,11 @@ export async function POST(request) {
       paymentStatus: checkoutSession.payment_status ?? 'unknown',
       amountTotal: paidAmount,
       currency: paidCurrency || FOUNDER_PRICE.currency,
+      expectedPlan: FOUNDER_PLAN_METADATA.plan,
+      expectedTransactionType: FOUNDER_PLAN_METADATA.transactionType,
+      expectedAmount: FOUNDER_PRICE.amount,
+      expectedCurrency: FOUNDER_PRICE.currency,
+      expectedProductName: FOUNDER_PRODUCT.name,
     });
   } catch (error) {
     console.error('Verify checkout error', {
