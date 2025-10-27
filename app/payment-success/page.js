@@ -107,6 +107,15 @@ function PaymentSuccessContent() {
           return;
         }
 
+        if (result.status === 'wrong_product') {
+          setStatus('error');
+          setMessage(
+            'This payment session is for a different product. Please make sure you completed the Founder checkout or contact support with session ID: ' +
+              sessionId
+          );
+          return;
+        }
+
         if (result.status === 'session_mismatch') {
           setStatus('error');
           setMessage('This payment session is associated with another account. Please contact support with session ID: ' + sessionId);
