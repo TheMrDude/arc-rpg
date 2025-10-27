@@ -6,6 +6,8 @@ import { supabase } from '@/lib/supabase';
 import { getUnlockedSkills } from '@/lib/skills';
 import { checkBossEncounter, calculateStreak, checkComebackBonus, getCreatureCompanion } from '@/lib/encounters';
 import OnboardingTutorial from '@/app/components/OnboardingTutorial';
+import NotificationSetup from '@/app/components/NotificationSetup';
+import ReferralCard from '@/app/components/ReferralCard';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -528,6 +530,13 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {/* Referral Card */}
+        {user && profile && (
+          <div className="mb-8">
+            <ReferralCard userId={user.id} profile={profile} />
+          </div>
+        )}
+
         {/* Unlock Premium Section (for non-premium users) */}
         {!(profile?.subscription_status === 'active') && (
           <div className="bg-gradient-to-br from-yellow-600/20 to-orange-600/20 border-2 border-yellow-500 rounded-xl p-8 mb-8">
@@ -597,6 +606,9 @@ export default function DashboardPage() {
           onSkip={handleOnboardingSkip}
         />
       )}
+
+      {/* Notification Setup Prompt */}
+      {user && <NotificationSetup userId={user.id} />}
     </div>
   );
 }
