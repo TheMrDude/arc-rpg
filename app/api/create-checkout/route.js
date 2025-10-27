@@ -4,9 +4,8 @@ import { getSupabaseAdminClient, getSupabaseAnonClient } from '@/lib/supabase-se
 import { getOrCreateProfile } from '@/lib/profile-service';
 import { resolveRequestOrigin } from '@/lib/request-origin';
 import {
-  FOUNDER_PLAN_METADATA,
-  FOUNDER_PRICE,
-  FOUNDER_PRODUCT,
+  buildFounderCheckoutMetadata,
+  buildFounderLineItem,
 } from '@/lib/founder-plan';
 
 // Force dynamic rendering
@@ -129,29 +128,12 @@ export async function POST(request) {
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
-      line_items: [
-        {
-          price_data: {
-            currency: FOUNDER_PRICE.currency,
-            product_data: {
-              name: FOUNDER_PRODUCT.name,
-              description: FOUNDER_PRODUCT.description,
-            },
-            unit_amount: FOUNDER_PRICE.amount,
-          },
-          quantity: 1,
-        },
-      ],
+      line_items: [buildFounderLineItem()],
       mode: 'payment',
       success_url: `${origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/pricing`,
       client_reference_id: userId,
-      metadata: {
-        userId: userId,
-        supabase_user_id: userId,
-        plan: FOUNDER_PLAN_METADATA.plan,
-        transaction_type: FOUNDER_PLAN_METADATA.transactionType,
-      },
+      metadata: buildFounderCheckoutMetadata(userId),
     });
 
     console.log('Checkout session created', {
