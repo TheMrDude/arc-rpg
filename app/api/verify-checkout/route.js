@@ -2,6 +2,10 @@ import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { getSupabaseAdminClient, getSupabaseAnonClient } from '@/lib/supabase-server';
 import { getOrCreateProfile } from '@/lib/profile-service';
+import {
+  FOUNDER_PRICE,
+  isFounderCheckoutSession,
+} from '@/lib/founder-plan';
 
 export const dynamic = 'force-dynamic';
 
@@ -94,20 +98,18 @@ export async function POST(request) {
       });
     }
 
-    const planMetadata = checkoutSession?.metadata ?? {};
-    const isFounderCheckout =
-      planMetadata.plan === 'founder_lifetime' ||
-      planMetadata.transaction_type === 'founder_purchase';
-    const founderAmount = 4700; // $47.00 USD in cents
-    const founderCurrency = 'usd';
-    const paidAmount = checkoutSession?.amount_total ?? 0;
-    const paidCurrency = checkoutSession?.currency?.toLowerCase?.() ?? '';
-    const isFounderAmount = paidAmount === founderAmount;
-    const isFounderCurrency = paidCurrency === founderCurrency;
+    const {
+      metadataMatches,
+      amountMatches,
+      currencyMatches,
+      metadata: planMetadata,
+      amount: paidAmount,
+      currency: paidCurrency,
+    } = isFounderCheckoutSession(checkoutSession);
 
     if (
       checkoutSession.payment_status === 'paid' &&
-      (!isFounderCheckout || !isFounderAmount || !isFounderCurrency)
+      (!metadataMatches || !amountMatches || !currencyMatches)
     ) {
       console.error('Verify checkout: Paid session is not a founder purchase', {
         metadata: planMetadata,
@@ -161,12 +163,16 @@ export async function POST(request) {
       return NextResponse.json({
         status: 'processing',
         paymentStatus: checkoutSession.payment_status,
+        amountTotal: paidAmount,
+        currency: paidCurrency,
       });
     }
 
     return NextResponse.json({
       status: 'pending',
       paymentStatus: checkoutSession.payment_status ?? 'unknown',
+      amountTotal: paidAmount,
+      currency: paidCurrency || FOUNDER_PRICE.currency,
     });
   } catch (error) {
     console.error('Verify checkout error', {

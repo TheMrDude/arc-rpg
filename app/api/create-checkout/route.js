@@ -3,6 +3,11 @@ import Stripe from 'stripe';
 import { getSupabaseAdminClient, getSupabaseAnonClient } from '@/lib/supabase-server';
 import { getOrCreateProfile } from '@/lib/profile-service';
 import { resolveRequestOrigin } from '@/lib/request-origin';
+import {
+  FOUNDER_PLAN_METADATA,
+  FOUNDER_PRICE,
+  FOUNDER_PRODUCT,
+} from '@/lib/founder-plan';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -127,12 +132,12 @@ export async function POST(request) {
       line_items: [
         {
           price_data: {
-            currency: 'usd',
+            currency: FOUNDER_PRICE.currency,
             product_data: {
-              name: 'ARC RPG Founder Access',
-              description: 'Lifetime access - recurring quests, weekly AI stories, archetype switching, and all future features. Limited to 25 people.',
+              name: FOUNDER_PRODUCT.name,
+              description: FOUNDER_PRODUCT.description,
             },
-            unit_amount: 4700,
+            unit_amount: FOUNDER_PRICE.amount,
           },
           quantity: 1,
         },
@@ -144,7 +149,8 @@ export async function POST(request) {
       metadata: {
         userId: userId,
         supabase_user_id: userId,
-        plan: 'founder_lifetime',
+        plan: FOUNDER_PLAN_METADATA.plan,
+        transaction_type: FOUNDER_PLAN_METADATA.transactionType,
       },
     });
 
