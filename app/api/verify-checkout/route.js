@@ -98,22 +98,30 @@ export async function POST(request) {
     const isFounderCheckout =
       planMetadata.plan === 'founder_lifetime' ||
       planMetadata.transaction_type === 'founder_purchase';
+    const founderAmount = 4700; // $47.00 USD in cents
+    const paidAmount = checkoutSession?.amount_total ?? 0;
+    const isFounderAmount = paidAmount === founderAmount;
 
     if (
       checkoutSession.payment_status === 'paid' &&
-      !isFounderCheckout
+      (!isFounderCheckout || !isFounderAmount)
     ) {
       console.error('Verify checkout: Paid session is not a founder purchase', {
         metadata: planMetadata,
+        amountTotal: paidAmount,
         userId: user.id,
         sessionId,
         timestamp,
       });
 
-      return NextResponse.json({
-        status: 'wrong_product',
-        paymentStatus: checkoutSession.payment_status,
-      });
+      return NextResponse.json(
+        {
+          status: 'wrong_product',
+          paymentStatus: checkoutSession.payment_status,
+          amountTotal: paidAmount,
+        },
+        { status: 400 }
+      );
     }
 
     if (checkoutSession.payment_status === 'paid') {
