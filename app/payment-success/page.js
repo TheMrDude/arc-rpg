@@ -15,8 +15,30 @@ function PaymentSuccessContent() {
   useEffect(() => {
     let pollCount = 0;
     const maxPolls = 10;
+    let retryTimeout;
+    let cancelled = false;
 
-    async function verifyPayment() {
+    const scheduleRetry = (baseMessage) => {
+      pollCount += 1;
+
+      if (pollCount < maxPolls) {
+        setStatus('verifying');
+        setMessage(`${baseMessage} (${pollCount}/${maxPolls})`);
+        retryTimeout = setTimeout(() => {
+          verifyWithServer();
+        }, 2000);
+      } else {
+        setStatus('error');
+        setMessage(
+          "Payment processing is taking longer than expected. Your upgrade will be activated shortly. If you don't see it in 5 minutes, contact support with session ID: " +
+            sessionId
+        );
+      }
+    };
+
+    async function verifyWithServer() {
+      if (cancelled) return;
+
       if (!sessionId) {
         setStatus('error');
         setMessage('No payment session found.');
@@ -24,56 +46,90 @@ function PaymentSuccessContent() {
       }
 
       try {
-        const { data: { user } } = await supabase.auth.getUser();
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
-        if (!user) {
+        if (sessionError || !session?.access_token) {
           setStatus('error');
           setMessage('Please log in to complete your upgrade.');
           return;
         }
 
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('is_premium, stripe_session_id, premium_since')
-          .eq('id', user.id)
-          .single();
+        const response = await fetch('/api/verify-checkout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({ sessionId }),
+        });
 
-        if (profileError) {
-          console.error('Profile fetch error:', profileError);
+        if (cancelled) return;
+
+        if (response.status === 401) {
           setStatus('error');
-          setMessage('Failed to verify payment. Please contact support with session ID: ' + sessionId);
+          setMessage('Please log in to complete your upgrade.');
           return;
         }
 
-        if (profile.is_premium && profile.stripe_session_id === sessionId) {
-          setStatus('success');
-          setMessage('🎉 Welcome, Founder! You now have lifetime access.');
-        } else if (profile.is_premium) {
-          setStatus('success');
-          setMessage('🎉 You already have Founder access!');
-        } else {
-          pollCount++;
-
-          if (pollCount < maxPolls) {
-            setStatus('verifying');
-            setMessage('Payment received! Processing your upgrade... (' + pollCount + '/' + maxPolls + ')');
-            setTimeout(() => {
-              verifyPayment();
-            }, 2000);
-          } else {
-            setStatus('error');
-            setMessage('Payment processing is taking longer than expected. Your upgrade will be activated shortly. If you don\'t see it in 5 minutes, contact support with session ID: ' + sessionId);
-          }
+        if (response.status === 403) {
+          setStatus('error');
+          setMessage('This payment session belongs to a different account. Please contact support with session ID: ' + sessionId);
+          return;
         }
 
+        if (response.status === 404) {
+          setStatus('error');
+          setMessage('We could not find this payment session. Please contact support with session ID: ' + sessionId);
+          return;
+        }
+
+        if (!response.ok) {
+          console.error('Payment verification failed with status:', response.status);
+          scheduleRetry('Still waiting for Stripe to confirm your payment...');
+          return;
+        }
+
+        const result = await response.json();
+
+        if (result.status === 'activated') {
+          setStatus('success');
+          setMessage('🎉 Welcome, Founder! You now have lifetime access.');
+          return;
+        }
+
+        if (result.status === 'processing') {
+          scheduleRetry('Payment received! Processing your upgrade...');
+          return;
+        }
+
+        if (result.status === 'pending') {
+          scheduleRetry('Waiting for Stripe to confirm your payment...');
+          return;
+        }
+
+        if (result.status === 'session_mismatch') {
+          setStatus('error');
+          setMessage('This payment session is associated with another account. Please contact support with session ID: ' + sessionId);
+          return;
+        }
+
+        setStatus('error');
+        setMessage('Unexpected verification response. Please contact support with session ID: ' + sessionId);
       } catch (error) {
         console.error('Payment verification error:', error);
-        setStatus('error');
-        setMessage('Something went wrong. Please contact support with session ID: ' + sessionId);
+        if (cancelled) return;
+        scheduleRetry('Still waiting for Stripe to confirm your payment...');
       }
     }
 
-    verifyPayment();
+    verifyWithServer();
+
+    return () => {
+      cancelled = true;
+      if (retryTimeout) {
+        clearTimeout(retryTimeout);
+      }
+    };
   }, [sessionId]);
 
   return (

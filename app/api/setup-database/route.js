@@ -161,10 +161,45 @@ CREATE TABLE IF NOT EXISTS template_generation_log (
 CREATE INDEX IF NOT EXISTS idx_quests_user_id_created_at ON quests(user_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_quests_user_id_completed ON quests(user_id, completed, completed_at DESC);
 CREATE INDEX IF NOT EXISTS idx_profiles_is_premium ON profiles(is_premium) WHERE is_premium = true;
+CREATE INDEX IF NOT EXISTS idx_profiles_subscription_active ON profiles(subscription_status) WHERE subscription_status = 'active';
 CREATE INDEX IF NOT EXISTS idx_profiles_id_archetype ON profiles(id, archetype);
 CREATE INDEX IF NOT EXISTS idx_gold_transactions_user_id ON gold_transactions(user_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_user_equipment_user_id ON user_equipment(user_id);
 CREATE INDEX IF NOT EXISTS idx_template_tasks_template_id ON template_tasks(template_id, sort_order);
+
+-- Founder spot claim helper
+DROP FUNCTION IF EXISTS claim_founder_spot(uuid);
+
+CREATE OR REPLACE FUNCTION claim_founder_spot(user_id_param uuid)
+RETURNS TABLE(can_claim boolean, current_count integer, failure_reason text)
+SECURITY DEFINER
+AS $$
+DECLARE
+  premium_count integer := 0;
+  user_subscription text;
+BEGIN
+  LOCK TABLE profiles IN SHARE ROW EXCLUSIVE MODE;
+
+  SELECT subscription_status INTO user_subscription
+  FROM profiles
+  WHERE id = user_id_param;
+
+  IF user_subscription = 'active' THEN
+    RETURN QUERY SELECT false, 0, 'already_premium';
+    RETURN;
+  END IF;
+
+  SELECT COUNT(*) INTO premium_count
+  FROM profiles
+  WHERE subscription_status = 'active';
+
+  IF premium_count >= 25 THEN
+    RETURN QUERY SELECT false, premium_count::integer, 'sold_out';
+  ELSE
+    RETURN QUERY SELECT true, premium_count::integer, 'available';
+  END IF;
+END;
+$$ LANGUAGE plpgsql;
 
 -- Auto-create profile trigger
 CREATE OR REPLACE FUNCTION public.handle_new_user()
@@ -183,6 +218,48 @@ CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW
   EXECUTE FUNCTION public.handle_new_user();
+
+-- Guard premium-related fields from tampering
+CREATE OR REPLACE FUNCTION enforce_premium_field_guard()
+RETURNS trigger
+SECURITY DEFINER
+AS $$
+DECLARE
+  requester_role text := coalesce(current_setting('request.jwt.claim.role', true), '');
+BEGIN
+  IF requester_role <> 'service_role' THEN
+    IF TG_OP = 'INSERT' THEN
+      NEW.is_premium := false;
+      NEW.subscription_status := coalesce(NEW.subscription_status, 'inactive');
+      NEW.stripe_session_id := NULL;
+      NEW.stripe_customer_id := NULL;
+      NEW.premium_since := NULL;
+    ELSE
+      IF NEW.is_premium IS DISTINCT FROM OLD.is_premium
+        OR NEW.subscription_status IS DISTINCT FROM OLD.subscription_status
+        OR NEW.stripe_session_id IS DISTINCT FROM OLD.stripe_session_id
+        OR NEW.stripe_customer_id IS DISTINCT FROM OLD.stripe_customer_id
+        OR NEW.premium_since IS DISTINCT FROM OLD.premium_since THEN
+          RAISE EXCEPTION 'Only privileged service role may modify premium fields';
+      END IF;
+    END IF;
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_enforce_premium_field_guard_update ON profiles;
+CREATE TRIGGER trg_enforce_premium_field_guard_update
+  BEFORE UPDATE ON profiles
+  FOR EACH ROW
+  EXECUTE FUNCTION enforce_premium_field_guard();
+
+DROP TRIGGER IF EXISTS trg_enforce_premium_field_guard_insert ON profiles;
+CREATE TRIGGER trg_enforce_premium_field_guard_insert
+  BEFORE INSERT ON profiles
+  FOR EACH ROW
+  EXECUTE FUNCTION enforce_premium_field_guard();
 
 -- Gold transaction function
 CREATE OR REPLACE FUNCTION process_gold_transaction(
@@ -246,7 +323,8 @@ CREATE POLICY "Users can view own profile"
 DROP POLICY IF EXISTS "Users can update own profile" ON profiles;
 CREATE POLICY "Users can update own profile"
   ON profiles FOR UPDATE
-  USING (auth.uid() = id);
+  USING (auth.uid() = id)
+  WITH CHECK (auth.uid() = id);
 
 DROP POLICY IF EXISTS "Users can insert own profile" ON profiles;
 CREATE POLICY "Users can insert own profile"
@@ -317,6 +395,23 @@ CREATE POLICY "Users can view tasks for own templates"
       AND user_id = auth.uid()
     )
   );
+
+-- Ensure premium users have premium_since date when premium
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint
+    WHERE conname = 'check_premium_since'
+      AND conrelid = 'profiles'::regclass
+  ) THEN
+    ALTER TABLE profiles
+      ADD CONSTRAINT check_premium_since
+      CHECK (
+        (is_premium = false AND premium_since IS NULL)
+        OR (is_premium = true AND premium_since IS NOT NULL)
+      );
+  END IF;
+END $$;
 
 -- Equipment catalog public read
 DROP POLICY IF EXISTS "Equipment catalog is viewable by everyone" ON equipment_catalog;
