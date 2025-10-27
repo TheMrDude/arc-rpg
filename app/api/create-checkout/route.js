@@ -73,12 +73,12 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Already premium' }, { status: 400 });
     }
 
-    // SECURE: Use transaction-safe check for founder spots
+    // SECURITY FIX: Check founder spots using subscription_status (not is_premium which users can manipulate)
     // This prevents race conditions where multiple users could exceed the limit
     const { count, error: countError } = await supabaseAdmin
       .from('profiles')
       .select('*', { count: 'exact', head: true })
-      .eq('is_premium', true);
+      .eq('subscription_status', 'active');
 
     if (countError) {
       console.error('Create checkout: Count error', {

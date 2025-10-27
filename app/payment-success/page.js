@@ -32,35 +32,45 @@ function PaymentSuccessContent() {
           return;
         }
 
-        // SECURE: Check if user is premium (set by webhook, not by client)
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('is_premium, stripe_session_id, premium_since')
-          .eq('id', user.id)
-          .single();
+        // SECURITY FIX: Verify payment server-side via Stripe API
+        // This prevents users from faking payment success by manipulating profile fields
+        const { data: { session } } = await supabase.auth.getSession();
 
-        if (profileError) {
-          console.error('Profile fetch error:', profileError);
+        if (!session) {
+          setStatus('error');
+          setMessage('Session expired. Please log in again.');
+          return;
+        }
+
+        const response = await fetch('/api/verify-payment', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`
+          },
+          body: JSON.stringify({ sessionId }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          console.error('Verify payment API error:', data);
           setStatus('error');
           setMessage('Failed to verify payment. Please contact support with session ID: ' + sessionId);
           return;
         }
 
-        // Check if user is premium with matching session ID
-        if (profile.is_premium && profile.stripe_session_id === sessionId) {
+        // Check if payment is verified and user is premium
+        if (data.verified && data.isPremium) {
           setStatus('success');
           setMessage('🎉 Welcome, Founder! You now have lifetime access.');
-        } else if (profile.is_premium) {
-          // Already premium but different session (edge case)
-          setStatus('success');
-          setMessage('🎉 You already have Founder access!');
-        } else {
-          // Not premium yet - webhook might not have processed
+        } else if (data.verified && !data.isPremium) {
+          // Payment verified but webhook hasn't processed yet
           pollCount++;
 
           if (pollCount < maxPolls) {
             setStatus('verifying');
-            setMessage('Payment received! Processing your upgrade... (' + pollCount + '/' + maxPolls + ')');
+            setMessage('Payment confirmed! Activating your account... (' + pollCount + '/' + maxPolls + ')');
 
             // Poll again after 2 seconds
             setTimeout(() => {
@@ -69,8 +79,11 @@ function PaymentSuccessContent() {
           } else {
             // Webhook still hasn't processed after 20 seconds
             setStatus('error');
-            setMessage('Payment processing is taking longer than expected. Your upgrade will be activated shortly. If you don\'t see it in 5 minutes, contact support with session ID: ' + sessionId);
+            setMessage('Payment confirmed but activation is taking longer than expected. Your upgrade will be activated shortly. If you don\'t see it in 5 minutes, contact support with session ID: ' + sessionId);
           }
+        } else {
+          setStatus('error');
+          setMessage('Failed to verify payment. Please contact support with session ID: ' + sessionId);
         }
 
       } catch (error) {

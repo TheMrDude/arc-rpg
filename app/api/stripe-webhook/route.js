@@ -178,11 +178,12 @@ export async function POST(request) {
       return NextResponse.json({ received: true });
     }
 
-    // Upgrade user to premium
+    // SECURITY FIX: Upgrade user to premium - set BOTH subscription_status AND is_premium
     const { error: updateError } = await supabaseAdmin
       .from('profiles')
       .update({
         subscription_status: 'active',
+        is_premium: true,  // CRITICAL FIX: Must set this for payment success to work
         premium_since: new Date().toISOString(),
         stripe_session_id: session.id,
         stripe_customer_id: session.customer,
