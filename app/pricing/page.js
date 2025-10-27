@@ -19,7 +19,7 @@ export default function PricingPage() {
         setUser(user);
         const { data: profileData } = await supabase
           .from('profiles')
-          .select('*')
+          .select('id, subscription_status, is_premium, stripe_session_id, premium_since')
           .eq('id', user.id)
           .single();
         setProfile(profileData);
@@ -31,7 +31,7 @@ export default function PricingPage() {
       const { count } = await supabase
         .from('profiles')
         .select('*', { count: 'exact', head: true })
-        .eq('is_premium', true);
+        .eq('subscription_status', 'active');
       
       const spotsRemaining = Math.max(0, 25 - (count || 0));
       setLifetimeSpotsLeft(spotsRemaining);
@@ -123,7 +123,7 @@ export default function PricingPage() {
           </p>
         </div>
 
-        {profile?.is_premium && (
+        {profile?.subscription_status === 'active' && (
           <div className="bg-green-600/20 border border-green-500 rounded-lg p-4 mb-8 text-center">
             <p className="text-green-300 text-lg font-semibold">
               🎉 You're a Founder! Lifetime access unlocked.
@@ -131,7 +131,7 @@ export default function PricingPage() {
           </div>
         )}
 
-        {!profile?.is_premium && lifetimeSpotsLeft > 0 && (
+        {profile?.subscription_status !== 'active' && lifetimeSpotsLeft > 0 && (
           <div className="bg-red-600/20 border border-red-500 rounded-lg p-4 mb-8 text-center">
             <p className="text-red-300 text-lg font-semibold">
               🔥 Only {lifetimeSpotsLeft} of 25 Founder spots remaining!
@@ -139,7 +139,7 @@ export default function PricingPage() {
           </div>
         )}
 
-        {!profile?.is_premium && lifetimeSpotsLeft === 0 && (
+        {profile?.subscription_status !== 'active' && lifetimeSpotsLeft === 0 && (
           <div className="bg-gray-600/20 border border-gray-500 rounded-lg p-4 mb-8 text-center">
             <p className="text-gray-300 text-lg font-semibold">
               All 25 Founder spots claimed. Subscription plans coming soon!
@@ -248,19 +248,21 @@ export default function PricingPage() {
 
             <button
               onClick={handleUpgrade}
-              disabled={checkoutLoading || profile?.is_premium || lifetimeSpotsLeft === 0}
+              disabled={
+                checkoutLoading || profile?.subscription_status === 'active' || lifetimeSpotsLeft === 0
+              }
               className={`w-full py-3 rounded-lg font-semibold transition ${
-                profile?.is_premium
+                profile?.subscription_status === 'active'
                   ? 'bg-gray-600 cursor-not-allowed'
                   : lifetimeSpotsLeft === 0
                   ? 'bg-gray-600 cursor-not-allowed'
                   : 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black'
               }`}
             >
-              {checkoutLoading 
-                ? 'Loading...' 
-                : profile?.is_premium 
-                ? "You're a Founder!" 
+              {checkoutLoading
+                ? 'Loading...'
+                : profile?.subscription_status === 'active'
+                ? "You're a Founder!"
                 : lifetimeSpotsLeft === 0
                 ? 'Sold Out'
                 : 'Claim Founder Access'}
