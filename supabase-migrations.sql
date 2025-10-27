@@ -18,6 +18,10 @@ CREATE INDEX IF NOT EXISTS idx_profiles_is_premium
 ON profiles(is_premium)
 WHERE is_premium = true;
 
+CREATE INDEX IF NOT EXISTS idx_profiles_subscription_active
+ON profiles(subscription_status)
+WHERE subscription_status = 'active';
+
 -- Composite index for profile lookups
 CREATE INDEX IF NOT EXISTS idx_profiles_id_archetype
 ON profiles(id, archetype);
@@ -54,38 +58,40 @@ END $$;
 -- ============================================
 
 -- Function to safely claim founder spot (prevents race conditions)
+DROP FUNCTION IF EXISTS claim_founder_spot(uuid);
+
 CREATE OR REPLACE FUNCTION claim_founder_spot(user_id_param uuid)
-RETURNS TABLE(can_claim boolean, current_count integer)
+RETURNS TABLE(can_claim boolean, current_count integer, failure_reason text)
 SECURITY DEFINER
 AS $$
 DECLARE
-  premium_count integer;
-  user_is_premium boolean;
+  premium_count integer := 0;
+  user_subscription text;
 BEGIN
   -- Lock the profiles table to prevent race conditions
   -- This ensures only one transaction can check/modify at a time
   LOCK TABLE profiles IN SHARE ROW EXCLUSIVE MODE;
 
-  -- Check if user is already premium
-  SELECT is_premium INTO user_is_premium
+  -- Check if user already has an active subscription
+  SELECT subscription_status INTO user_subscription
   FROM profiles
   WHERE id = user_id_param;
 
-  IF user_is_premium THEN
-    RETURN QUERY SELECT false, 0;
+  IF user_subscription = 'active' THEN
+    RETURN QUERY SELECT false, 0, 'already_premium';
     RETURN;
   END IF;
 
-  -- Count current premium users
+  -- Count current active premium users
   SELECT COUNT(*) INTO premium_count
   FROM profiles
-  WHERE is_premium = true;
+  WHERE subscription_status = 'active';
 
   -- Return whether spot can be claimed and current count
   IF premium_count >= 25 THEN
-    RETURN QUERY SELECT false, premium_count::integer;
+    RETURN QUERY SELECT false, premium_count::integer, 'sold_out';
   ELSE
-    RETURN QUERY SELECT true, premium_count::integer;
+    RETURN QUERY SELECT true, premium_count::integer, 'available';
   END IF;
 END;
 $$ LANGUAGE plpgsql;
@@ -108,14 +114,7 @@ DROP POLICY IF EXISTS "Users can update own profile" ON profiles;
 CREATE POLICY "Users can update own profile"
 ON profiles FOR UPDATE
 USING (auth.uid() = id)
-WITH CHECK (
-  auth.uid() = id
-  AND (
-    -- Prevent users from setting premium status themselves
-    is_premium = (SELECT is_premium FROM profiles WHERE id = auth.uid())
-    OR auth.jwt() ->> 'role' = 'service_role'
-  )
-);
+WITH CHECK (auth.uid() = id);
 
 -- Enable RLS on quests table
 ALTER TABLE quests ENABLE ROW LEVEL SECURITY;
@@ -204,6 +203,52 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- ============================================
+-- PREMIUM FIELD GUARDS
+-- ============================================
+
+CREATE OR REPLACE FUNCTION enforce_premium_field_guard()
+RETURNS trigger
+SECURITY DEFINER
+AS $$
+DECLARE
+  requester_role text := coalesce(current_setting('request.jwt.claim.role', true), '');
+BEGIN
+  -- Ensure non-service callers cannot tamper with premium fields
+  IF requester_role <> 'service_role' THEN
+    IF TG_OP = 'INSERT' THEN
+      NEW.is_premium := false;
+      NEW.subscription_status := coalesce(NEW.subscription_status, 'inactive');
+      NEW.stripe_session_id := NULL;
+      NEW.stripe_customer_id := NULL;
+      NEW.premium_since := NULL;
+    ELSE
+      IF NEW.is_premium IS DISTINCT FROM OLD.is_premium
+        OR NEW.subscription_status IS DISTINCT FROM OLD.subscription_status
+        OR NEW.stripe_session_id IS DISTINCT FROM OLD.stripe_session_id
+        OR NEW.stripe_customer_id IS DISTINCT FROM OLD.stripe_customer_id
+        OR NEW.premium_since IS DISTINCT FROM OLD.premium_since THEN
+          RAISE EXCEPTION 'Only privileged service role may modify premium fields';
+      END IF;
+    END IF;
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_enforce_premium_field_guard_update ON profiles;
+CREATE TRIGGER trg_enforce_premium_field_guard_update
+BEFORE UPDATE ON profiles
+FOR EACH ROW
+EXECUTE FUNCTION enforce_premium_field_guard();
+
+DROP TRIGGER IF EXISTS trg_enforce_premium_field_guard_insert ON profiles;
+CREATE TRIGGER trg_enforce_premium_field_guard_insert
+BEFORE INSERT ON profiles
+FOR EACH ROW
+EXECUTE FUNCTION enforce_premium_field_guard();
+
+-- ============================================
 -- SECURITY CONSTRAINTS
 -- ============================================
 
@@ -222,7 +267,8 @@ CHECK (
 
 COMMENT ON INDEX idx_quests_user_id_created_at IS 'Speeds up dashboard quest queries';
 COMMENT ON INDEX idx_quests_user_id_completed IS 'Speeds up history page queries';
-COMMENT ON INDEX idx_profiles_is_premium IS 'Speeds up founder spot availability checks';
+COMMENT ON INDEX idx_profiles_is_premium IS 'Legacy index retained for backward compatibility checks';
+COMMENT ON INDEX idx_profiles_subscription_active IS 'Speeds up founder spot availability checks';
 COMMENT ON FUNCTION claim_founder_spot IS 'Thread-safe function to check and claim founder spots';
 COMMENT ON TABLE payment_audit_log IS 'Audit trail for all payment-related events';
 
@@ -231,7 +277,7 @@ COMMENT ON TABLE payment_audit_log IS 'Audit trail for all payment-related event
 -- ============================================
 
 -- Grant execute permission on functions to authenticated users
-GRANT EXECUTE ON FUNCTION claim_founder_spot TO authenticated;
+GRANT EXECUTE ON FUNCTION claim_founder_spot(uuid) TO authenticated;
 GRANT EXECUTE ON FUNCTION log_payment_event TO service_role;
 
 -- ============================================

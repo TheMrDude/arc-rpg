@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
+import { resolveRequestOrigin } from '@/lib/request-origin';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -94,6 +95,17 @@ export async function POST(request) {
     }
 
     // SECURITY: Create checkout session for one-time payment
+    let origin;
+    try {
+      origin = resolveRequestOrigin(request);
+    } catch (originError) {
+      console.error('Purchase gold: Unable to resolve origin', {
+        error: originError.message,
+        timestamp: new Date().toISOString(),
+      });
+      return NextResponse.json({ error: 'Site configuration error' }, { status: 500 });
+    }
+
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       payment_method_types: ['card'],
@@ -112,8 +124,8 @@ export async function POST(request) {
         },
       ],
       mode: 'payment', // One-time payment, not subscription
-      success_url: `${request.headers.get('origin')}/dashboard?gold_purchase=success`,
-      cancel_url: `${request.headers.get('origin')}/shop?gold_purchase=cancelled`,
+      success_url: `${origin}/dashboard?gold_purchase=success`,
+      cancel_url: `${origin}/shop?gold_purchase=cancelled`,
       metadata: {
         supabase_user_id: user.id,
         package_id: package_id,
