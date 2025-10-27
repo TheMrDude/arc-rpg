@@ -1,14 +1,12 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { createClient } from '@supabase/supabase-js';
+import { getSupabaseAdminClient } from '@/lib/supabase-server';
+import { getOrCreateProfile } from '@/lib/profile-service';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-// Use service role key for admin operations
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
+// Use shared admin client helper for database operations
+const supabaseAdmin = getSupabaseAdminClient();
 
 // SECURITY: Handle gold purchases (idempotent)
 async function handleGoldPurchase(session, userId) {
@@ -154,19 +152,27 @@ export async function POST(request) {
 
     // Handle premium subscription (original code)
     // Check if user is already premium (idempotency)
-    const { data: profile, error: fetchError } = await supabaseAdmin
-      .from('profiles')
-      .select('subscription_status')
-      .eq('id', userId)
-      .single();
+    const {
+      profile,
+      created: profileCreated,
+      error: profileError,
+    } = await getOrCreateProfile(userId);
 
-    if (fetchError) {
+    if (profileError) {
       console.error('Webhook error: Failed to fetch profile', {
-        error: fetchError.message,
+        error: profileError.message,
         userId,
         timestamp: new Date().toISOString(),
       });
       return NextResponse.json({ error: 'Database error' }, { status: 500 });
+    }
+
+    if (profileCreated) {
+      console.log('Webhook: Auto-created missing profile row', {
+        userId,
+        sessionId: session.id,
+        timestamp: new Date().toISOString(),
+      });
     }
 
     if (profile?.subscription_status === 'active') {
@@ -184,6 +190,7 @@ export async function POST(request) {
       .update({
         subscription_status: 'active',
         premium_since: new Date().toISOString(),
+        is_premium: true,
         stripe_session_id: session.id,
         stripe_customer_id: session.customer,
       })
