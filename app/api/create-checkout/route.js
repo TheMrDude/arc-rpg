@@ -19,6 +19,16 @@ const supabaseAnon = createClient(
 
 export async function POST(request) {
   try {
+    // DIAGNOSTIC: Check environment variables
+    if (!process.env.STRIPE_SECRET_KEY) {
+      console.error('MISSING ENV VAR: STRIPE_SECRET_KEY not set');
+      return NextResponse.json({ error: 'Server configuration error: Stripe not configured' }, { status: 500 });
+    }
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.error('MISSING ENV VAR: SUPABASE_SERVICE_ROLE_KEY not set');
+      return NextResponse.json({ error: 'Server configuration error: Database not configured' }, { status: 500 });
+    }
+
     // SECURITY: Authenticate via Bearer token
     const authHeader = request.headers.get('Authorization');
 
@@ -115,16 +125,22 @@ export async function POST(request) {
 
     return NextResponse.json({ url: session.url });
   } catch (error) {
-    // SECURE: Don't expose internal errors to users
+    // DETAILED: Log full error for debugging
     console.error('Stripe checkout error:', {
-      error: error.message,
+      message: error.message,
       stack: error.stack,
+      code: error.code,
+      type: error.type,
       timestamp: new Date().toISOString(),
     });
 
-    // Generic error message for users
+    // Return more helpful error message
     return NextResponse.json(
-      { error: 'Failed to create checkout session. Please try again.' },
+      {
+        error: 'Failed to create checkout session',
+        details: error.message,
+        hint: 'Check Vercel logs for details'
+      },
       { status: 500 }
     );
   }

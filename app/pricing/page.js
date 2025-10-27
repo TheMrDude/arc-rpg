@@ -82,12 +82,20 @@ export default function PricingPage() {
         window.location.href = data.url;
       } else {
         console.error('Checkout failed:', data);
-        alert(`Failed to create checkout: ${data.error || 'Unknown error'}. Please try again.`);
+        // Show detailed error message
+        let errorMsg = `Failed to create checkout: ${data.error || 'Unknown error'}`;
+        if (data.details) {
+          errorMsg += `\n\nDetails: ${data.details}`;
+        }
+        if (data.hint) {
+          errorMsg += `\n\n${data.hint}`;
+        }
+        alert(errorMsg);
         setCheckoutLoading(false);
       }
     } catch (error) {
       console.error('Checkout error:', error);
-      alert('Something went wrong. Please try again.');
+      alert(`Something went wrong: ${error.message || 'Unknown error'}. Please try again.`);
       setCheckoutLoading(false);
     }
   }
