@@ -108,10 +108,15 @@ function PaymentSuccessContent() {
         }
 
         if (result.status === 'wrong_product') {
+          const currency = result.currency ? result.currency.toUpperCase() : 'USD';
+          const amount =
+            typeof result.amountTotal === 'number'
+              ? `$${(result.amountTotal / 100).toFixed(2)} ${currency}`
+              : 'a different product';
+
           setStatus('error');
           setMessage(
-            'This payment session is for a different product. Please make sure you completed the Founder checkout or contact support with session ID: ' +
-              sessionId
+            `This payment session is for ${amount}. Please complete the Founder checkout for $47.00 USD or contact support with session ID: ${sessionId}.`
           );
           return;
         }
