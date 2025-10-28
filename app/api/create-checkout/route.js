@@ -86,7 +86,7 @@ export async function POST(request) {
       .rpc('claim_founder_spot', { user_id_param: userId });
 
     if (claimError) {
-      console.warn('Create checkout: RPC unavailable, falling back', {
+      console.warn('Create checkout: Founder RPC unavailable, falling back to count', {
         userId,
         error: claimError.message,
         t: new Date().toISOString(),
@@ -94,7 +94,7 @@ export async function POST(request) {
 
       const { count, error: countError } = await supabaseAdmin
         .from('profiles')
-        .select('*', { head: true, count: 'exact' })
+        .select('*', { count: 'exact', head: true })
         .eq('subscription_status', 'active');
 
       if (countError) {
@@ -131,9 +131,9 @@ export async function POST(request) {
     let origin;
     try {
       origin = resolveRequestOrigin(request);
-    } catch (error) {
-      console.error('Create checkout: Origin resolution failed', {
-        error: error?.message,
+    } catch (e) {
+      console.error('Create checkout: Unable to resolve origin', {
+        error: e?.message,
         t: new Date().toISOString(),
       });
       return NextResponse.json({ error: 'Site configuration error' }, { status: 500 });
