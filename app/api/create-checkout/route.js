@@ -3,19 +3,12 @@ import Stripe from 'stripe';
 import { getSupabaseAdminClient, getSupabaseAnonClient } from '@/lib/supabase-server';
 import { getOrCreateProfile } from '@/lib/profile-service';
 import { resolveRequestOrigin } from '@/lib/request-origin';
-import {
-  buildFounderCheckoutMetadata,
-  buildFounderLineItem,
-} from '@/lib/founder-plan';
+import { buildFounderCheckoutMetadata, buildFounderLineItem } from '@/lib/founder-plan';
 
-// Force dynamic rendering (Stripe requires Node runtime)
 export const dynamic = 'force-dynamic';
 
 const STRIPE_KEY = process.env.STRIPE_SECRET_KEY;
-if (!STRIPE_KEY) {
-  throw new Error('Missing STRIPE_SECRET_KEY');
-}
-
+if (!STRIPE_KEY) throw new Error('Missing STRIPE_SECRET_KEY');
 const stripe = new Stripe(STRIPE_KEY, { apiVersion: '2024-06-20' });
 
 const supabaseAdmin = getSupabaseAdminClient();
@@ -23,7 +16,6 @@ const supabaseAnon = getSupabaseAnonClient();
 
 export async function POST(request) {
   try {
-    // 1) Auth via Bearer token
     const authHeader =
       request.headers.get('authorization') ?? request.headers.get('Authorization');
     const token = authHeader?.startsWith('Bearer ')
@@ -52,7 +44,6 @@ export async function POST(request) {
 
     const userId = user.id;
 
-    // 2) Ensure profile & premium status
     const {
       profile,
       created: profileCreated,
@@ -79,7 +70,6 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Already premium' }, { status: 400 });
     }
 
-    // 3) Reserve founder spot (RPC first; safe fallback)
     let canClaim = true;
 
     const { data: claimResult, error: claimError } = await supabaseAdmin
@@ -107,9 +97,7 @@ export async function POST(request) {
       }
 
       const claimedCount = typeof count === 'number' ? count : 0;
-      if (claimedCount >= 25) {
-        canClaim = false;
-      }
+      if (claimedCount >= 25) canClaim = false;
     } else {
       const outcome = Array.isArray(claimResult) ? claimResult?.[0] : claimResult;
       if (!outcome?.can_claim) {
@@ -124,22 +112,23 @@ export async function POST(request) {
     }
 
     if (!canClaim) {
-      return NextResponse.json({ error: 'Founder spots temporarily unavailable' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Founder spots temporarily unavailable' },
+        { status: 400 }
+      );
     }
 
-    // 4) Resolve origin for redirect URLs
     let origin;
     try {
       origin = resolveRequestOrigin(request);
     } catch (e) {
-      console.error('Create checkout: Unable to resolve origin', {
+      console.error('Create checkout: Origin resolution failed', {
         error: e?.message,
         t: new Date().toISOString(),
       });
       return NextResponse.json({ error: 'Site configuration error' }, { status: 500 });
     }
 
-    // 5) Create Stripe Checkout Session
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       payment_method_types: ['card'],
