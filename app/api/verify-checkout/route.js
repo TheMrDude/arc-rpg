@@ -17,13 +17,13 @@ export async function POST(request) {
     const session = await stripe.checkout.sessions.retrieve(session_id, { expand: ['payment_intent'] });
     if (session.payment_status !== 'paid') return NextResponse.json({ status: 'pending' });
 
-    const userId = session.client_reference_id || session.metadata?.userId;
+    const userId = session.client_reference_id || session.metadata?.userId || session.metadata?.supabase_user_id;
     if (!userId) return NextResponse.json({ error: 'Missing user reference' }, { status: 400 });
 
     const { error } = await supabase
       .from('profiles')
       .update({ subscription_status: 'active', is_premium: true })
-      .eq('id', userId);
+      .eq('user_id', userId);
     if (error) return NextResponse.json({ error: 'Failed to activate plan' }, { status: 500 });
 
     return NextResponse.json({ status: 'active' });

@@ -16,6 +16,7 @@ const supabaseAnon = getSupabaseAnonClient();
 
 export async function POST(request) {
   try {
+    // 1) Auth via Bearer token
     const authHeader =
       request.headers.get('authorization') ?? request.headers.get('Authorization');
     const token = authHeader?.startsWith('Bearer ')
@@ -23,9 +24,7 @@ export async function POST(request) {
       : null;
 
     if (!token) {
-      console.error('Create checkout: Missing Bearer token', {
-        t: new Date().toISOString(),
-      });
+      console.error('Create checkout: Missing Bearer token', { t: new Date().toISOString() });
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -33,7 +32,6 @@ export async function POST(request) {
       data: { user },
       error: authError,
     } = await supabaseAnon.auth.getUser(token);
-
     if (authError || !user) {
       console.error('Create checkout: Invalid token', {
         error: authError?.message,
@@ -44,12 +42,8 @@ export async function POST(request) {
 
     const userId = user.id;
 
-    const {
-      profile,
-      created: profileCreated,
-      error: profileError,
-    } = await getOrCreateProfile(userId);
-
+    // 2) Ensure profile & premium status
+    const { profile, created: profileCreated, error: profileError } = await getOrCreateProfile(userId);
     if (profileError) {
       console.error('Create checkout: Profile error', {
         userId,
@@ -58,18 +52,17 @@ export async function POST(request) {
       });
       return NextResponse.json({ error: 'Failed to fetch profile' }, { status: 500 });
     }
-
     if (profileCreated) {
       console.log('Create checkout: Auto-created profile row', {
         userId,
         t: new Date().toISOString(),
       });
     }
-
     if (profile?.subscription_status === 'active' || profile?.is_premium) {
       return NextResponse.json({ error: 'Already premium' }, { status: 400 });
     }
 
+    // 3) Reserve founder spot (RPC first; safe fallback)
     let canClaim = true;
 
     const { data: claimResult, error: claimError } = await supabaseAdmin
@@ -84,7 +77,7 @@ export async function POST(request) {
 
       const { count, error: countError } = await supabaseAdmin
         .from('profiles')
-        .select('*', { count: 'exact', head: true })
+        .select('*', { head: true, count: 'exact' })
         .eq('subscription_status', 'active');
 
       if (countError) {
@@ -112,12 +105,10 @@ export async function POST(request) {
     }
 
     if (!canClaim) {
-      return NextResponse.json(
-        { error: 'Founder spots temporarily unavailable' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Founder spots temporarily unavailable' }, { status: 400 });
     }
 
+    // 4) Resolve origin for redirect URLs
     let origin;
     try {
       origin = resolveRequestOrigin(request);
@@ -129,6 +120,7 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Site configuration error' }, { status: 500 });
     }
 
+    // 5) Create Stripe Checkout Session
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       payment_method_types: ['card'],
@@ -144,7 +136,6 @@ export async function POST(request) {
       sessionId: session.id,
       t: new Date().toISOString(),
     });
-
     return NextResponse.json({ url: session.url });
   } catch (error) {
     console.error('Stripe checkout error:', {
