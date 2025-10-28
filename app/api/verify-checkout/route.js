@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { getSupabaseAdminClient } from '@/lib/supabase-server';
+import {
+  FOUNDER_PLAN_METADATA,
+  FOUNDER_PRICE,
+  isFounderCheckoutSession,
+} from '@/lib/founder-plan';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,6 +33,40 @@ export async function POST(request) {
       return NextResponse.json({ status: 'pending' });
     }
 
+    const founderCheck = isFounderCheckoutSession(session);
+
+    if (
+      !founderCheck.metadataMatches ||
+      !founderCheck.amountMatches ||
+      !founderCheck.currencyMatches
+    ) {
+      console.error('Verify checkout: Session does not match founder product', {
+        sessionId,
+        metadata: founderCheck.metadata,
+        amount: founderCheck.amount,
+        currency: founderCheck.currency,
+      });
+
+      return NextResponse.json(
+        {
+          status: 'wrong_product',
+          expected: {
+            plan: FOUNDER_PLAN_METADATA.plan,
+            transaction_type: FOUNDER_PLAN_METADATA.transactionType,
+            amount: FOUNDER_PRICE.amount,
+            currency: FOUNDER_PRICE.currency,
+          },
+          observed: {
+            plan: founderCheck.metadata?.plan,
+            transaction_type: founderCheck.metadata?.transaction_type,
+            amount: founderCheck.amount,
+            currency: founderCheck.currency,
+          },
+        },
+        { status: 400 }
+      );
+    }
+
     const userId =
       session.client_reference_id ||
       session.metadata?.supabase_user_id ||
@@ -38,13 +77,17 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Missing user reference' }, { status: 400 });
     }
 
+    const premiumSince = new Date().toISOString();
+
     const { error } = await supabase
       .from('profiles')
       .update({
         subscription_status: 'active',
         is_premium: true,
+        premium_since: premiumSince,
+        stripe_session_id: sessionId,
       })
-      .eq('user_id', userId);
+      .eq('id', userId);
 
     if (error) {
       console.error('Verify checkout: DB update failed', {
