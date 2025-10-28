@@ -11,13 +11,17 @@ export default function PaymentSuccessPage() {
   useEffect(() => {
     if (!sessionId) return;
     (async () => {
-      const res = await fetch('/api/verify-checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ session_id: sessionId }),
-      });
-      const data = await res.json();
-      setStatus(data.status || 'error');
+      try {
+        const res = await fetch('/api/verify-checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ session_id: sessionId }),
+        });
+        const data = await res.json();
+        setStatus(data.status || 'error');
+      } catch {
+        setStatus('error');
+      }
     })();
   }, [sessionId]);
 
