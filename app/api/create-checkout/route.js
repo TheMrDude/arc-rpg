@@ -25,6 +25,8 @@ export async function POST(request) {
 
     if (!token) {
       console.error('Create checkout: Missing Bearer token', { t: new Date().toISOString() });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     if (!token)
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 

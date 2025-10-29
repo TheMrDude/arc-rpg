@@ -18,6 +18,28 @@ export async function POST(request) {
     const session = await stripe.checkout.sessions.retrieve(session_id, {
       expand: ['payment_intent'],
     });
+
+    if (session.payment_status !== 'paid') {
+      return NextResponse.json({ status: 'pending' });
+    }
+
+    const plan = session.metadata?.plan;
+    const currency = (session.currency || session.payment_intent?.currency || '').toLowerCase();
+    const amount = session.amount_total ?? session.payment_intent?.amount_received ?? null;
+
+    const isFounderCheckout =
+      plan === 'founder_lifetime' &&
+      currency === 'usd' &&
+      session.mode === 'payment' &&
+      typeof amount === 'number' &&
+      amount === 250000;
+
+    if (!isFounderCheckout) {
+      console.error('Verify checkout: Session failed founder validation', {
+        sessionId: session.id,
+        plan,
+        currency,
+        amount,
     if (session.payment_status !== 'paid')
       return NextResponse.json({ status: 'pending' });
     if (!session_id) return NextResponse.json({ error: 'Missing session_id' }, { status: 400 });
@@ -38,15 +60,25 @@ codex/fix-critical-bug-in-verify-checkout-endpoint-qgrhj9
         sessionId,
         timestamp,
       });
-      return NextResponse.json({ error: 'Profile lookup failed' }, { status: 500 });
+      return NextResponse.json({ error: 'Invalid session for founder upgrade' }, { status: 400 });
     }
 
-    if (profileCreated) {
-      console.log('Verify checkout: Auto-created missing profile row', {
-        userId: user.id,
-        sessionId,
-        timestamp,
-      });
+    const userId =
+      session.client_reference_id ||
+      session.metadata?.userId ||
+      session.metadata?.supabase_user_id;
+
+    if (!userId) {
+      return NextResponse.json({ error: 'Missing user reference' }, { status: 400 });
+    }
+
+    const { error } = await supabase
+      .from('profiles')
+      .update({ subscription_status: 'active', is_premium: true })
+      .eq('user_id', userId);
+
+    if (error) {
+      return NextResponse.json({ error: 'Failed to activate plan' }, { status: 500 });
     }
 
     const session = await stripe.checkout.sessions.retrieve(session_id, { expand: ['payment_intent'] });
