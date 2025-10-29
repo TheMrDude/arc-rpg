@@ -6,15 +6,20 @@ export const dynamic = 'force-dynamic';
 
 const STRIPE_KEY = process.env.STRIPE_SECRET_KEY;
 if (!STRIPE_KEY) throw new Error('Missing STRIPE_SECRET_KEY');
+
 const stripe = new Stripe(STRIPE_KEY, { apiVersion: '2024-06-20' });
-const supabase = getSupabaseAdminClient();
+const supabaseAdmin = getSupabaseAdminClient();
 
 export async function POST(request) {
   try {
     const { session_id } = await request.json();
-    if (!session_id)
-      return NextResponse.json({ error: 'Missing session_id' }, { status: 400 });
+    if (!session_id) {
+      return NextResponse.json({ status: 'error', error: 'Missing session_id' }, { status: 400 });
+    }
 
+    const session = await stripe.checkout.sessions.retrieve(session_id, {
+      expand: ['customer', 'payment_intent'],
+    });
     const session = await stripe.checkout.sessions.retrieve(session_id, {
       expand: ['payment_intent'],
     });
@@ -53,6 +58,10 @@ codex/fix-critical-bug-in-verify-checkout-endpoint-qgrhj9
     if (session.payment_status !== 'paid')
       return NextResponse.json({ status: 'pending' });
 
+    const userId = session?.client_reference_id || session?.metadata?.supabase_user_id;
+    if (!userId) {
+      return NextResponse.json({ status: 'error', error: 'Missing user reference' }, { status: 400 });
+    }
     const planMetadata = checkoutSession?.metadata?.plan;
     const transactionType = checkoutSession?.metadata?.transaction_type;
     const amountTotal = checkoutSession?.amount_total;
@@ -71,17 +80,32 @@ codex/fix-critical-bug-in-verify-checkout-endpoint-qgrhj9
       session.metadata?.userId ||
       session.metadata?.supabase_user_id;
 
-    if (!userId)
-      return NextResponse.json({ error: 'Missing user reference' }, { status: 400 });
+    if (session.payment_status === 'paid') {
+      const { error: upErr } = await supabaseAdmin
+        .from('profiles')
+        .update({
+          subscription_status: 'active',
+          is_premium: true,
+          premium_since: new Date().toISOString(),
+          last_payment_session_id: session_id,
+        })
+        .eq('id', userId);
 
-    const { error } = await supabase
-      .from('profiles')
-      .update({ subscription_status: 'active', is_premium: true })
-      .eq('user_id', userId);
+      if (upErr) {
+        console.error('Profile update failed:', upErr.message);
+        return NextResponse.json({ status: 'error' }, { status: 500 });
+      }
+      return NextResponse.json({ status: 'active' });
+    }
 
-    if (error)
-      return NextResponse.json({ error: 'Failed to activate plan' }, { status: 500 });
+    if (session.status === 'open') {
+      return NextResponse.json({ status: 'pending' });
+    }
 
+    return NextResponse.json({ status: 'error' }, { status: 400 });
+  } catch (error) {
+    console.error('Verify checkout error:', { msg: error?.message, stack: error?.stack });
+    return NextResponse.json({ status: 'error' }, { status: 500 });
     if (checkoutSession.payment_status === 'paid') {
       console.error('Verify checkout: Paid session did not qualify for upgrade', {
         userId: user.id,
