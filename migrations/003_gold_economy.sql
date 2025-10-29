@@ -1,7 +1,5 @@
--- ============================================
 -- GOLD ECONOMY SYSTEM
 -- Secure implementation with audit trails
--- ============================================
 
 -- Add gold to profiles table
 ALTER TABLE profiles
@@ -14,10 +12,8 @@ CREATE INDEX IF NOT EXISTS idx_profiles_gold ON profiles(gold);
 ALTER TABLE equipment_catalog
 ADD COLUMN IF NOT EXISTS cost INTEGER DEFAULT 0 CHECK (cost >= 0);
 
--- ============================================
 -- GOLD TRANSACTIONS AUDIT TABLE
 -- Track all gold movements for security
--- ============================================
 
 CREATE TABLE IF NOT EXISTS gold_transactions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -45,10 +41,8 @@ ON gold_transactions(user_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_gold_transactions_type
 ON gold_transactions(transaction_type);
 
--- ============================================
 -- GOLD PURCHASES TABLE
 -- Track real money purchases
--- ============================================
 
 CREATE TABLE IF NOT EXISTS gold_purchases (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -80,10 +74,8 @@ ON gold_purchases(stripe_payment_intent_id);
 CREATE INDEX IF NOT EXISTS idx_gold_purchases_status
 ON gold_purchases(payment_status);
 
--- ============================================
 -- SECURE GOLD TRANSACTION FUNCTION
 -- Atomic operations to prevent race conditions
--- ============================================
 
 CREATE OR REPLACE FUNCTION process_gold_transaction(
   p_user_id UUID,
@@ -150,9 +142,7 @@ BEGIN
 END;
 $$;
 
--- ============================================
 -- ROW LEVEL SECURITY POLICIES
--- ============================================
 
 -- Enable RLS on gold tables
 ALTER TABLE gold_transactions ENABLE ROW LEVEL SECURITY;
@@ -182,10 +172,8 @@ CREATE POLICY "Only server can modify gold purchases"
 ON gold_purchases FOR INSERT
 WITH CHECK (false); -- Only service role can insert
 
--- ============================================
 -- UPDATE EQUIPMENT COSTS
 -- Balanced pricing by rarity
--- ============================================
 
 -- Update existing equipment with costs
 UPDATE equipment_catalog
@@ -198,9 +186,7 @@ SET cost = CASE rarity
 END
 WHERE cost = 0 OR cost IS NULL;
 
--- ============================================
 -- GRANT PERMISSIONS
--- ============================================
 
 -- Grant service role full access
 GRANT ALL ON gold_transactions TO service_role;
@@ -211,9 +197,7 @@ GRANT EXECUTE ON FUNCTION process_gold_transaction TO service_role;
 GRANT SELECT ON gold_transactions TO authenticated;
 GRANT SELECT ON gold_purchases TO authenticated;
 
--- ============================================
 -- COMMENTS FOR DOCUMENTATION
--- ============================================
 
 COMMENT ON TABLE gold_transactions IS 'Audit trail for all gold movements - quest rewards, purchases, spending';
 COMMENT ON TABLE gold_purchases IS 'Real money purchases of gold via Stripe';
