@@ -14,10 +14,15 @@ export async function POST(request) {
     const { session_id } = await request.json();
     if (!session_id) return NextResponse.json({ error: 'Missing session_id' }, { status: 400 });
 
-    const session = await stripe.checkout.sessions.retrieve(session_id, { expand: ['payment_intent'] });
+    const session = await stripe.checkout.sessions.retrieve(session_id, {
+      expand: ['payment_intent'],
+    });
     if (session.payment_status !== 'paid') return NextResponse.json({ status: 'pending' });
 
-    const userId = session.client_reference_id || session.metadata?.userId || session.metadata?.supabase_user_id;
+    const userId =
+      session.client_reference_id ||
+      session.metadata?.userId ||
+      session.metadata?.supabase_user_id;
     if (!userId) return NextResponse.json({ error: 'Missing user reference' }, { status: 400 });
 
     const { error } = await supabase
