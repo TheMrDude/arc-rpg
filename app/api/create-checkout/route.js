@@ -1,3 +1,4 @@
+// touch: force new commit
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { getSupabaseAdminClient, getSupabaseAnonClient } from '@/lib/supabase-server';
@@ -24,8 +25,8 @@ export async function POST(request) {
 
     if (!token) {
       console.error('Create checkout: Missing Bearer token', { t: new Date().toISOString() });
+    if (!token)
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
 
     const {
       data: { user },
@@ -36,8 +37,9 @@ export async function POST(request) {
         error: authError?.message,
         t: new Date().toISOString(),
       });
+    const { data: { user }, error: authError } = await supabaseAnon.auth.getUser(token);
+    if (authError || !user)
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
 
     const userId = user.id;
 
@@ -61,8 +63,9 @@ export async function POST(request) {
       });
     }
     if (profile?.subscription_status === 'active' || profile?.is_premium) {
+    const { profile, created: profileCreated } = await getOrCreateProfile(userId);
+    if (profile?.subscription_status === 'active' || profile?.is_premium)
       return NextResponse.json({ error: 'Already premium' }, { status: 400 });
-    }
 
     // Reserve founder spot (RPC first; safe fallback)
     let canClaim = true;
@@ -122,7 +125,20 @@ export async function POST(request) {
       });
       return NextResponse.json({ error: 'Site configuration error' }, { status: 500 });
     }
+      const { count } = await supabaseAdmin
+        .from('profiles')
+        .select('*', { head: true, count: 'exact' })
+        .eq('subscription_status', 'active');
+      if ((count ?? 0) >= 25) canClaim = false;
+    } else {
+      const outcome = Array.isArray(claimResult) ? claimResult?.[0] : claimResult;
+      if (!outcome?.can_claim) canClaim = false;
+    }
 
+    if (!canClaim)
+      return NextResponse.json({ error: 'Founder spots full' }, { status: 400 });
+
+    const origin = resolveRequestOrigin(request);
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       payment_method_types: ['card'],
@@ -148,6 +164,11 @@ export async function POST(request) {
     return NextResponse.json(
       { error: 'Failed to create checkout session. Please try again.' },
       { status: 500 },
+  } catch (err) {
+    console.error('Stripe checkout error:', err);
+    return NextResponse.json(
+      { error: 'Failed to create checkout session' },
+      { status: 500 }
     );
   }
 }
