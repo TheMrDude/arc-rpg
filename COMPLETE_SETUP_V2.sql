@@ -1,12 +1,8 @@
--- ============================================
 -- COMPLETE ARC RPG DATABASE SETUP V2
 -- Run this ONCE in Supabase SQL Editor
 -- This version creates tables first, then adds constraints
--- ============================================
 
--- ============================================
 -- STEP 1: CREATE ALL TABLES (no foreign keys yet)
--- ============================================
 
 -- Equipment catalog (no dependencies)
 CREATE TABLE IF NOT EXISTS equipment_catalog (
@@ -120,9 +116,7 @@ CREATE TABLE IF NOT EXISTS template_generation_log (
   quests_created INTEGER DEFAULT 0
 );
 
--- ============================================
 -- STEP 2: ADD FOREIGN KEY CONSTRAINTS TO PROFILES
--- ============================================
 
 DO $$
 BEGIN
@@ -157,9 +151,7 @@ BEGIN
   END IF;
 END $$;
 
--- ============================================
 -- STEP 3: CREATE INDEXES FOR PERFORMANCE
--- ============================================
 
 CREATE INDEX IF NOT EXISTS idx_quests_user_id_created_at ON quests(user_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_quests_user_id_completed ON quests(user_id, completed, completed_at DESC);
@@ -169,9 +161,7 @@ CREATE INDEX IF NOT EXISTS idx_gold_transactions_user_id ON gold_transactions(us
 CREATE INDEX IF NOT EXISTS idx_user_equipment_user_id ON user_equipment(user_id);
 CREATE INDEX IF NOT EXISTS idx_template_tasks_template_id ON template_tasks(template_id, sort_order);
 
--- ============================================
 -- STEP 4: AUTO-CREATE PROFILE TRIGGER
--- ============================================
 
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
@@ -190,9 +180,7 @@ CREATE TRIGGER on_auth_user_created
   FOR EACH ROW
   EXECUTE FUNCTION public.handle_new_user();
 
--- ============================================
 -- STEP 5: GOLD TRANSACTION FUNCTION
--- ============================================
 
 CREATE OR REPLACE FUNCTION process_gold_transaction(
   p_user_id UUID,
@@ -236,9 +224,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- ============================================
 -- STEP 6: ENABLE ROW LEVEL SECURITY
--- ============================================
 
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE quests ENABLE ROW LEVEL SECURITY;
@@ -250,9 +236,7 @@ ALTER TABLE recurring_quest_templates ENABLE ROW LEVEL SECURITY;
 ALTER TABLE template_tasks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE template_generation_log ENABLE ROW LEVEL SECURITY;
 
--- ============================================
 -- STEP 7: CREATE RLS POLICIES
--- ============================================
 
 -- Profiles policies
 DROP POLICY IF EXISTS "Users can view own profile" ON profiles;
@@ -342,9 +326,7 @@ CREATE POLICY "Equipment catalog is viewable by everyone"
   TO authenticated
   USING (true);
 
--- ============================================
 -- STEP 8: INSERT STARTER EQUIPMENT
--- ============================================
 
 INSERT INTO equipment_catalog (name, type, description, xp_multiplier, gold_cost, level_required, rarity)
 VALUES
@@ -356,9 +338,6 @@ VALUES
   ('Focus Amulet', 'accessory', 'Sharpens the mind', 1.15, 1000, 3, 'uncommon')
 ON CONFLICT DO NOTHING;
 
--- ============================================
 -- DONE!
--- ============================================
 -- All tables, triggers, and policies created!
 -- Users can now sign up and start questing!
--- ============================================
