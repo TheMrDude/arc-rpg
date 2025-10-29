@@ -43,6 +43,9 @@ export async function POST(request) {
 
     const { profile, created: profileCreated, error: profileError } =
       await getOrCreateProfile(userId);
+    const { profile, created: profileCreated, error: profileError } = await getOrCreateProfile(
+      userId,
+    );
     if (profileError) {
       console.error('Create checkout: Profile error', {
         userId,
@@ -64,8 +67,10 @@ export async function POST(request) {
     // Reserve founder spot (RPC first; safe fallback)
     let canClaim = true;
 
-    const { data: claimResult, error: claimError } = await supabaseAdmin
-      .rpc('claim_founder_spot', { user_id_param: userId });
+    const { data: claimResult, error: claimError } = await supabaseAdmin.rpc(
+      'claim_founder_spot',
+      { user_id_param: userId },
+    );
 
     if (claimError) {
       console.warn('Create checkout: Founder RPC unavailable, falling back to count', {
