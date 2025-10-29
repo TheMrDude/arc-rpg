@@ -12,6 +12,14 @@ const supabase = getSupabaseAdminClient();
 export async function POST(request) {
   try {
     const { session_id } = await request.json();
+    if (!session_id)
+      return NextResponse.json({ error: 'Missing session_id' }, { status: 400 });
+
+    const session = await stripe.checkout.sessions.retrieve(session_id, {
+      expand: ['payment_intent'],
+    });
+    if (session.payment_status !== 'paid')
+      return NextResponse.json({ status: 'pending' });
     if (!session_id) return NextResponse.json({ error: 'Missing session_id' }, { status: 400 });
 
 codex/fix-critical-bug-in-verify-checkout-endpoint-qgrhj9
@@ -126,6 +134,8 @@ codex/identify-security-risks-and-payment-issues
       session.client_reference_id ||
       session.metadata?.userId ||
       session.metadata?.supabase_user_id;
+    if (!userId)
+      return NextResponse.json({ error: 'Missing user reference' }, { status: 400 });
     if (!userId) return NextResponse.json({ error: 'Missing user reference' }, { status: 400 });
 
     const { error } = await supabase
