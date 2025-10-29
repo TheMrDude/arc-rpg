@@ -1,9 +1,7 @@
 -- ARC RPG Premium Features Database Migrations
 -- Run this in Supabase SQL Editor
 
--- ============================================
 -- SUBSCRIPTION TRACKING
--- ============================================
 
 -- Add subscription fields to profiles table
 ALTER TABLE profiles
@@ -15,9 +13,7 @@ ADD COLUMN IF NOT EXISTS subscription_current_period_end TIMESTAMPTZ;
 CREATE INDEX IF NOT EXISTS idx_profiles_subscription_status
 ON profiles(subscription_status);
 
--- ============================================
 -- RECURRING QUEST TEMPLATES (PREMIUM)
--- ============================================
 
 -- Update existing recurring_quests table or create if not exists
 CREATE TABLE IF NOT EXISTS recurring_quest_templates (
@@ -57,9 +53,7 @@ ON recurring_quest_templates(user_id, is_active);
 CREATE INDEX IF NOT EXISTS idx_template_tasks_template_id
 ON template_tasks(template_id, sort_order);
 
--- ============================================
 -- SKILL TREE SYSTEM (PREMIUM)
--- ============================================
 
 -- Add skill points to profiles
 ALTER TABLE profiles
@@ -80,9 +74,7 @@ CREATE TABLE IF NOT EXISTS unlocked_skills (
 CREATE INDEX IF NOT EXISTS idx_unlocked_skills_user_id
 ON unlocked_skills(user_id);
 
--- ============================================
 -- EQUIPMENT SYSTEM (PREMIUM)
--- ============================================
 
 -- Equipment catalog (all available equipment)
 CREATE TABLE IF NOT EXISTS equipment_catalog (
@@ -117,9 +109,7 @@ ADD COLUMN IF NOT EXISTS equipped_accessory UUID REFERENCES equipment_catalog(id
 CREATE INDEX IF NOT EXISTS idx_user_equipment_user_id
 ON user_equipment(user_id, is_equipped);
 
--- ============================================
 -- AI DUNGEON MASTER / STORY TRACKING
--- ============================================
 
 -- Track user's story progress for AI context
 CREATE TABLE IF NOT EXISTS story_progress (
@@ -155,9 +145,7 @@ ON weekly_summaries(user_id, week_start_date DESC);
 CREATE INDEX IF NOT EXISTS idx_story_progress_user_id
 ON story_progress(user_id);
 
--- ============================================
 -- BOSS BATTLES (ENHANCED)
--- ============================================
 
 -- Track active boss battles
 CREATE TABLE IF NOT EXISTS boss_battles (
@@ -178,9 +166,7 @@ CREATE TABLE IF NOT EXISTS boss_battles (
 CREATE INDEX IF NOT EXISTS idx_boss_battles_user_status
 ON boss_battles(user_id, status);
 
--- ============================================
 -- SEED DATA: EQUIPMENT CATALOG
--- ============================================
 
 -- Insert starter equipment
 INSERT INTO equipment_catalog (name, description, slot, rarity, xp_multiplier, required_level, icon_emoji) VALUES
@@ -200,9 +186,7 @@ INSERT INTO equipment_catalog (name, description, slot, rarity, xp_multiplier, r
   ('Crown of Mastery', 'Worn by true legends', 'accessory', 'legendary', 1.35, 30, '👑')
 ON CONFLICT DO NOTHING;
 
--- ============================================
 -- ROW LEVEL SECURITY (RLS) POLICIES
--- ============================================
 
 -- Recurring quest templates
 ALTER TABLE recurring_quest_templates ENABLE ROW LEVEL SECURITY;
@@ -311,9 +295,7 @@ CREATE POLICY "Users can manage own boss battles"
 ON boss_battles FOR ALL
 USING (auth.uid() = user_id);
 
--- ============================================
 -- HELPER FUNCTIONS
--- ============================================
 
 -- Function to check if user is premium
 CREATE OR REPLACE FUNCTION is_premium_user(user_id_param uuid)
@@ -357,9 +339,7 @@ AFTER UPDATE OF level ON profiles
 FOR EACH ROW
 EXECUTE FUNCTION grant_skill_point_on_level();
 
--- ============================================
 -- COMMENTS FOR DOCUMENTATION
--- ============================================
 
 COMMENT ON TABLE recurring_quest_templates IS 'Premium feature: User-created quest templates that auto-generate';
 COMMENT ON TABLE template_tasks IS 'Individual tasks within a recurring template';
@@ -370,9 +350,7 @@ COMMENT ON TABLE story_progress IS 'Tracks user story progression for AI DM cont
 COMMENT ON TABLE weekly_summaries IS 'Archive of weekly progress summaries';
 COMMENT ON TABLE boss_battles IS 'Active and completed boss battles';
 
--- ============================================
 -- VERIFICATION QUERIES
--- ============================================
 
 -- Run these to verify migration success:
 
