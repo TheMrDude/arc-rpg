@@ -49,13 +49,9 @@ codex/fix-critical-bug-in-verify-checkout-endpoint-qgrhj9
       });
     }
 
-    if (profile?.subscription_status === 'active' && profile?.is_premium) {
-      return NextResponse.json({
-        status: 'activated',
-        premiumSince: profile.premium_since,
-        stripeSessionId: profile.stripe_session_id,
-      });
-    }
+    const session = await stripe.checkout.sessions.retrieve(session_id, { expand: ['payment_intent'] });
+    if (session.payment_status !== 'paid')
+      return NextResponse.json({ status: 'pending' });
 
     const planMetadata = checkoutSession?.metadata?.plan;
     const transactionType = checkoutSession?.metadata?.transaction_type;
@@ -70,38 +66,21 @@ codex/fix-critical-bug-in-verify-checkout-endpoint-qgrhj9
 
     if (checkoutSession.payment_status === 'paid' && qualifiesForFounderUpgrade) {
       const premiumSince = profile?.premium_since ?? new Date().toISOString();
+    const userId =
+      session.client_reference_id ||
+      session.metadata?.userId ||
+      session.metadata?.supabase_user_id;
 
-      const { error: upgradeError } = await supabaseAdmin
-        .from('profiles')
-        .update({
-          subscription_status: 'active',
-          is_premium: true,
-          premium_since: premiumSince,
-          stripe_session_id: sessionId,
-          stripe_customer_id: checkoutSession.customer,
-        })
-        .eq('id', user.id);
+    if (!userId)
+      return NextResponse.json({ error: 'Missing user reference' }, { status: 400 });
 
-      if (upgradeError) {
-        console.error('Verify checkout: Failed to finalize premium upgrade', {
-          error: upgradeError.message,
-          userId: user.id,
-          sessionId,
-          timestamp,
-        });
-      } else {
-        return NextResponse.json({
-          status: 'activated',
-          premiumSince,
-          stripeSessionId: sessionId,
-        });
-      }
+    const { error } = await supabase
+      .from('profiles')
+      .update({ subscription_status: 'active', is_premium: true })
+      .eq('user_id', userId);
 
-      return NextResponse.json({
-        status: 'processing',
-        paymentStatus: checkoutSession.payment_status,
-      });
-    }
+    if (error)
+      return NextResponse.json({ error: 'Failed to activate plan' }, { status: 500 });
 
     if (checkoutSession.payment_status === 'paid') {
       console.error('Verify checkout: Paid session did not qualify for upgrade', {
