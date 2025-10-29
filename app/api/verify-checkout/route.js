@@ -94,7 +94,18 @@ export async function POST(request) {
       });
     }
 
-    if (checkoutSession.payment_status === 'paid') {
+    const planMetadata = checkoutSession?.metadata?.plan;
+    const transactionType = checkoutSession?.metadata?.transaction_type;
+    const amountTotal = checkoutSession?.amount_total;
+    const currency = checkoutSession?.currency;
+
+    const qualifiesForFounderUpgrade =
+      (planMetadata === 'founder_lifetime' || transactionType === 'founder_lifetime') &&
+      currency === 'usd' &&
+      typeof amountTotal === 'number' &&
+      amountTotal >= 4700;
+
+    if (checkoutSession.payment_status === 'paid' && qualifiesForFounderUpgrade) {
       const premiumSince = profile?.premium_since ?? new Date().toISOString();
 
       const { error: upgradeError } = await supabaseAdmin
@@ -127,6 +138,20 @@ export async function POST(request) {
         status: 'processing',
         paymentStatus: checkoutSession.payment_status,
       });
+    }
+
+    if (checkoutSession.payment_status === 'paid') {
+      console.error('Verify checkout: Paid session did not qualify for upgrade', {
+        userId: user.id,
+        sessionId,
+        timestamp,
+        planMetadata,
+        transactionType,
+        currency,
+        amountTotal,
+      });
+
+      return NextResponse.json({ status: 'invalid_plan' }, { status: 403 });
     }
 
     return NextResponse.json({
