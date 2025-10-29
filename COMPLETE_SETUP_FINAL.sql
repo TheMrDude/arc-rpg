@@ -1,11 +1,7 @@
--- ============================================
 -- COMPLETE ARC RPG DATABASE SETUP - FINAL VERSION
 -- Run this ONCE in Supabase SQL Editor
--- ============================================
 
--- ============================================
 -- STEP 1: DROP EXISTING TABLES (CLEAN SLATE)
--- ============================================
 
 DROP TABLE IF EXISTS template_generation_log CASCADE;
 DROP TABLE IF EXISTS template_tasks CASCADE;
@@ -21,9 +17,7 @@ DROP TABLE IF EXISTS equipment_catalog CASCADE;
 DROP FUNCTION IF EXISTS process_gold_transaction(UUID, INTEGER, TEXT, UUID, JSONB);
 DROP FUNCTION IF EXISTS handle_new_user();
 
--- ============================================
 -- STEP 2: CREATE EQUIPMENT CATALOG (NO DEPENDENCIES)
--- ============================================
 
 CREATE TABLE equipment_catalog (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -37,9 +31,7 @@ CREATE TABLE equipment_catalog (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- ============================================
 -- STEP 3: CREATE PROFILES TABLE
--- ============================================
 
 CREATE TABLE profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -64,9 +56,7 @@ CREATE TABLE profiles (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- ============================================
 -- STEP 4: CREATE QUESTS TABLE
--- ============================================
 
 CREATE TABLE quests (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -80,9 +70,7 @@ CREATE TABLE quests (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- ============================================
 -- STEP 5: CREATE USER EQUIPMENT TABLE
--- ============================================
 
 CREATE TABLE user_equipment (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -92,9 +80,7 @@ CREATE TABLE user_equipment (
   UNIQUE(user_id, equipment_id)
 );
 
--- ============================================
 -- STEP 6: CREATE GOLD TRANSACTIONS TABLE
--- ============================================
 
 CREATE TABLE gold_transactions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -106,9 +92,7 @@ CREATE TABLE gold_transactions (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- ============================================
 -- STEP 7: CREATE STORY PROGRESS TABLE
--- ============================================
 
 CREATE TABLE story_progress (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -120,9 +104,7 @@ CREATE TABLE story_progress (
   UNIQUE(user_id)
 );
 
--- ============================================
 -- STEP 8: CREATE RECURRING QUEST TEMPLATES TABLE
--- ============================================
 
 CREATE TABLE recurring_quest_templates (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -136,9 +118,7 @@ CREATE TABLE recurring_quest_templates (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- ============================================
 -- STEP 9: CREATE TEMPLATE TASKS TABLE
--- ============================================
 
 CREATE TABLE template_tasks (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -149,9 +129,7 @@ CREATE TABLE template_tasks (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- ============================================
 -- STEP 10: CREATE TEMPLATE GENERATION LOG TABLE
--- ============================================
 
 CREATE TABLE template_generation_log (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -160,9 +138,7 @@ CREATE TABLE template_generation_log (
   quests_created INTEGER DEFAULT 0
 );
 
--- ============================================
 -- STEP 11: CREATE INDEXES
--- ============================================
 
 CREATE INDEX idx_quests_user_id_created_at ON quests(user_id, created_at DESC);
 CREATE INDEX idx_quests_user_id_completed ON quests(user_id, completed, completed_at DESC);
@@ -172,9 +148,7 @@ CREATE INDEX idx_gold_transactions_user_id ON gold_transactions(user_id, created
 CREATE INDEX idx_user_equipment_user_id ON user_equipment(user_id);
 CREATE INDEX idx_template_tasks_template_id ON template_tasks(template_id, sort_order);
 
--- ============================================
 -- STEP 12: CREATE AUTO-PROFILE TRIGGER
--- ============================================
 
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
@@ -193,9 +167,7 @@ CREATE TRIGGER on_auth_user_created
   FOR EACH ROW
   EXECUTE FUNCTION public.handle_new_user();
 
--- ============================================
 -- STEP 13: CREATE GOLD TRANSACTION FUNCTION
--- ============================================
 
 CREATE OR REPLACE FUNCTION process_gold_transaction(
   p_user_id UUID,
@@ -239,9 +211,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- ============================================
 -- STEP 14: ENABLE ROW LEVEL SECURITY
--- ============================================
 
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE quests ENABLE ROW LEVEL SECURITY;
@@ -253,9 +223,7 @@ ALTER TABLE recurring_quest_templates ENABLE ROW LEVEL SECURITY;
 ALTER TABLE template_tasks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE template_generation_log ENABLE ROW LEVEL SECURITY;
 
--- ============================================
 -- STEP 15: CREATE RLS POLICIES
--- ============================================
 
 -- Profiles
 CREATE POLICY "Users can view own profile" ON profiles
@@ -314,9 +282,7 @@ CREATE POLICY "Users can view tasks for own templates" ON template_tasks
 CREATE POLICY "Equipment catalog is viewable by everyone" ON equipment_catalog
   FOR SELECT TO authenticated USING (true);
 
--- ============================================
 -- STEP 16: INSERT STARTER EQUIPMENT
--- ============================================
 
 INSERT INTO equipment_catalog (name, type, description, xp_multiplier, gold_cost, level_required, rarity)
 VALUES
@@ -327,10 +293,7 @@ VALUES
   ('Chainmail Vest', 'armor', 'Decent protection', 1.25, 2000, 5, 'uncommon'),
   ('Focus Amulet', 'accessory', 'Sharpens the mind', 1.15, 1000, 3, 'uncommon');
 
--- ============================================
 -- DONE! 🎉
--- ============================================
 -- Your ARC RPG database is now fully set up!
 -- The archetype selection loop is FIXED!
 -- Users can now sign up, select archetype, and start questing!
--- ============================================
