@@ -1,11 +1,7 @@
--- ============================================
 -- COMPLETE ARC RPG DATABASE SETUP
 -- Run this ONCE in Supabase SQL Editor
--- ============================================
 
--- ============================================
 -- 1. CREATE PROFILES TABLE
--- ============================================
 
 CREATE TABLE IF NOT EXISTS profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -35,9 +31,7 @@ CREATE TABLE IF NOT EXISTS profiles (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- ============================================
 -- 2. CREATE QUESTS TABLE
--- ============================================
 
 CREATE TABLE IF NOT EXISTS quests (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -51,9 +45,7 @@ CREATE TABLE IF NOT EXISTS quests (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- ============================================
 -- 3. CREATE EQUIPMENT CATALOG TABLE
--- ============================================
 
 CREATE TABLE IF NOT EXISTS equipment_catalog (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -67,9 +59,7 @@ CREATE TABLE IF NOT EXISTS equipment_catalog (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- ============================================
 -- 4. CREATE USER EQUIPMENT INVENTORY
--- ============================================
 
 CREATE TABLE IF NOT EXISTS user_equipment (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -79,9 +69,7 @@ CREATE TABLE IF NOT EXISTS user_equipment (
   UNIQUE(user_id, equipment_id)
 );
 
--- ============================================
 -- 5. CREATE GOLD TRANSACTIONS TABLE
--- ============================================
 
 CREATE TABLE IF NOT EXISTS gold_transactions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -93,9 +81,7 @@ CREATE TABLE IF NOT EXISTS gold_transactions (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- ============================================
 -- 6. CREATE STORY PROGRESS TABLE (Premium)
--- ============================================
 
 CREATE TABLE IF NOT EXISTS story_progress (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -107,9 +93,7 @@ CREATE TABLE IF NOT EXISTS story_progress (
   UNIQUE(user_id)
 );
 
--- ============================================
 -- 7. CREATE RECURRING QUEST TEMPLATES TABLE
--- ============================================
 
 CREATE TABLE IF NOT EXISTS recurring_quest_templates (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -123,9 +107,7 @@ CREATE TABLE IF NOT EXISTS recurring_quest_templates (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- ============================================
 -- 8. CREATE TEMPLATE TASKS TABLE
--- ============================================
 
 CREATE TABLE IF NOT EXISTS template_tasks (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -136,9 +118,7 @@ CREATE TABLE IF NOT EXISTS template_tasks (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- ============================================
 -- 9. CREATE TEMPLATE GENERATION LOG
--- ============================================
 
 CREATE TABLE IF NOT EXISTS template_generation_log (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -147,9 +127,7 @@ CREATE TABLE IF NOT EXISTS template_generation_log (
   quests_created INTEGER DEFAULT 0
 );
 
--- ============================================
 -- 10. CREATE INDEXES FOR PERFORMANCE
--- ============================================
 
 CREATE INDEX IF NOT EXISTS idx_quests_user_id_created_at ON quests(user_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_quests_user_id_completed ON quests(user_id, completed, completed_at DESC);
@@ -159,9 +137,7 @@ CREATE INDEX IF NOT EXISTS idx_gold_transactions_user_id ON gold_transactions(us
 CREATE INDEX IF NOT EXISTS idx_user_equipment_user_id ON user_equipment(user_id);
 CREATE INDEX IF NOT EXISTS idx_template_tasks_template_id ON template_tasks(template_id, sort_order);
 
--- ============================================
 -- 11. AUTO-CREATE PROFILE TRIGGER
--- ============================================
 
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
@@ -179,9 +155,7 @@ CREATE TRIGGER on_auth_user_created
   FOR EACH ROW
   EXECUTE FUNCTION public.handle_new_user();
 
--- ============================================
 -- 12. GOLD TRANSACTION FUNCTION
--- ============================================
 
 CREATE OR REPLACE FUNCTION process_gold_transaction(
   p_user_id UUID,
@@ -231,9 +205,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- ============================================
 -- 13. ENABLE ROW LEVEL SECURITY
--- ============================================
 
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE quests ENABLE ROW LEVEL SECURITY;
@@ -244,9 +216,7 @@ ALTER TABLE recurring_quest_templates ENABLE ROW LEVEL SECURITY;
 ALTER TABLE template_tasks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE template_generation_log ENABLE ROW LEVEL SECURITY;
 
--- ============================================
 -- 14. RLS POLICIES FOR PROFILES
--- ============================================
 
 DROP POLICY IF EXISTS "Users can view own profile" ON profiles;
 CREATE POLICY "Users can view own profile"
@@ -258,9 +228,7 @@ CREATE POLICY "Users can update own profile"
   ON profiles FOR UPDATE
   USING (auth.uid() = id);
 
--- ============================================
 -- 15. RLS POLICIES FOR QUESTS
--- ============================================
 
 DROP POLICY IF EXISTS "Users can view own quests" ON quests;
 CREATE POLICY "Users can view own quests"
@@ -282,9 +250,7 @@ CREATE POLICY "Users can delete own quests"
   ON quests FOR DELETE
   USING (auth.uid() = user_id);
 
--- ============================================
 -- 16. RLS POLICIES FOR USER EQUIPMENT
--- ============================================
 
 DROP POLICY IF EXISTS "Users can view own equipment" ON user_equipment;
 CREATE POLICY "Users can view own equipment"
@@ -296,9 +262,7 @@ CREATE POLICY "Users can insert own equipment"
   ON user_equipment FOR INSERT
   WITH CHECK (auth.uid() = user_id);
 
--- ============================================
 -- 17. RLS POLICIES FOR TEMPLATES
--- ============================================
 
 DROP POLICY IF EXISTS "Users can view own templates" ON recurring_quest_templates;
 CREATE POLICY "Users can view own templates"
@@ -320,9 +284,7 @@ CREATE POLICY "Users can delete own templates"
   ON recurring_quest_templates FOR DELETE
   USING (auth.uid() = user_id);
 
--- ============================================
 -- 18. RLS POLICIES FOR TEMPLATE TASKS
--- ============================================
 
 DROP POLICY IF EXISTS "Users can view tasks for own templates" ON template_tasks;
 CREATE POLICY "Users can view tasks for own templates"
@@ -335,9 +297,7 @@ CREATE POLICY "Users can view tasks for own templates"
     )
   );
 
--- ============================================
 -- 19. EQUIPMENT CATALOG IS PUBLIC (READ-ONLY)
--- ============================================
 
 DROP POLICY IF EXISTS "Equipment catalog is viewable by everyone" ON equipment_catalog;
 CREATE POLICY "Equipment catalog is viewable by everyone"
@@ -345,9 +305,7 @@ CREATE POLICY "Equipment catalog is viewable by everyone"
   TO authenticated
   USING (true);
 
--- ============================================
 -- 20. INSERT STARTER EQUIPMENT
--- ============================================
 
 INSERT INTO equipment_catalog (name, type, description, xp_multiplier, gold_cost, level_required, rarity)
 VALUES
@@ -359,9 +317,6 @@ VALUES
   ('Focus Amulet', 'accessory', 'Sharpens the mind', 1.15, 1000, 3, 'uncommon')
 ON CONFLICT DO NOTHING;
 
--- ============================================
 -- DONE!
--- ============================================
 -- All tables, triggers, and policies created!
 -- Users can now sign up and start questing!
--- ============================================
