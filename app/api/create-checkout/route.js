@@ -1,4 +1,3 @@
-// touch: force new commit
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { getSupabaseAdminClient, getSupabaseAnonClient } from '@/lib/supabase-server';
@@ -11,6 +10,7 @@ export const dynamic = 'force-dynamic';
 
 const STRIPE_KEY = process.env.STRIPE_SECRET_KEY;
 if (!STRIPE_KEY) throw new Error('Missing STRIPE_SECRET_KEY');
+
 const stripe = new Stripe(STRIPE_KEY, { apiVersion: '2024-06-20' });
 
 
@@ -29,6 +29,10 @@ const supabaseAnon = getSupabaseAnonClient();
 
 export async function POST(request) {
   try {
+    // Auth via Bearer token
+    const authHeader = request.headers.get('authorization') ?? request.headers.get('Authorization');
+    const token = authHeader?.startsWith('Bearer ') ? authHeader.slice('Bearer '.length) : null;
+    if (!token) {
     const authHeader =
       request.headers.get('authorization') ?? request.headers.get('Authorization');
     const token = authHeader?.startsWith('Bearer ')
@@ -39,6 +43,7 @@ export async function POST(request) {
       console.error('Create checkout: Missing Bearer token', { t: new Date().toISOString() });
     if (!token)
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     const {
       data: { user },
@@ -66,11 +71,17 @@ export async function POST(request) {
         t: new Date().toISOString(),
       });
     const { data: { user }, error: authError } = await supabaseAnon.auth.getUser(token);
-    if (authError || !user)
+    if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
+    }
     const userId = user.id;
 
+    // Ensure profile exists and not already premium
+    const { profile, created: profileCreated, error: profileError } = await getOrCreateProfile(userId);
+    if (profileError) {
+      return NextResponse.json({ error: 'Failed to fetch profile' }, { status: 500 });
+    }
+    if (profile?.subscription_status === 'active' || profile?.is_premium) {
     const { profile, created: profileCreated, error: profileError } =
       await getOrCreateProfile(userId);
     const { profile, created: profileCreated, error: profileError } = await getOrCreateProfile(
@@ -105,7 +116,9 @@ main
     const { profile, created: profileCreated } = await getOrCreateProfile(userId);
     if (profile?.subscription_status === 'active' || profile?.is_premium)
       return NextResponse.json({ error: 'Already premium' }, { status: 400 });
+    }
 
+    // Reserve founder spot via RPC; fallback to count
  codex/identify-security-risks-and-payment-issues-fw2pni
     // 3) Reserve founder spot (RPC first; safe fallback)
     let canClaim = true;
@@ -131,6 +144,7 @@ main
     );
 
     if (claimError) {
+      const { count, error: countError } = await supabaseAdmin
  codex/identify-security-risks-and-payment-issues-fw2pni
       console.warn('Create checkout: Founder RPC unavailable, falling back to count', { userId, error: claimError.message, t: new Date().toISOString() });
 
@@ -236,16 +250,34 @@ main
         .from('profiles')
         .select('*', { head: true, count: 'exact' })
         .eq('subscription_status', 'active');
-      if ((count ?? 0) >= 25) canClaim = false;
+      if (countError) {
+        return NextResponse.json({ error: 'Failed to check availability' }, { status: 500 });
+      }
+      if ((count ?? 0) >= 25) {
+        return NextResponse.json({ error: 'All founder spots taken' }, { status: 400 });
+      }
     } else {
-      const outcome = Array.isArray(claimResult) ? claimResult?.[0] : claimResult;
-      if (!outcome?.can_claim) canClaim = false;
+      const outcome = Array.isArray(claimResult) ? claimResult[0] : claimResult;
+      if (!outcome?.can_claim) {
+        if (outcome?.failure_reason === 'already_premium') {
+          return NextResponse.json({ error: 'Already premium' }, { status: 400 });
+        }
+        if (outcome?.failure_reason === 'sold_out') {
+          return NextResponse.json({ error: 'All founder spots taken' }, { status: 400 });
+        }
+        return NextResponse.json({ error: 'Founder spots temporarily unavailable' }, { status: 400 });
+      }
     }
 
-    if (!canClaim)
-      return NextResponse.json({ error: 'Founder spots full' }, { status: 400 });
+    // URLs
+    let origin;
+    try {
+      origin = resolveRequestOrigin(request);
+    } catch {
+      return NextResponse.json({ error: 'Site configuration error' }, { status: 500 });
+    }
 
-    const origin = resolveRequestOrigin(request);
+    // Create Stripe Checkout session
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       payment_method_types: ['card'],
@@ -258,6 +290,8 @@ main
 
     console.log('Checkout session created', { userId, sessionId: session.id, t: new Date().toISOString() });
     return NextResponse.json({ url: session.url });
+  } catch (error) {
+    console.error('Stripe checkout error:', { msg: error?.message, stack: error?.stack });
   } catch (error) {
     console.error('Stripe checkout error:', { error: error?.message, stack: error?.stack, t: new Date().toISOString() });
     return NextResponse.json({ error: 'Failed to create checkout session. Please try again.' }, { status: 500 });
@@ -293,7 +327,7 @@ main
   } catch (err) {
     console.error('Stripe checkout error:', err);
     return NextResponse.json(
-      { error: 'Failed to create checkout session' },
+      { error: 'Failed to create checkout session. Please try again.' },
       { status: 500 }
     );
   }

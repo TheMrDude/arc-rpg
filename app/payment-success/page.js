@@ -43,9 +43,9 @@ export default function PaymentSuccessPage() {
   return (
     <div className="p-8 max-w-xl mx-auto">
       <h1 className="text-2xl font-bold mb-4">Payment Status</h1>
-      {status === 'verifying' && <p>Verifying your payment...</p>}
+      {status === 'verifying' && <p>Verifying your payment…</p>}
       {status === 'active' && <p>✅ Your premium access is active!</p>}
-      {status === 'pending' && <p>⏳ Payment pending, will upgrade soon.</p>}
+      {status === 'pending' && <p>⏳ Payment pending, we’ll upgrade soon.</p>}
       {status === 'error' && <p>❌ Could not verify your payment. Please contact support.</p>}
     </div>
   );
