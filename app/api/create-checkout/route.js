@@ -41,6 +41,8 @@ export async function POST(request) {
 
     const userId = user.id;
 
+    const { profile, created: profileCreated, error: profileError } =
+      await getOrCreateProfile(userId);
     const { profile, created: profileCreated, error: profileError } = await getOrCreateProfile(
       userId,
     );
