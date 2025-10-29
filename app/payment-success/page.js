@@ -23,6 +23,21 @@ export default function PaymentSuccessPage() {
         setStatus('error');
       }
     })();
+ codex/identify-security-risks-and-payment-issues-0brtde
+    if (!sessionId) return;
+    (async () => {
+      try {
+        const res = await fetch('/api/verify-checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ session_id: sessionId }),
+        });
+        const data = await res.json();
+        setStatus(data.status || 'error');
+      } catch {
+        setStatus('error');
+      }
+    })();
   }, [sessionId]);
 
   return (
