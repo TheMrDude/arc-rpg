@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 
-export default function PaymentSuccessPage() {
+function PaymentStatusContent() {
   const params = useSearchParams();
   const sessionId = params.get('session_id');
   const [status, setStatus] = useState('verifying');
@@ -33,5 +33,18 @@ export default function PaymentSuccessPage() {
       {status === 'pending' && <p>⏳ Payment pending, will upgrade soon.</p>}
       {status === 'error' && <p>❌ Could not verify your payment. Please contact support.</p>}
     </div>
+  );
+}
+
+export default function PaymentSuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="p-8 max-w-xl mx-auto">
+        <h1 className="text-2xl font-bold mb-4">Payment Status</h1>
+        <p>Loading...</p>
+      </div>
+    }>
+      <PaymentStatusContent />
+    </Suspense>
   );
 }
