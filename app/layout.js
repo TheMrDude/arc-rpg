@@ -1,7 +1,7 @@
 import './globals.css'
 
 export const metadata = {
-  title: 'ARC RPG',
+  title: 'HabitQuest',
   description: 'Turn your tasks into epic quests',
 }
 
