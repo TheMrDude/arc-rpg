@@ -35,10 +35,10 @@ export async function GET(request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get user profile
+    // Get user profile including story progress
     const { data: profile } = await supabaseAdmin
       .from('profiles')
-      .select('subscription_status, archetype')
+      .select('subscription_status, archetype, level, current_streak, story_chapter, story_last_event')
       .eq('id', user.id)
       .single();
 
@@ -98,35 +98,64 @@ export async function GET(request) {
     let summaryText = '';
 
     if (isPremium) {
-      // Premium: Epic narrative summary
+      // Premium: Epic narrative summary with chapter continuity
+      const currentChapter = profile?.story_chapter || 1;
+      const lastEvent = profile?.story_last_event || "Your journey began in the realm of forgotten tasks...";
+
       const questList = quests.slice(0, 10).map(q =>
         `- ${q.transformed_text} (${q.difficulty})`
       ).join('\n');
 
-      const prompt = `You are an epic storyteller and Dungeon Master narrating a hero's weekly adventures.
+      const prompt = `You are writing Chapter ${currentChapter} of a ${profile.archetype}'s personal epic journey in an RPG-style productivity adventure.
 
-Hero Archetype: ${profile.archetype.toUpperCase()}
-Week: ${weekStart.toLocaleDateString()} - ${weekEnd.toLocaleDateString()}
+PREVIOUS CHAPTER ENDING:
+"${lastEvent}"
 
-Completed Quests:
+THIS WEEK'S QUESTS:
 ${questList}
 
-Stats:
-- Total XP Earned: ${totalXP}
+STATS THIS WEEK:
 - Quests Completed: ${quests.length}
+- XP Gained: ${totalXP}
+- Current Level: ${profile.level || 1}
+- Current Streak: ${profile.current_streak || 0} days
 - Easy: ${questsByDifficulty.easy}, Medium: ${questsByDifficulty.medium}, Hard: ${questsByDifficulty.hard}
 
-Write an EPIC 4-5 sentence narrative summary of this hero's week. Make it dramatic, personal, and inspiring. Reference specific quests and celebrate their achievements. Make them feel like a legendary hero.
+Write a 200-250 word fantasy story chapter that:
+1. Opens with "Previously: [one sentence recap of last chapter]"
+2. Weaves each quest into the narrative as story beats
+3. Shows consequences (success builds momentum, failures create setbacks)
+4. Ends with a cliffhanger or hint about next week's challenges
+5. Uses ${profile.archetype} thematic style
+6. Maintains epic fantasy tone
 
-Weekly Summary:`;
+Close with: "Chapter ${currentChapter} complete. Your journey continues..."
+
+Write the chapter now:`;
 
       const message = await anthropic.messages.create({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 400,
+        max_tokens: 500,
         messages: [{ role: 'user', content: prompt }],
       });
 
       summaryText = message.content[0].text.trim();
+
+      // Extract last meaningful line for next week's "Previously"
+      const storyLines = summaryText.split('\n').filter(line => line.trim() && !line.includes('Chapter') && !line.includes('Previously:'));
+      const lastLine = storyLines[storyLines.length - 1] || "The adventure continues...";
+
+      // Update chapter progress (advance if 70%+ weekly completion)
+      const weeklyCompletionRate = quests.length >= 5 ? quests.length / 7 : 0; // Assuming 7 quests per week target
+      const shouldAdvanceChapter = weeklyCompletionRate >= 0.7;
+
+      await supabaseAdmin
+        .from('profiles')
+        .update({
+          story_chapter: shouldAdvanceChapter ? currentChapter + 1 : currentChapter,
+          story_last_event: lastLine.substring(0, 200) // Keep it reasonable length
+        })
+        .eq('id', user.id);
     } else {
       // Free: Simple progress report
       const topQuests = quests.slice(0, 3).map(q => q.transformed_text);
@@ -156,25 +185,6 @@ ${questsByDifficulty.hard > 0 ? `You conquered ${questsByDifficulty.hard} hard q
 
     if (saveError) {
       console.error('Error saving summary:', saveError);
-    }
-
-    // Update story progress
-    if (isPremium) {
-      const { data: storyProgress } = await supabaseAdmin
-        .from('story_progress')
-        .select('*')
-        .eq('user_id', user.id)
-        .single();
-
-      if (storyProgress) {
-        await supabaseAdmin
-          .from('story_progress')
-          .update({
-            last_summary_generated: new Date().toISOString(),
-            total_summaries: (storyProgress.total_summaries || 0) + 1,
-          })
-          .eq('user_id', user.id);
-      }
     }
 
     return NextResponse.json({
@@ -215,10 +225,10 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Week start date required' }, { status: 400 });
     }
 
-    // Get user profile
+    // Get user profile including story progress
     const { data: profile } = await supabaseAdmin
       .from('profiles')
-      .select('subscription_status, archetype')
+      .select('subscription_status, archetype, level, current_streak, story_chapter, story_last_event')
       .eq('id', user.id)
       .single();
 
@@ -256,34 +266,64 @@ export async function POST(request) {
       hard: quests.filter(q => q.difficulty === 'hard').length,
     };
 
+    // Chapter continuity for POST method
+    const currentChapter = profile?.story_chapter || 1;
+    const lastEvent = profile?.story_last_event || "Your journey began in the realm of forgotten tasks...";
+
     const questList = quests.slice(0, 10).map(q =>
       `- ${q.transformed_text} (${q.difficulty})`
     ).join('\n');
 
-    const prompt = `You are an epic storyteller and Dungeon Master narrating a hero's weekly adventures.
+    const prompt = `You are writing Chapter ${currentChapter} of a ${profile.archetype}'s personal epic journey in an RPG-style productivity adventure.
 
-Hero Archetype: ${profile.archetype.toUpperCase()}
-Week: ${weekStart.toLocaleDateString()} - ${weekEnd.toLocaleDateString()}
+PREVIOUS CHAPTER ENDING:
+"${lastEvent}"
 
-Completed Quests:
+THIS WEEK'S QUESTS:
 ${questList}
 
-Stats:
-- Total XP Earned: ${totalXP}
+STATS THIS WEEK:
 - Quests Completed: ${quests.length}
+- XP Gained: ${totalXP}
+- Current Level: ${profile.level || 1}
+- Current Streak: ${profile.current_streak || 0} days
 - Easy: ${questsByDifficulty.easy}, Medium: ${questsByDifficulty.medium}, Hard: ${questsByDifficulty.hard}
 
-Write an EPIC 4-5 sentence narrative summary of this hero's week. Make it dramatic, personal, and inspiring. Reference specific quests and celebrate their achievements. Make them feel like a legendary hero.
+Write a 200-250 word fantasy story chapter that:
+1. Opens with "Previously: [one sentence recap of last chapter]"
+2. Weaves each quest into the narrative as story beats
+3. Shows consequences (success builds momentum, failures create setbacks)
+4. Ends with a cliffhanger or hint about next week's challenges
+5. Uses ${profile.archetype} thematic style
+6. Maintains epic fantasy tone
 
-Weekly Summary:`;
+Close with: "Chapter ${currentChapter} complete. Your journey continues..."
+
+Write the chapter now:`;
 
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
-      max_tokens: 400,
+      max_tokens: 500,
       messages: [{ role: 'user', content: prompt }],
     });
 
     const summaryText = message.content[0].text.trim();
+
+    // Extract last meaningful line for next week's "Previously"
+    const storyLines = summaryText.split('\n').filter(line => line.trim() && !line.includes('Chapter') && !line.includes('Previously:'));
+    const lastLine = storyLines[storyLines.length - 1] || "The adventure continues...";
+
+    // Update chapter progress (advance if 70%+ weekly completion)
+    const weeklyCompletionRate = quests.length >= 5 ? quests.length / 7 : 0;
+    const shouldAdvanceChapter = weeklyCompletionRate >= 0.7;
+
+    await supabaseAdmin
+      .from('profiles')
+      .update({
+        story_chapter: shouldAdvanceChapter ? currentChapter + 1 : currentChapter,
+        story_last_event: lastLine.substring(0, 200)
+      })
+      .eq('id', user.id);
 
     // Save summary
     const { data: savedSummary } = await supabaseAdmin

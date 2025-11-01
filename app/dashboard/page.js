@@ -349,8 +349,8 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
-        <div className="text-white text-xl">Loading...</div>
+      <div className="min-h-screen bg-gradient-to-br from-[#1A1A2E] via-[#16213e] to-[#0F3460] flex items-center justify-center">
+        <div className="text-white text-xl font-black uppercase tracking-wide">Loading...</div>
       </div>
     );
   }
@@ -360,7 +360,7 @@ export default function DashboardPage() {
   const creature = profile ? getCreatureCompanion(quests, profile.last_quest_date) : null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 text-white p-8">
+    <div className="min-h-screen bg-gradient-to-br from-[#1A1A2E] via-[#16213e] to-[#0F3460] text-white p-8">
       <div className="max-w-6xl mx-auto">
         {/* Header with Character */}
         <div className="flex justify-between items-start mb-8">
@@ -372,7 +372,7 @@ export default function DashboardPage() {
                 <img
                   src={`/images/archetypes/${profile.archetype}.png`}
                   alt={profile.archetype}
-                  className="w-32 h-32 object-cover rounded-xl border-4 border-yellow-500 shadow-lg"
+                  className="w-32 h-32 object-cover rounded-lg border-3 border-[#FFD93D] shadow-[0_0_20px_rgba(255,217,61,0.5)]"
                 />
               </div>
             )}
@@ -380,39 +380,55 @@ export default function DashboardPage() {
             {/* Stats */}
             <div>
               <div className="flex items-center gap-3">
-                <h1 className="text-4xl font-bold">{profile?.archetype?.toUpperCase()} - Level {profile?.level}</h1>
+                <h1 className="text-4xl font-black uppercase tracking-wide text-[#FF6B6B]">{profile?.archetype} - Level {profile?.level}</h1>
                 {(profile?.subscription_status === 'active') && (
-                  <span className="px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-black rounded-lg font-bold text-sm">
+                  <span className="px-4 py-2 bg-[#FFD93D] text-[#1A1A2E] border-3 border-[#0F3460] rounded-lg font-black text-sm uppercase shadow-[0_3px_0_#0F3460]">
                     ⭐ PREMIUM
                   </span>
                 )}
               </div>
               <div className="flex items-center gap-4 mt-1">
-                <p className="text-gray-300">XP: {profile?.xp} / {(profile?.level || 0) * 100}</p>
-                <p className="text-gray-300">Streak: {profile?.current_streak} days</p>
-                <p className="text-yellow-400 font-semibold">💰 {profile?.gold || 0} Gold</p>
+                <p className="text-[#00D4FF] font-bold">XP: {profile?.xp} / {(profile?.level || 0) * 100}</p>
+                <p className="text-[#00D4FF] font-bold">Streak: {profile?.current_streak} days</p>
+                <p className="text-[#FFD93D] font-black">💰 {profile?.gold || 0} Gold</p>
+                {profile?.story_chapter && profile.story_chapter > 1 && (
+                  <p className="text-[#FFD93D] font-bold">📖 Chapter {profile.story_chapter}</p>
+                )}
               </div>
               {profile?.skill_points > 0 && (
-                <p className="text-yellow-400 font-semibold mt-1">💎 {profile.skill_points} Skill Points Available!</p>
+                <p className="text-[#FFD93D] font-black mt-1">💎 {profile.skill_points} Skill Points Available!</p>
               )}
             </div>
           </div>
 
           {/* Right side: Buttons */}
           <div className="flex gap-4">
-            <button onClick={() => router.push('/history')} className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg">History</button>
+            <button
+              onClick={() => router.push('/history')}
+              className="px-4 py-2 bg-[#0F3460] hover:bg-[#1a4a7a] text-white border-3 border-[#1A1A2E] rounded-lg font-bold uppercase text-sm tracking-wide transition-all"
+            >
+              History
+            </button>
             {!(profile?.subscription_status === 'active') && (
-              <button onClick={() => router.push('/pricing')} className="px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black rounded-lg font-bold">
+              <button
+                onClick={() => router.push('/pricing')}
+                className="px-4 py-2 bg-[#FFD93D] hover:bg-[#E6C335] text-[#1A1A2E] border-3 border-[#0F3460] rounded-lg font-black uppercase text-sm tracking-wide shadow-[0_3px_0_#0F3460] hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1 transition-all"
+              >
                 🔥 Lifetime Access - $47
               </button>
             )}
-            <button onClick={handleLogout} className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg">Logout</button>
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2 bg-[#FF6B6B] hover:bg-[#EE5A6F] text-white border-3 border-[#0F3460] rounded-lg font-bold uppercase text-sm tracking-wide transition-all"
+            >
+              Logout
+            </button>
           </div>
         </div>
 
         {/* Creature Companion */}
         {creature && (
-          <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-4 mb-8">
+          <div className="bg-[#1A1A2E] border-3 border-[#00D4FF] rounded-lg p-4 mb-8 shadow-[0_0_20px_rgba(0,212,255,0.3)]">
             <div className="flex items-center gap-4">
               {creature.image ? (
                 <img
@@ -424,8 +440,8 @@ export default function DashboardPage() {
                 <span className="text-4xl">{creature.emoji}</span>
               )}
               <div>
-                <h3 className="font-bold">{creature.name}</h3>
-                <p className="text-sm text-gray-400">{creature.description}</p>
+                <h3 className="font-black uppercase tracking-wide text-[#00D4FF]">{creature.name}</h3>
+                <p className="text-sm text-[#E2E8F0]">{creature.description}</p>
               </div>
             </div>
           </div>
@@ -433,12 +449,12 @@ export default function DashboardPage() {
 
         {/* Boss Encounter */}
         {bossEncounter && (
-          <div className="bg-red-600/20 border-2 border-red-500 rounded-xl p-6 mb-8">
+          <div className="bg-red-900/30 border-3 border-red-500 rounded-lg p-6 mb-8 shadow-[0_0_20px_rgba(239,68,68,0.5)]">
             <div className="flex items-center gap-4">
               <span className="text-5xl">{bossEncounter.emoji}</span>
               <div>
-                <h3 className="text-2xl font-bold">{bossEncounter.name}</h3>
-                <p className="text-gray-300">{bossEncounter.description}</p>
+                <h3 className="text-2xl font-black uppercase tracking-wide text-[#FF6B6B]">{bossEncounter.name}</h3>
+                <p className="text-[#E2E8F0]">{bossEncounter.description}</p>
               </div>
             </div>
           </div>
@@ -450,34 +466,34 @@ export default function DashboardPage() {
             <div className="grid md:grid-cols-3 gap-4 mb-4">
               <button
                 onClick={() => router.push('/templates')}
-                className="bg-gradient-to-br from-blue-600 to-blue-800 border-2 border-blue-500 rounded-xl p-6 text-left hover:scale-105 transition-transform"
+                className="bg-[#1A1A2E] border-3 border-[#00D4FF] rounded-lg p-6 text-left hover:scale-105 transition-transform shadow-[0_0_15px_rgba(0,212,255,0.3)]"
               >
                 <div className="text-4xl mb-3">🔄</div>
-                <h3 className="text-xl font-bold mb-2">Quest Templates</h3>
-                <p className="text-sm text-gray-200">Auto-generate recurring quests daily, weekly, or custom schedules</p>
+                <h3 className="text-xl font-black uppercase tracking-wide text-[#00D4FF] mb-2">Quest Templates</h3>
+                <p className="text-sm text-[#E2E8F0]">Auto-generate recurring quests daily, weekly, or custom schedules</p>
               </button>
               <button
                 onClick={() => router.push('/equipment')}
-                className="bg-gradient-to-br from-purple-600 to-purple-800 border-2 border-purple-500 rounded-xl p-6 text-left hover:scale-105 transition-transform"
+                className="bg-[#1A1A2E] border-3 border-[#FF6B6B] rounded-lg p-6 text-left hover:scale-105 transition-transform shadow-[0_0_15px_rgba(255,107,107,0.3)]"
               >
                 <div className="text-4xl mb-3">⚔️</div>
-                <h3 className="text-xl font-bold mb-2">Equipment Shop</h3>
-                <p className="text-sm text-gray-200">Unlock weapons, armor, and accessories to boost XP gains</p>
+                <h3 className="text-xl font-black uppercase tracking-wide text-[#FF6B6B] mb-2">Equipment Shop</h3>
+                <p className="text-sm text-[#E2E8F0]">Unlock weapons, armor, and accessories to boost XP gains</p>
               </button>
               <button
                 onClick={() => router.push('/skills')}
-                className="bg-gradient-to-br from-green-600 to-green-800 border-2 border-green-500 rounded-xl p-6 text-left hover:scale-105 transition-transform"
+                className="bg-[#1A1A2E] border-3 border-[#48BB78] rounded-lg p-6 text-left hover:scale-105 transition-transform shadow-[0_0_15px_rgba(72,187,120,0.3)]"
               >
                 <div className="text-4xl mb-3">🌳</div>
-                <h3 className="text-xl font-bold mb-2">Skill Trees</h3>
-                <p className="text-sm text-gray-200">Unlock powerful abilities with skill points earned from leveling</p>
+                <h3 className="text-xl font-black uppercase tracking-wide text-[#48BB78] mb-2">Skill Trees</h3>
+                <p className="text-sm text-[#E2E8F0]">Unlock powerful abilities with skill points earned from leveling</p>
               </button>
             </div>
             <div className="mb-8">
               <button
                 onClick={generateQuestsFromTemplates}
                 disabled={generating}
-                className="w-full px-6 py-4 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-lg font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full px-6 py-4 bg-[#48BB78] hover:bg-[#38a169] text-white border-3 border-[#0F3460] rounded-lg font-black text-lg uppercase tracking-wide shadow-[0_5px_0_#0F3460] hover:shadow-[0_7px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_2px_0_#0F3460] active:translate-y-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {generating ? 'Generating Quests...' : '✨ Generate Quests from Templates Now'}
               </button>
@@ -487,13 +503,13 @@ export default function DashboardPage() {
 
         {/* Skills */}
         {unlockedSkills.length > 0 && (
-          <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6 mb-8">
-            <h3 className="text-xl font-bold mb-4">Unlocked Skills</h3>
+          <div className="bg-[#1A1A2E] border-3 border-[#FFD93D] rounded-lg p-6 mb-8 shadow-[0_0_20px_rgba(255,217,61,0.3)]">
+            <h3 className="text-xl font-black uppercase tracking-wide text-[#FFD93D] mb-4">Unlocked Skills</h3>
             <div className="grid md:grid-cols-2 gap-4">
               {unlockedSkills.map((skill, i) => (
-                <div key={i} className="bg-gray-700/50 p-4 rounded-lg">
-                  <div className="font-bold">{skill.name}</div>
-                  <div className="text-sm text-gray-400">{skill.description}</div>
+                <div key={i} className="bg-[#0F3460] p-4 rounded-lg border-2 border-[#1A1A2E]">
+                  <div className="font-black text-[#00D4FF]">{skill.name}</div>
+                  <div className="text-sm text-[#E2E8F0]">{skill.description}</div>
                 </div>
               ))}
             </div>
@@ -501,20 +517,20 @@ export default function DashboardPage() {
         )}
 
         {/* Add Quest */}
-        <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6 mb-8">
-          <h3 className="text-xl font-bold mb-4">Add New Quest</h3>
+        <div className="bg-[#1A1A2E] border-3 border-[#00D4FF] rounded-lg p-6 mb-8 shadow-[0_0_20px_rgba(0,212,255,0.3)]">
+          <h3 className="text-xl font-black uppercase tracking-wide text-[#00D4FF] mb-4">Add New Quest</h3>
           <div className="flex gap-4 mb-4">
             <input
               type="text"
               value={newQuestText}
               onChange={(e) => setNewQuestText(e.target.value)}
               placeholder="Enter your task..."
-              className="flex-1 px-4 py-3 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="flex-1 px-4 py-3 bg-[#0F3460] text-white border-3 border-[#1A1A2E] rounded-lg focus:outline-none focus:border-[#00D4FF] focus:shadow-[0_0_0_3px_rgba(0,212,255,0.2)] transition-all"
             />
             <select
               value={newQuestDifficulty}
               onChange={(e) => setNewQuestDifficulty(e.target.value)}
-              className="px-4 py-3 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="px-4 py-3 bg-[#0F3460] text-white border-3 border-[#1A1A2E] rounded-lg focus:outline-none focus:border-[#00D4FF] focus:shadow-[0_0_0_3px_rgba(0,212,255,0.2)] transition-all font-bold"
             >
               <option value="easy">Easy (10 XP)</option>
               <option value="medium">Medium (25 XP)</option>
@@ -523,7 +539,7 @@ export default function DashboardPage() {
             <button
               onClick={addQuest}
               disabled={adding}
-              className="px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black rounded-lg font-semibold disabled:opacity-50"
+              className="px-6 py-3 bg-[#FF6B6B] hover:bg-[#EE5A6F] text-white border-3 border-[#0F3460] rounded-lg font-black uppercase tracking-wide shadow-[0_5px_0_#0F3460] hover:shadow-[0_7px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_2px_0_#0F3460] active:translate-y-1 transition-all disabled:opacity-50"
             >
               {adding ? 'Adding...' : 'Add Quest'}
             </button>
@@ -539,30 +555,30 @@ export default function DashboardPage() {
 
         {/* Unlock Premium Section (for non-premium users) */}
         {!(profile?.subscription_status === 'active') && (
-          <div className="bg-gradient-to-br from-yellow-600/20 to-orange-600/20 border-2 border-yellow-500 rounded-xl p-8 mb-8">
+          <div className="bg-[#1A1A2E] border-3 border-[#FFD93D] rounded-lg p-8 mb-8 shadow-[0_0_30px_rgba(255,217,61,0.4)]">
             <div className="text-center">
-              <h3 className="text-3xl font-bold mb-4">🔥 Limited-Time Founder's Deal</h3>
-              <p className="text-gray-200 mb-6">Get LIFETIME access to all premium features for a one-time payment!</p>
+              <h3 className="text-3xl font-black mb-4 uppercase tracking-wide text-[#FFD93D]">🔥 Limited-Time Founder's Deal</h3>
+              <p className="text-[#E2E8F0] mb-6 font-bold">Get LIFETIME access to all premium features for a one-time payment!</p>
               <div className="grid md:grid-cols-3 gap-4 mb-6">
-                <div className="bg-gray-800/50 p-4 rounded-lg">
+                <div className="bg-[#0F3460] p-4 rounded-lg border-2 border-[#1A1A2E]">
                   <div className="text-3xl mb-2">🔄</div>
-                  <div className="font-bold">Quest Templates</div>
-                  <div className="text-sm text-gray-400">Automate daily tasks</div>
+                  <div className="font-black text-[#00D4FF]">Quest Templates</div>
+                  <div className="text-sm text-[#E2E8F0]">Automate daily tasks</div>
                 </div>
-                <div className="bg-gray-800/50 p-4 rounded-lg">
+                <div className="bg-[#0F3460] p-4 rounded-lg border-2 border-[#1A1A2E]">
                   <div className="text-3xl mb-2">⚔️</div>
-                  <div className="font-bold">Equipment Shop</div>
-                  <div className="text-sm text-gray-400">Boost XP gains</div>
+                  <div className="font-black text-[#FF6B6B]">Equipment Shop</div>
+                  <div className="text-sm text-[#E2E8F0]">Boost XP gains</div>
                 </div>
-                <div className="bg-gray-800/50 p-4 rounded-lg">
+                <div className="bg-[#0F3460] p-4 rounded-lg border-2 border-[#1A1A2E]">
                   <div className="text-3xl mb-2">🌳</div>
-                  <div className="font-bold">Skill Trees</div>
-                  <div className="text-sm text-gray-400">Unlock abilities</div>
+                  <div className="font-black text-[#48BB78]">Skill Trees</div>
+                  <div className="text-sm text-[#E2E8F0]">Unlock abilities</div>
                 </div>
               </div>
               <button
                 onClick={() => router.push('/pricing')}
-                className="px-8 py-4 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black rounded-lg font-bold text-lg"
+                className="px-8 py-4 bg-[#FFD93D] hover:bg-[#E6C335] text-[#1A1A2E] border-3 border-[#0F3460] rounded-lg font-black text-lg uppercase tracking-wide shadow-[0_5px_0_#0F3460] hover:shadow-[0_7px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_2px_0_#0F3460] active:translate-y-1 transition-all"
               >
                 🔥 Get Lifetime Access - $47 (Limited Spots!)
               </button>
@@ -571,28 +587,28 @@ export default function DashboardPage() {
         )}
 
         {/* Active Quests */}
-        <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6">
-          <h3 className="text-xl font-bold mb-4">Active Quests</h3>
+        <div className="bg-[#1A1A2E] border-3 border-[#FF6B6B] rounded-lg p-6 shadow-[0_0_20px_rgba(255,107,107,0.3)]">
+          <h3 className="text-xl font-black uppercase tracking-wide text-[#FF6B6B] mb-4">Active Quests</h3>
           <div className="space-y-4">
             {quests.filter(q => !q.completed).map((quest) => (
-              <div key={quest.id} className="bg-gray-700/50 p-4 rounded-lg flex justify-between items-start">
+              <div key={quest.id} className="bg-[#0F3460] p-4 rounded-lg border-2 border-[#1A1A2E] flex justify-between items-start">
                 <div className="flex-1">
-                  <div className="font-semibold text-lg">{quest.transformed_text}</div>
-                  <div className="text-sm text-gray-400 mt-1">{quest.original_text}</div>
-                  <div className="text-xs text-gray-500 mt-2">
-                    {quest.difficulty.toUpperCase()} | {quest.xp_value} XP
+                  <div className="font-black text-lg text-[#00D4FF]">{quest.transformed_text}</div>
+                  <div className="text-sm text-[#E2E8F0] mt-1">{quest.original_text}</div>
+                  <div className="text-xs text-[#FFD93D] mt-2 font-bold uppercase">
+                    {quest.difficulty} | {quest.xp_value} XP
                   </div>
                 </div>
                 <button
                   onClick={() => completeQuest(quest.id, quest.xp_value)}
-                  className="ml-4 px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg font-semibold"
+                  className="ml-4 px-4 py-2 bg-[#48BB78] hover:bg-[#38a169] text-white border-3 border-[#0F3460] rounded-lg font-black uppercase text-sm tracking-wide shadow-[0_3px_0_#0F3460] hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1 transition-all"
                 >
                   Complete
                 </button>
               </div>
             ))}
             {quests.filter(q => !q.completed).length === 0 && (
-              <p className="text-gray-400 text-center py-8">No active quests. Add one above!</p>
+              <p className="text-[#00D4FF] text-center py-8 font-bold">No active quests. Add one above!</p>
             )}
           </div>
         </div>
