@@ -391,6 +391,9 @@ export default function DashboardPage() {
                 <p className="text-[#00D4FF] font-bold">XP: {profile?.xp} / {(profile?.level || 0) * 100}</p>
                 <p className="text-[#00D4FF] font-bold">Streak: {profile?.current_streak} days</p>
                 <p className="text-[#FFD93D] font-black">💰 {profile?.gold || 0} Gold</p>
+                {profile?.story_chapter && profile.story_chapter > 1 && (
+                  <p className="text-[#FFD93D] font-bold">📖 Chapter {profile.story_chapter}</p>
+                )}
               </div>
               {profile?.skill_points > 0 && (
                 <p className="text-[#FFD93D] font-black mt-1">💎 {profile.skill_points} Skill Points Available!</p>
