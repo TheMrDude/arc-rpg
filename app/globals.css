@@ -26,7 +26,7 @@ body {
 /* Retro Button Base */
 .btn-retro {
   @apply font-black uppercase tracking-wide;
-  @apply border-3 rounded-lg px-6 py-3;
+  @apply border-[3px] rounded-lg px-6 py-3;
   @apply transition-all duration-100;
   text-shadow: 2px 2px 0 rgba(0,0,0,0.3);
 }
@@ -48,7 +48,7 @@ body {
 
 /* Retro Card */
 .card-retro {
-  @apply bg-[#1A1A2E] rounded-lg border-3 p-6;
+  @apply bg-[#1A1A2E] rounded-lg border-[3px] p-6;
   box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
 }
 
