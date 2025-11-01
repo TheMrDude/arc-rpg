@@ -72,29 +72,27 @@ export async function POST(request) {
       .replace(/[<>]/g, '') // Remove HTML tags
       .trim();
 
-    // Load user profile and story progress for premium users
+    // Load user profile and fetch recent completed quests for continuity
     const { data: profile } = await supabaseAdmin
       .from('profiles')
-      .select('subscription_status, story:story_progress(*)')
+      .select('subscription_status, story_chapter, story_last_event')
       .eq('id', user.id)
       .single();
 
     const isPremium = profile?.subscription_status === 'active';
-    let storyContext = '';
 
-    if (isPremium && profile?.story?.length > 0) {
-      const storyProgress = profile.story[0];
-      const recentBeats = (storyProgress.story_beats || []).slice(-5); // Last 5 story beats
+    // Fetch recent completed quests for story continuity (ALL USERS)
+    const { data: recentQuests } = await supabaseAdmin
+      .from('quests')
+      .select('transformed_text, completed_at')
+      .eq('user_id', user.id)
+      .eq('completed', true)
+      .order('completed_at', { ascending: false })
+      .limit(5);
 
-      if (recentBeats.length > 0) {
-        storyContext = `\n\nSTORY CONTEXT (Premium - AI Dungeon Master Mode):
-Chapter: ${storyProgress.current_chapter}
-Recent story events:
-${recentBeats.map((beat, i) => `${i + 1}. ${beat}`).join('\n')}
-
-Use this context to create a quest that continues the user's ongoing story. Reference past events and maintain narrative continuity.`;
-      }
-    }
+    const recentQuestContext = recentQuests && recentQuests.length > 0
+      ? `\n\nRECENT COMPLETED QUESTS (for continuity):\n${recentQuests.map(q => `- ${q.transformed_text}`).join('\n')}\n\nIf appropriate, create subtle continuity with these recent quests (reference locations, characters, or themes). Don't force it - only add continuity if it flows naturally.`
+      : '';
 
     const archetypeStyles = {
       warrior: 'Transform this into a heroic battle or conquest. Use bold, action-oriented language.',
@@ -109,11 +107,11 @@ Use this context to create a quest that continues the user's ongoing story. Refe
 Archetype: ${archetype.toUpperCase()}
 Style: ${archetypeStyles[archetype] || archetypeStyles.warrior}
 Difficulty: ${difficulty}
-${storyContext}
+${recentQuestContext}
 
 Original task: "${sanitizedQuestText}"
 
-Transform this boring task into an epic RPG quest. ${isPremium ? 'As a PREMIUM user with AI Dungeon Master, create 2-3 sentences with rich narrative detail and story continuity.' : 'Keep it to 1-2 sentences.'} Make it exciting and match the archetype style.
+Transform this boring task into an epic RPG quest. Keep it to 1-2 sentences. Make it exciting and match the archetype style.
 
 Quest:`;
 
@@ -125,37 +123,8 @@ Quest:`;
 
     const transformedText = message.content[0].text.trim();
 
-    // Save story beat for premium users
-    if (isPremium) {
-      // Get or create story progress
-      let { data: storyProgress } = await supabaseAdmin
-        .from('story_progress')
-        .select('*')
-        .eq('user_id', user.id)
-        .single();
-
-      if (!storyProgress) {
-        const { data: newStory } = await supabaseAdmin
-          .from('story_progress')
-          .insert({ user_id: user.id, story_beats: [] })
-          .select()
-          .single();
-        storyProgress = newStory;
-      }
-
-      // Add new story beat (keep last 20 beats)
-      const newBeat = `${archetype} quest: ${transformedText}`;
-      const currentBeats = storyProgress.story_beats || [];
-      const updatedBeats = [...currentBeats, newBeat].slice(-20);
-
-      await supabaseAdmin
-        .from('story_progress')
-        .update({
-          story_beats: updatedBeats,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('user_id', user.id);
-    }
+    // Story continuity now handled via story_chapter and story_last_event in profiles table
+    // Updated by weekly-summary API when generating chapter stories
 
     console.log('Quest transformed successfully', {
       userId: user.id,

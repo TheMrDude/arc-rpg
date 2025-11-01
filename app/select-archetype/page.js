@@ -128,22 +128,22 @@ export default function SelectArchetypePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
-        <div className="text-white text-xl">Loading...</div>
+      <div className="min-h-screen bg-gradient-to-br from-[#1A1A2E] via-[#16213e] to-[#0F3460] flex items-center justify-center">
+        <div className="text-white text-xl font-black uppercase tracking-wide">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 text-white p-8">
+    <div className="min-h-screen bg-gradient-to-br from-[#1A1A2E] via-[#16213e] to-[#0F3460] text-white p-8">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold mb-4">Choose Your Archetype</h1>
-          <p className="text-xl text-gray-300 mb-2">
+          <h1 className="text-5xl font-black mb-4 uppercase tracking-wide text-[#FF6B6B]">Choose Your Archetype</h1>
+          <p className="text-xl text-[#00D4FF] mb-2 font-bold">
             Your archetype shapes how quests are narrated and influences your story
           </p>
-          <p className="text-gray-400">
+          <p className="text-[#E2E8F0]">
             Don't worry - this affects style and flavor, not game mechanics!
           </p>
         </div>
@@ -154,10 +154,10 @@ export default function SelectArchetypePage() {
             <div
               key={archetype.id}
               onClick={() => setSelectedArchetype(archetype.id)}
-              className={`border-2 rounded-xl p-6 cursor-pointer transition-all ${
+              className={`rounded-lg p-6 cursor-pointer transition-all ${
                 selectedArchetype === archetype.id
-                  ? 'border-yellow-500 bg-gradient-to-br from-yellow-900/30 to-orange-900/30 scale-105'
-                  : 'border-gray-600 bg-gray-800/50 hover:border-gray-500 hover:scale-102'
+                  ? 'border-3 border-[#FFD93D] bg-[#1A1A2E] shadow-[0_0_30px_rgba(255,217,61,0.5)] scale-105'
+                  : 'border-3 border-[#0F3460] bg-[#1A1A2E] hover:border-[#00D4FF] hover:scale-102'
               }`}
             >
               {/* Image */}
@@ -170,14 +170,14 @@ export default function SelectArchetypePage() {
               </div>
 
               {/* Name */}
-              <h3 className="text-2xl font-bold text-center mb-3">{archetype.name}</h3>
+              <h3 className="text-2xl font-black text-center mb-3 uppercase tracking-wide text-[#FF6B6B]">{archetype.name}</h3>
 
               {/* Description */}
-              <p className="text-gray-300 text-center mb-4">{archetype.description}</p>
+              <p className="text-[#E2E8F0] text-center mb-4">{archetype.description}</p>
 
               {/* Style */}
-              <div className="bg-gray-900/50 rounded-lg p-3 mb-4">
-                <p className="text-sm text-yellow-400 italic text-center">
+              <div className="bg-[#0F3460] rounded-lg p-3 mb-4 border-2 border-[#1A1A2E]">
+                <p className="text-sm text-[#FFD93D] italic text-center font-bold">
                   "{archetype.style}"
                 </p>
               </div>
@@ -187,7 +187,7 @@ export default function SelectArchetypePage() {
                 {archetype.traits.map((trait) => (
                   <span
                     key={trait}
-                    className="px-3 py-1 bg-purple-600/50 rounded-full text-xs font-semibold"
+                    className="px-3 py-1 bg-[#00D4FF] text-[#1A1A2E] rounded-md text-xs font-black uppercase"
                   >
                     {trait}
                   </span>
@@ -197,7 +197,7 @@ export default function SelectArchetypePage() {
               {/* Selected Indicator */}
               {selectedArchetype === archetype.id && (
                 <div className="mt-4 text-center">
-                  <span className="text-yellow-400 font-bold">✓ Selected</span>
+                  <span className="text-[#FFD93D] font-black uppercase tracking-wide">✓ Selected</span>
                 </div>
               )}
             </div>
@@ -209,10 +209,10 @@ export default function SelectArchetypePage() {
           <button
             onClick={handleSelectArchetype}
             disabled={!selectedArchetype || saving}
-            className={`px-12 py-4 rounded-lg font-bold text-xl transition-all ${
+            className={`px-12 py-4 rounded-lg font-black text-xl uppercase tracking-wide transition-all duration-100 ${
               selectedArchetype
-                ? 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black'
-                : 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                ? 'bg-[#FF6B6B] hover:bg-[#EE5A6F] text-white border-3 border-[#0F3460] shadow-[0_5px_0_#0F3460] hover:shadow-[0_7px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_2px_0_#0F3460] active:translate-y-1'
+                : 'bg-[#0F3460] text-[#1A1A2E] border-3 border-[#1A1A2E] cursor-not-allowed opacity-50'
             }`}
           >
             {saving ? 'Confirming...' : selectedArchetype ? `Begin as ${archetypes.find(a => a.id === selectedArchetype)?.name}` : 'Select an Archetype'}
