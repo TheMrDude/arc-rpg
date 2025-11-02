@@ -61,50 +61,34 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Already premium' }, { status: 400 });
     }
 
-    // Reserve founder spot (RPC first; safe fallback)
-    let canClaim = true;
-
+    // SECURITY FIX: Use atomic RPC for founder spot claims (no race-condition fallback)
     const { data: claimResult, error: claimError } = await supabaseAdmin
       .rpc('claim_founder_spot', { user_id_param: userId });
 
     if (claimError) {
-      console.warn('Create checkout: Founder RPC unavailable, falling back to count', {
+      // RPC failed - don't fall back to unsafe count check
+      console.error('Create checkout: Founder RPC failed', {
         userId,
         error: claimError.message,
         t: new Date().toISOString(),
       });
-
-      const { count, error: countError } = await supabaseAdmin
-        .from('profiles')
-        .select('*', { head: true, count: 'exact' })
-        .eq('subscription_status', 'active');
-
-      if (countError) {
-        console.error('Create checkout: Count fallback failed', {
-          userId,
-          error: countError.message,
-          t: new Date().toISOString(),
-        });
-        return NextResponse.json({ error: 'Failed to check availability' }, { status: 500 });
-      }
-
-      const claimedCount = typeof count === 'number' ? count : 0;
-      if (claimedCount >= 25) canClaim = false;
-    } else {
-      const outcome = Array.isArray(claimResult) ? claimResult?.[0] : claimResult;
-      if (!outcome?.can_claim) {
-        if (outcome?.failure_reason === 'already_premium') {
-          return NextResponse.json({ error: 'Already premium' }, { status: 400 });
-        }
-        if (outcome?.failure_reason === 'sold_out') {
-          return NextResponse.json({ error: 'All founder spots taken' }, { status: 400 });
-        }
-        canClaim = false;
-      }
+      return NextResponse.json({
+        error: 'Unable to verify founder spot availability. Please try again.',
+      }, { status: 500 });
     }
 
-    if (!canClaim) {
-      return NextResponse.json({ error: 'Founder spots temporarily unavailable' }, { status: 400 });
+    // Check RPC result
+    const outcome = Array.isArray(claimResult) ? claimResult?.[0] : claimResult;
+    if (!outcome?.can_claim) {
+      if (outcome?.failure_reason === 'already_premium') {
+        return NextResponse.json({ error: 'Already premium' }, { status: 400 });
+      }
+      if (outcome?.failure_reason === 'sold_out') {
+        return NextResponse.json({ error: 'All founder spots taken' }, { status: 400 });
+      }
+      return NextResponse.json({
+        error: 'Cannot claim founder spot',
+      }, { status: 400 });
     }
 
     let origin;
