@@ -216,6 +216,7 @@ COMMENT ON TABLE payment_audit_log IS 'Audit trail for all payment-related event
 
 -- Grant execute permission on functions to authenticated users
 GRANT EXECUTE ON FUNCTION claim_founder_spot(uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION claim_founder_spot(uuid) TO service_role;
 GRANT EXECUTE ON FUNCTION log_payment_event TO service_role;
 
 -- VERIFICATION QUERIES
