@@ -232,6 +232,9 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+GRANT EXECUTE ON FUNCTION claim_founder_spot(uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION claim_founder_spot(uuid) TO service_role;
+
 -- Auto-create profile trigger
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
