@@ -198,39 +198,82 @@ CREATE INDEX IF NOT EXISTS idx_gold_transactions_user_id ON gold_transactions(us
 CREATE INDEX IF NOT EXISTS idx_user_equipment_user_id ON user_equipment(user_id);
 CREATE INDEX IF NOT EXISTS idx_template_tasks_template_id ON template_tasks(template_id, sort_order);
 
--- Founder spot claim helper
+-- Founder inventory safeguards limited spots from oversell
+DROP FUNCTION IF EXISTS restore_founder_spot();
 DROP FUNCTION IF EXISTS claim_founder_spot(uuid);
 
+CREATE TABLE IF NOT EXISTS founder_inventory (
+  id TEXT PRIMARY KEY,
+  remaining INTEGER NOT NULL CHECK (remaining >= 0)
+);
+
+INSERT INTO founder_inventory (id, remaining)
+VALUES ('founder', 25)
+ON CONFLICT (id) DO NOTHING;
+
 CREATE OR REPLACE FUNCTION claim_founder_spot(user_id_param uuid)
-RETURNS TABLE(can_claim boolean, current_count integer, failure_reason text)
+RETURNS TABLE(success boolean, remaining integer, failure_reason text)
 SECURITY DEFINER
 AS $$
 DECLARE
-  premium_count integer := 0;
+  new_remaining integer;
   user_subscription text;
+  user_is_premium boolean := false;
 BEGIN
-  LOCK TABLE profiles IN SHARE ROW EXCLUSIVE MODE;
+  IF user_id_param IS NULL THEN
+    RAISE EXCEPTION 'claim_founder_spot requires a user id';
+  END IF;
 
-  SELECT subscription_status INTO user_subscription
+  SELECT subscription_status, is_premium
+  INTO user_subscription, user_is_premium
   FROM profiles
   WHERE id = user_id_param;
 
-  IF user_subscription = 'active' THEN
-    RETURN QUERY SELECT false, 0, 'already_premium';
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Profile missing for user %', user_id_param;
+  END IF;
+
+  IF coalesce(user_is_premium, false) OR user_subscription = 'active' THEN
+    RETURN QUERY SELECT false, NULL::integer, 'already_premium';
     RETURN;
   END IF;
 
-  SELECT COUNT(*) INTO premium_count
-  FROM profiles
-  WHERE subscription_status = 'active';
+  UPDATE founder_inventory
+  SET remaining = remaining - 1
+  WHERE id = 'founder' AND remaining > 0
+  RETURNING remaining INTO new_remaining;
 
-  IF premium_count >= 25 THEN
-    RETURN QUERY SELECT false, premium_count::integer, 'sold_out';
-  ELSE
-    RETURN QUERY SELECT true, premium_count::integer, 'available';
+  IF new_remaining IS NULL THEN
+    RETURN QUERY SELECT false, 0, 'sold_out';
+    RETURN;
   END IF;
+
+  RETURN QUERY SELECT true, new_remaining, 'reserved';
 END;
 $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION restore_founder_spot()
+RETURNS integer
+SECURITY DEFINER
+AS $$
+DECLARE
+  new_remaining integer;
+BEGIN
+  UPDATE founder_inventory
+  SET remaining = remaining + 1
+  WHERE id = 'founder'
+  RETURNING remaining INTO new_remaining;
+
+  IF new_remaining IS NULL THEN
+    RAISE EXCEPTION 'Founder inventory row missing';
+  END IF;
+
+  RETURN new_remaining;
+END;
+$$ LANGUAGE plpgsql;
+
+GRANT EXECUTE ON FUNCTION claim_founder_spot(uuid) TO service_role;
+GRANT EXECUTE ON FUNCTION restore_founder_spot TO service_role;
 
 -- Auto-create profile trigger
 CREATE OR REPLACE FUNCTION public.handle_new_user()

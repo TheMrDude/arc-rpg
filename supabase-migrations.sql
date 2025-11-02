@@ -11,10 +11,14 @@ ON quests(user_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_quests_user_id_completed
 ON quests(user_id, completed, completed_at DESC);
 
--- Index for premium user count (used frequently in checkout)
 CREATE INDEX IF NOT EXISTS idx_profiles_is_premium
 ON profiles(is_premium)
 WHERE is_premium = true;
+
+-- Index for active subscription lookups (founder spot checks)
+CREATE INDEX IF NOT EXISTS idx_profiles_subscription_active
+ON profiles(subscription_status)
+WHERE subscription_status = 'active';
 
 -- Composite index for profile lookups
 CREATE INDEX IF NOT EXISTS idx_profiles_id_archetype
@@ -47,40 +51,80 @@ END $$;
 
 -- DATABASE FUNCTIONS FOR SECURITY
 
--- Function to safely claim founder spot (prevents race conditions)
+-- Founder inventory table prevents overselling limited spots
+CREATE TABLE IF NOT EXISTS founder_inventory (
+  id text PRIMARY KEY,
+  remaining integer NOT NULL CHECK (remaining >= 0)
+);
+
+-- Seed founder inventory with default cap (25) if missing
+INSERT INTO founder_inventory (id, remaining)
+VALUES ('founder', 25)
+ON CONFLICT (id) DO NOTHING;
+
+-- Thread-safe founder spot claim RPC
 CREATE OR REPLACE FUNCTION claim_founder_spot(user_id_param uuid)
-RETURNS TABLE(can_claim boolean, current_count integer)
+RETURNS TABLE(success boolean, remaining integer, failure_reason text)
 SECURITY DEFINER
 AS $$
 DECLARE
-  premium_count integer;
-  user_is_premium boolean;
+  new_remaining integer;
+  user_subscription text;
+  user_is_premium boolean := false;
 BEGIN
-  -- Lock the profiles table to prevent race conditions
-  -- This ensures only one transaction can check/modify at a time
-  LOCK TABLE profiles IN SHARE ROW EXCLUSIVE MODE;
+  -- Verify caller provided a valid user id
+  IF user_id_param IS NULL THEN
+    RAISE EXCEPTION 'claim_founder_spot requires a user id';
+  END IF;
 
-  -- Check if user is already premium
-  SELECT is_premium INTO user_is_premium
+  -- Check if user already owns premium access
+  SELECT subscription_status, is_premium
+  INTO user_subscription, user_is_premium
   FROM profiles
   WHERE id = user_id_param;
 
-  IF user_is_premium THEN
-    RETURN QUERY SELECT false, 0;
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Profile missing for user %', user_id_param;
+  END IF;
+
+  IF coalesce(user_is_premium, false) OR user_subscription = 'active' THEN
+    RETURN QUERY SELECT false, NULL::integer, 'already_premium';
     RETURN;
   END IF;
 
-  -- Count current premium users
-  SELECT COUNT(*) INTO premium_count
-  FROM profiles
-  WHERE is_premium = true;
+  -- Atomically decrement founder inventory
+  UPDATE founder_inventory
+  SET remaining = remaining - 1
+  WHERE id = 'founder' AND remaining > 0
+  RETURNING remaining INTO new_remaining;
 
-  -- Return whether spot can be claimed and current count
-  IF premium_count >= 25 THEN
-    RETURN QUERY SELECT false, premium_count::integer;
-  ELSE
-    RETURN QUERY SELECT true, premium_count::integer;
+  IF new_remaining IS NULL THEN
+    RETURN QUERY SELECT false, 0, 'sold_out';
+    RETURN;
   END IF;
+
+  RETURN QUERY SELECT true, new_remaining, 'reserved';
+END;
+$$ LANGUAGE plpgsql;
+
+-- Allows restoring a slot if Stripe checkout fails after reservation
+CREATE OR REPLACE FUNCTION restore_founder_spot()
+RETURNS integer
+SECURITY DEFINER
+AS $$
+DECLARE
+  new_remaining integer;
+BEGIN
+  UPDATE founder_inventory
+  SET remaining = remaining + 1
+  WHERE id = 'founder'
+  RETURNING remaining INTO new_remaining;
+
+  IF new_remaining IS NULL THEN
+    RAISE EXCEPTION 'Founder inventory row missing';
+  END IF;
+
+  RETURN new_remaining;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -208,14 +252,18 @@ CHECK (
 
 COMMENT ON INDEX idx_quests_user_id_created_at IS 'Speeds up dashboard quest queries';
 COMMENT ON INDEX idx_quests_user_id_completed IS 'Speeds up history page queries';
-COMMENT ON INDEX idx_profiles_is_premium IS 'Speeds up founder spot availability checks';
-COMMENT ON FUNCTION claim_founder_spot IS 'Thread-safe function to check and claim founder spots';
+COMMENT ON INDEX idx_profiles_is_premium IS 'Speeds up legacy premium flag lookups for founder spot checks';
+COMMENT ON INDEX idx_profiles_subscription_active IS 'Speeds up active subscription founder spot checks';
+COMMENT ON FUNCTION claim_founder_spot IS 'Atomically reserves a founder spot while preventing oversell';
+COMMENT ON FUNCTION restore_founder_spot IS 'Restores a previously reserved founder spot (used on checkout rollback)';
 COMMENT ON TABLE payment_audit_log IS 'Audit trail for all payment-related events';
 
 -- GRANT PERMISSIONS
 
--- Grant execute permission on functions to authenticated users
-GRANT EXECUTE ON FUNCTION claim_founder_spot(uuid) TO authenticated;
+-- Grant execute permission on founder inventory helpers to the service role only
+GRANT EXECUTE ON FUNCTION claim_founder_spot(uuid) TO service_role;
+GRANT EXECUTE ON FUNCTION restore_founder_spot TO service_role;
+-- Authenticated users can log payment events via the service role API layer
 GRANT EXECUTE ON FUNCTION log_payment_event TO service_role;
 
 -- VERIFICATION QUERIES
@@ -229,7 +277,7 @@ GRANT EXECUTE ON FUNCTION log_payment_event TO service_role;
 -- SELECT tablename, policyname, cmd, qual FROM pg_policies WHERE schemaname = 'public' ORDER BY tablename;
 
 -- Check current premium count
--- SELECT COUNT(*) as premium_users FROM profiles WHERE is_premium = true;
+-- SELECT COUNT(*) as premium_users FROM profiles WHERE subscription_status = 'active' OR is_premium = true;
 
 -- Test founder spot claim function
 -- SELECT * FROM claim_founder_spot('00000000-0000-0000-0000-000000000000');
