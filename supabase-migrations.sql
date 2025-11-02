@@ -260,10 +260,9 @@ COMMENT ON TABLE payment_audit_log IS 'Audit trail for all payment-related event
 
 -- GRANT PERMISSIONS
 
--- Grant execute permission on founder inventory helpers to the service role only
+-- Grant execute permission on functions to authenticated users
+GRANT EXECUTE ON FUNCTION claim_founder_spot(uuid) TO authenticated;
 GRANT EXECUTE ON FUNCTION claim_founder_spot(uuid) TO service_role;
-GRANT EXECUTE ON FUNCTION restore_founder_spot TO service_role;
--- Authenticated users can log payment events via the service role API layer
 GRANT EXECUTE ON FUNCTION log_payment_event TO service_role;
 
 -- VERIFICATION QUERIES

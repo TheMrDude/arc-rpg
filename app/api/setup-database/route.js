@@ -272,8 +272,13 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+codex/fix-checkout-post-500-error-ksrmvh
 GRANT EXECUTE ON FUNCTION claim_founder_spot(uuid) TO service_role;
 GRANT EXECUTE ON FUNCTION restore_founder_spot TO service_role;
+=======
+GRANT EXECUTE ON FUNCTION claim_founder_spot(uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION claim_founder_spot(uuid) TO service_role;
+main
 
 -- Auto-create profile trigger
 CREATE OR REPLACE FUNCTION public.handle_new_user()
