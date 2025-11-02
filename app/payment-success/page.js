@@ -2,29 +2,46 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { getSupabaseClient } from '@/lib/supabase-client';
 
 function PaymentSuccessContent() {
   const params = useSearchParams();
   const router = useRouter();
   const sessionId = params.get('session_id');
   const [status, setStatus] = useState('verifying');
+  const supabase = getSupabaseClient();
 
   useEffect(() => {
     if (!sessionId) return;
     (async () => {
       try {
+        // Get auth token from Supabase
+        const { data: { session } } = await supabase.auth.getSession();
+        const token = session?.access_token;
+
+        if (!token) {
+          console.error('No auth token available for payment verification');
+          setStatus('error');
+          return;
+        }
+
+        // Call verify-checkout with authentication
         const res = await fetch('/api/verify-checkout', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
           body: JSON.stringify({ session_id: sessionId }),
         });
         const data = await res.json();
         setStatus(data.status || 'error');
-      } catch {
+      } catch (err) {
+        console.error('Payment verification error:', err);
         setStatus('error');
       }
     })();
-  }, [sessionId]);
+  }, [sessionId, supabase]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#1A1A2E] via-[#16213e] to-[#0F3460] flex items-center justify-center p-8">
