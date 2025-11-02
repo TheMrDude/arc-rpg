@@ -16,7 +16,38 @@ const supabaseAdmin = createClient(
 
 export async function POST(request) {
   try {
-    console.log('🔧 Starting database setup...');
+    // SECURITY: Protect database setup endpoint
+    // Only allow in development OR with admin secret key
+    const isDevelopment = process.env.NODE_ENV === 'development';
+    const adminSecret = request.headers.get('x-admin-secret');
+    const validSecret = process.env.ADMIN_SETUP_SECRET;
+
+    if (!isDevelopment) {
+      // In production, require admin secret
+      if (!validSecret) {
+        console.error('Setup database: ADMIN_SETUP_SECRET not configured');
+        return NextResponse.json(
+          { error: 'Database setup is disabled in production' },
+          { status: 403 }
+        );
+      }
+
+      if (adminSecret !== validSecret) {
+        console.error('Setup database: Invalid or missing admin secret', {
+          hasSecret: !!adminSecret,
+          timestamp: new Date().toISOString()
+        });
+        return NextResponse.json(
+          { error: 'Unauthorized' },
+          { status: 401 }
+        );
+      }
+    }
+
+    console.log('🔧 Starting database setup...', {
+      mode: isDevelopment ? 'development' : 'production',
+      timestamp: new Date().toISOString()
+    });
 
     // This is the complete database setup SQL
     const setupSQL = `
