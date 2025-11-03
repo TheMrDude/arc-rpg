@@ -15,6 +15,8 @@ const supabaseAdmin = getSupabaseAdminClient();
 const supabaseAnon = getSupabaseAnonClient();
 
 export async function POST(request) {
+  let spotReserved = false;
+
   try {
     const authHeader =
       request.headers.get('authorization') ?? request.headers.get('Authorization');
@@ -87,8 +89,9 @@ export async function POST(request) {
       }, { status: 500 });
     }
 
-    // Check RPC result
+    // Normalize RPC result shape from supabase-js
     const outcome = Array.isArray(claimResult) ? claimResult?.[0] : claimResult;
+claude/trigger-vercel-redeploy-011CUhTsj7agaV3Y3cZMpDGf
 
     console.log('Founder spot check result:', {
       userId,
@@ -99,18 +102,28 @@ export async function POST(request) {
     });
 
     if (!outcome?.can_claim) {
+
+    if (!outcome?.success) {
+
       if (outcome?.failure_reason === 'already_premium') {
         return NextResponse.json({ error: 'Already premium' }, { status: 400 });
       }
       if (outcome?.failure_reason === 'sold_out') {
         return NextResponse.json({ error: 'All founder spots taken' }, { status: 400 });
       }
+      console.error('Create checkout: Founder claim denied', {
+        userId,
+        outcome,
+        t: new Date().toISOString(),
+      });
       return NextResponse.json({
-        error: 'Cannot claim founder spot',
-      }, { status: 400 });
+        error: 'Unable to verify founder spot availability. Please try again.',
+      }, { status: 500 });
     }
 
+    spotReserved = true;
     let origin;
+
     try {
       origin = resolveRequestOrigin(request);
     } catch (e) {
@@ -118,6 +131,17 @@ export async function POST(request) {
         error: e?.message,
         t: new Date().toISOString(),
       });
+      if (spotReserved) {
+        try {
+          await supabaseAdmin.rpc('restore_founder_spot');
+        } catch (restoreError) {
+          console.error('Create checkout: Failed to restore founder spot after origin error', {
+            error: restoreError?.message,
+            t: new Date().toISOString(),
+          });
+        }
+        spotReserved = false;
+      }
       return NextResponse.json({ error: 'Site configuration error' }, { status: 500 });
     }
 
@@ -143,6 +167,16 @@ export async function POST(request) {
       stack: error?.stack,
       t: new Date().toISOString(),
     });
+    if (spotReserved) {
+      try {
+        await supabaseAdmin.rpc('restore_founder_spot');
+      } catch (restoreError) {
+        console.error('Stripe checkout error: Failed to restore founder spot', {
+          error: restoreError?.message,
+          t: new Date().toISOString(),
+        });
+      }
+    }
     return NextResponse.json(
       { error: 'Failed to create checkout session. Please try again.' },
       { status: 500 },
