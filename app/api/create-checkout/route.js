@@ -15,9 +15,8 @@ const supabaseAdmin = getSupabaseAdminClient();
 const supabaseAnon = getSupabaseAnonClient();
 
 export async function POST(request) {
-  let spotReserved = false;
-
   try {
+    // 1. AUTHENTICATE USER
     const authHeader =
       request.headers.get('authorization') ?? request.headers.get('Authorization');
     const token = authHeader?.startsWith('Bearer ')
@@ -33,6 +32,7 @@ export async function POST(request) {
       data: { user },
       error: authError,
     } = await supabaseAnon.auth.getUser(token);
+
     if (authError || !user) {
       console.error('Create checkout: Invalid token', {
         error: authError?.message,
@@ -43,8 +43,10 @@ export async function POST(request) {
 
     const userId = user.id;
 
+    // 2. CHECK USER PROFILE
     const { profile, created: profileCreated, error: profileError } =
       await getOrCreateProfile(userId);
+
     if (profileError) {
       console.error('Create checkout: Profile error', {
         userId,
@@ -53,17 +55,19 @@ export async function POST(request) {
       });
       return NextResponse.json({ error: 'Failed to fetch profile' }, { status: 500 });
     }
+
     if (profileCreated) {
       console.log('Create checkout: Auto-created profile row', {
         userId,
         t: new Date().toISOString(),
       });
     }
+
     if (profile?.subscription_status === 'active' || profile?.is_premium) {
       return NextResponse.json({ error: 'Already premium' }, { status: 400 });
     }
 
-    // SECURITY: Use atomic RPC for founder spot claims (prevents race conditions)
+    // 3. CLAIM FOUNDER SPOT (ATOMIC)
     const { data: claimResult, error: claimError } = await supabaseAdmin
       .rpc('claim_founder_spot', { user_id_param: userId });
 
@@ -79,19 +83,18 @@ export async function POST(request) {
       // If RPC doesn't exist (function not found), provide helpful message
       if (claimError.message?.includes('function') || claimError.code === '42883') {
         return NextResponse.json({
-          error: 'Database setup required. Please run /api/setup-database first.',
+          error: 'Database setup required. Please contact support.',
         }, { status: 503 });
       }
 
       // For other RPC errors, return generic error
       return NextResponse.json({
-        error: 'Unable to verify founder spot availability. Please try again.',
+        error: 'Unable to process request. Please try again.',
       }, { status: 500 });
     }
 
-    // Normalize RPC result shape from supabase-js
+    // Check RPC result
     const outcome = Array.isArray(claimResult) ? claimResult?.[0] : claimResult;
-claude/trigger-vercel-redeploy-011CUhTsj7agaV3Y3cZMpDGf
 
     console.log('Founder spot check result:', {
       userId,
@@ -102,28 +105,19 @@ claude/trigger-vercel-redeploy-011CUhTsj7agaV3Y3cZMpDGf
     });
 
     if (!outcome?.can_claim) {
-
-    if (!outcome?.success) {
-
       if (outcome?.failure_reason === 'already_premium') {
         return NextResponse.json({ error: 'Already premium' }, { status: 400 });
       }
       if (outcome?.failure_reason === 'sold_out') {
         return NextResponse.json({ error: 'All founder spots taken' }, { status: 400 });
       }
-      console.error('Create checkout: Founder claim denied', {
-        userId,
-        outcome,
-        t: new Date().toISOString(),
-      });
       return NextResponse.json({
-        error: 'Unable to verify founder spot availability. Please try again.',
-      }, { status: 500 });
+        error: 'Cannot process request at this time.',
+      }, { status: 400 });
     }
 
-    spotReserved = true;
+    // 4. RESOLVE ORIGIN
     let origin;
-
     try {
       origin = resolveRequestOrigin(request);
     } catch (e) {
@@ -131,20 +125,10 @@ claude/trigger-vercel-redeploy-011CUhTsj7agaV3Y3cZMpDGf
         error: e?.message,
         t: new Date().toISOString(),
       });
-      if (spotReserved) {
-        try {
-          await supabaseAdmin.rpc('restore_founder_spot');
-        } catch (restoreError) {
-          console.error('Create checkout: Failed to restore founder spot after origin error', {
-            error: restoreError?.message,
-            t: new Date().toISOString(),
-          });
-        }
-        spotReserved = false;
-      }
-      return NextResponse.json({ error: 'Site configuration error' }, { status: 500 });
+      return NextResponse.json({ error: 'Configuration error' }, { status: 500 });
     }
 
+    // 5. CREATE STRIPE SESSION
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       payment_method_types: ['card'],
@@ -160,23 +144,15 @@ claude/trigger-vercel-redeploy-011CUhTsj7agaV3Y3cZMpDGf
       sessionId: session.id,
       t: new Date().toISOString(),
     });
+
     return NextResponse.json({ url: session.url });
+
   } catch (error) {
     console.error('Stripe checkout error:', {
       error: error?.message,
       stack: error?.stack,
       t: new Date().toISOString(),
     });
-    if (spotReserved) {
-      try {
-        await supabaseAdmin.rpc('restore_founder_spot');
-      } catch (restoreError) {
-        console.error('Stripe checkout error: Failed to restore founder spot', {
-          error: restoreError?.message,
-          t: new Date().toISOString(),
-        });
-      }
-    }
     return NextResponse.json(
       { error: 'Failed to create checkout session. Please try again.' },
       { status: 500 },
