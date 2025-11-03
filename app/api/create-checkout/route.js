@@ -61,17 +61,27 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Already premium' }, { status: 400 });
     }
 
-    // SECURITY FIX: Use atomic RPC for founder spot claims (no race-condition fallback)
+    // SECURITY: Use atomic RPC for founder spot claims (prevents race conditions)
     const { data: claimResult, error: claimError } = await supabaseAdmin
       .rpc('claim_founder_spot', { user_id_param: userId });
 
     if (claimError) {
-      // RPC failed - don't fall back to unsafe count check
       console.error('Create checkout: Founder RPC failed', {
         userId,
         error: claimError.message,
+        errorCode: claimError.code,
+        errorDetails: claimError.details,
         t: new Date().toISOString(),
       });
+
+      // If RPC doesn't exist (function not found), provide helpful message
+      if (claimError.message?.includes('function') || claimError.code === '42883') {
+        return NextResponse.json({
+          error: 'Database setup required. Please run /api/setup-database first.',
+        }, { status: 503 });
+      }
+
+      // For other RPC errors, return generic error
       return NextResponse.json({
         error: 'Unable to verify founder spot availability. Please try again.',
       }, { status: 500 });
@@ -79,6 +89,15 @@ export async function POST(request) {
 
     // Check RPC result
     const outcome = Array.isArray(claimResult) ? claimResult?.[0] : claimResult;
+
+    console.log('Founder spot check result:', {
+      userId,
+      canClaim: outcome?.can_claim,
+      currentCount: outcome?.current_count,
+      failureReason: outcome?.failure_reason,
+      t: new Date().toISOString(),
+    });
+
     if (!outcome?.can_claim) {
       if (outcome?.failure_reason === 'already_premium') {
         return NextResponse.json({ error: 'Already premium' }, { status: 400 });
