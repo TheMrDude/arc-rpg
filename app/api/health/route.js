@@ -8,23 +8,20 @@ export async function GET() {
   try {
     const supabaseAdmin = getSupabaseAdminClient();
 
-    // Check database connection and count founder spots
-    const { count, error } = await supabaseAdmin
-      .from('profiles')
-      .select('*', { count: 'exact', head: true })
-      .eq('subscription_status', 'active');
+    // Check founder_inventory table
+    const { data, error } = await supabaseAdmin
+      .from('founder_inventory')
+      .select('remaining')
+      .eq('id', 'founder')
+      .single();
 
     if (error) {
       throw new Error(error.message);
     }
 
-    const remaining = Math.max(0, 25 - (count || 0));
-
     return NextResponse.json({
       ok: true,
-      remaining,
-      claimed: count || 0,
-      total: 25,
+      remaining: data?.remaining ?? 0,
       timestamp: new Date().toISOString()
     });
 

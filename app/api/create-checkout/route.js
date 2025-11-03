@@ -1,11 +1,12 @@
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { getSupabaseAdminClient, getSupabaseAnonClient } from '@/lib/supabase-server';
 import { getOrCreateProfile } from '@/lib/profile-service';
 import { resolveRequestOrigin } from '@/lib/request-origin';
 import { buildFounderCheckoutMetadata, buildFounderLineItem } from '@/lib/founder-plan';
-
-export const dynamic = 'force-dynamic';
 
 const STRIPE_KEY = process.env.STRIPE_SECRET_KEY;
 if (!STRIPE_KEY) throw new Error('Missing STRIPE_SECRET_KEY');
@@ -76,21 +77,11 @@ export async function POST(request) {
         userId,
         error: claimError.message,
         errorCode: claimError.code,
-        errorDetails: claimError.details,
         t: new Date().toISOString(),
       });
-
-      // If RPC doesn't exist (function not found), provide helpful message
-      if (claimError.message?.includes('function') || claimError.code === '42883') {
-        return NextResponse.json({
-          error: 'Database setup required. Please contact support.',
-        }, { status: 503 });
-      }
-
-      // For other RPC errors, return generic error
       return NextResponse.json({
-        error: 'Unable to process request. Please try again.',
-      }, { status: 500 });
+        error: 'Founder spots unavailable. Try again or contact support.',
+      }, { status: 409 });
     }
 
     // Check RPC result
@@ -98,13 +89,13 @@ export async function POST(request) {
 
     console.log('Founder spot check result:', {
       userId,
-      canClaim: outcome?.can_claim,
-      currentCount: outcome?.current_count,
+      success: outcome?.success,
+      remaining: outcome?.remaining,
       failureReason: outcome?.failure_reason,
       t: new Date().toISOString(),
     });
 
-    if (!outcome?.can_claim) {
+    if (!outcome?.success) {
       if (outcome?.failure_reason === 'already_premium') {
         return NextResponse.json({ error: 'Already premium' }, { status: 400 });
       }
@@ -125,6 +116,12 @@ export async function POST(request) {
         error: e?.message,
         t: new Date().toISOString(),
       });
+      // Restore the spot if we can't proceed
+      try {
+        await supabaseAdmin.rpc('restore_founder_spot');
+      } catch (restoreError) {
+        console.error('Failed to restore spot:', restoreError.message);
+      }
       return NextResponse.json({ error: 'Configuration error' }, { status: 500 });
     }
 
