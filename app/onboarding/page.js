@@ -111,7 +111,7 @@ export default function OnboardingPage() {
     router.push('/signup?from=onboarding');
   };
 
-  const getDifficultyStars = (difficulty: string) => {
+  const getDifficultyStars = (difficulty) => {
     const stars = difficulty === 'easy' ? 1 : difficulty === 'medium' ? 2 : 3;
     return '⭐'.repeat(stars);
   };
