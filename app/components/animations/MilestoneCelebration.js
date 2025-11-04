@@ -427,12 +427,6 @@ export function MilestoneCelebrationCompact({
   onClose,
   title,
   message
-}: {
-  show;
-  onClose: () => void;
-  title;
-  message;
-}) {
   useEffect(() => {
     if (show) {
       const timer = setTimeout(() => {
