@@ -5,9 +5,9 @@ import { useEffect } from 'react';
 import confetti from 'canvas-confetti';
 
 interface StreakFreezeActivationProps {
-  show: boolean;
+  show;
   onClose: () => void;
-  streakCount: number;
+  streakCount;
 }
 
 /**

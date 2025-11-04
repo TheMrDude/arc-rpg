@@ -5,11 +5,11 @@ import { soundManager, SoundName } from '@/lib/audio/SoundManager';
 
 interface SoundContextType {
   play: (sound: SoundName) => void;
-  enabled: boolean;
-  setEnabled: (enabled: boolean) => void;
-  volume: number;
-  setVolume: (volume: number) => void;
-  isInitialized: boolean;
+  enabled;
+  setEnabled: (enabled) => void;
+  volume;
+  setVolume: (volume) => void;
+  isInitialized;
 }
 
 const SoundContext = createContext<SoundContextType | null>(null);
@@ -44,12 +44,12 @@ export function SoundProvider({ children }: { children: ReactNode }) {
     soundManager.play(sound);
   };
 
-  const setEnabled = (newEnabled: boolean) => {
+  const setEnabled = (newEnabled) => {
     soundManager.setEnabled(newEnabled);
     setEnabledState(newEnabled);
   };
 
-  const setVolume = (newVolume: number) => {
+  const setVolume = (newVolume) => {
     soundManager.setVolume(newVolume);
     setVolumeState(newVolume);
   };

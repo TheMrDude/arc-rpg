@@ -3,13 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-interface ReflectionPromptProps {
-  show: boolean;
-  onClose: () => void;
-  questId: string;
-  questTitle: string;
-  onSubmit: (reflection: string, mood: number) => Promise<void>;
-}
+// Props:
 
 const MOOD_OPTIONS = [
   { value: 1, emoji: '😔', label: 'Struggling' },
@@ -20,14 +14,18 @@ const MOOD_OPTIONS = [
 ];
 
 export default function ReflectionPrompt({
+}) {
   show,
+}) {
   onClose,
+}) {
   questId,
+}) {
   questTitle,
+}) {
   onSubmit
-}: ReflectionPromptProps) {
-  const [reflection, setReflection] = useState('');
-  const [mood, setMood] = useState<number>(3);
+}) {
+  const [mood, setMood] = useState(3);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
@@ -308,4 +306,3 @@ export default function ReflectionPrompt({
       )}
     </AnimatePresence>
   );
-}

@@ -6,9 +6,9 @@ import { useState, useRef, useEffect } from 'react';
 
 interface QuestCompleteButtonProps {
   onComplete: () => void;
-  disabled?: boolean;
-  questTitle?: string;
-  xpReward?: number;
+  disabled?;
+  questTitle?;
+  xpReward?;
 }
 
 export default function QuestCompleteButton({
@@ -19,7 +19,7 @@ export default function QuestCompleteButton({
 }: QuestCompleteButtonProps) {
   const [isCompleted, setIsCompleted] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioRef = useRef(null);
 
   useEffect(() => {
     // Preload audio
@@ -42,7 +42,7 @@ export default function QuestCompleteButton({
       colors: ['#E8B44C', '#D4943C', '#FFD93D', '#FF6B6B', '#00D4FF']
     };
 
-    function fire(particleRatio: number, opts: confetti.Options) {
+    function fire(particleRatio, opts: confetti.Options) {
       confetti({
         ...defaults,
         ...opts,

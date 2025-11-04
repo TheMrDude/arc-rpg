@@ -9,10 +9,10 @@ import QuestCompleteButton from './QuestCompleteButton';
  * This demonstrates how to integrate the button into your quest system
  */
 export default function QuestCompleteButtonExample() {
-  const [completedQuests, setCompletedQuests] = useState<string[]>([]);
+  const [completedQuests, setCompletedQuests] = useState([]);
   const [totalXP, setTotalXP] = useState(0);
 
-  const handleQuestComplete = (questId: string, xpReward: number) => {
+  const handleQuestComplete = (questId, xpReward) => {
     console.log(`Quest ${questId} completed!`);
 
     // Add to completed quests
