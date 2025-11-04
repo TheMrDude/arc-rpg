@@ -160,10 +160,10 @@ export default function MilestoneCelebration({
 
   // Get unlocks list
   const unlocksToShow = customUnlocks ||
-    (type === 'level' && LEVEL_UNLOCKS[milestone as keyof typeof LEVEL_UNLOCKS]?.unlocks) ||
+    (type === 'level' && LEVEL_UNLOCKS[milestone]?.unlocks) ||
     [];
 
-  const levelTitle = type === 'level' && LEVEL_UNLOCKS[milestone as keyof typeof LEVEL_UNLOCKS]?.title;
+  const levelTitle = type === 'level' && LEVEL_UNLOCKS[milestone]?.title;
 
   return (
     <AnimatePresence>
