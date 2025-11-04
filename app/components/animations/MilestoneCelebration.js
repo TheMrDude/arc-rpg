@@ -4,15 +4,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect, useRef } from 'react';
 import confetti from 'canvas-confetti';
 
-type MilestoneType = 'level' | 'streak' | 'achievement';
-
-interface MilestoneCelebrationProps {
-  show: boolean;
-  onClose: () => void;
-  milestone: number;
-  type: MilestoneType;
-  unlocks?: string[];
-}
 
 // Unlock data for different levels
 const LEVEL_UNLOCKS = {
@@ -67,7 +58,7 @@ export default function MilestoneCelebration({
 }: MilestoneCelebrationProps) {
   const [canClose, setCanClose] = useState(false);
   const [confettiActive, setConfettiActive] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioRef = useRef(null);
 
   useEffect(() => {
     if (show) {
@@ -437,10 +428,10 @@ export function MilestoneCelebrationCompact({
   title,
   message
 }: {
-  show: boolean;
+  show;
   onClose: () => void;
-  title: string;
-  message: string;
+  title;
+  message;
 }) {
   useEffect(() => {
     if (show) {

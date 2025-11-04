@@ -206,27 +206,27 @@ export default function StreakFlameExample() {
             <div>
               <h4 className="font-bold text-gray-800">StreakFlame</h4>
               <ul className="list-disc list-inside text-gray-600 space-y-1">
-                <li><code className="bg-gray-100 px-2 py-1 rounded">streakCount: number</code> - Current streak days</li>
-                <li><code className="bg-gray-100 px-2 py-1 rounded">hasFreeze?: boolean</code> - Show freeze shield badge</li>
-                <li><code className="bg-gray-100 px-2 py-1 rounded">className?: string</code> - Additional CSS classes</li>
-                <li><code className="bg-gray-100 px-2 py-1 rounded">showAnimation?: boolean</code> - Enable/disable flame animation</li>
+                <li><code className="bg-gray-100 px-2 py-1 rounded">streakCount</code> - Current streak days</li>
+                <li><code className="bg-gray-100 px-2 py-1 rounded">hasFreeze?</code> - Show freeze shield badge</li>
+                <li><code className="bg-gray-100 px-2 py-1 rounded">className?</code> - Additional CSS classes</li>
+                <li><code className="bg-gray-100 px-2 py-1 rounded">showAnimation?</code> - Enable/disable flame animation</li>
               </ul>
             </div>
 
             <div>
               <h4 className="font-bold text-gray-800">StreakFlameMilestone</h4>
               <ul className="list-disc list-inside text-gray-600 space-y-1">
-                <li><code className="bg-gray-100 px-2 py-1 rounded">streakCount: number</code> - Current streak days</li>
-                <li><code className="bg-gray-100 px-2 py-1 rounded">milestone: number</code> - Milestone threshold</li>
-                <li><code className="bg-gray-100 px-2 py-1 rounded">hasFreeze?: boolean</code> - Show freeze shield badge</li>
+                <li><code className="bg-gray-100 px-2 py-1 rounded">streakCount</code> - Current streak days</li>
+                <li><code className="bg-gray-100 px-2 py-1 rounded">milestone</code> - Milestone threshold</li>
+                <li><code className="bg-gray-100 px-2 py-1 rounded">hasFreeze?</code> - Show freeze shield badge</li>
               </ul>
             </div>
 
             <div>
               <h4 className="font-bold text-gray-800">StreakFlameCompact</h4>
               <ul className="list-disc list-inside text-gray-600 space-y-1">
-                <li><code className="bg-gray-100 px-2 py-1 rounded">streakCount: number</code> - Current streak days</li>
-                <li><code className="bg-gray-100 px-2 py-1 rounded">hasFreeze?: boolean</code> - Show freeze shield icon</li>
+                <li><code className="bg-gray-100 px-2 py-1 rounded">streakCount</code> - Current streak days</li>
+                <li><code className="bg-gray-100 px-2 py-1 rounded">hasFreeze?</code> - Show freeze shield icon</li>
               </ul>
             </div>
           </div>

@@ -4,10 +4,10 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 
 interface CharacterNamingProps {
-  onComplete: (name: string) => void;
+  onComplete: (name) => void;
   onSkip?: () => void;
-  archetype?: string;
-  className?: string;
+  archetype?;
+  className?;
 }
 
 const ARCHETYPE_SUGGESTIONS = {
@@ -282,8 +282,8 @@ export function CharacterNamingCompact({
   currentName,
   onSave
 }: {
-  currentName?: string;
-  onSave: (name: string) => Promise<void>;
+  currentName?;
+  onSave: (name) => Promise<void>;
 }) {
   const [name, setName] = useState(currentName || '');
   const [isEditing, setIsEditing] = useState(!currentName);

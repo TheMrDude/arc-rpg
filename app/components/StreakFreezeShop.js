@@ -5,10 +5,10 @@ import { motion } from 'framer-motion';
 import { STREAK_FREEZE_COST } from '@/lib/gamification/streak-protection';
 
 interface StreakFreezeShopProps {
-  currentXP: number;
-  freezeCount: number;
+  currentXP;
+  freezeCount;
   onPurchase: () => Promise<void>;
-  className?: string;
+  className?;
 }
 
 export default function StreakFreezeShop({
@@ -18,8 +18,8 @@ export default function StreakFreezeShop({
   className = ''
 }: StreakFreezeShopProps) {
   const [isPurchasing, setIsPurchasing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
 
   const canAfford = currentXP >= STREAK_FREEZE_COST;
   const maxFreezesReached = freezeCount >= 10;
