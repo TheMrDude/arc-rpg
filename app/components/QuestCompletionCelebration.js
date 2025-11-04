@@ -4,27 +4,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect, useRef } from 'react';
 import confetti from 'canvas-confetti';
 
-interface QuestCompletionCelebrationProps {
-  show: boolean;
-  onClose: () => void;
-  rewards: {
-    xp: number;
-    equipment_bonus_xp?: number;
-    gold: number;
-    comeback_bonus?: boolean;
-    level_up?: boolean;
-    new_level?: number;
-  };
-  questTitle: string;
-}
-
 export default function QuestCompletionCelebration({
   show,
   onClose,
   rewards,
   questTitle
-}: QuestCompletionCelebrationProps) {
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+}) {
+  const audioRef = useRef(null);
 
   useEffect(() => {
     if (show) {
