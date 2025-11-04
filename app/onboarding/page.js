@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import confetti from 'canvas-confetti';
 
 
-type OnboardingStep = 1 | 2 | 3;
 
 export default function OnboardingPage() {
   const router = useRouter();
