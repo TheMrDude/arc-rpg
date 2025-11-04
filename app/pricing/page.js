@@ -66,14 +66,13 @@ export default function PricingPage() {
         return;
       }
 
-      // SECURE: Send Bearer token for authentication
+      // Send userId to create checkout
       const response = await fetch('/api/create-checkout', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`
         },
-        body: JSON.stringify({}),
+        body: JSON.stringify({ userId: user.id }),
       });
 
       const data = await response.json();
@@ -246,28 +245,25 @@ export default function PricingPage() {
               </li>
             </ul>
 
-            {profile?.subscription_status === 'active' ? (
-              <button
-                disabled
-                className="w-full py-3 rounded-lg font-black uppercase tracking-wide transition-all bg-[#0F3460] cursor-not-allowed border-3 border-[#1A1A2E] text-white"
-              >
-                You're a Founder!
-              </button>
-            ) : lifetimeSpotsLeft === 0 ? (
-              <button
-                disabled
-                className="w-full py-3 rounded-lg font-black uppercase tracking-wide transition-all bg-[#0F3460] cursor-not-allowed border-3 border-[#1A1A2E] text-white"
-              >
-                Sold Out
-              </button>
-            ) : (
-              <a
-                href="https://buy.stripe.com/14AeVccuxbcHgCc452dZ600"
-                className="block w-full py-3 rounded-lg font-black uppercase tracking-wide transition-all bg-[#FFD93D] hover:bg-[#E6C335] text-[#1A1A2E] border-3 border-[#0F3460] shadow-[0_5px_0_#0F3460] hover:shadow-[0_7px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_2px_0_#0F3460] active:translate-y-1 text-center"
-              >
-                Claim Founder Access
-              </a>
-            )}
+            <button
+              onClick={handleUpgrade}
+              disabled={
+                checkoutLoading || profile?.subscription_status === 'active' || lifetimeSpotsLeft === 0
+              }
+              className={`w-full py-3 rounded-lg font-black uppercase tracking-wide transition-all ${
+                profile?.subscription_status === 'active' || lifetimeSpotsLeft === 0
+                  ? 'bg-[#0F3460] cursor-not-allowed border-3 border-[#1A1A2E] text-white'
+                  : 'bg-[#FFD93D] hover:bg-[#E6C335] text-[#1A1A2E] border-3 border-[#0F3460] shadow-[0_5px_0_#0F3460] hover:shadow-[0_7px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_2px_0_#0F3460] active:translate-y-1'
+              }`}
+            >
+              {checkoutLoading
+                ? 'Loading...'
+                : profile?.subscription_status === 'active'
+                ? "You're a Founder!"
+                : lifetimeSpotsLeft === 0
+                ? 'Sold Out'
+                : 'Claim Founder Access'}
+            </button>
           </div>
         </div>
 
