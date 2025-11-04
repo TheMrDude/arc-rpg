@@ -8,6 +8,9 @@ import { checkBossEncounter, calculateStreak, checkComebackBonus, getCreatureCom
 import OnboardingTutorial from '@/app/components/OnboardingTutorial';
 import NotificationSetup from '@/app/components/NotificationSetup';
 import ReferralCard from '@/app/components/ReferralCard';
+import QuestCompletionCelebration from '@/app/components/QuestCompletionCelebration';
+import ReflectionPrompt from '@/app/components/ReflectionPrompt';
+import MilestoneCelebration from '@/app/components/animations/MilestoneCelebration';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -20,6 +23,14 @@ export default function DashboardPage() {
   const [adding, setAdding] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+
+  // Celebration states
+  const [showQuestCelebration, setShowQuestCelebration] = useState(false);
+  const [celebrationData, setCelebrationData] = useState(null);
+  const [showReflection, setShowReflection] = useState(false);
+  const [completedQuestData, setCompletedQuestData] = useState(null);
+  const [showMilestoneCelebration, setShowMilestoneCelebration] = useState(false);
+  const [milestoneData, setMilestoneData] = useState(null);
 
   useEffect(() => {
     loadUserData();
@@ -254,6 +265,9 @@ export default function DashboardPage() {
         return;
       }
 
+      // Get quest data before completion
+      const questToComplete = quests.find(q => q.id === questId);
+
       // SECURITY: Use server-side API for quest completion
       const response = await fetch('/api/complete-quest', {
         method: 'POST',
@@ -272,30 +286,82 @@ export default function DashboardPage() {
         return;
       }
 
-      // Show rewards notification
-      const rewards = data.rewards;
-      let rewardMessage = `Quest Complete!\n\n`;
-      rewardMessage += `+${rewards.xp} XP`;
-      if (rewards.equipment_bonus_xp > 0) {
-        rewardMessage += ` (+${rewards.equipment_bonus_xp} equipment bonus)`;
-      }
-      if (rewards.comeback_bonus) {
-        rewardMessage += `\n+20 Comeback Bonus!`;
-      }
-      rewardMessage += `\n+${rewards.gold} Gold`;
-      if (rewards.level_up) {
-        rewardMessage += `\n\n🎉 LEVEL UP! You are now level ${rewards.new_level}!`;
-      }
+      // Store quest data for reflection prompt
+      setCompletedQuestData({
+        questId,
+        questTitle: questToComplete?.transformed_text || 'Quest',
+        originalText: questToComplete?.original_text || ''
+      });
 
-      alert(rewardMessage);
+      // Show celebration modal with rewards
+      const rewards = data.rewards;
+      setCelebrationData({
+        rewards,
+        questTitle: questToComplete?.transformed_text || 'Quest Complete!'
+      });
+      setShowQuestCelebration(true);
+
+      // Check for level up milestone
+      if (rewards.level_up) {
+        setMilestoneData({
+          milestone: rewards.new_level,
+          type: 'level'
+        });
+      }
 
       // Reload user data to reflect changes
-      loadUserData();
+      await loadUserData();
     } catch (error) {
       console.error('Error completing quest:', error);
       alert('Failed to complete quest');
     }
   }
+
+  const handleCelebrationClose = () => {
+    setShowQuestCelebration(false);
+
+    // Show reflection prompt (optional, not every time)
+    if (completedQuestData && Math.random() < 0.5) { // 50% chance
+      setShowReflection(true);
+    }
+
+    // Show milestone celebration if there was a level up
+    if (milestoneData) {
+      setTimeout(() => {
+        setShowMilestoneCelebration(true);
+      }, 300);
+    }
+  };
+
+  const handleReflectionSubmit = async (reflection, mood) => {
+    if (!completedQuestData || !user) return;
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const response = await fetch('/api/reflections/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify({
+          questId: completedQuestData.questId,
+          reflectionText: reflection,
+          mood
+        })
+      });
+
+      if (response.ok) {
+        // Reload to show new XP from reflection bonus
+        loadUserData();
+      }
+    } catch (error) {
+      console.error('Error saving reflection:', error);
+      throw error;
+    }
+  };
 
   async function generateQuestsFromTemplates() {
     if (generating) return;
@@ -625,6 +691,40 @@ export default function DashboardPage() {
 
       {/* Notification Setup Prompt */}
       {user && <NotificationSetup userId={user.id} />}
+
+      {/* Quest Completion Celebration */}
+      {showQuestCelebration && celebrationData && (
+        <QuestCompletionCelebration
+          show={showQuestCelebration}
+          onClose={handleCelebrationClose}
+          rewards={celebrationData.rewards}
+          questTitle={celebrationData.questTitle}
+        />
+      )}
+
+      {/* Reflection Prompt */}
+      {showReflection && completedQuestData && (
+        <ReflectionPrompt
+          show={showReflection}
+          onClose={() => setShowReflection(false)}
+          questId={completedQuestData.questId}
+          questTitle={completedQuestData.questTitle}
+          onSubmit={handleReflectionSubmit}
+        />
+      )}
+
+      {/* Milestone Celebration */}
+      {showMilestoneCelebration && milestoneData && (
+        <MilestoneCelebration
+          show={showMilestoneCelebration}
+          onClose={() => {
+            setShowMilestoneCelebration(false);
+            setMilestoneData(null);
+          }}
+          milestone={milestoneData.milestone}
+          type={milestoneData.type}
+        />
+      )}
     </div>
   );
 }
