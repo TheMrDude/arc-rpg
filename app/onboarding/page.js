@@ -28,7 +28,7 @@ export default function OnboardingPage() {
   }, []);
 
   // Save guest quests to localStorage
-  const saveGuestQuests = (quests[], xp: number) => {
+  const saveGuestQuests = (quests, xp) => {
     localStorage.setItem('habitquest_guest_quests', JSON.stringify({
       quests,
       totalXP: xp
