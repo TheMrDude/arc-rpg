@@ -42,7 +42,12 @@ export default function PricingPage() {
   }, []);
 
   async function handleUpgrade() {
+    console.log('=== HANDLE UPGRADE STARTED ===');
+    console.log('User:', user);
+    console.log('Lifetime spots left:', lifetimeSpotsLeft);
+
     if (!user) {
+      console.log('No user found, redirecting to login');
       router.push('/login');
       return;
     }
@@ -55,16 +60,7 @@ export default function PricingPage() {
     setCheckoutLoading(true);
 
     try {
-      // Get session token for authentication
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-
-      if (sessionError || !session || !session.access_token) {
-        console.error('Session error:', sessionError);
-        alert('Session expired. Please log in again.');
-        router.push('/login');
-        setCheckoutLoading(false);
-        return;
-      }
+      console.log('Calling /api/create-checkout with userId:', user.id);
 
       // Send userId to create checkout
       const response = await fetch('/api/create-checkout', {
@@ -75,12 +71,17 @@ export default function PricingPage() {
         body: JSON.stringify({ userId: user.id }),
       });
 
+      console.log('Response status:', response.status);
+      console.log('Response ok:', response.ok);
+
       const data = await response.json();
+      console.log('Response data:', data);
 
       if (data.url) {
+        console.log('Redirecting to Stripe checkout:', data.url);
         window.location.href = data.url;
       } else {
-        console.error('Checkout failed:', data);
+        console.error('No URL in response. Full data:', data);
         alert(`Failed to create checkout: ${data.error || 'Unknown error'}. Please try again.`);
         setCheckoutLoading(false);
       }
