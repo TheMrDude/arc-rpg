@@ -5,13 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import confetti from 'canvas-confetti';
 
-interface TransformedQuest {
-  title: string;
-  description: string;
-  xp_value: number;
-  difficulty: 'easy' | 'medium' | 'hard';
-  emoji: string;
-}
 
 type OnboardingStep = 1 | 2 | 3;
 
