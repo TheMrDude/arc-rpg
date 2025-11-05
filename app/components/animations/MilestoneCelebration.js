@@ -427,6 +427,7 @@ export function MilestoneCelebrationCompact({
   onClose,
   title,
   message
+}) {
   useEffect(() => {
     if (show) {
       const timer = setTimeout(() => {

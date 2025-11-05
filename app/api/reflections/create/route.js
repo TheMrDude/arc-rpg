@@ -1,12 +1,33 @@
-import { createClient } from '@/lib/supabase-server';
 import { NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
+
+const supabaseAnon = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
 
 export async function POST(request) {
   try {
-    const supabase = createClient();
+    // SECURE: Authenticate via Bearer token
+    const authHeader = request.headers.get('Authorization');
 
-    // Get user from session
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (!authHeader?.startsWith('Bearer ')) {
+      return NextResponse.json(
+        { error: 'Unauthorized', message: 'No bearer token provided' },
+        { status: 401 }
+      );
+    }
+
+    const token = authHeader.substring(7);
+    const { data: { user }, error: userError } = await supabaseAnon.auth.getUser(token);
 
     if (userError || !user) {
       return NextResponse.json(
@@ -48,7 +69,7 @@ export async function POST(request) {
     }
 
     // Verify quest belongs to user
-    const { data: quest, error: questError } = await supabase
+    const { data: quest, error: questError } = await supabaseAdmin
       .from('quests')
       .select('id, user_id')
       .eq('id', questId)
@@ -69,7 +90,7 @@ export async function POST(request) {
     }
 
     // Check if reflection already exists for this quest
-    const { data: existingReflection } = await supabase
+    const { data: existingReflection } = await supabaseAdmin
       .from('quest_reflections')
       .select('id')
       .eq('quest_id', questId)
@@ -84,7 +105,7 @@ export async function POST(request) {
     }
 
     // Insert reflection
-    const { data: reflection, error: reflectionError } = await supabase
+    const { data: reflection, error: reflectionError } = await supabaseAdmin
       .from('quest_reflections')
       .insert({
         quest_id: questId,
@@ -105,12 +126,10 @@ export async function POST(request) {
 
     // Award +10 XP bonus
     const xpBonus = 10;
-    const { error: xpError } = await supabase
-      .from('profiles')
-      .update({
-        xp: supabase.raw(`xp + ${xpBonus}`)
-      })
-      .eq('id', user.id);
+    const { error: xpError } = await supabaseAdmin.rpc('increment_xp', {
+      user_id: user.id,
+      xp_amount: xpBonus
+    });
 
     if (xpError) {
       console.error('Error awarding XP bonus:', xpError);
@@ -118,7 +137,7 @@ export async function POST(request) {
     }
 
     // Get updated XP
-    const { data: profile } = await supabase
+    const { data: profile } = await supabaseAdmin
       .from('profiles')
       .select('xp')
       .eq('id', user.id)

@@ -1,20 +1,11 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { soundManager, SoundName } from '@/lib/audio/SoundManager';
+import { createContext, useContext, useEffect, useState } from 'react';
+import { soundManager } from '@/lib/audio/SoundManager';
 
-interface SoundContextType {
-  play: (sound: SoundName) => void;
-  enabled;
-  setEnabled: (enabled) => void;
-  volume;
-  setVolume: (volume) => void;
-  isInitialized;
-}
+const SoundContext = createContext(null);
 
-const SoundContext = createContext<SoundContextType | null>(null);
-
-export function SoundProvider({ children }: { children: ReactNode }) {
+export function SoundProvider({ children }) {
   const [enabled, setEnabledState] = useState(soundManager.isEnabled());
   const [volume, setVolumeState] = useState(soundManager.getVolume());
   const [isInitialized, setIsInitialized] = useState(false);

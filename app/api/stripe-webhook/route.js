@@ -3,10 +3,19 @@ import Stripe from 'stripe';
 import { getSupabaseAdminClient } from '@/lib/supabase-server';
 import { getOrCreateProfile } from '@/lib/profile-service';
 
+// Force dynamic rendering to avoid build-time execution
+export const dynamic = 'force-dynamic';
+
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-// Use shared admin client helper for database operations
-const supabaseAdmin = getSupabaseAdminClient();
+// Lazy initialization - client will be created when first needed
+let supabaseAdmin = null;
+function getSupabaseAdmin() {
+  if (!supabaseAdmin) {
+    supabaseAdmin = getSupabaseAdminClient();
+  }
+  return supabaseAdmin;
+}
 
 // SECURITY: Handle gold purchases (idempotent)
 async function handleGoldPurchase(session, userId) {
@@ -25,7 +34,7 @@ async function handleGoldPurchase(session, userId) {
   }
 
   // SECURITY: Check if gold already granted (idempotency)
-  const { data: existingPurchase } = await supabaseAdmin
+  const { data: existingPurchase } = await getSupabaseAdmin()
     .from('gold_purchases')
     .select('id, gold_granted')
     .eq('stripe_payment_intent_id', paymentIntentId)
@@ -42,7 +51,7 @@ async function handleGoldPurchase(session, userId) {
   }
 
   // Update purchase record with payment intent
-  await supabaseAdmin
+  await getSupabaseAdmin()
     .from('gold_purchases')
     .update({
       stripe_payment_intent_id: paymentIntentId,
@@ -52,7 +61,7 @@ async function handleGoldPurchase(session, userId) {
     .eq('stripe_checkout_session_id', session.id);
 
   // SECURITY: Grant gold using atomic transaction
-  const { data: goldTransaction, error: goldError } = await supabaseAdmin
+  const { data: goldTransaction, error: goldError } = await getSupabaseAdmin()
     .rpc('process_gold_transaction', {
       p_user_id: userId,
       p_amount: goldAmount,
@@ -78,7 +87,7 @@ async function handleGoldPurchase(session, userId) {
   }
 
   // Mark gold as granted
-  await supabaseAdmin
+  await getSupabaseAdmin()
     .from('gold_purchases')
     .update({
       gold_granted: true,
@@ -185,7 +194,7 @@ export async function POST(request) {
     }
 
     // Upgrade user to premium
-    const { error: updateError } = await supabaseAdmin
+    const { error: updateError } = await getSupabaseAdmin()
       .from('profiles')
       .update({
         subscription_status: 'active',

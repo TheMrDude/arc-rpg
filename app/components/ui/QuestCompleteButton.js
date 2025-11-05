@@ -4,19 +4,12 @@ import { motion } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { useState, useRef, useEffect } from 'react';
 
-interface QuestCompleteButtonProps {
-  onComplete: () => void;
-  disabled?;
-  questTitle?;
-  xpReward?;
-}
-
 export default function QuestCompleteButton({
   onComplete,
   disabled = false,
   questTitle = "Quest",
   xpReward = 25
-}: QuestCompleteButtonProps) {
+}) {
   const [isCompleted, setIsCompleted] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
   const audioRef = useRef(null);
@@ -42,7 +35,7 @@ export default function QuestCompleteButton({
       colors: ['#E8B44C', '#D4943C', '#FFD93D', '#FF6B6B', '#00D4FF']
     };
 
-    function fire(particleRatio, opts: confetti.Options) {
+    function fire(particleRatio, opts) {
       confetti({
         ...defaults,
         ...opts,
