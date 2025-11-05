@@ -6,7 +6,7 @@ import { useSound } from './SoundProvider';
 export default function SoundSettings() {
   const { enabled, setEnabled, volume, setVolume, play } = useSound();
 
-  const handleVolumeChange = (newVolume: number) => {
+  const handleVolumeChange = (newVolume) => {
     setVolume(newVolume);
     // Play a test sound
     if (enabled && newVolume > 0) {

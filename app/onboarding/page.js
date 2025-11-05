@@ -5,25 +5,17 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import confetti from 'canvas-confetti';
 
-interface TransformedQuest {
-  title: string;
-  description: string;
-  xp_value: number;
-  difficulty: 'easy' | 'medium' | 'hard';
-  emoji: string;
-}
 
-type OnboardingStep = 1 | 2 | 3;
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const [step, setStep] = useState<OnboardingStep>(1);
+  const [step, setStep] = useState(1);
   const [questText, setQuestText] = useState('');
-  const [transformedQuest, setTransformedQuest] = useState<TransformedQuest | null>(null);
-  const [guestQuests, setGuestQuests] = useState<TransformedQuest[]>([]);
+  const [transformedQuest, setTransformedQuest] = useState(null);
+  const [guestQuests, setGuestQuests] = useState([]);
   const [totalXP, setTotalXP] = useState(0);
   const [isTransforming, setIsTransforming] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(null);
 
   // Load guest quests from localStorage on mount
   useEffect(() => {
@@ -36,7 +28,7 @@ export default function OnboardingPage() {
   }, []);
 
   // Save guest quests to localStorage
-  const saveGuestQuests = (quests: TransformedQuest[], xp: number) => {
+  const saveGuestQuests = (quests, xp) => {
     localStorage.setItem('habitquest_guest_quests', JSON.stringify({
       quests,
       totalXP: xp
@@ -119,7 +111,7 @@ export default function OnboardingPage() {
     router.push('/signup?from=onboarding');
   };
 
-  const getDifficultyStars = (difficulty: string) => {
+  const getDifficultyStars = (difficulty) => {
     const stars = difficulty === 'easy' ? 1 : difficulty === 'medium' ? 2 : 3;
     return '⭐'.repeat(stars);
   };
