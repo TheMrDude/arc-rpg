@@ -4,12 +4,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect } from 'react';
 import confetti from 'canvas-confetti';
 
-interface StreakFreezeActivationProps {
-  show: boolean;
-  onClose: () => void;
-  streakCount: number;
-}
-
 /**
  * Modal that displays when a streak freeze automatically activates
  * Shows celebration and relief (not guilt) - user made a smart investment!
@@ -18,7 +12,7 @@ export default function StreakFreezeActivation({
   show,
   onClose,
   streakCount
-}: StreakFreezeActivationProps) {
+}) {
   useEffect(() => {
     if (show) {
       // Trigger confetti celebration (relief confetti - cooler colors)
@@ -241,7 +235,7 @@ export function StreakFreezeActivationToast({
   show,
   onClose,
   streakCount
-}: StreakFreezeActivationProps) {
+}) {
   useEffect(() => {
     if (show) {
       const timer = setTimeout(() => {

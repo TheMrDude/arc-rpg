@@ -3,13 +3,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 
-interface CharacterNamingProps {
-  onComplete: (name: string) => void;
-  onSkip?: () => void;
-  archetype?: string;
-  className?: string;
-}
-
 const ARCHETYPE_SUGGESTIONS = {
   warrior: ['The Bold', 'The Valiant', 'The Fierce', 'The Relentless'],
   seeker: ['The Curious', 'The Wise', 'The Wanderer', 'The Explorer'],
@@ -22,12 +15,12 @@ export default function CharacterNaming({
   onSkip,
   archetype = 'adventurer',
   className = ''
-}: CharacterNamingProps) {
+}) {
   const [name, setName] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const suggestions = ARCHETYPE_SUGGESTIONS[archetype as keyof typeof ARCHETYPE_SUGGESTIONS] || [
+  const suggestions = ARCHETYPE_SUGGESTIONS[archetype] || [
     'The Determined',
     'The Brave',
     'The Noble',
@@ -281,9 +274,6 @@ export default function CharacterNaming({
 export function CharacterNamingCompact({
   currentName,
   onSave
-}: {
-  currentName?: string;
-  onSave: (name: string) => Promise<void>;
 }) {
   const [name, setName] = useState(currentName || '');
   const [isEditing, setIsEditing] = useState(!currentName);
