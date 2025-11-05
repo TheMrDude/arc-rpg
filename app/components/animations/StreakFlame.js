@@ -3,19 +3,12 @@
 import { motion, useAnimation } from 'framer-motion';
 import { useEffect, useState } from 'react';
 
-interface StreakFlameProps {
-  streakCount;
-  hasFreeze?;
-  className?;
-  showAnimation?;
-}
-
 export default function StreakFlame({
   streakCount,
   hasFreeze = false,
   className = '',
   showAnimation = true
-}: StreakFlameProps) {
+}) {
   const [previousStreak, setPreviousStreak] = useState(streakCount);
   const controls = useAnimation();
 
@@ -148,10 +141,6 @@ export function StreakFlameMilestone({
   streakCount,
   milestone,
   hasFreeze = false
-}: {
-  streakCount;
-  milestone;
-  hasFreeze?;
 }) {
   const isMilestone = streakCount >= milestone;
 
@@ -201,9 +190,6 @@ export function StreakFlameMilestone({
 export function StreakFlameCompact({
   streakCount,
   hasFreeze = false
-}: {
-  streakCount;
-  hasFreeze?;
 }) {
   return (
     <motion.div

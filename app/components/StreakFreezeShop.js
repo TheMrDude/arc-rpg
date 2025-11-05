@@ -4,19 +4,12 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { STREAK_FREEZE_COST } from '@/lib/gamification/streak-protection';
 
-interface StreakFreezeShopProps {
-  currentXP;
-  freezeCount;
-  onPurchase: () => Promise<void>;
-  className?;
-}
-
 export default function StreakFreezeShop({
   currentXP,
   freezeCount,
   onPurchase,
   className = ''
-}: StreakFreezeShopProps) {
+}) {
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
