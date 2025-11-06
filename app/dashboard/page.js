@@ -612,6 +612,33 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {/* Active Quests */}
+        <div className="bg-[#1A1A2E] border-3 border-[#FF6B6B] rounded-lg p-6 mb-8 shadow-[0_0_20px_rgba(255,107,107,0.3)]">
+          <h3 className="text-xl font-black uppercase tracking-wide text-[#FF6B6B] mb-4">Active Quests</h3>
+          <div className="space-y-4">
+            {quests.filter(q => !q.completed).map((quest) => (
+              <div key={quest.id} className="bg-[#0F3460] p-4 rounded-lg border-2 border-[#1A1A2E] flex justify-between items-start">
+                <div className="flex-1">
+                  <div className="font-black text-lg text-[#00D4FF]">{quest.transformed_text}</div>
+                  <div className="text-sm text-[#E2E8F0] mt-1">{quest.original_text}</div>
+                  <div className="text-xs text-[#FFD93D] mt-2 font-bold uppercase">
+                    {quest.difficulty} | {quest.xp_value} XP
+                  </div>
+                </div>
+                <button
+                  onClick={() => completeQuest(quest.id, quest.xp_value)}
+                  className="ml-4 px-4 py-2 bg-[#48BB78] hover:bg-[#38a169] text-white border-3 border-[#0F3460] rounded-lg font-black uppercase text-sm tracking-wide shadow-[0_3px_0_#0F3460] hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1 transition-all"
+                >
+                  Complete
+                </button>
+              </div>
+            ))}
+            {quests.filter(q => !q.completed).length === 0 && (
+              <p className="text-[#00D4FF] text-center py-8 font-bold">No active quests. Add one above!</p>
+            )}
+          </div>
+        </div>
+
         {/* Referral Card */}
         {user && profile && (
           <div className="mb-8">
@@ -651,33 +678,6 @@ export default function DashboardPage() {
             </div>
           </div>
         )}
-
-        {/* Active Quests */}
-        <div className="bg-[#1A1A2E] border-3 border-[#FF6B6B] rounded-lg p-6 shadow-[0_0_20px_rgba(255,107,107,0.3)]">
-          <h3 className="text-xl font-black uppercase tracking-wide text-[#FF6B6B] mb-4">Active Quests</h3>
-          <div className="space-y-4">
-            {quests.filter(q => !q.completed).map((quest) => (
-              <div key={quest.id} className="bg-[#0F3460] p-4 rounded-lg border-2 border-[#1A1A2E] flex justify-between items-start">
-                <div className="flex-1">
-                  <div className="font-black text-lg text-[#00D4FF]">{quest.transformed_text}</div>
-                  <div className="text-sm text-[#E2E8F0] mt-1">{quest.original_text}</div>
-                  <div className="text-xs text-[#FFD93D] mt-2 font-bold uppercase">
-                    {quest.difficulty} | {quest.xp_value} XP
-                  </div>
-                </div>
-                <button
-                  onClick={() => completeQuest(quest.id, quest.xp_value)}
-                  className="ml-4 px-4 py-2 bg-[#48BB78] hover:bg-[#38a169] text-white border-3 border-[#0F3460] rounded-lg font-black uppercase text-sm tracking-wide shadow-[0_3px_0_#0F3460] hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1 transition-all"
-                >
-                  Complete
-                </button>
-              </div>
-            ))}
-            {quests.filter(q => !q.completed).length === 0 && (
-              <p className="text-[#00D4FF] text-center py-8 font-bold">No active quests. Add one above!</p>
-            )}
-          </div>
-        </div>
       </div>
 
       {/* Onboarding Tutorial */}
