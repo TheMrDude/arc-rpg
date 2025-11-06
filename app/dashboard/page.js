@@ -1,4 +1,5 @@
 'use client';
+// Force rebuild: Dashboard layout fixed - Add Quest before Active Quests
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
