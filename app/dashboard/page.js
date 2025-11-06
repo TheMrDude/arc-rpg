@@ -639,13 +639,6 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Referral Card */}
-        {user && profile && (
-          <div className="mb-8">
-            <ReferralCard userId={user.id} profile={profile} />
-          </div>
-        )}
-
         {/* Unlock Premium Section (for non-premium users) */}
         {!(profile?.subscription_status === 'active') && (
           <div className="bg-[#1A1A2E] border-3 border-[#FFD93D] rounded-lg p-8 mb-8 shadow-[0_0_30px_rgba(255,217,61,0.4)]">
@@ -676,6 +669,13 @@ export default function DashboardPage() {
                 🔥 Get Lifetime Access - $47 (Limited Spots!)
               </button>
             </div>
+          </div>
+        )}
+
+        {/* Referral Card */}
+        {user && profile && (
+          <div className="mb-8">
+            <ReferralCard userId={user.id} profile={profile} />
           </div>
         )}
       </div>
