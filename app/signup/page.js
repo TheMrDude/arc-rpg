@@ -25,7 +25,15 @@ export default function SignupPage() {
       if (error) throw error;
 
       if (data.user) {
-        router.push('/select-archetype');
+        // Check if email confirmation is required
+        // If user.identities is empty, it means email confirmation is required
+        if (data.user.identities && data.user.identities.length === 0) {
+          // Email confirmation required - show message
+          router.push('/confirm-email');
+        } else {
+          // No confirmation needed or auto-confirmed - proceed
+          router.push('/select-archetype');
+        }
       }
     } catch (error) {
       setError(error.message);
