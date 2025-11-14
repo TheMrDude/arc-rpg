@@ -12,6 +12,7 @@ import ReferralCard from '@/app/components/ReferralCard';
 import QuestCompletionCelebration from '@/app/components/QuestCompletionCelebration';
 import ReflectionPrompt from '@/app/components/ReflectionPrompt';
 import MilestoneCelebration from '@/app/components/animations/MilestoneCelebration';
+import LoginTransition from '@/components/LoginTransition';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -32,6 +33,10 @@ export default function DashboardPage() {
   const [completedQuestData, setCompletedQuestData] = useState(null);
   const [showMilestoneCelebration, setShowMilestoneCelebration] = useState(false);
   const [milestoneData, setMilestoneData] = useState(null);
+
+  // Login transition states
+  const [showLoginTransition, setShowLoginTransition] = useState(true);
+  const [isFirstLogin, setIsFirstLogin] = useState(false);
 
   useEffect(() => {
     loadUserData();
@@ -67,6 +72,23 @@ export default function DashboardPage() {
         .order('created_at', { ascending: false });
 
       setQuests(questsData || []);
+
+      // Check if this is the user's first login to dashboard (persists across sessions)
+      const hasSeenDashboard = localStorage.getItem(`dashboard_seen_${user.id}`);
+      if (!hasSeenDashboard) {
+        setIsFirstLogin(true);
+        localStorage.setItem(`dashboard_seen_${user.id}`, 'true');
+      }
+
+      // Check if we should show login transition this session
+      const hasSeenTransitionThisSession = sessionStorage.getItem(`login_transition_${user.id}`);
+      if (!hasSeenTransitionThisSession) {
+        setShowLoginTransition(true);
+        sessionStorage.setItem(`login_transition_${user.id}`, 'true');
+      } else {
+        // Already seen this session, don't show transition
+        setShowLoginTransition(false);
+      }
 
       // Check if user should see onboarding
       const hasSeenOnboarding = localStorage.getItem(`onboarding_${user.id}`);
@@ -427,7 +449,17 @@ export default function DashboardPage() {
   const creature = profile ? getCreatureCompanion(quests, profile.last_quest_date) : null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1A1A2E] via-[#16213e] to-[#0F3460] text-white p-8">
+    <>
+      {/* Emotional Login Transition */}
+      {showLoginTransition && profile && (
+        <LoginTransition
+          streakCount={profile.current_streak || 0}
+          lastActivityDate={profile.last_activity_date}
+          isFirstLogin={isFirstLogin}
+        />
+      )}
+
+      <div className="min-h-screen bg-gradient-to-br from-[#1A1A2E] via-[#16213e] to-[#0F3460] text-white p-8">
       <div className="max-w-6xl mx-auto">
         {/* Header with Character */}
         <div className="flex justify-between items-start mb-8">
@@ -726,6 +758,7 @@ export default function DashboardPage() {
           type={milestoneData.type}
         />
       )}
-    </div>
+      </div>
+    </>
   );
 }
