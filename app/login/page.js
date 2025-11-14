@@ -22,7 +22,16 @@ export default function LoginPage() {
         password,
       });
 
-      if (error) throw error;
+      if (error) {
+        // Check if it's an email confirmation error
+        if (error.message?.toLowerCase().includes('email') &&
+            error.message?.toLowerCase().includes('confirm')) {
+          setError('Please confirm your email address before logging in. Check your inbox for the confirmation link.');
+        } else {
+          setError(error.message);
+        }
+        throw error;
+      }
 
       if (data.user) {
         const { data: profile } = await supabase
@@ -38,7 +47,7 @@ export default function LoginPage() {
         }
       }
     } catch (error) {
-      setError(error.message);
+      // Error already set above
     } finally {
       setLoading(false);
     }
@@ -53,6 +62,14 @@ export default function LoginPage() {
         {error && (
           <div className="bg-red-900/30 border-3 border-red-500 rounded-lg p-3 mb-4">
             <p className="text-red-300 text-sm font-bold">{error}</p>
+            {error.toLowerCase().includes('confirm') && (
+              <button
+                onClick={() => router.push('/confirm-email')}
+                className="text-[#00D4FF] hover:text-[#00B8E6] text-sm font-bold mt-2 underline"
+              >
+                Resend confirmation email
+              </button>
+            )}
           </div>
         )}
 
