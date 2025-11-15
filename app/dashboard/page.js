@@ -24,6 +24,7 @@ import EquipmentShop from '@/app/components/EquipmentShop';
 import RateLimitStatus from '@/app/components/RateLimitStatus';
 import StoryProgress from '@/app/components/StoryProgress';
 import StoryEventNotification from '@/app/components/StoryEventNotification';
+import DailyBonus from '@/app/components/DailyBonus';
 import { trackQuestCreated, trackQuestCompleted, trackLevelUp, trackStreakAchieved, trackStoryMilestone } from '@/lib/analytics';
 
 export default function DashboardPage() {
@@ -715,6 +716,13 @@ export default function DashboardPage() {
         {profile && (
           <div className="mb-8">
             <StoryProgress profile={profile} />
+          </div>
+        )}
+
+        {/* Daily Bonus */}
+        {profile && (
+          <div className="mb-8">
+            <DailyBonus profile={profile} onClaim={loadUserData} />
           </div>
         )}
 
