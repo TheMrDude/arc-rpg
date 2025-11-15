@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { trackGoldPurchaseViewed, trackGoldPurchaseInitiated } from '@/lib/analytics';
 
 const GOLD_PACKAGES = {
   starter: {
@@ -133,9 +134,20 @@ export default function GoldShop({ onClose }) {
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [error, setError] = useState(null);
 
+  // Track when gold shop is viewed
+  useEffect(() => {
+    trackGoldPurchaseViewed();
+  }, []);
+
   const handlePurchase = async (packageType) => {
     setIsPurchasing(true);
     setError(null);
+
+    // Get package details for tracking
+    const pkg = GOLD_PACKAGES[packageType];
+    if (pkg) {
+      trackGoldPurchaseInitiated(packageType, pkg.price);
+    }
 
     try {
       const { getSupabaseClient } = await import('@/lib/supabase-client');
