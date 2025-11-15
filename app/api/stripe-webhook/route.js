@@ -21,7 +21,8 @@ function getSupabaseAdmin() {
 async function handleGoldPurchase(session, userId) {
   const paymentIntentId = session.payment_intent;
   const goldAmount = parseInt(session.metadata.gold_amount);
-  const packageId = session.metadata.package_id;
+  const packageType = session.metadata.package_type;
+  const priceUSD = session.amount_total / 100;
 
   if (!goldAmount || goldAmount <= 0) {
     console.error('Webhook error: Invalid gold amount', {
@@ -33,32 +34,53 @@ async function handleGoldPurchase(session, userId) {
     return NextResponse.json({ error: 'Invalid gold amount' }, { status: 400 });
   }
 
-  // SECURITY: Check if gold already granted (idempotency)
+  // SECURITY: Check if purchase record exists (idempotency)
   const { data: existingPurchase } = await getSupabaseAdmin()
     .from('gold_purchases')
-    .select('id, gold_granted')
-    .eq('stripe_payment_intent_id', paymentIntentId)
+    .select('id, status')
+    .eq('stripe_checkout_session_id', session.id)
     .single();
 
-  if (existingPurchase?.gold_granted) {
+  if (existingPurchase?.status === 'completed') {
     console.log('Webhook: Gold already granted for this payment, skipping', {
       userId,
-      paymentIntentId,
+      purchaseId: existingPurchase.id,
       sessionId: session.id,
       timestamp: new Date().toISOString(),
     });
     return NextResponse.json({ received: true });
   }
 
-  // Update purchase record with payment intent
-  await getSupabaseAdmin()
-    .from('gold_purchases')
-    .update({
-      stripe_payment_intent_id: paymentIntentId,
-      payment_status: 'completed',
-      updated_at: new Date().toISOString(),
-    })
-    .eq('stripe_checkout_session_id', session.id);
+  // Create or update purchase record
+  let purchaseId = existingPurchase?.id;
+
+  if (!existingPurchase) {
+    const { data: newPurchase, error: insertError } = await getSupabaseAdmin()
+      .from('gold_purchases')
+      .insert({
+        user_id: userId,
+        package_type: packageType,
+        gold_amount: goldAmount,
+        price_usd: priceUSD,
+        stripe_payment_intent_id: paymentIntentId,
+        stripe_checkout_session_id: session.id,
+        status: 'pending',
+      })
+      .select('id')
+      .single();
+
+    if (insertError) {
+      console.error('Webhook error: Failed to create purchase record', {
+        error: insertError.message,
+        userId,
+        sessionId: session.id,
+        timestamp: new Date().toISOString(),
+      });
+      return NextResponse.json({ error: 'Failed to create purchase record' }, { status: 500 });
+    }
+
+    purchaseId = newPurchase.id;
+  }
 
   // SECURITY: Grant gold using atomic transaction
   const { data: goldTransaction, error: goldError } = await getSupabaseAdmin()
@@ -66,12 +88,12 @@ async function handleGoldPurchase(session, userId) {
       p_user_id: userId,
       p_amount: goldAmount,
       p_transaction_type: 'gold_purchase',
-      p_reference_id: existingPurchase?.id || null,
+      p_reference_id: purchaseId,
       p_metadata: {
-        package_id: packageId,
+        package_type: packageType,
         stripe_session_id: session.id,
         stripe_payment_intent: paymentIntentId,
-        amount_usd: session.amount_total / 100,
+        amount_usd: priceUSD,
       }
     });
 
@@ -83,17 +105,24 @@ async function handleGoldPurchase(session, userId) {
       sessionId: session.id,
       timestamp: new Date().toISOString(),
     });
+
+    // Mark purchase as failed
+    await getSupabaseAdmin()
+      .from('gold_purchases')
+      .update({ status: 'failed' })
+      .eq('id', purchaseId);
+
     return NextResponse.json({ error: 'Failed to grant gold' }, { status: 500 });
   }
 
-  // Mark gold as granted
+  // Mark purchase as completed
   await getSupabaseAdmin()
     .from('gold_purchases')
     .update({
-      gold_granted: true,
-      granted_at: new Date().toISOString(),
+      status: 'completed',
+      stripe_payment_intent_id: paymentIntentId,
     })
-    .eq('stripe_checkout_session_id', session.id);
+    .eq('id', purchaseId);
 
   const result = goldTransaction?.[0];
 
@@ -101,9 +130,10 @@ async function handleGoldPurchase(session, userId) {
     userId,
     goldAmount,
     newBalance: result?.new_balance,
-    packageId,
+    packageType,
+    purchaseId,
     sessionId: session.id,
-    amountUSD: session.amount_total / 100,
+    amountUSD: priceUSD,
     timestamp: new Date().toISOString(),
   });
 
@@ -132,8 +162,8 @@ export async function POST(request) {
   // Handle successful checkout
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
-    const userId = session.metadata.supabase_user_id || session.metadata.userId;
-    const transactionType = session.metadata.transaction_type;
+    const userId = session.metadata.user_id || session.metadata.supabase_user_id || session.metadata.userId;
+    const transactionType = session.metadata.type || session.metadata.transaction_type;
 
     if (!userId) {
       console.error('Webhook error: No userId in session metadata', {
