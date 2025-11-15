@@ -92,24 +92,51 @@ export async function POST(request) {
     // Load user profile and fetch recent completed quests for continuity
     const { data: profile } = await supabaseAdmin
       .from('profiles')
-      .select('subscription_status, story_chapter, story_last_event')
+      .select('subscription_status, level, current_story_thread, story_progress')
       .eq('id', user.id)
       .single();
 
     const isPremium = profile?.subscription_status === 'active';
+    const userLevel = profile?.level || 1;
+    const currentThread = profile?.current_story_thread || null;
+    const storyProgress = profile?.story_progress || { recent_events: [], ongoing_conflicts: [], npcs_met: [], thread_completion: 0 };
 
     // Fetch recent completed quests for story continuity (ALL USERS)
     const { data: recentQuests } = await supabaseAdmin
       .from('quests')
-      .select('transformed_text, completed_at')
+      .select('transformed_text, completed_at, story_thread, narrative_impact')
       .eq('user_id', user.id)
       .eq('completed', true)
       .order('completed_at', { ascending: false })
       .limit(5);
 
-    const recentQuestContext = recentQuests && recentQuests.length > 0
-      ? `\n\nRECENT COMPLETED QUESTS (for continuity):\n${recentQuests.map(q => `- ${q.transformed_text}`).join('\n')}\n\nIf appropriate, create subtle continuity with these recent quests (reference locations, characters, or themes). Don't force it - only add continuity if it flows naturally.`
-      : '';
+    // Build rich story context from recent quests and story progress
+    let recentQuestContext = '';
+
+    if (currentThread) {
+      recentQuestContext += `\n\nCURRENT STORY THREAD: "${currentThread}"`;
+      recentQuestContext += `\nThread Completion: ${storyProgress.thread_completion}%`;
+    }
+
+    if (storyProgress.ongoing_conflicts?.length > 0) {
+      recentQuestContext += `\n\nONGOING CONFLICTS:\n${storyProgress.ongoing_conflicts.map(c => `- ${c}`).join('\n')}`;
+    }
+
+    if (storyProgress.npcs_met?.length > 0) {
+      recentQuestContext += `\n\nKNOWN CHARACTERS:\n${storyProgress.npcs_met.slice(0, 5).map(npc => `- ${npc}`).join('\n')}`;
+    }
+
+    if (storyProgress.recent_events?.length > 0) {
+      recentQuestContext += `\n\nRECENT EVENTS:\n${storyProgress.recent_events.slice(0, 3).map(e => `- ${e}`).join('\n')}`;
+    }
+
+    if (recentQuests && recentQuests.length > 0) {
+      recentQuestContext += `\n\nRECENT COMPLETED QUESTS:\n${recentQuests.map(q => `- ${q.transformed_text}`).join('\n')}`;
+    }
+
+    if (recentQuestContext) {
+      recentQuestContext += `\n\nCreate continuity with the ongoing story. Reference the current thread, conflicts, or characters naturally. If this quest could advance the current thread, do so. Otherwise, let it be a standalone adventure.`;
+    }
 
     const archetypeStyles = {
       warrior: 'Transform this into a heroic battle or conquest. Use bold, action-oriented language.',
@@ -119,38 +146,60 @@ export async function POST(request) {
       seeker: 'Transform this into an exploration or discovery adventure. Use curious, adventurous language.',
     };
 
-    const prompt = `You are a quest generator for an RPG game.
+    const prompt = `You are a quest generator for an RPG game with ongoing story threads.
 
 Archetype: ${archetype.toUpperCase()}
 Style: ${archetypeStyles[archetype] || archetypeStyles.warrior}
 Difficulty: ${difficulty}
+Player Level: ${userLevel}
 ${recentQuestContext}
 
 Original task: "${sanitizedQuestText}"
 
-Transform this boring task into an epic RPG quest. Keep it to 1-2 sentences. Make it exciting and match the archetype style.
+Transform this boring task into an epic RPG quest that fits the ongoing story. Keep the quest description to 1-2 sentences. Make it exciting and match the archetype style.
 
-Quest:`;
+Then, provide story metadata in JSON format.
+
+Format your response as:
+QUEST: [1-2 sentence epic quest description]
+STORY_THREAD: [brief story thread name, e.g., "The Shadow Invasion" or "none" if standalone]
+NARRATIVE_IMPACT: [short phrase describing what completing this quest accomplishes in the story, e.g., "Weakens enemy forces" or "none"]`;
 
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
-      max_tokens: isPremium ? 250 : 150,
+      max_tokens: isPremium ? 300 : 200,
       messages: [{ role: 'user', content: prompt }],
     });
 
-    const transformedText = message.content[0].text.trim();
+    const response = message.content[0].text.trim();
 
-    // Story continuity now handled via story_chapter and story_last_event in profiles table
-    // Updated by weekly-summary API when generating chapter stories
+    // Parse the response to extract quest, story thread, and narrative impact
+    const questMatch = response.match(/QUEST:\s*(.+?)(?=\nSTORY_THREAD:|$)/s);
+    const threadMatch = response.match(/STORY_THREAD:\s*(.+?)(?=\nNARRATIVE_IMPACT:|$)/s);
+    const impactMatch = response.match(/NARRATIVE_IMPACT:\s*(.+?)$/s);
+
+    const transformedText = questMatch ? questMatch[1].trim() : response;
+    const storyThread = threadMatch ? threadMatch[1].trim() : null;
+    const narrativeImpact = impactMatch ? impactMatch[1].trim() : null;
+
+    // Clean up story thread and narrative impact
+    const cleanThread = storyThread && storyThread.toLowerCase() !== 'none' ? storyThread : null;
+    const cleanImpact = narrativeImpact && narrativeImpact.toLowerCase() !== 'none' ? narrativeImpact : null;
 
     console.log('Quest transformed successfully', {
       userId: user.id,
       archetype,
       difficulty,
+      storyThread: cleanThread,
+      narrativeImpact: cleanImpact,
       timestamp: new Date().toISOString(),
     });
 
-    return NextResponse.json({ transformedText });
+    return NextResponse.json({
+      transformedText,
+      storyThread: cleanThread,
+      narrativeImpact: cleanImpact ? { description: cleanImpact } : null
+    });
   } catch (error) {
     // SECURE: Don't expose internal errors to users
     console.error('Quest transformation error:', {
