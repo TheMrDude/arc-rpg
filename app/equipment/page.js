@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import GoldPurchasePrompt from '@/app/components/GoldPurchasePrompt';
+import { trackEquipmentViewed, trackEquipmentPurchased, trackGoldPurchaseViewed } from '@/lib/analytics';
 
 export default function EquipmentPage() {
   const router = useRouter();
@@ -12,9 +14,12 @@ export default function EquipmentPage() {
   const [userEquipment, setUserEquipment] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('all');
+  const [showGoldPrompt, setShowGoldPrompt] = useState(false);
 
   useEffect(() => {
     loadUserData();
+    // Track equipment page view
+    trackEquipmentViewed();
   }, []);
 
   async function loadUserData() {
@@ -91,7 +96,9 @@ export default function EquipmentPage() {
     }
 
     if (profile.gold < equipment.gold_price) {
-      alert(`You need ${equipment.gold_price} gold but only have ${profile.gold} gold.\n\nEarn gold by completing quests or purchase gold packs in the shop!`);
+      // Show gold purchase prompt instead of alert
+      setShowGoldPrompt(true);
+      trackGoldPurchaseViewed();
       return;
     }
 
@@ -116,6 +123,14 @@ export default function EquipmentPage() {
         alert(data.message || 'Failed to purchase equipment');
         return;
       }
+
+      // Track equipment purchase
+      trackEquipmentPurchased({
+        id: equipment.id,
+        name: equipment.name,
+        gold_price: equipment.gold_price,
+        slot: equipment.slot,
+      });
 
       alert(`Successfully purchased ${equipment.name}!\n\n-${data.cost} gold\nNew balance: ${data.new_balance} gold`);
 
@@ -388,6 +403,14 @@ export default function EquipmentPage() {
             );
           })}
         </div>
+
+        {/* Gold Purchase Prompt */}
+        <GoldPurchasePrompt
+          show={showGoldPrompt}
+          onClose={() => setShowGoldPrompt(false)}
+          trigger="insufficient_gold"
+          currentGold={profile?.gold || 0}
+        />
       </div>
     </div>
   );
