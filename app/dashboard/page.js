@@ -21,6 +21,7 @@ import RecurringQuests from '@/app/components/RecurringQuests';
 import ArchetypeSwitcher from '@/app/components/ArchetypeSwitcher';
 import TemplateLibrary from '@/app/components/TemplateLibrary';
 import EquipmentShop from '@/app/components/EquipmentShop';
+import RateLimitStatus from '@/app/components/RateLimitStatus';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -737,6 +738,15 @@ export default function DashboardPage() {
               </button>
             </div>
           </div>
+        )}
+
+        {/* Rate Limit Status */}
+        {user && profile && (
+          <RateLimitStatus
+            userId={user.id}
+            isPremium={profile.is_premium || profile.subscription_status === 'active'}
+            onUpgradeClick={() => router.push('/pricing')}
+          />
         )}
 
         {/* Skills */}
