@@ -133,9 +133,17 @@ export default function AdminMonitoring() {
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 text-white p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Admin Monitoring Dashboard</h1>
-          <p className="text-gray-400">System health, costs, and support tools</p>
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl font-bold mb-2">Admin Monitoring Dashboard</h1>
+            <p className="text-gray-400">System health, costs, and support tools</p>
+          </div>
+          <a
+            href="/admin/analytics"
+            className="px-6 py-3 bg-purple-600 hover:bg-purple-700 rounded-lg font-bold transition-colors flex items-center gap-2"
+          >
+            📊 Analytics & Revenue
+          </a>
         </div>
 
         {/* Tabs */}
