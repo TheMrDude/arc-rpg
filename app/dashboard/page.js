@@ -208,7 +208,7 @@ export default function DashboardPage() {
         const data = await response.json();
 
         if (response.ok && data.transformedText) {
-          // Insert the quest
+          // Insert the quest with story continuity
           await supabase
             .from('quests')
             .insert({
@@ -218,6 +218,8 @@ export default function DashboardPage() {
               difficulty: quest.difficulty,
               xp_value: quest.xp_value,
               completed: false,
+              story_thread: data.storyThread || null,
+              narrative_impact: data.narrativeImpact || null,
             });
         }
       }
@@ -289,6 +291,8 @@ export default function DashboardPage() {
           difficulty: newQuestDifficulty,
           xp_value: xp,
           completed: false,
+          story_thread: data.storyThread || null,
+          narrative_impact: data.narrativeImpact || null,
         });
 
       if (error) {
@@ -652,10 +656,16 @@ export default function DashboardPage() {
             >
               History
             </button>
+            <button
+              onClick={() => router.push('/shop')}
+              className="px-4 py-2 bg-[#FFD93D] hover:bg-[#E6C335] text-[#1A1A2E] border-3 border-[#0F3460] rounded-lg font-black uppercase text-sm tracking-wide shadow-[0_3px_0_#0F3460] hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1 transition-all"
+            >
+              🪙 Gold Shop
+            </button>
             {!(profile?.subscription_status === 'active' || profile?.is_premium) && (
               <button
                 onClick={() => router.push('/pricing')}
-                className="px-4 py-2 bg-[#FFD93D] hover:bg-[#E6C335] text-[#1A1A2E] border-3 border-[#0F3460] rounded-lg font-black uppercase text-sm tracking-wide shadow-[0_3px_0_#0F3460] hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1 transition-all"
+                className="px-4 py-2 bg-[#00D4FF] hover:bg-[#00BFFF] text-[#0F3460] border-3 border-[#0F3460] rounded-lg font-black uppercase text-sm tracking-wide shadow-[0_3px_0_#0F3460] hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1 transition-all"
               >
                 🔥 Lifetime Access - $47
               </button>
