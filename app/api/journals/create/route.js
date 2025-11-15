@@ -53,7 +53,7 @@ export async function POST(request) {
         entry_text: sanitizedEntry,
         transformed_narrative: sanitizedNarrative,
         mood: mood || null,
-        is_private: true, // Default to private
+        word_count: sanitizedEntry.split(/\s+/).length,
       })
       .select()
       .single();
