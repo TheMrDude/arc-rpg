@@ -51,8 +51,8 @@ export default function JournalEntry({ show, onClose, onSubmit, archetype }) {
 
     try {
       // Get Supabase session for auth token
-      const { createClient } = await import('@/lib/supabase-client');
-      const supabase = createClient();
+      const { getSupabaseClient } = await import('@/lib/supabase-client');
+      const supabase = getSupabaseClient();
       const { data: { session } } = await supabase.auth.getSession();
 
       if (!session) {
