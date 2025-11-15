@@ -22,6 +22,7 @@ import ArchetypeSwitcher from '@/app/components/ArchetypeSwitcher';
 import TemplateLibrary from '@/app/components/TemplateLibrary';
 import EquipmentShop from '@/app/components/EquipmentShop';
 import RateLimitStatus from '@/app/components/RateLimitStatus';
+import StoryProgress from '@/app/components/StoryProgress';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -678,6 +679,13 @@ export default function DashboardPage() {
             </button>
           </div>
         </div>
+
+        {/* Story Progress */}
+        {profile && (
+          <div className="mb-8">
+            <StoryProgress profile={profile} />
+          </div>
+        )}
 
         {/* Creature Companion */}
         {creature && (
