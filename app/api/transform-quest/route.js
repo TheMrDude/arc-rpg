@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { createClient } from '@supabase/supabase-js';
+import { checkRateLimit, createRateLimitResponse } from '@/lib/rate-limiter';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -40,6 +41,22 @@ export async function POST(request) {
         timestamp: new Date().toISOString(),
       });
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // SECURITY FIX: Check rate limit BEFORE expensive AI call
+    const rateLimit = await checkRateLimit(user.id, 'transform-quest');
+
+    if (!rateLimit.allowed) {
+      console.warn('Rate limit exceeded:', {
+        userId: user.id,
+        endpoint: 'transform-quest',
+        current: rateLimit.current,
+        limit: rateLimit.limit,
+        resetAt: rateLimit.reset_at,
+        timestamp: new Date().toISOString()
+      });
+
+      return createRateLimitResponse(rateLimit);
     }
 
     const { questText, archetype, difficulty } = await request.json();
