@@ -133,8 +133,11 @@ export async function POST(request) {
     // Calculate gold reward (server-side only!)
     const goldReward = GOLD_REWARDS[quest.difficulty] || 50;
 
+    // STORY CONTINUITY: Update story progress based on completed quest
+    const storyUpdates = await updateStoryProgress(profile, quest);
+
     // Quest already marked as completed above (atomic operation)
-    // Update profile with new XP, level, and streak
+    // Update profile with new XP, level, streak, AND story progress
     await supabaseAdmin
       .from('profiles')
       .update({
@@ -143,6 +146,8 @@ export async function POST(request) {
         current_streak: newStreak,
         longest_streak: Math.max(newStreak, profile.longest_streak || 0),
         last_quest_date: new Date().toISOString(),
+        current_story_thread: storyUpdates.currentThread,
+        story_progress: storyUpdates.storyProgress,
       })
       .eq('id', user.id);
 
@@ -203,6 +208,12 @@ export async function POST(request) {
         level: newLevel,
         gold: newGoldBalance,
         current_streak: newStreak,
+      },
+      story: {
+        current_thread: storyUpdates.currentThread,
+        thread_completion: storyUpdates.storyProgress.thread_completion,
+        story_completed: storyUpdates.storyProgress.thread_completion === 0 && profile.current_story_thread !== null,
+        new_story_started: storyUpdates.currentThread && storyUpdates.currentThread !== profile.current_story_thread,
       }
     });
 
@@ -218,6 +229,101 @@ export async function POST(request) {
       message: 'Failed to complete quest'
     }, { status: 500 });
   }
+}
+
+// STORY CONTINUITY: Update story progress when quest is completed
+async function updateStoryProgress(profile, quest) {
+  // Initialize story progress if needed
+  const storyProgress = profile.story_progress || {
+    recent_events: [],
+    ongoing_conflicts: [],
+    npcs_met: [],
+    thread_completion: 0,
+    threads_completed: []
+  };
+
+  const currentThread = profile.current_story_thread || null;
+  const questThread = quest.story_thread || null;
+  const narrativeImpact = quest.narrative_impact?.description || null;
+
+  // Add quest completion to recent events
+  const questEvent = `Completed: ${quest.transformed_text.substring(0, 80)}${quest.transformed_text.length > 80 ? '...' : ''}`;
+  storyProgress.recent_events = storyProgress.recent_events || [];
+  storyProgress.recent_events.unshift(questEvent);
+  storyProgress.recent_events = storyProgress.recent_events.slice(0, 10); // Keep last 10 events
+
+  // Handle story thread progression
+  let newCurrentThread = currentThread;
+
+  if (questThread && narrativeImpact) {
+    // Quest contributes to a story thread
+
+    if (currentThread === questThread) {
+      // Advancing current thread
+      storyProgress.thread_completion = Math.min((storyProgress.thread_completion || 0) + 15, 100);
+
+      // Add narrative impact to recent events
+      if (narrativeImpact) {
+        storyProgress.recent_events.unshift(`⚡ ${narrativeImpact}`);
+        storyProgress.recent_events = storyProgress.recent_events.slice(0, 10);
+      }
+
+      // Check if thread completed
+      if (storyProgress.thread_completion >= 100) {
+        // Thread completed! Archive it and reset
+        storyProgress.threads_completed = storyProgress.threads_completed || [];
+        storyProgress.threads_completed.push({
+          thread: currentThread,
+          completed_at: new Date().toISOString(),
+          final_event: narrativeImpact
+        });
+
+        // Keep last 5 completed threads
+        storyProgress.threads_completed = storyProgress.threads_completed.slice(-5);
+
+        // Reset for new thread
+        newCurrentThread = null;
+        storyProgress.thread_completion = 0;
+        storyProgress.ongoing_conflicts = [];
+        storyProgress.recent_events.unshift(`🏆 STORY COMPLETED: "${currentThread}"`);
+        storyProgress.recent_events = storyProgress.recent_events.slice(0, 10);
+      }
+    } else if (!currentThread || storyProgress.thread_completion === 0) {
+      // Start new thread
+      newCurrentThread = questThread;
+      storyProgress.thread_completion = 15;
+      storyProgress.recent_events.unshift(`📖 NEW STORY: "${questThread}"`);
+      storyProgress.recent_events = storyProgress.recent_events.slice(0, 10);
+    }
+    // else: different thread while one is active - ignore for now (could be side quest)
+  }
+
+  // Extract NPCs and conflicts from narrative impact
+  if (narrativeImpact) {
+    // Simple heuristics to detect NPCs (names often capitalized, mentioned with "with" or "met")
+    const npcPatterns = /(?:met|encountered|aided|helped|fought)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/g;
+    let match;
+    while ((match = npcPatterns.exec(narrativeImpact)) !== null) {
+      const npc = match[1];
+      if (!storyProgress.npcs_met.includes(npc) && storyProgress.npcs_met.length < 20) {
+        storyProgress.npcs_met.push(npc);
+      }
+    }
+
+    // Detect conflicts (keywords like "defeat", "destroy", "weaken", "against")
+    const conflictPatterns = /(?:defeat|destroy|weaken|against|battle|fight)\s+(?:the\s+)?([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/g;
+    while ((match = conflictPatterns.exec(narrativeImpact)) !== null) {
+      const conflict = match[1];
+      if (!storyProgress.ongoing_conflicts.includes(conflict) && storyProgress.ongoing_conflicts.length < 10) {
+        storyProgress.ongoing_conflicts.push(conflict);
+      }
+    }
+  }
+
+  return {
+    currentThread: newCurrentThread,
+    storyProgress: storyProgress
+  };
 }
 
 // Helper: Check if user gets comeback bonus
