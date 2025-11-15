@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { supabase } from '@/lib/supabase-client';
 import { motion, AnimatePresence } from 'framer-motion';
 
 /**
@@ -24,8 +24,6 @@ export default function AdminMonitoring() {
   const [rateLimits, setRateLimits] = useState(null);
   const [apiCosts, setApiCosts] = useState(null);
   const [founderSpots, setFounderSpots] = useState(null);
-
-  const supabase = createClientComponentClient();
 
   useEffect(() => {
     loadAllData();
