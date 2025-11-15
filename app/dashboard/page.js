@@ -709,11 +709,23 @@ export default function DashboardPage() {
           {/* Right side: Buttons */}
           <div className="flex gap-4">
             {(profile?.is_premium || profile?.subscription_status === 'active') && (
-              <ArchetypeSwitcher
-                currentArchetype={profile.archetype}
-                isPremium={true}
-                onSwitch={loadUserData}
-              />
+              <>
+                <ArchetypeSwitcher
+                  currentArchetype={profile.archetype}
+                  isPremium={true}
+                  onSwitch={loadUserData}
+                />
+                <button
+                  onClick={() => router.push('/skills')}
+                  className={`px-4 py-2 border-3 rounded-lg font-black uppercase text-sm tracking-wide shadow-[0_3px_0_#0F3460] hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1 transition-all ${
+                    profile?.skill_points > 0
+                      ? 'bg-[#9333EA] hover:bg-[#7E22CE] text-white border-[#0F3460] animate-pulse'
+                      : 'bg-[#4C1D95] hover:bg-[#5B21B6] text-white border-[#1A1A2E]'
+                  }`}
+                >
+                  💎 Skill Tree {profile?.skill_points > 0 && `(${profile.skill_points})`}
+                </button>
+              </>
             )}
             <button
               onClick={() => router.push('/history')}
