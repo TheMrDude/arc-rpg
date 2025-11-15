@@ -25,7 +25,8 @@ import RateLimitStatus from '@/app/components/RateLimitStatus';
 import StoryProgress from '@/app/components/StoryProgress';
 import StoryEventNotification from '@/app/components/StoryEventNotification';
 import DailyBonus from '@/app/components/DailyBonus';
-import { trackQuestCreated, trackQuestCompleted, trackLevelUp, trackStreakAchieved, trackStoryMilestone } from '@/lib/analytics';
+import GoldPurchasePrompt from '@/app/components/GoldPurchasePrompt';
+import { trackQuestCreated, trackQuestCompleted, trackLevelUp, trackStreakAchieved, trackStoryMilestone, trackGoldPurchaseViewed } from '@/lib/analytics';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -62,6 +63,10 @@ export default function DashboardPage() {
   // Premium states
   const [showPremiumWelcome, setShowPremiumWelcome] = useState(false);
   const [activeTab, setActiveTab] = useState('quests');
+
+  // Gold purchase prompt states
+  const [showGoldPrompt, setShowGoldPrompt] = useState(false);
+  const [goldPromptTrigger, setGoldPromptTrigger] = useState(null);
 
   useEffect(() => {
     loadUserData();
@@ -389,6 +394,15 @@ export default function DashboardPage() {
       if (data.story) {
         if (data.story.story_completed) {
           trackStoryMilestone('story_completed', profile.current_story_thread, 100);
+
+          // Show gold purchase prompt after story completion (25% chance)
+          if (Math.random() < 0.25) {
+            setTimeout(() => {
+              setGoldPromptTrigger('story_completion');
+              setShowGoldPrompt(true);
+              trackGoldPurchaseViewed();
+            }, 8000); // Show 8 seconds after quest completion
+          }
         } else if (data.story.new_story_started) {
           trackStoryMilestone('new_story', data.story.current_thread, data.story.thread_completion);
         } else if (data.story.thread_completion >= 50 && data.story.thread_completion < 65) {
@@ -399,6 +413,15 @@ export default function DashboardPage() {
       // Track streak achievements
       if (data.profile.current_streak >= 7 && data.profile.current_streak % 7 === 0) {
         trackStreakAchieved(data.profile.current_streak);
+
+        // Show gold purchase prompt for quest streaks (20% chance)
+        if (Math.random() < 0.2) {
+          setTimeout(() => {
+            setGoldPromptTrigger('quest_streak');
+            setShowGoldPrompt(true);
+            trackGoldPurchaseViewed();
+          }, 7000);
+        }
       }
 
       // Reload user data to reflect changes
@@ -422,6 +445,15 @@ export default function DashboardPage() {
       setTimeout(() => {
         setShowMilestoneCelebration(true);
       }, 300);
+
+      // Show gold purchase prompt after level milestone (30% chance)
+      if (Math.random() < 0.3) {
+        setTimeout(() => {
+          setGoldPromptTrigger('level_milestone');
+          setShowGoldPrompt(true);
+          trackGoldPurchaseViewed();
+        }, 6000); // Show 6 seconds after milestone celebration starts
+      }
     }
   };
 
@@ -1088,6 +1120,14 @@ export default function DashboardPage() {
 
       {/* Story Event Notification */}
       {user && <StoryEventNotification userId={user.id} />}
+
+      {/* Gold Purchase Prompt */}
+      <GoldPurchasePrompt
+        show={showGoldPrompt}
+        onClose={() => setShowGoldPrompt(false)}
+        trigger={goldPromptTrigger}
+        currentGold={profile?.gold || 0}
+      />
       </div>
     </>
   );
