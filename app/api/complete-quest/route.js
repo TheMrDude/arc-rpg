@@ -57,6 +57,37 @@ export async function POST(request) {
       }, { status: 400 });
     }
 
+    // SECURITY FIX: Mark quest as completed ATOMICALLY to prevent race conditions
+    // This prevents duplicate completions even with simultaneous requests
+    const { data: updatedQuest, error: updateError } = await supabaseAdmin
+      .from('quests')
+      .update({
+        completed: true,
+        completed_at: new Date().toISOString(),
+      })
+      .eq('id', quest_id)
+      .eq('user_id', user.id)
+      .eq('completed', false)  // CRITICAL: Only update if not already completed
+      .select()
+      .single();
+
+    if (updateError || !updatedQuest) {
+      // Quest was already completed by another request (race condition detected)
+      console.warn('Quest already completed or not found (race condition):', {
+        questId: quest_id,
+        userId: user.id,
+        error: updateError,
+        timestamp: new Date().toISOString()
+      });
+
+      return NextResponse.json({
+        error: 'Already completed',
+        message: 'This quest has already been completed'
+      }, { status: 400 });
+    }
+
+    // Quest is now locked as completed - safe to award rewards
+
     // Get user profile with equipped items
     const { data: profile } = await supabaseAdmin
       .from('profiles')
@@ -102,15 +133,7 @@ export async function POST(request) {
     // Calculate gold reward (server-side only!)
     const goldReward = GOLD_REWARDS[quest.difficulty] || 50;
 
-    // Mark quest as completed
-    await supabaseAdmin
-      .from('quests')
-      .update({
-        completed: true,
-        completed_at: new Date().toISOString(),
-      })
-      .eq('id', quest_id);
-
+    // Quest already marked as completed above (atomic operation)
     // Update profile with new XP, level, and streak
     await supabaseAdmin
       .from('profiles')

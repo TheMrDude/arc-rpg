@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { createClient } from '@supabase/supabase-js';
+import { checkRateLimit, createRateLimitResponse } from '@/lib/rate-limiter';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -42,6 +43,22 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // SECURITY FIX: Check rate limit BEFORE expensive AI call
+    const rateLimit = await checkRateLimit(user.id, 'transform-journal');
+
+    if (!rateLimit.allowed) {
+      console.warn('Rate limit exceeded:', {
+        userId: user.id,
+        endpoint: 'transform-journal',
+        current: rateLimit.current,
+        limit: rateLimit.limit,
+        resetAt: rateLimit.reset_at,
+        timestamp: new Date().toISOString()
+      });
+
+      return createRateLimitResponse(rateLimit);
+    }
+
     const { entry_text, mood, archetype } = await request.json();
 
     // SECURE: Input validation
@@ -81,21 +98,6 @@ export async function POST(request) {
     const isPremium = profile?.subscription_status === 'active';
     const storyChapter = profile?.story_chapter || 0;
     const storyArc = Math.floor(storyChapter / 4); // 4 chapters per arc
-
-    // Check daily transformation limit (10 per day for rate limiting)
-    const { data: todayCount } = await supabaseAdmin
-      .from('journal_entries')
-      .select('id', { count: 'exact', head: true })
-      .eq('user_id', user.id)
-      .not('transformed_narrative', 'is', null)
-      .gte('created_at', new Date(new Date().setHours(0, 0, 0, 0)).toISOString());
-
-    if (todayCount && todayCount.length >= 10 && !isPremium) {
-      return NextResponse.json(
-        { error: 'Daily transformation limit reached (10 per day). Try again tomorrow or upgrade to Premium for unlimited transformations.' },
-        { status: 429 }
-      );
-    }
 
     // Fetch recent journal entries for emotional continuity
     const { data: recentEntries } = await supabaseAdmin
