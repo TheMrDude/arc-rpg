@@ -50,9 +50,21 @@ export default function JournalEntry({ show, onClose, onSubmit, archetype }) {
     setError('');
 
     try {
+      // Get Supabase session for auth token
+      const { createClient } = await import('@/lib/supabase-client');
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!session) {
+        throw new Error('Please log in to transform journal entries');
+      }
+
       const response = await fetch('/api/transform-journal', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
         body: JSON.stringify({
           entry_text: trimmedEntry,
           mood: mood,
