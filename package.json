@@ -6,7 +6,16 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:security": "jest tests/security",
+    "test:auth": "jest tests/security/auth.test.js",
+    "test:rate-limits": "jest tests/security/rate-limiting.test.js",
+    "test:race-conditions": "jest tests/security/race-conditions.test.js",
+    "test:input-validation": "jest tests/security/input-validation.test.js",
+    "test:payment": "jest tests/security/payment.test.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.67.0",
@@ -25,6 +34,9 @@
   "devDependencies": {
     "@types/react": "19.2.2",
     "autoprefixer": "^10.4.16",
+    "dotenv": "^16.3.1",
+    "jest": "^29.7.0",
+    "node-fetch": "^2.7.0",
     "postcss": "^8.4.32",
     "tailwindcss": "^3.4.0",
     "typescript": "5.9.3"
