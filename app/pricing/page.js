@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import PricingSection from '@/components/PricingSection';
 
 export default function PricingPage() {
   const router = useRouter();
@@ -147,126 +148,13 @@ export default function PricingPage() {
           </div>
         )}
 
-        <div className="grid md:grid-cols-2 gap-8">
-          <div className="bg-[#1A1A2E] border-3 border-[#00D4FF] rounded-lg p-8 shadow-[0_0_20px_rgba(0,212,255,0.3)]">
-            <h2 className="text-3xl font-black mb-2 uppercase tracking-wide text-[#00D4FF]">Free Adventurer</h2>
-            <p className="text-[#E2E8F0] mb-6 font-bold">Forever free, always</p>
-            <div className="text-4xl font-black mb-8 text-[#FFD93D]">
-              $0<span className="text-xl text-[#00D4FF]">/forever</span>
-            </div>
-
-            <ul className="space-y-4 mb-8">
-              <li className="flex items-start">
-                <span className="text-[#48BB78] mr-2 font-black">✓</span>
-                <span className="text-[#E2E8F0]">Choose your archetype</span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-[#48BB78] mr-2 font-black">✓</span>
-                <span className="text-[#E2E8F0]">Add and complete quests</span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-[#48BB78] mr-2 font-black">✓</span>
-                <span className="text-[#E2E8F0]">AI-powered quest transformation</span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-[#48BB78] mr-2 font-black">✓</span>
-                <span className="text-[#E2E8F0]">Level up and unlock skills</span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-[#48BB78] mr-2 font-black">✓</span>
-                <span className="text-[#E2E8F0]">Track streaks and XP</span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-[#48BB78] mr-2 font-black">✓</span>
-                <span className="text-[#E2E8F0]">Boss battles and companions</span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-[#48BB78] mr-2 font-black">✓</span>
-                <span className="text-[#E2E8F0]"><strong>Weekly AI story generation</strong></span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-[#FF6B6B] mr-2 font-black">✗</span>
-                <span className="text-[#0F3460]">No recurring quests</span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-[#FF6B6B] mr-2 font-black">✗</span>
-                <span className="text-[#0F3460]">No archetype switching</span>
-              </li>
-            </ul>
-
-            <button
-              onClick={() => router.push('/signup')}
-              className="w-full py-3 bg-[#0F3460] hover:bg-[#1a4a7a] text-white border-3 border-[#1A1A2E] rounded-lg font-black uppercase tracking-wide transition-all"
-            >
-              Start Free
-            </button>
-          </div>
-
-          <div className="bg-[#1A1A2E] border-3 border-[#FFD93D] rounded-lg p-8 shadow-[0_0_30px_rgba(255,217,61,0.5)] relative">
-            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-[#FFD93D] text-[#1A1A2E] px-4 py-1 rounded-full text-sm font-black uppercase">
-              {lifetimeSpotsLeft > 0 ? `${lifetimeSpotsLeft}/25 LEFT` : 'SOLD OUT'}
-            </div>
-
-            <h2 className="text-3xl font-black mb-2 uppercase tracking-wide text-[#FFD93D]">⚡ Founder Access</h2>
-            <p className="text-[#E2E8F0] mb-6 font-bold">Lifetime. No subscriptions. Ever.</p>
-            <div className="text-4xl font-black mb-2 text-[#FFD93D]">
-              $47<span className="text-xl text-[#00D4FF]"> one-time</span>
-            </div>
-            <p className="text-sm text-[#FF6B6B] font-black mb-2 uppercase">⚠️ Limited to first 25 people only</p>
-            <p className="text-xs text-[#00D4FF] mb-6 font-bold">Regular price will be $15/month after launch</p>
-
-            <ul className="space-y-4 mb-8">
-              <li className="flex items-start">
-                <span className="text-[#FFD93D] mr-2 font-black">★</span>
-                <span className="font-black text-[#FFD93D] uppercase">Everything in Free, plus:</span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-[#48BB78] mr-2 font-black">✓</span>
-                <span className="text-[#E2E8F0]"><strong>Recurring quests</strong> (daily/weekly/custom)</span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-[#48BB78] mr-2 font-black">✓</span>
-                <span className="text-[#E2E8F0]"><strong>Switch archetypes</strong> anytime</span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-[#48BB78] mr-2 font-black">✓</span>
-                <span className="text-[#E2E8F0]"><strong>Priority support</strong></span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-[#48BB78] mr-2 font-black">✓</span>
-                <span className="text-[#E2E8F0]"><strong>Early access</strong> to all new features</span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-[#48BB78] mr-2 font-black">✓</span>
-                <span className="text-[#E2E8F0]"><strong>Founder badge</strong> in-app</span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-[#48BB78] mr-2 font-black">✓</span>
-                <span className="text-[#E2E8F0]"><strong>Lifetime access</strong> - pay once, own forever</span>
-              </li>
-            </ul>
-
-            <button
-              onClick={handleUpgrade}
-              disabled={
-                checkoutLoading || profile?.subscription_status === 'active' || lifetimeSpotsLeft === 0
-              }
-              className={`w-full py-3 rounded-lg font-black uppercase tracking-wide transition-all ${
-                profile?.subscription_status === 'active' || lifetimeSpotsLeft === 0
-                  ? 'bg-[#0F3460] cursor-not-allowed border-3 border-[#1A1A2E] text-white'
-                  : 'bg-[#FFD93D] hover:bg-[#E6C335] text-[#1A1A2E] border-3 border-[#0F3460] shadow-[0_5px_0_#0F3460] hover:shadow-[0_7px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_2px_0_#0F3460] active:translate-y-1'
-              }`}
-            >
-              {checkoutLoading
-                ? 'Loading...'
-                : profile?.subscription_status === 'active'
-                ? "You're a Founder!"
-                : lifetimeSpotsLeft === 0
-                ? 'Sold Out'
-                : 'Claim Founder Access'}
-            </button>
-          </div>
-        </div>
+        <PricingSection
+          lifetimeSpotsLeft={lifetimeSpotsLeft}
+          isFounder={profile?.subscription_status === 'active'}
+          checkoutLoading={checkoutLoading}
+          onStartFree={() => router.push('/signup')}
+          onClaimFounder={handleUpgrade}
+        />
 
         <div className="mt-12 text-center">
           <p className="text-[#00D4FF] font-bold">💳 Secure payment powered by Stripe</p>
