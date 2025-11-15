@@ -179,6 +179,28 @@ export default function QuestCompletionCelebration({
                 </div>
               </motion.div>
 
+              {/* Skill Point Reward */}
+              {rewards.skill_points_earned > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.65, type: 'spring', stiffness: 300 }}
+                  className="bg-gradient-to-r from-[#9333EA] to-[#7E22CE] rounded-2xl p-4 mb-4 border-3 border-[#FFD93D] shadow-[0_0_20px_rgba(147,51,234,0.6)]"
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xl font-black text-white uppercase">
+                        +{rewards.skill_points_earned} Skill Point{rewards.skill_points_earned > 1 ? 's' : ''}!
+                      </p>
+                      <p className="text-sm font-bold text-[#FFD93D]">
+                        Visit the Skill Tree to unlock new abilities!
+                      </p>
+                    </div>
+                    <span className="text-4xl">💎</span>
+                  </div>
+                </motion.div>
+              )}
+
               {/* Comeback Bonus */}
               {rewards.comeback_bonus && (
                 <motion.div
