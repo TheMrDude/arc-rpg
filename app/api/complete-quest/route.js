@@ -130,6 +130,12 @@ export async function POST(request) {
     const newLevel = Math.floor(newXP / 100) + 1;
     const newStreak = calculateStreak(profile.last_quest_date, profile.current_streak);
 
+    // Calculate skill points: Award 1 skill point every 5 levels
+    const oldLevel = profile.level;
+    const skillPointsEarned = Math.floor(newLevel / 5) - Math.floor(oldLevel / 5);
+    const newSkillPoints = (profile.skill_points || 0) + skillPointsEarned;
+    const newTotalSkillPoints = (profile.total_skill_points_earned || 0) + skillPointsEarned;
+
     // Calculate gold reward (server-side only!)
     const goldReward = GOLD_REWARDS[quest.difficulty] || 50;
 
@@ -137,7 +143,7 @@ export async function POST(request) {
     const storyUpdates = await updateStoryProgress(profile, quest);
 
     // Quest already marked as completed above (atomic operation)
-    // Update profile with new XP, level, streak, AND story progress
+    // Update profile with new XP, level, streak, skill points, AND story progress
     await supabaseAdmin
       .from('profiles')
       .update({
@@ -148,6 +154,8 @@ export async function POST(request) {
         last_quest_date: new Date().toISOString(),
         current_story_thread: storyUpdates.currentThread,
         story_progress: storyUpdates.storyProgress,
+        skill_points: newSkillPoints,
+        total_skill_points_earned: newTotalSkillPoints,
       })
       .eq('id', user.id);
 
@@ -202,12 +210,14 @@ export async function POST(request) {
         gold: goldReward,
         new_level: newLevel,
         level_up: newLevel > profile.level,
+        skill_points_earned: skillPointsEarned,
       },
       profile: {
         xp: newXP,
         level: newLevel,
         gold: newGoldBalance,
         current_streak: newStreak,
+        skill_points: newSkillPoints,
       },
       story: {
         current_thread: storyUpdates.currentThread,
