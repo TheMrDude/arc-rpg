@@ -23,6 +23,10 @@ import TemplateLibrary from '@/app/components/TemplateLibrary';
 import EquipmentShop from '@/app/components/EquipmentShop';
 import RateLimitStatus from '@/app/components/RateLimitStatus';
 import StoryProgress from '@/app/components/StoryProgress';
+import StoryEventNotification from '@/app/components/StoryEventNotification';
+import DailyBonus from '@/app/components/DailyBonus';
+import GoldPurchasePrompt from '@/app/components/GoldPurchasePrompt';
+import { trackQuestCreated, trackQuestCompleted, trackLevelUp, trackStreakAchieved, trackStoryMilestone, trackGoldPurchaseViewed } from '@/lib/analytics';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -59,6 +63,10 @@ export default function DashboardPage() {
   // Premium states
   const [showPremiumWelcome, setShowPremiumWelcome] = useState(false);
   const [activeTab, setActiveTab] = useState('quests');
+
+  // Gold purchase prompt states
+  const [showGoldPrompt, setShowGoldPrompt] = useState(false);
+  const [goldPromptTrigger, setGoldPromptTrigger] = useState(null);
 
   useEffect(() => {
     loadUserData();
@@ -303,6 +311,9 @@ export default function DashboardPage() {
         return;
       }
 
+      // Track quest creation
+      trackQuestCreated(newQuestDifficulty, profile.archetype);
+
       setNewQuestText('');
       loadUserData();
     } catch (error) {
@@ -361,12 +372,56 @@ export default function DashboardPage() {
       });
       setShowQuestCelebration(true);
 
+      // Track quest completion
+      trackQuestCompleted({
+        difficulty: questToComplete?.difficulty,
+        xp_earned: rewards.xp,
+        gold_earned: rewards.gold,
+        level: rewards.new_level,
+        story_thread: questToComplete?.story_thread,
+      });
+
       // Check for level up milestone
       if (rewards.level_up) {
         setMilestoneData({
           milestone: rewards.new_level,
           type: 'level'
         });
+        trackLevelUp(rewards.new_level, data.profile.xp);
+      }
+
+      // Track story milestones
+      if (data.story) {
+        if (data.story.story_completed) {
+          trackStoryMilestone('story_completed', profile.current_story_thread, 100);
+
+          // Show gold purchase prompt after story completion (25% chance)
+          if (Math.random() < 0.25) {
+            setTimeout(() => {
+              setGoldPromptTrigger('story_completion');
+              setShowGoldPrompt(true);
+              trackGoldPurchaseViewed();
+            }, 8000); // Show 8 seconds after quest completion
+          }
+        } else if (data.story.new_story_started) {
+          trackStoryMilestone('new_story', data.story.current_thread, data.story.thread_completion);
+        } else if (data.story.thread_completion >= 50 && data.story.thread_completion < 65) {
+          trackStoryMilestone('major_progress', data.story.current_thread, data.story.thread_completion);
+        }
+      }
+
+      // Track streak achievements
+      if (data.profile.current_streak >= 7 && data.profile.current_streak % 7 === 0) {
+        trackStreakAchieved(data.profile.current_streak);
+
+        // Show gold purchase prompt for quest streaks (20% chance)
+        if (Math.random() < 0.2) {
+          setTimeout(() => {
+            setGoldPromptTrigger('quest_streak');
+            setShowGoldPrompt(true);
+            trackGoldPurchaseViewed();
+          }, 7000);
+        }
       }
 
       // Reload user data to reflect changes
@@ -390,6 +445,15 @@ export default function DashboardPage() {
       setTimeout(() => {
         setShowMilestoneCelebration(true);
       }, 300);
+
+      // Show gold purchase prompt after level milestone (30% chance)
+      if (Math.random() < 0.3) {
+        setTimeout(() => {
+          setGoldPromptTrigger('level_milestone');
+          setShowGoldPrompt(true);
+          trackGoldPurchaseViewed();
+        }, 6000); // Show 6 seconds after milestone celebration starts
+      }
     }
   };
 
@@ -684,6 +748,13 @@ export default function DashboardPage() {
         {profile && (
           <div className="mb-8">
             <StoryProgress profile={profile} />
+          </div>
+        )}
+
+        {/* Daily Bonus */}
+        {profile && (
+          <div className="mb-8">
+            <DailyBonus profile={profile} onClaim={loadUserData} />
           </div>
         )}
 
@@ -1045,6 +1116,17 @@ export default function DashboardPage() {
       <PremiumWelcome
         show={showPremiumWelcome}
         onClose={handlePremiumWelcomeClose}
+      />
+
+      {/* Story Event Notification */}
+      {user && <StoryEventNotification userId={user.id} />}
+
+      {/* Gold Purchase Prompt */}
+      <GoldPurchasePrompt
+        show={showGoldPrompt}
+        onClose={() => setShowGoldPrompt(false)}
+        trigger={goldPromptTrigger}
+        currentGold={profile?.gold || 0}
       />
       </div>
     </>
