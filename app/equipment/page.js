@@ -90,13 +90,13 @@ export default function EquipmentPage() {
       return;
     }
 
-    if (profile.gold < equipment.cost) {
-      alert(`You need ${equipment.cost} gold but only have ${profile.gold} gold.\n\nEarn gold by completing quests or purchase gold packs in the shop!`);
+    if (profile.gold < equipment.gold_price) {
+      alert(`You need ${equipment.gold_price} gold but only have ${profile.gold} gold.\n\nEarn gold by completing quests or purchase gold packs in the shop!`);
       return;
     }
 
     // Confirm purchase
-    const confirmed = confirm(`Purchase ${equipment.name} for ${equipment.cost} gold?`);
+    const confirmed = confirm(`Purchase ${equipment.name} for ${equipment.gold_price} gold?`);
     if (!confirmed) return;
 
     try {
@@ -349,7 +349,7 @@ export default function EquipmentPage() {
                     <div className="flex items-center justify-between border-t border-gray-600 pt-2">
                       <span className="text-gray-400">Cost:</span>
                       <span className="text-yellow-400 font-bold flex items-center gap-1">
-                        <span>💰</span>{equipment.cost} Gold
+                        <span>💰</span>{equipment.gold_price} Gold
                       </span>
                     </div>
                   )}
@@ -374,7 +374,7 @@ export default function EquipmentPage() {
                     onClick={() => unlockEquipment(equipment)}
                     className="w-full px-4 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black rounded-lg font-semibold"
                   >
-                    Purchase for {equipment.cost} Gold
+                    Purchase for {equipment.gold_price} Gold
                   </button>
                 ) : (
                   <button
