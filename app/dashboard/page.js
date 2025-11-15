@@ -16,6 +16,11 @@ import LoginTransition from '@/components/LoginTransition';
 import JournalEntry from '@/app/components/JournalEntry';
 import JournalTimeline from '@/app/components/JournalTimeline';
 import OnThisDay from '@/app/components/OnThisDay';
+import PremiumWelcome from '@/app/components/PremiumWelcome';
+import RecurringQuests from '@/app/components/RecurringQuests';
+import ArchetypeSwitcher from '@/app/components/ArchetypeSwitcher';
+import TemplateLibrary from '@/app/components/TemplateLibrary';
+import EquipmentShop from '@/app/components/EquipmentShop';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -49,6 +54,10 @@ export default function DashboardPage() {
   const [journalTotal, setJournalTotal] = useState(0);
   const [showJournalSection, setShowJournalSection] = useState(false);
 
+  // Premium states
+  const [showPremiumWelcome, setShowPremiumWelcome] = useState(false);
+  const [activeTab, setActiveTab] = useState('quests');
+
   useEffect(() => {
     loadUserData();
   }, []);
@@ -81,6 +90,11 @@ export default function DashboardPage() {
       }
 
       setProfile(profileData);
+
+      // Check if premium user should see welcome
+      if (profileData.is_premium && !profileData.shown_premium_welcome) {
+        setShowPremiumWelcome(true);
+      }
 
       const { data: questsData } = await supabase
         .from('quests')
@@ -466,6 +480,22 @@ export default function DashboardPage() {
     loadJournalEntries(journalOffset + 20);
   };
 
+  const handlePremiumWelcomeClose = async () => {
+    setShowPremiumWelcome(false);
+
+    // Mark as shown in database
+    if (user) {
+      await supabase
+        .from('profiles')
+        .update({ shown_premium_welcome: true })
+        .eq('id', user.id);
+    }
+  };
+
+  const handleGoldChange = (newGold) => {
+    setProfile({ ...profile, gold: newGold });
+  };
+
   async function generateQuestsFromTemplates() {
     if (generating) return;
 
@@ -560,9 +590,9 @@ export default function DashboardPage() {
             <div>
               <div className="flex items-center gap-3">
                 <h1 className="text-4xl font-black uppercase tracking-wide text-[#FF6B6B]">{profile?.archetype} - Level {profile?.level}</h1>
-                {(profile?.subscription_status === 'active') && (
+                {(profile?.subscription_status === 'active' || profile?.is_premium) && (
                   <span className="px-4 py-2 bg-[#FFD93D] text-[#1A1A2E] border-3 border-[#0F3460] rounded-lg font-black text-sm uppercase shadow-[0_3px_0_#0F3460]">
-                    ⭐ PREMIUM
+                    ⚡ FOUNDER
                   </span>
                 )}
               </div>
@@ -582,13 +612,20 @@ export default function DashboardPage() {
 
           {/* Right side: Buttons */}
           <div className="flex gap-4">
+            {(profile?.is_premium || profile?.subscription_status === 'active') && (
+              <ArchetypeSwitcher
+                currentArchetype={profile.archetype}
+                isPremium={true}
+                onSwitch={loadUserData}
+              />
+            )}
             <button
               onClick={() => router.push('/history')}
               className="px-4 py-2 bg-[#0F3460] hover:bg-[#1a4a7a] text-white border-3 border-[#1A1A2E] rounded-lg font-bold uppercase text-sm tracking-wide transition-all"
             >
               History
             </button>
-            {!(profile?.subscription_status === 'active') && (
+            {!(profile?.subscription_status === 'active' || profile?.is_premium) && (
               <button
                 onClick={() => router.push('/pricing')}
                 className="px-4 py-2 bg-[#FFD93D] hover:bg-[#E6C335] text-[#1A1A2E] border-3 border-[#0F3460] rounded-lg font-black uppercase text-sm tracking-wide shadow-[0_3px_0_#0F3460] hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1 transition-all"
@@ -639,46 +676,68 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Premium Features Navigation */}
-        {(profile?.subscription_status === 'active') ? (
-          <>
-            <div className="grid md:grid-cols-3 gap-4 mb-4">
+        {/* Premium Tab Navigation */}
+        {(profile?.is_premium || profile?.subscription_status === 'active') && (
+          <div className="mb-8">
+            <div className="flex flex-wrap gap-3 mb-6">
               <button
-                onClick={() => router.push('/templates')}
-                className="bg-[#1A1A2E] border-3 border-[#00D4FF] rounded-lg p-6 text-left hover:scale-105 transition-transform shadow-[0_0_15px_rgba(0,212,255,0.3)]"
+                onClick={() => setActiveTab('quests')}
+                className={
+                  'px-6 py-3 rounded-lg font-black uppercase text-sm tracking-wide border-3 transition-all ' +
+                  (activeTab === 'quests'
+                    ? 'bg-[#FF6B6B] border-[#0F3460] text-white shadow-[0_5px_0_#0F3460]'
+                    : 'bg-[#0F3460] border-[#1A1A2E] text-gray-300 hover:border-[#FF6B6B]')
+                }
               >
-                <div className="text-4xl mb-3">🔄</div>
-                <h3 className="text-xl font-black uppercase tracking-wide text-[#00D4FF] mb-2">Quest Templates</h3>
-                <p className="text-sm text-[#E2E8F0]">Auto-generate recurring quests daily, weekly, or custom schedules</p>
+                📋 Quests
               </button>
               <button
-                onClick={() => router.push('/equipment')}
-                className="bg-[#1A1A2E] border-3 border-[#FF6B6B] rounded-lg p-6 text-left hover:scale-105 transition-transform shadow-[0_0_15px_rgba(255,107,107,0.3)]"
+                onClick={() => setActiveTab('recurring')}
+                className={
+                  'px-6 py-3 rounded-lg font-black uppercase text-sm tracking-wide border-3 transition-all ' +
+                  (activeTab === 'recurring'
+                    ? 'bg-[#00D4FF] border-[#0F3460] text-[#0F3460] shadow-[0_5px_0_#0F3460]'
+                    : 'bg-[#0F3460] border-[#1A1A2E] text-gray-300 hover:border-[#00D4FF]')
+                }
               >
-                <div className="text-4xl mb-3">⚔️</div>
-                <h3 className="text-xl font-black uppercase tracking-wide text-[#FF6B6B] mb-2">Equipment Shop</h3>
-                <p className="text-sm text-[#E2E8F0]">Unlock weapons, armor, and accessories to boost XP gains</p>
+                🔄 Recurring
               </button>
               <button
-                onClick={() => router.push('/skills')}
-                className="bg-[#1A1A2E] border-3 border-[#48BB78] rounded-lg p-6 text-left hover:scale-105 transition-transform shadow-[0_0_15px_rgba(72,187,120,0.3)]"
+                onClick={() => setActiveTab('templates')}
+                className={
+                  'px-6 py-3 rounded-lg font-black uppercase text-sm tracking-wide border-3 transition-all ' +
+                  (activeTab === 'templates'
+                    ? 'bg-[#FFD93D] border-[#0F3460] text-[#0F3460] shadow-[0_5px_0_#0F3460]'
+                    : 'bg-[#0F3460] border-[#1A1A2E] text-gray-300 hover:border-[#FFD93D]')
+                }
               >
-                <div className="text-4xl mb-3">🌳</div>
-                <h3 className="text-xl font-black uppercase tracking-wide text-[#48BB78] mb-2">Skill Trees</h3>
-                <p className="text-sm text-[#E2E8F0]">Unlock powerful abilities with skill points earned from leveling</p>
+                📚 Templates
+              </button>
+              <button
+                onClick={() => setActiveTab('equipment')}
+                className={
+                  'px-6 py-3 rounded-lg font-black uppercase text-sm tracking-wide border-3 transition-all ' +
+                  (activeTab === 'equipment'
+                    ? 'bg-[#48BB78] border-[#0F3460] text-white shadow-[0_5px_0_#0F3460]'
+                    : 'bg-[#0F3460] border-[#1A1A2E] text-gray-300 hover:border-[#48BB78]')
+                }
+              >
+                ⚔️ Equipment
+              </button>
+              <button
+                onClick={() => setActiveTab('journal')}
+                className={
+                  'px-6 py-3 rounded-lg font-black uppercase text-sm tracking-wide border-3 transition-all ' +
+                  (activeTab === 'journal'
+                    ? 'bg-[#9333EA] border-[#0F3460] text-white shadow-[0_5px_0_#0F3460]'
+                    : 'bg-[#0F3460] border-[#1A1A2E] text-gray-300 hover:border-[#9333EA]')
+                }
+              >
+                📖 Journal
               </button>
             </div>
-            <div className="mb-8">
-              <button
-                onClick={generateQuestsFromTemplates}
-                disabled={generating}
-                className="w-full px-6 py-4 bg-[#48BB78] hover:bg-[#38a169] text-white border-3 border-[#0F3460] rounded-lg font-black text-lg uppercase tracking-wide shadow-[0_5px_0_#0F3460] hover:shadow-[0_7px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_2px_0_#0F3460] active:translate-y-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {generating ? 'Generating Quests...' : '✨ Generate Quests from Templates Now'}
-              </button>
-            </div>
-          </>
-        ) : null}
+          </div>
+        )}
 
         {/* Skills */}
         {unlockedSkills.length > 0 && (
@@ -695,64 +754,96 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Add Quest */}
-        <div className="bg-[#1A1A2E] border-3 border-[#00D4FF] rounded-lg p-6 mb-8 shadow-[0_0_20px_rgba(0,212,255,0.3)]">
-          <h3 className="text-xl font-black uppercase tracking-wide text-[#00D4FF] mb-4">Add New Quest</h3>
-          <div className="flex gap-4 mb-4">
-            <input
-              type="text"
-              value={newQuestText}
-              onChange={(e) => setNewQuestText(e.target.value)}
-              placeholder="Enter your task..."
-              className="flex-1 px-4 py-3 bg-[#0F3460] text-white border-3 border-[#1A1A2E] rounded-lg focus:outline-none focus:border-[#00D4FF] focus:shadow-[0_0_0_3px_rgba(0,212,255,0.2)] transition-all"
-            />
-            <select
-              value={newQuestDifficulty}
-              onChange={(e) => setNewQuestDifficulty(e.target.value)}
-              className="px-4 py-3 bg-[#0F3460] text-white border-3 border-[#1A1A2E] rounded-lg focus:outline-none focus:border-[#00D4FF] focus:shadow-[0_0_0_3px_rgba(0,212,255,0.2)] transition-all font-bold"
-            >
-              <option value="easy">Easy (10 XP)</option>
-              <option value="medium">Medium (25 XP)</option>
-              <option value="hard">Hard (50 XP)</option>
-            </select>
-            <button
-              onClick={addQuest}
-              disabled={adding}
-              className="px-6 py-3 bg-[#FF6B6B] hover:bg-[#EE5A6F] text-white border-3 border-[#0F3460] rounded-lg font-black uppercase tracking-wide shadow-[0_5px_0_#0F3460] hover:shadow-[0_7px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_2px_0_#0F3460] active:translate-y-1 transition-all disabled:opacity-50"
-            >
-              {adding ? 'Adding...' : 'Add Quest'}
-            </button>
-          </div>
-        </div>
-
-        {/* Active Quests */}
-        <div className="bg-[#1A1A2E] border-3 border-[#FF6B6B] rounded-lg p-6 mb-8 shadow-[0_0_20px_rgba(255,107,107,0.3)]">
-          <h3 className="text-xl font-black uppercase tracking-wide text-[#FF6B6B] mb-4">Active Quests</h3>
-          <div className="space-y-4">
-            {quests.filter(q => !q.completed).map((quest) => (
-              <div key={quest.id} className="bg-[#0F3460] p-4 rounded-lg border-2 border-[#1A1A2E] flex justify-between items-start">
-                <div className="flex-1">
-                  <div className="font-black text-lg text-[#00D4FF]">{quest.transformed_text}</div>
-                  <div className="text-sm text-[#E2E8F0] mt-1">{quest.original_text}</div>
-                  <div className="text-xs text-[#FFD93D] mt-2 font-bold uppercase">
-                    {quest.difficulty} | {quest.xp_value} XP
-                  </div>
-                </div>
-                <button
-                  onClick={() => completeQuest(quest.id, quest.xp_value)}
-                  className="ml-4 px-4 py-2 bg-[#48BB78] hover:bg-[#38a169] text-white border-3 border-[#0F3460] rounded-lg font-black uppercase text-sm tracking-wide shadow-[0_3px_0_#0F3460] hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1 transition-all"
+        {/* Quests Tab Content */}
+        {((profile?.is_premium || profile?.subscription_status === 'active') ? activeTab === 'quests' : true) && (
+          <>
+            {/* Add Quest */}
+            <div className="bg-[#1A1A2E] border-3 border-[#00D4FF] rounded-lg p-6 mb-8 shadow-[0_0_20px_rgba(0,212,255,0.3)]">
+              <h3 className="text-xl font-black uppercase tracking-wide text-[#00D4FF] mb-4">Add New Quest</h3>
+              <div className="flex gap-4 mb-4">
+                <input
+                  type="text"
+                  value={newQuestText}
+                  onChange={(e) => setNewQuestText(e.target.value)}
+                  placeholder="Enter your task..."
+                  className="flex-1 px-4 py-3 bg-[#0F3460] text-white border-3 border-[#1A1A2E] rounded-lg focus:outline-none focus:border-[#00D4FF] focus:shadow-[0_0_0_3px_rgba(0,212,255,0.2)] transition-all"
+                />
+                <select
+                  value={newQuestDifficulty}
+                  onChange={(e) => setNewQuestDifficulty(e.target.value)}
+                  className="px-4 py-3 bg-[#0F3460] text-white border-3 border-[#1A1A2E] rounded-lg focus:outline-none focus:border-[#00D4FF] focus:shadow-[0_0_0_3px_rgba(0,212,255,0.2)] transition-all font-bold"
                 >
-                  Complete
+                  <option value="easy">Easy (10 XP)</option>
+                  <option value="medium">Medium (25 XP)</option>
+                  <option value="hard">Hard (50 XP)</option>
+                </select>
+                <button
+                  onClick={addQuest}
+                  disabled={adding}
+                  className="px-6 py-3 bg-[#FF6B6B] hover:bg-[#EE5A6F] text-white border-3 border-[#0F3460] rounded-lg font-black uppercase tracking-wide shadow-[0_5px_0_#0F3460] hover:shadow-[0_7px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_2px_0_#0F3460] active:translate-y-1 transition-all disabled:opacity-50"
+                >
+                  {adding ? 'Adding...' : 'Add Quest'}
                 </button>
               </div>
-            ))}
-            {quests.filter(q => !q.completed).length === 0 && (
-              <p className="text-[#00D4FF] text-center py-8 font-bold">No active quests. Add one above!</p>
-            )}
-          </div>
-        </div>
+            </div>
 
-        {/* Journal Section */}
+            {/* Active Quests */}
+            <div className="bg-[#1A1A2E] border-3 border-[#FF6B6B] rounded-lg p-6 mb-8 shadow-[0_0_20px_rgba(255,107,107,0.3)]">
+              <h3 className="text-xl font-black uppercase tracking-wide text-[#FF6B6B] mb-4">Active Quests</h3>
+              <div className="space-y-4">
+                {quests.filter(q => !q.completed).map((quest) => (
+                  <div key={quest.id} className="bg-[#0F3460] p-4 rounded-lg border-2 border-[#1A1A2E] flex justify-between items-start">
+                    <div className="flex-1">
+                      <div className="font-black text-lg text-[#00D4FF]">{quest.transformed_text}</div>
+                      <div className="text-sm text-[#E2E8F0] mt-1">{quest.original_text}</div>
+                      <div className="text-xs text-[#FFD93D] mt-2 font-bold uppercase">
+                        {quest.difficulty} | {quest.xp_value} XP
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => completeQuest(quest.id, quest.xp_value)}
+                      className="ml-4 px-4 py-2 bg-[#48BB78] hover:bg-[#38a169] text-white border-3 border-[#0F3460] rounded-lg font-black uppercase text-sm tracking-wide shadow-[0_3px_0_#0F3460] hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1 transition-all"
+                    >
+                      Complete
+                    </button>
+                  </div>
+                ))}
+                {quests.filter(q => !q.completed).length === 0 && (
+                  <p className="text-[#00D4FF] text-center py-8 font-bold">No active quests. Add one above!</p>
+                )}
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Recurring Quests Tab Content */}
+        {activeTab === 'recurring' && (profile?.is_premium || profile?.subscription_status === 'active') && (
+          <RecurringQuests
+            isPremium={profile.is_premium || profile.subscription_status === 'active'}
+            archetype={profile.archetype}
+          />
+        )}
+
+        {/* Templates Tab Content */}
+        {activeTab === 'templates' && (profile?.is_premium || profile?.subscription_status === 'active') && (
+          <TemplateLibrary
+            isPremium={profile.is_premium || profile.subscription_status === 'active'}
+            archetype={profile.archetype}
+            onQuestsAdded={loadUserData}
+          />
+        )}
+
+        {/* Equipment Tab Content */}
+        {activeTab === 'equipment' && (profile?.is_premium || profile?.subscription_status === 'active') && (
+          <EquipmentShop
+            isPremium={profile.is_premium || profile.subscription_status === 'active'}
+            gold={profile.gold || 0}
+            onGoldChange={handleGoldChange}
+          />
+        )}
+
+        {/* Journal Tab Content */}
+        {((profile?.is_premium || profile?.subscription_status === 'active') ? activeTab === 'journal' : true) && (
         <div className="bg-[#1A1A2E] border-3 border-[#FFD93D] rounded-lg p-6 mb-8 shadow-[0_0_20px_rgba(255,217,61,0.3)]">
           <div className="flex justify-between items-center mb-4">
             <div className="flex items-center gap-3">
@@ -796,6 +887,7 @@ export default function DashboardPage() {
             />
           )}
         </div>
+        )}
 
         {/* Unlock Premium Section (for non-premium users) */}
         {!(profile?.subscription_status === 'active') && (
@@ -893,6 +985,12 @@ export default function DashboardPage() {
           archetype={profile.archetype}
         />
       )}
+
+      {/* Premium Welcome Modal */}
+      <PremiumWelcome
+        show={showPremiumWelcome}
+        onClose={handlePremiumWelcomeClose}
+      />
       </div>
     </>
   );
