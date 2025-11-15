@@ -98,10 +98,10 @@ export async function POST(request) {
     }
 
     // SECURITY: Check gold balance (server-side)
-    if (profile.gold < equipment.cost) {
+    if (profile.gold < equipment.gold_price) {
       return NextResponse.json({
         error: 'Insufficient gold',
-        message: `You need ${equipment.cost} gold but only have ${profile.gold}`
+        message: `You need ${equipment.gold_price} gold but only have ${profile.gold}`
       }, { status: 403 });
     }
 
@@ -109,7 +109,7 @@ export async function POST(request) {
     const { data: transactionResult, error: transactionError } = await supabaseAdmin
       .rpc('process_gold_transaction', {
         p_user_id: user.id,
-        p_amount: -equipment.cost, // Negative for deduction
+        p_amount: -equipment.gold_price, // Negative for deduction
         p_transaction_type: 'equipment_purchase',
         p_reference_id: equipment_id,
         p_metadata: {
@@ -160,7 +160,7 @@ export async function POST(request) {
       // CRITICAL: Refund the gold if equipment grant failed
       await supabaseAdmin.rpc('process_gold_transaction', {
         p_user_id: user.id,
-        p_amount: equipment.cost, // Refund
+        p_amount: equipment.gold_price, // Refund
         p_transaction_type: 'refund',
         p_reference_id: equipment_id,
         p_metadata: {
@@ -179,7 +179,7 @@ export async function POST(request) {
       userId: user.id,
       equipmentId: equipment_id,
       equipmentName: equipment.name,
-      cost: equipment.cost,
+      cost: equipment.gold_price,
       newBalance: result.new_balance,
       timestamp: new Date().toISOString(),
     });
@@ -188,7 +188,7 @@ export async function POST(request) {
       success: true,
       equipment: equipment,
       new_balance: result.new_balance,
-      cost: equipment.cost,
+      cost: equipment.gold_price,
     });
 
   } catch (error) {
