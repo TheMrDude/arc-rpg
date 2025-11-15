@@ -11,8 +11,10 @@ const MOOD_EMOJIS = {
   5: '😊',
 };
 
-function JournalEntryCard({ entry, index }) {
+function JournalEntryCard({ entry, index, onDelete }) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const date = new Date(entry.created_at);
   const formattedDate = date.toLocaleDateString('en-US', {
@@ -25,6 +27,19 @@ function JournalEntryCard({ entry, index }) {
     minute: '2-digit',
   });
 
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    try {
+      await onDelete(entry.id);
+      setShowDeleteConfirm(false);
+    } catch (error) {
+      console.error('Error deleting entry:', error);
+      alert('Failed to delete entry. Please try again.');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -32,7 +47,7 @@ function JournalEntryCard({ entry, index }) {
       transition={{ delay: index * 0.05 }}
       className="bg-[#1A1A2E] border-2 border-[#00D4FF] border-opacity-30 rounded-lg p-5 hover:border-opacity-100 transition-all hover:shadow-[0_0_15px_rgba(0,212,255,0.2)]"
     >
-      {/* Header with date and mood */}
+      {/* Header with date, mood, and delete button */}
       <div className="flex items-start justify-between mb-3">
         <div>
           <h3 className="text-lg font-black text-[#FFD93D]" style={{ fontFamily: 'VT323, monospace' }}>
@@ -40,11 +55,23 @@ function JournalEntryCard({ entry, index }) {
           </h3>
           <p className="text-xs text-[#00D4FF] font-bold">{formattedTime}</p>
         </div>
-        {entry.mood && (
-          <div className="text-4xl" title={`Mood: ${entry.mood}/5`}>
-            {MOOD_EMOJIS[entry.mood]}
-          </div>
-        )}
+        <div className="flex items-center gap-3">
+          {entry.mood && (
+            <div className="text-4xl" title={`Mood: ${entry.mood}/5`}>
+              {MOOD_EMOJIS[entry.mood]}
+            </div>
+          )}
+          <button
+            onClick={() => setShowDeleteConfirm(true)}
+            className="text-[#FF6B6B] hover:text-red-400 transition-colors p-1"
+            title="Delete entry"
+            disabled={isDeleting}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+          </button>
+        </div>
       </div>
 
       {/* Transformed Narrative (if available) */}
@@ -92,11 +119,60 @@ function JournalEntryCard({ entry, index }) {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Delete Confirmation Modal */}
+      <AnimatePresence>
+        {showDeleteConfirm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50"
+            onClick={() => !isDeleting && setShowDeleteConfirm(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-[#1A1A2E] border-3 border-[#FF6B6B] rounded-lg p-6 max-w-md w-full"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-2xl font-black text-[#FF6B6B] mb-4" style={{ fontFamily: 'VT323, monospace' }}>
+                DELETE ENTRY?
+              </h3>
+              <p className="text-white mb-6">
+                Are you sure you want to delete this journal entry? This action cannot be undone.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                  className={
+                    'flex-1 py-2 px-4 rounded-lg font-bold uppercase border-2 transition-all ' +
+                    (isDeleting
+                      ? 'bg-gray-600 border-gray-700 text-gray-400 cursor-not-allowed'
+                      : 'bg-[#FF6B6B] border-red-700 text-white hover:bg-red-600')
+                  }
+                >
+                  {isDeleting ? 'DELETING...' : 'DELETE'}
+                </button>
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  disabled={isDeleting}
+                  className="flex-1 py-2 px-4 rounded-lg font-bold uppercase border-2 bg-[#00D4FF] border-[#0F3460] text-[#0F3460] hover:bg-[#00BFFF] transition-all"
+                >
+                  CANCEL
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
 
-export default function JournalTimeline({ entries, isLoading, onLoadMore, hasMore }) {
+export default function JournalTimeline({ entries, isLoading, onLoadMore, hasMore, onDelete }) {
   if (isLoading && entries.length === 0) {
     return (
       <div className="space-y-4">
@@ -135,7 +211,7 @@ export default function JournalTimeline({ entries, isLoading, onLoadMore, hasMor
   return (
     <div className="space-y-4">
       {entries.map((entry, index) => (
-        <JournalEntryCard key={entry.id} entry={entry} index={index} />
+        <JournalEntryCard key={entry.id} entry={entry} index={index} onDelete={onDelete} />
       ))}
 
       {hasMore && (
