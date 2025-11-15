@@ -481,6 +481,32 @@ export default function DashboardPage() {
     loadJournalEntries(journalOffset + 20);
   };
 
+  const handleJournalDelete = async (entryId) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const response = await fetch(`/api/journals/delete?id=${entryId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`
+        }
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to delete journal entry');
+      }
+
+      // Remove the entry from the local state
+      setJournalEntries(prev => prev.filter(entry => entry.id !== entryId));
+      setJournalTotal(prev => prev - 1);
+    } catch (error) {
+      console.error('Error deleting journal entry:', error);
+      throw error;
+    }
+  };
+
   const handlePremiumWelcomeClose = async () => {
     setShowPremiumWelcome(false);
 
@@ -893,6 +919,7 @@ export default function DashboardPage() {
               entries={journalEntries}
               isLoading={journalLoading}
               onLoadMore={handleLoadMoreJournals}
+              onDelete={handleJournalDelete}
               hasMore={journalEntries.length < journalTotal}
             />
           )}
