@@ -91,13 +91,13 @@ export async function POST(request) {
     // Load user profile and story state for continuity
     const { data: profile } = await supabaseAdmin
       .from('profiles')
-      .select('subscription_status, story_chapter, story_last_event, level')
+      .select('subscription_status, is_premium, level')
       .eq('id', user.id)
       .single();
 
-    const isPremium = profile?.subscription_status === 'active';
-    const storyChapter = profile?.story_chapter || 0;
-    const storyArc = Math.floor(storyChapter / 4); // 4 chapters per arc
+    const isPremium = profile?.subscription_status === 'active' || profile?.is_premium === true;
+    const userLevel = profile?.level || 1;
+    const storyArc = Math.floor(userLevel / 10); // Story arc based on level
 
     // Fetch recent journal entries for emotional continuity
     const { data: recentEntries } = await supabaseAdmin
@@ -127,7 +127,7 @@ export async function POST(request) {
     const prompt = `You are transforming a user's personal journal entry into an epic narrative that fits their ${archetype.toUpperCase()} character in an ongoing RPG story.
 
 ARCHETYPE VOICE: ${archetypeVoices[archetype] || archetypeVoices.warrior}
-CURRENT STORY STATE: Arc ${storyArc}, Chapter ${storyChapter}
+CURRENT STORY STATE: Arc ${storyArc}, Level ${userLevel}
 ${moodContext}
 ${recentContext}
 
