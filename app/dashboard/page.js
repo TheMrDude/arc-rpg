@@ -13,6 +13,9 @@ import QuestCompletionCelebration from '@/app/components/QuestCompletionCelebrat
 import ReflectionPrompt from '@/app/components/ReflectionPrompt';
 import MilestoneCelebration from '@/app/components/animations/MilestoneCelebration';
 import LoginTransition from '@/components/LoginTransition';
+import JournalEntry from '@/app/components/JournalEntry';
+import JournalTimeline from '@/app/components/JournalTimeline';
+import OnThisDay from '@/app/components/OnThisDay';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -38,9 +41,23 @@ export default function DashboardPage() {
   const [showLoginTransition, setShowLoginTransition] = useState(true);
   const [isFirstLogin, setIsFirstLogin] = useState(false);
 
+  // Journal states
+  const [showJournalEntry, setShowJournalEntry] = useState(false);
+  const [journalEntries, setJournalEntries] = useState([]);
+  const [journalLoading, setJournalLoading] = useState(false);
+  const [journalOffset, setJournalOffset] = useState(0);
+  const [journalTotal, setJournalTotal] = useState(0);
+  const [showJournalSection, setShowJournalSection] = useState(false);
+
   useEffect(() => {
     loadUserData();
   }, []);
+
+  useEffect(() => {
+    if (showJournalSection && user) {
+      loadJournalEntries();
+    }
+  }, [showJournalSection, user]);
 
   async function loadUserData() {
     try {
@@ -386,6 +403,69 @@ export default function DashboardPage() {
     }
   };
 
+  async function loadJournalEntries(offset = 0) {
+    try {
+      setJournalLoading(true);
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const response = await fetch(`/api/journals/list?limit=20&offset=${offset}`, {
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`
+        }
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        if (offset === 0) {
+          setJournalEntries(data.entries || []);
+        } else {
+          setJournalEntries(prev => [...prev, ...(data.entries || [])]);
+        }
+        setJournalTotal(data.total || 0);
+        setJournalOffset(offset);
+      }
+    } catch (error) {
+      console.error('Error loading journal entries:', error);
+    } finally {
+      setJournalLoading(false);
+    }
+  }
+
+  const handleJournalSubmit = async (journalData) => {
+    if (!user) return;
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const response = await fetch('/api/journals/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify(journalData)
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to save journal entry');
+      }
+
+      // Reload journal entries to show the new one
+      loadJournalEntries(0);
+    } catch (error) {
+      console.error('Error saving journal entry:', error);
+      throw error;
+    }
+  };
+
+  const handleLoadMoreJournals = () => {
+    loadJournalEntries(journalOffset + 20);
+  };
+
   async function generateQuestsFromTemplates() {
     if (generating) return;
 
@@ -672,6 +752,51 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {/* Journal Section */}
+        <div className="bg-[#1A1A2E] border-3 border-[#FFD93D] rounded-lg p-6 mb-8 shadow-[0_0_20px_rgba(255,217,61,0.3)]">
+          <div className="flex justify-between items-center mb-4">
+            <div className="flex items-center gap-3">
+              <span className="text-3xl">📖</span>
+              <h3 className="text-xl font-black uppercase tracking-wide text-[#FFD93D]">Hero's Journal</h3>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowJournalEntry(true)}
+                className="px-6 py-3 bg-[#FFD93D] hover:bg-[#E6C335] text-[#1A1A2E] border-3 border-[#0F3460] rounded-lg font-black uppercase text-sm tracking-wide shadow-[0_5px_0_#0F3460] hover:shadow-[0_7px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_2px_0_#0F3460] active:translate-y-1 transition-all"
+              >
+                ✍️ Write Entry
+              </button>
+              <button
+                onClick={() => setShowJournalSection(!showJournalSection)}
+                className="px-6 py-3 bg-[#00D4FF] hover:bg-[#00BBE6] text-[#0F3460] border-3 border-[#0F3460] rounded-lg font-black uppercase text-sm tracking-wide shadow-[0_5px_0_#0F3460] hover:shadow-[0_7px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_2px_0_#0F3460] active:translate-y-1 transition-all"
+              >
+                {showJournalSection ? '▲ Hide' : '▼ View'} Timeline
+              </button>
+            </div>
+          </div>
+
+          <p className="text-[#E2E8F0] text-sm mb-4">
+            Document your journey, reflect on your progress, and let the AI transform your story into an epic tale.
+          </p>
+
+          {/* On This Day Widget */}
+          {showJournalSection && (
+            <div className="mb-6">
+              <OnThisDay />
+            </div>
+          )}
+
+          {/* Journal Timeline */}
+          {showJournalSection && (
+            <JournalTimeline
+              entries={journalEntries}
+              isLoading={journalLoading}
+              onLoadMore={handleLoadMoreJournals}
+              hasMore={journalEntries.length < journalTotal}
+            />
+          )}
+        </div>
+
         {/* Unlock Premium Section (for non-premium users) */}
         {!(profile?.subscription_status === 'active') && (
           <div className="bg-[#1A1A2E] border-3 border-[#FFD93D] rounded-lg p-8 mb-8 shadow-[0_0_30px_rgba(255,217,61,0.4)]">
@@ -756,6 +881,16 @@ export default function DashboardPage() {
           }}
           milestone={milestoneData.milestone}
           type={milestoneData.type}
+        />
+      )}
+
+      {/* Journal Entry Modal */}
+      {showJournalEntry && profile && (
+        <JournalEntry
+          show={showJournalEntry}
+          onClose={() => setShowJournalEntry(false)}
+          onSubmit={handleJournalSubmit}
+          archetype={profile.archetype}
         />
       )}
       </div>
