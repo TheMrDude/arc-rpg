@@ -23,6 +23,8 @@ import TemplateLibrary from '@/app/components/TemplateLibrary';
 import EquipmentShop from '@/app/components/EquipmentShop';
 import RateLimitStatus from '@/app/components/RateLimitStatus';
 import StoryProgress from '@/app/components/StoryProgress';
+import StoryEventNotification from '@/app/components/StoryEventNotification';
+import { trackQuestCreated, trackQuestCompleted, trackLevelUp, trackStreakAchieved, trackStoryMilestone } from '@/lib/analytics';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -303,6 +305,9 @@ export default function DashboardPage() {
         return;
       }
 
+      // Track quest creation
+      trackQuestCreated(newQuestDifficulty, profile.archetype);
+
       setNewQuestText('');
       loadUserData();
     } catch (error) {
@@ -361,12 +366,38 @@ export default function DashboardPage() {
       });
       setShowQuestCelebration(true);
 
+      // Track quest completion
+      trackQuestCompleted({
+        difficulty: questToComplete?.difficulty,
+        xp_earned: rewards.xp,
+        gold_earned: rewards.gold,
+        level: rewards.new_level,
+        story_thread: questToComplete?.story_thread,
+      });
+
       // Check for level up milestone
       if (rewards.level_up) {
         setMilestoneData({
           milestone: rewards.new_level,
           type: 'level'
         });
+        trackLevelUp(rewards.new_level, data.profile.xp);
+      }
+
+      // Track story milestones
+      if (data.story) {
+        if (data.story.story_completed) {
+          trackStoryMilestone('story_completed', profile.current_story_thread, 100);
+        } else if (data.story.new_story_started) {
+          trackStoryMilestone('new_story', data.story.current_thread, data.story.thread_completion);
+        } else if (data.story.thread_completion >= 50 && data.story.thread_completion < 65) {
+          trackStoryMilestone('major_progress', data.story.current_thread, data.story.thread_completion);
+        }
+      }
+
+      // Track streak achievements
+      if (data.profile.current_streak >= 7 && data.profile.current_streak % 7 === 0) {
+        trackStreakAchieved(data.profile.current_streak);
       }
 
       // Reload user data to reflect changes
@@ -1046,6 +1077,9 @@ export default function DashboardPage() {
         show={showPremiumWelcome}
         onClose={handlePremiumWelcomeClose}
       />
+
+      {/* Story Event Notification */}
+      {user && <StoryEventNotification userId={user.id} />}
       </div>
     </>
   );
