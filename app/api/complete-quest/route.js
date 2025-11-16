@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { authenticateRequest } from '@/lib/api-auth';
-import { calculateFinalXP, checkDoubleFriday } from '@/lib/skill-effects';
+import { calculateFinalXP, checkDoubleFriday, getStoryContextDepth } from '@/lib/skill-effects';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -157,7 +157,7 @@ export async function POST(request) {
     const goldReward = GOLD_REWARDS[quest.difficulty] || 50;
 
     // STORY CONTINUITY: Update story progress based on completed quest
-    const storyUpdates = await updateStoryProgress(profile, quest);
+    const storyUpdates = await updateStoryProgress(profile, quest, user.id);
 
     // Quest already marked as completed above (atomic operation)
     // Update profile with new XP, level, streak, skill points, AND story progress
@@ -271,7 +271,7 @@ export async function POST(request) {
 }
 
 // STORY CONTINUITY: Update story progress when quest is completed
-async function updateStoryProgress(profile, quest) {
+async function updateStoryProgress(profile, quest, userId) {
   // Initialize story progress if needed
   const storyProgress = profile.story_progress || {
     recent_events: [],
@@ -285,11 +285,14 @@ async function updateStoryProgress(profile, quest) {
   const questThread = quest.story_thread || null;
   const narrativeImpact = quest.narrative_impact?.description || null;
 
+  // WISDOM SKILL: Deep Insight - Remember more context
+  const contextDepth = await getStoryContextDepth(userId);
+
   // Add quest completion to recent events
   const questEvent = `Completed: ${quest.transformed_text.substring(0, 80)}${quest.transformed_text.length > 80 ? '...' : ''}`;
   storyProgress.recent_events = storyProgress.recent_events || [];
   storyProgress.recent_events.unshift(questEvent);
-  storyProgress.recent_events = storyProgress.recent_events.slice(0, 10); // Keep last 10 events
+  storyProgress.recent_events = storyProgress.recent_events.slice(0, contextDepth); // Use skill-based depth (5, 10, or 15)
 
   // Handle story thread progression
   let newCurrentThread = currentThread;

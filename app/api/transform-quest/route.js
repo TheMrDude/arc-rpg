@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { createClient } from '@supabase/supabase-js';
 import { checkRateLimit, createRateLimitResponse } from '@/lib/rate-limiter';
+import { getAIPromptEnhancement, getQuestTransformEnhancement } from '@/lib/skill-effects';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -146,9 +147,20 @@ export async function POST(request) {
       seeker: 'Transform this into an exploration or discovery adventure. Use curious, adventurous language.',
     };
 
+    // WISDOM SKILL: Get enhancement level
+    const enhancementLevel = await getQuestTransformEnhancement(user.id);
+    const aiEnhancements = await getAIPromptEnhancement(user.id, 'quest');
+
+    // Adjust quest length based on Wisdom skills
+    const questLength = enhancementLevel === 0 ? '1-2 sentences' :
+                       enhancementLevel === 1 ? '2-3 sentences' :
+                       '3-4 sentences with cinematic detail'; // Omniscient
+
     const prompt = `You are a quest generator for an RPG game with ongoing story threads.
 
-Archetype: ${archetype.toUpperCase()}
+${aiEnhancements ? `SPECIAL INSTRUCTIONS: ${aiEnhancements}
+
+` : ''}Archetype: ${archetype.toUpperCase()}
 Style: ${archetypeStyles[archetype] || archetypeStyles.warrior}
 Difficulty: ${difficulty}
 Player Level: ${userLevel}
@@ -156,18 +168,21 @@ ${recentQuestContext}
 
 Original task: "${sanitizedQuestText}"
 
-Transform this boring task into an epic RPG quest that fits the ongoing story. Keep the quest description to 1-2 sentences. Make it exciting and match the archetype style.
+Transform this boring task into an epic RPG quest that fits the ongoing story. Keep the quest description to ${questLength}. Make it exciting and match the archetype style.
 
 Then, provide story metadata in JSON format.
 
 Format your response as:
-QUEST: [1-2 sentence epic quest description]
+QUEST: [${questLength} epic quest description]
 STORY_THREAD: [brief story thread name, e.g., "The Shadow Invasion" or "none" if standalone]
 NARRATIVE_IMPACT: [short phrase describing what completing this quest accomplishes in the story, e.g., "Weakens enemy forces" or "none"]`;
 
+    // Adjust max_tokens based on enhancement level
+    const maxTokens = isPremium ? (enhancementLevel === 0 ? 300 : enhancementLevel === 1 ? 400 : 500) : 200;
+
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
-      max_tokens: isPremium ? 300 : 200,
+      max_tokens: maxTokens,
       messages: [{ role: 'user', content: prompt }],
     });
 

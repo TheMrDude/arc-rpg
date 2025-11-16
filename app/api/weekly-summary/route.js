@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { createClient } from '@supabase/supabase-js';
+import { getAIPromptEnhancement, getWeeklySummaryEnhancement } from '@/lib/skill-effects';
 
 // Force dynamic rendering to prevent caching of authenticated requests
 export const dynamic = 'force-dynamic';
@@ -119,6 +120,16 @@ export async function GET(request) {
       const currentChapter = profile?.story_chapter || 1;
       const lastEvent = profile?.story_last_event || "Your journey began in the realm of forgotten tasks...";
 
+      // WISDOM SKILL: Get enhancement level
+      const enhancementLevel = await getWeeklySummaryEnhancement(user.id);
+      const aiEnhancements = await getAIPromptEnhancement(user.id, 'weekly');
+
+      // Adjust word count based on Wisdom skills
+      const wordCount = enhancementLevel === 0 ? '250-300' :
+                        enhancementLevel === 1 ? '350-450' :
+                        enhancementLevel === 2 ? '450-550' :
+                        '600-750'; // Omniscient
+
       const questList = (quests || []).slice(0, 10).map(q =>
         `- ${q.transformed_text} (${q.difficulty})`
       ).join('\n');
@@ -135,6 +146,8 @@ export async function GET(request) {
         : '';
 
       const prompt = `You are writing Chapter ${currentChapter} of a ${profile.archetype}'s personal epic journey in an RPG-style productivity adventure.
+
+${aiEnhancements ? `SPECIAL INSTRUCTIONS: ${aiEnhancements}` : ''}
 
 PREVIOUS CHAPTER ENDING:
 "${lastEvent}"
@@ -155,7 +168,7 @@ STATS THIS WEEK:
 - Current Streak: ${profile.current_streak || 0} days
 - Easy: ${questsByDifficulty.easy}, Medium: ${questsByDifficulty.medium}, Hard: ${questsByDifficulty.hard}
 
-Write a 250-300 word fantasy story chapter that:
+Write a ${wordCount} word fantasy story chapter that:
 1. Opens with "Previously: [one sentence recap of last chapter]"
 2. Weaves both external quests AND internal journal reflections into a cohesive narrative
 3. Uses journal entries to add emotional depth and inner conflict/growth
@@ -168,9 +181,15 @@ Close with: "Chapter ${currentChapter} complete. Your journey continues..."
 
 Write the chapter now:`;
 
+      // Adjust max_tokens based on enhancement level
+      const maxTokens = enhancementLevel === 0 ? 500 :
+                       enhancementLevel === 1 ? 700 :
+                       enhancementLevel === 2 ? 900 :
+                       1200; // Omniscient
+
       const message = await anthropic.messages.create({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 500,
+        max_tokens: maxTokens,
         messages: [{ role: 'user', content: prompt }],
       });
 
