@@ -29,8 +29,11 @@ import GoldPurchasePrompt from '@/app/components/GoldPurchasePrompt';
 import JourneyMap from '@/app/components/JourneyMap';
 import RegionUnlockNotification from '@/app/components/RegionUnlockNotification';
 import PWAInstaller from '@/app/components/PWAInstaller';
+import AchievementsDisplay from '@/app/components/AchievementsDisplay';
+import AchievementUnlock from '@/app/components/AchievementUnlock';
 import { trackQuestCreated, trackQuestCompleted, trackLevelUp, trackStreakAchieved, trackStoryMilestone, trackGoldPurchaseViewed } from '@/lib/analytics';
 import { updateMapProgression, getMapRegions } from '@/lib/mapProgression';
+import { checkAchievements } from '@/lib/achievements';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -76,6 +79,10 @@ export default function DashboardPage() {
   const [showRegionUnlock, setShowRegionUnlock] = useState(false);
   const [unlockedRegion, setUnlockedRegion] = useState(null);
   const [mapRegions, setMapRegions] = useState([]);
+
+  // Achievement states
+  const [showAchievementUnlock, setShowAchievementUnlock] = useState(false);
+  const [unlockedAchievements, setUnlockedAchievements] = useState([]);
 
   useEffect(() => {
     loadUserData();
@@ -452,6 +459,18 @@ export default function DashboardPage() {
               setShowRegionUnlock(true);
             }, 5000); // Show after 5 seconds to avoid notification overload
           }
+        }
+      }
+
+      // Check for new achievements
+      if (user) {
+        const achievementResult = await checkAchievements(user.id);
+        if (achievementResult.success && achievementResult.newlyUnlocked.length > 0) {
+          // Show achievement unlock notifications
+          setTimeout(() => {
+            setUnlockedAchievements(achievementResult.newlyUnlocked);
+            setShowAchievementUnlock(true);
+          }, 8000); // Show after 8 seconds, after other notifications
         }
       }
 
@@ -911,6 +930,17 @@ export default function DashboardPage() {
               >
                 🗺️ Journey Map
               </button>
+              <button
+                onClick={() => setActiveTab('achievements')}
+                className={
+                  'px-6 py-3 rounded-lg font-black uppercase text-sm tracking-wide border-3 transition-all ' +
+                  (activeTab === 'achievements'
+                    ? 'bg-[#FFD93D] border-[#0F3460] text-[#0F3460] shadow-[0_5px_0_#0F3460]'
+                    : 'bg-[#0F3460] border-[#1A1A2E] text-gray-300 hover:border-[#FFD93D]')
+                }
+              >
+                🏆 Achievements
+              </button>
             </div>
           </div>
         )}
@@ -1102,6 +1132,23 @@ export default function DashboardPage() {
           </div>
         )}
 
+        {/* Achievements Tab Content */}
+        {activeTab === 'achievements' && user && (
+          <div className="bg-[#1A1A2E] border-3 border-[#FFD93D] rounded-lg p-6 mb-8 shadow-[0_0_20px_rgba(255,217,61,0.3)]">
+            <div className="mb-6">
+              <div className="flex items-center gap-3">
+                <span className="text-4xl">🏆</span>
+                <h3 className="text-2xl font-black uppercase tracking-wide text-[#FFD93D]">Your Achievements</h3>
+              </div>
+              <p className="text-[#E2E8F0] mt-2">
+                Unlock achievements by completing quests, leveling up, maintaining streaks, and exploring the journey map. Each achievement rewards you with bonus XP and gold!
+              </p>
+            </div>
+
+            <AchievementsDisplay userId={user.id} />
+          </div>
+        )}
+
         {/* Unlock Premium Section (for non-premium users) */}
         {!(profile?.subscription_status === 'active') && (
           <div className="bg-[#1A1A2E] border-3 border-[#FFD93D] rounded-lg p-8 mb-8 shadow-[0_0_30px_rgba(255,217,61,0.4)]">
@@ -1225,6 +1272,17 @@ export default function DashboardPage() {
             setUnlockedRegion(null);
           }}
           isMilestone={unlockedRegion.region_type === 'milestone' || unlockedRegion.region_type === 'boss_battle'}
+        />
+      )}
+
+      {/* Achievement Unlock Notifications */}
+      {showAchievementUnlock && unlockedAchievements.length > 0 && (
+        <AchievementUnlock
+          achievements={unlockedAchievements}
+          onClose={() => {
+            setShowAchievementUnlock(false);
+            setUnlockedAchievements([]);
+          }}
         />
       )}
 
