@@ -26,6 +26,7 @@ import StoryProgress from '@/app/components/StoryProgress';
 import StoryEventNotification from '@/app/components/StoryEventNotification';
 import DailyBonus from '@/app/components/DailyBonus';
 import GoldPurchasePrompt from '@/app/components/GoldPurchasePrompt';
+import SeasonalEvent from '@/app/components/SeasonalEvent';
 import { trackQuestCreated, trackQuestCompleted, trackLevelUp, trackStreakAchieved, trackStoryMilestone, trackGoldPurchaseViewed } from '@/lib/analytics';
 
 export default function DashboardPage() {
@@ -869,6 +870,17 @@ export default function DashboardPage() {
               >
                 📖 Journal
               </button>
+              <button
+                onClick={() => setActiveTab('events')}
+                className={
+                  'px-6 py-3 rounded-lg font-black uppercase text-sm tracking-wide border-3 transition-all ' +
+                  (activeTab === 'events'
+                    ? 'bg-gradient-to-r from-purple-600 to-pink-600 border-[#0F3460] text-white shadow-[0_5px_0_#0F3460]'
+                    : 'bg-[#0F3460] border-[#1A1A2E] text-gray-300 hover:border-purple-500')
+                }
+              >
+                🎊 Events
+              </button>
             </div>
           </div>
         )}
@@ -1031,6 +1043,11 @@ export default function DashboardPage() {
             />
           )}
         </div>
+        )}
+
+        {/* Seasonal Events Tab Content */}
+        {activeTab === 'events' && (profile?.is_premium || profile?.subscription_status === 'active') && (
+          <SeasonalEvent />
         )}
 
         {/* Unlock Premium Section (for non-premium users) */}
