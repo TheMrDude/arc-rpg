@@ -69,6 +69,9 @@ export default function DashboardPage() {
   const [showGoldPrompt, setShowGoldPrompt] = useState(false);
   const [goldPromptTrigger, setGoldPromptTrigger] = useState(null);
 
+  // Seasonal event badge states
+  const [eventBadgeCount, setEventBadgeCount] = useState(0);
+
   useEffect(() => {
     loadUserData();
   }, []);
@@ -78,6 +81,15 @@ export default function DashboardPage() {
       loadJournalEntries();
     }
   }, [showJournalSection, user]);
+
+  useEffect(() => {
+    if (user && (profile?.is_premium || profile?.subscription_status === 'active')) {
+      loadEventBadge();
+      // Refresh badge every 30 seconds
+      const interval = setInterval(loadEventBadge, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [user, profile]);
 
   async function loadUserData() {
     try {
@@ -427,6 +439,11 @@ export default function DashboardPage() {
 
       // Reload user data to reflect changes
       await loadUserData();
+
+      // Refresh event badge (quest completion may trigger seasonal challenges)
+      if (profile?.is_premium || profile?.subscription_status === 'active') {
+        loadEventBadge();
+      }
     } catch (error) {
       console.error('Error completing quest:', error);
       alert('Failed to complete quest');
@@ -515,6 +532,48 @@ export default function DashboardPage() {
       console.error('Error loading journal entries:', error);
     } finally {
       setJournalLoading(false);
+    }
+  }
+
+  async function loadEventBadge() {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const response = await fetch('/api/seasonal-events', {
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`
+        }
+      });
+
+      const data = await response.json();
+
+      if (data.active) {
+        let count = 0;
+
+        // Count incomplete challenges
+        const incompleteChallenges = data.challenges.filter(challenge => {
+          const progress = data.challengeProgress.find(cp => cp.challenge_id === challenge.id);
+          return !progress?.completed;
+        });
+        count += incompleteChallenges.length;
+
+        // Count affordable rewards not yet claimed
+        const affordableRewards = data.rewards.filter(reward => {
+          const isClaimed = data.userProgress.rewards_claimed?.some(r => r.reward_id === reward.id);
+          const canAfford = data.userProgress.event_points >= reward.cost_event_points;
+          const notSoldOut = reward.limited_quantity === null || reward.remaining_quantity > 0;
+          return !isClaimed && canAfford && notSoldOut;
+        });
+
+        // Show affordable rewards count (more actionable than challenge count)
+        setEventBadgeCount(affordableRewards.length);
+      } else {
+        setEventBadgeCount(0);
+      }
+    } catch (error) {
+      console.error('Error loading event badge:', error);
+      setEventBadgeCount(0);
     }
   }
 
@@ -873,13 +932,18 @@ export default function DashboardPage() {
               <button
                 onClick={() => setActiveTab('events')}
                 className={
-                  'px-6 py-3 rounded-lg font-black uppercase text-sm tracking-wide border-3 transition-all ' +
+                  'px-6 py-3 rounded-lg font-black uppercase text-sm tracking-wide border-3 transition-all relative ' +
                   (activeTab === 'events'
                     ? 'bg-gradient-to-r from-purple-600 to-pink-600 border-[#0F3460] text-white shadow-[0_5px_0_#0F3460]'
                     : 'bg-[#0F3460] border-[#1A1A2E] text-gray-300 hover:border-purple-500')
                 }
               >
                 🎊 Events
+                {eventBadgeCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-black rounded-full w-6 h-6 flex items-center justify-center border-2 border-[#0F3460] animate-pulse">
+                    {eventBadgeCount}
+                  </span>
+                )}
               </button>
             </div>
           </div>
