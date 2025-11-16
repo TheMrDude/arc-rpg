@@ -50,8 +50,7 @@ export default function DailyBonus({ profile, onClaim }) {
     setClaiming(true);
 
     try {
-      const { getSupabaseClient } = await import('@/lib/supabase-client');
-      const supabase = getSupabaseClient();
+      const { supabase } = await import('@/lib/supabase');
       const { data: { session } } = await supabase.auth.getSession();
 
       if (!session) {
