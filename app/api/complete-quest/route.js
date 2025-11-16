@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { authenticateRequest } from '@/lib/api-auth';
+import { calculateFinalXP, checkDoubleFriday } from '@/lib/skill-effects';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -118,12 +119,28 @@ export async function POST(request) {
 
     // Calculate comeback bonus
     const comebackBonus = checkComebackBonus(profile.last_quest_date);
-    const bonusXP = comebackBonus ? 20 : 0;
+    const comebackBonusXP = comebackBonus ? 20 : 0;
 
-    // Calculate total XP with equipment bonuses
-    const baseXP = quest.xp_value + bonusXP;
-    const totalXP = Math.floor(baseXP * xpMultiplier);
-    const equipmentBonus = totalXP - baseXP;
+    // SKILL EFFECTS: Calculate XP with skill bonuses
+    const baseXP = quest.xp_value;
+    const skillEffects = await calculateFinalXP(
+      user.id,
+      quest.difficulty,
+      baseXP,
+      profile.current_streak || 0
+    );
+
+    // Apply equipment multiplier to skill-boosted XP
+    let totalXP = Math.floor(skillEffects.finalXP * xpMultiplier) + comebackBonusXP;
+
+    // SKILL EFFECT: Double XP Fridays (Efficiency 5: Time Lord)
+    const doubleFriday = await checkDoubleFriday(user.id);
+    if (doubleFriday) {
+      totalXP *= 2;
+    }
+
+    const equipmentBonus = Math.floor(skillEffects.finalXP * (xpMultiplier - 1.0));
+    const skillBonus = skillEffects.skillBonusXP + skillEffects.streakBonusXP;
 
     // Calculate new level and streak
     const newXP = profile.xp + totalXP;
@@ -193,6 +210,9 @@ export async function POST(request) {
       baseXP,
       totalXP,
       equipmentBonus,
+      skillBonus,
+      luckyProc: skillEffects.luckyProc,
+      doubleFriday,
       xpMultiplier,
       goldReward,
       newLevel,
@@ -206,7 +226,11 @@ export async function POST(request) {
         xp: totalXP,
         base_xp: baseXP,
         equipment_bonus_xp: equipmentBonus,
+        skill_bonus_xp: skillBonus,
         comeback_bonus: comebackBonus,
+        comeback_bonus_xp: comebackBonusXP,
+        lucky_proc: skillEffects.luckyProc,
+        double_friday: doubleFriday,
         gold: goldReward,
         new_level: newLevel,
         level_up: newLevel > profile.level,
@@ -224,6 +248,11 @@ export async function POST(request) {
         thread_completion: storyUpdates.storyProgress.thread_completion,
         story_completed: storyUpdates.storyProgress.thread_completion === 0 && profile.current_story_thread !== null,
         new_story_started: storyUpdates.currentThread && storyUpdates.currentThread !== profile.current_story_thread,
+      },
+      skill_effects: {
+        applied: skillEffects.breakdown.appliedSkills,
+        lucky_proc: skillEffects.luckyProc,
+        double_friday: doubleFriday,
       }
     });
 

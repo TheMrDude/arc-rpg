@@ -152,13 +152,29 @@ export default function QuestCompletionCelebration({
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-2xl font-black text-[#0F3460] uppercase">
-                      +{totalXP} XP
+                      +{totalXP} XP {rewards.lucky_proc && '(2X LUCKY!)'}
                     </p>
-                    {rewards.equipment_bonus_xp && rewards.equipment_bonus_xp > 0 && (
-                      <p className="text-sm font-bold text-[#0F3460]">
-                        (+{rewards.equipment_bonus_xp} equipment bonus)
-                      </p>
-                    )}
+                    <div className="text-sm font-bold text-[#0F3460] space-y-1">
+                      {rewards.base_xp && (
+                        <p>Base: {rewards.base_xp} XP</p>
+                      )}
+                      {rewards.skill_bonus_xp > 0 && (
+                        <p className="text-[#9333EA] bg-white/20 px-2 py-1 rounded">
+                          💎 +{rewards.skill_bonus_xp} skill bonus
+                        </p>
+                      )}
+                      {rewards.equipment_bonus_xp > 0 && (
+                        <p>⚔️ +{rewards.equipment_bonus_xp} equipment</p>
+                      )}
+                      {rewards.comeback_bonus_xp > 0 && (
+                        <p>🎊 +{rewards.comeback_bonus_xp} comeback</p>
+                      )}
+                      {rewards.double_friday && (
+                        <p className="text-[#FFD93D] bg-white/30 px-2 py-1 rounded font-black">
+                          ⚡ 2X FRIDAY BONUS!
+                        </p>
+                      )}
+                    </div>
                   </div>
                   <span className="text-5xl">⚡</span>
                 </div>
@@ -201,24 +217,24 @@ export default function QuestCompletionCelebration({
                 </motion.div>
               )}
 
-              {/* Comeback Bonus */}
-              {rewards.comeback_bonus && (
+              {/* Lucky Proc Special */}
+              {rewards.lucky_proc && (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.7 }}
-                  className="bg-gradient-to-r from-[#00D4FF] to-[#48BB78] rounded-2xl p-4 mb-4 border-3 border-[#0F3460] shadow-[0_0_15px_rgba(0,212,255,0.4)]"
+                  animate={{ opacity: 1, scale: [1, 1.1, 1] }}
+                  transition={{ delay: 0.7, repeat: 2 }}
+                  className="bg-gradient-to-r from-[#FFD93D] to-[#FF6B6B] rounded-2xl p-4 mb-4 border-3 border-[#FFD93D] shadow-[0_0_20px_rgba(255,217,61,0.8)]"
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-xl font-black text-white uppercase">
-                        Comeback Bonus!
+                      <p className="text-xl font-black text-[#0F3460] uppercase">
+                        🍀 Lucky Strike!
                       </p>
-                      <p className="text-sm font-bold text-white">
-                        Welcome back! +20 XP
+                      <p className="text-sm font-bold text-[#0F3460]">
+                        Your Fortune skills doubled your XP!
                       </p>
                     </div>
-                    <span className="text-4xl">🎊</span>
+                    <span className="text-4xl">✨</span>
                   </div>
                 </motion.div>
               )}
