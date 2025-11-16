@@ -220,7 +220,7 @@ export default function DailyBonus({ profile, onClaim }) {
                   DAILY BONUS CLAIMED!
                 </h2>
 
-                <div className="grid grid-cols-2 gap-4 mb-6">
+                <div className={`grid ${rewardData.skill_points_earned > 0 ? 'grid-cols-3' : 'grid-cols-2'} gap-4 mb-6`}>
                   <div className="bg-[#0F3460] border-2 border-[#FFD93D] rounded-lg p-4">
                     <div className="text-4xl mb-2">💰</div>
                     <div className="text-3xl font-black text-[#FFD93D]" style={{ fontFamily: 'VT323, monospace' }}>
@@ -235,6 +235,15 @@ export default function DailyBonus({ profile, onClaim }) {
                     </div>
                     <div className="text-sm text-gray-400">XP</div>
                   </div>
+                  {rewardData.skill_points_earned > 0 && (
+                    <div className="bg-[#0F3460] border-2 border-[#9333EA] rounded-lg p-4">
+                      <div className="text-4xl mb-2">💎</div>
+                      <div className="text-3xl font-black text-[#9333EA]" style={{ fontFamily: 'VT323, monospace' }}>
+                        +{rewardData.skill_points_earned}
+                      </div>
+                      <div className="text-sm text-gray-400">SKILL PT</div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="bg-[#0F3460] border-2 border-[#00D4FF] border-opacity-50 rounded-lg p-3 mb-4">
