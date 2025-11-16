@@ -28,6 +28,7 @@ import DailyBonus from '@/app/components/DailyBonus';
 import GoldPurchasePrompt from '@/app/components/GoldPurchasePrompt';
 import JourneyMap from '@/app/components/JourneyMap';
 import RegionUnlockNotification from '@/app/components/RegionUnlockNotification';
+import PWAInstaller from '@/app/components/PWAInstaller';
 import { trackQuestCreated, trackQuestCompleted, trackLevelUp, trackStreakAchieved, trackStoryMilestone, trackGoldPurchaseViewed } from '@/lib/analytics';
 import { updateMapProgression, getMapRegions } from '@/lib/mapProgression';
 
@@ -1226,6 +1227,9 @@ export default function DashboardPage() {
           isMilestone={unlockedRegion.region_type === 'milestone' || unlockedRegion.region_type === 'boss_battle'}
         />
       )}
+
+      {/* PWA Install Prompt */}
+      <PWAInstaller />
       </div>
     </>
   );
