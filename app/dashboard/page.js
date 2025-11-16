@@ -31,6 +31,9 @@ import RegionUnlockNotification from '@/app/components/RegionUnlockNotification'
 import PWAInstaller from '@/app/components/PWAInstaller';
 import AchievementsDisplay from '@/app/components/AchievementsDisplay';
 import AchievementUnlock from '@/app/components/AchievementUnlock';
+import QuestChainSelector from '@/app/components/QuestChainSelector';
+import NotificationSettings from '@/app/components/NotificationSettings';
+import SeasonalEventsBanner from '@/app/components/SeasonalEventsBanner';
 import { trackQuestCreated, trackQuestCompleted, trackLevelUp, trackStreakAchieved, trackStoryMilestone, trackGoldPurchaseViewed } from '@/lib/analytics';
 import { updateMapProgression, getMapRegions } from '@/lib/mapProgression';
 import { checkAchievements } from '@/lib/achievements';
@@ -941,9 +944,34 @@ export default function DashboardPage() {
               >
                 🏆 Achievements
               </button>
+              <button
+                onClick={() => setActiveTab('chains')}
+                className={
+                  'px-6 py-3 rounded-lg font-black uppercase text-sm tracking-wide border-3 transition-all ' +
+                  (activeTab === 'chains'
+                    ? 'bg-[#9333EA] border-[#0F3460] text-white shadow-[0_5px_0_#0F3460]'
+                    : 'bg-[#0F3460] border-[#1A1A2E] text-gray-300 hover:border-[#9333EA]')
+                }
+              >
+                📜 Quest Chains
+              </button>
+              <button
+                onClick={() => setActiveTab('settings')}
+                className={
+                  'px-6 py-3 rounded-lg font-black uppercase text-sm tracking-wide border-3 transition-all ' +
+                  (activeTab === 'settings'
+                    ? 'bg-[#64748b] border-[#0F3460] text-white shadow-[0_5px_0_#0F3460]'
+                    : 'bg-[#0F3460] border-[#1A1A2E] text-gray-300 hover:border-[#64748b]')
+                }
+              >
+                ⚙️ Settings
+              </button>
             </div>
           </div>
         )}
+
+        {/* Seasonal Events Banner */}
+        {user && <SeasonalEventsBanner userId={user.id} />}
 
         {/* Rate Limit Status */}
         {user && profile && (
@@ -1146,6 +1174,34 @@ export default function DashboardPage() {
             </div>
 
             <AchievementsDisplay userId={user.id} />
+          </div>
+        )}
+
+        {/* Quest Chains Tab Content */}
+        {activeTab === 'chains' && user && profile && (
+          <div className="bg-[#1A1A2E] border-3 border-[#9333EA] rounded-lg p-6 mb-8 shadow-[0_0_20px_rgba(147,51,234,0.3)]">
+            <div className="mb-6">
+              <div className="flex items-center gap-3">
+                <span className="text-4xl">📜</span>
+                <h3 className="text-2xl font-black uppercase tracking-wide text-[#9333EA]">Quest Chains</h3>
+              </div>
+              <p className="text-[#E2E8F0] mt-2">
+                Multi-step story arcs that unfold over time. Each chain tells a unique story and rewards dedication with powerful bonuses!
+              </p>
+            </div>
+
+            <QuestChainSelector
+              userId={user.id}
+              userLevel={profile.level}
+              onChainStarted={() => loadUserData()}
+            />
+          </div>
+        )}
+
+        {/* Settings Tab Content */}
+        {activeTab === 'settings' && user && (
+          <div>
+            <NotificationSettings userId={user.id} />
           </div>
         )}
 
