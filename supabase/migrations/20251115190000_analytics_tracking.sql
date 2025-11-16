@@ -1,6 +1,17 @@
 -- Analytics and Engagement Tracking System
 -- This tracks all important user actions for revenue optimization and engagement analysis
 
+-- Add is_admin column to profiles table if it doesn't exist
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'profiles' AND column_name = 'is_admin'
+  ) THEN
+    ALTER TABLE profiles ADD COLUMN is_admin BOOLEAN DEFAULT FALSE;
+  END IF;
+END $$;
+
 -- Create analytics_events table
 CREATE TABLE IF NOT EXISTS analytics_events (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
