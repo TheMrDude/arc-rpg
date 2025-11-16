@@ -15,8 +15,12 @@ export default function SeasonalEvent() {
   async function loadEventData() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
+      if (!session) {
+        console.log('SeasonalEvent: No session found');
+        return;
+      }
 
+      console.log('SeasonalEvent: Fetching event data...');
       const response = await fetch('/api/seasonal-events', {
         headers: {
           'Authorization': `Bearer ${session.access_token}`
@@ -24,11 +28,16 @@ export default function SeasonalEvent() {
       });
 
       const data = await response.json();
+      console.log('SeasonalEvent: API response:', data);
+
       if (data.active) {
         setEventData(data);
+        console.log('SeasonalEvent: Event data set:', data);
+      } else {
+        console.log('SeasonalEvent: No active event found');
       }
     } catch (error) {
-      console.error('Error loading seasonal event:', error);
+      console.error('SeasonalEvent: Error loading event:', error);
     } finally {
       setLoading(false);
     }
