@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
+import { getRequestId } from './lib/request-id';
 
 // Simple in-memory rate limiting
 // For production, consider using Redis or a similar distributed cache
@@ -22,6 +23,12 @@ function cleanupRateLimit() {
 
 export async function middleware(request) {
   const { pathname } = request.nextUrl;
+
+  // ==================================================================
+  // 0. REQUEST ID TRACKING
+  // ==================================================================
+  // Generate or extract request ID for debugging and log correlation
+  const requestId = getRequestId(request);
 
   // ==================================================================
   // 1. AUTHENTICATION MIDDLEWARE
@@ -113,19 +120,24 @@ export async function middleware(request) {
     // REDIRECT LOGIC:
     // 1. Authenticated users trying to access public/auth pages → redirect to /dashboard
     if (isAuthenticated && (isPublicRoute || isAuthRoute)) {
-      console.log(`Authenticated user accessing ${pathname}, redirecting to /dashboard`);
-      return NextResponse.redirect(new URL('/dashboard', request.url));
+      console.log(`[${requestId}] Authenticated user accessing ${pathname}, redirecting to /dashboard`);
+      const redirectResponse = NextResponse.redirect(new URL('/dashboard', request.url));
+      redirectResponse.headers.set('x-request-id', requestId);
+      return redirectResponse;
     }
 
     // 2. Unauthenticated users trying to access protected routes → redirect to /login
     if (!isAuthenticated && isProtectedRoute) {
-      console.log(`Unauthenticated user accessing ${pathname}, redirecting to /login`);
+      console.log(`[${requestId}] Unauthenticated user accessing ${pathname}, redirecting to /login`);
       const loginUrl = new URL('/login', request.url);
       loginUrl.searchParams.set('redirect', pathname);
-      return NextResponse.redirect(loginUrl);
+      const redirectResponse = NextResponse.redirect(loginUrl);
+      redirectResponse.headers.set('x-request-id', requestId);
+      return redirectResponse;
     }
 
     // Continue with the response (update cookies if needed)
+    response.headers.set('x-request-id', requestId);
     return response;
   }
 
@@ -151,15 +163,16 @@ export async function middleware(request) {
 
     // Check if rate limit exceeded
     if (recentRequests.length >= maxRequests) {
-      console.warn('Rate limit exceeded', {
+      console.warn(`[${requestId}] Rate limit exceeded`, {
+        requestId,
         ip,
         requests: recentRequests.length,
         path: pathname,
         timestamp: new Date().toISOString(),
       });
 
-      return NextResponse.json(
-        { error: 'Too many requests. Please try again later.' },
+      const rateLimitResponse = NextResponse.json(
+        { error: 'Too many requests. Please try again later.', requestId },
         {
           status: 429,
           headers: {
@@ -167,9 +180,11 @@ export async function middleware(request) {
             'X-RateLimit-Limit': maxRequests.toString(),
             'X-RateLimit-Remaining': '0',
             'X-RateLimit-Reset': new Date(now + windowMs).toISOString(),
+            'x-request-id': requestId,
           }
         }
       );
+      return rateLimitResponse;
     }
 
     // Add current request to history
@@ -181,16 +196,20 @@ export async function middleware(request) {
       cleanupRateLimit();
     }
 
-    // Add rate limit headers to response
+    // Add rate limit headers and request ID to response
     const response = NextResponse.next();
     response.headers.set('X-RateLimit-Limit', maxRequests.toString());
     response.headers.set('X-RateLimit-Remaining', (maxRequests - recentRequests.length).toString());
     response.headers.set('X-RateLimit-Reset', new Date(now + windowMs).toISOString());
+    response.headers.set('x-request-id', requestId);
 
     return response;
   }
 
-  return NextResponse.next();
+  // Add request ID to all other responses
+  const finalResponse = NextResponse.next();
+  finalResponse.headers.set('x-request-id', requestId);
+  return finalResponse;
 }
 
 export const config = {
