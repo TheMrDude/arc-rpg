@@ -725,6 +725,12 @@ export default function DashboardPage() {
                 >
                   💎 Skill Tree {profile?.skill_points > 0 && `(${profile.skill_points})`}
                 </button>
+                <button
+                  onClick={() => router.push('/journey')}
+                  className="px-4 py-2 bg-[#9333EA] hover:bg-[#7E22CE] text-white border-3 border-[#0F3460] rounded-lg font-black uppercase text-sm tracking-wide shadow-[0_3px_0_#0F3460] hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1 transition-all"
+                >
+                  📖 My Journey
+                </button>
               </>
             )}
             <button
