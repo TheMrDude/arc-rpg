@@ -75,3 +75,17 @@ body {
 .stat-label {
   @apply text-sm text-[#00D4FF] uppercase tracking-wider font-bold;
 }
+
+/* Loading animations */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
