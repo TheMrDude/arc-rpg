@@ -26,7 +26,10 @@ import StoryProgress from '@/app/components/StoryProgress';
 import StoryEventNotification from '@/app/components/StoryEventNotification';
 import DailyBonus from '@/app/components/DailyBonus';
 import GoldPurchasePrompt from '@/app/components/GoldPurchasePrompt';
+import JourneyMap from '@/app/components/JourneyMap';
+import RegionUnlockNotification from '@/app/components/RegionUnlockNotification';
 import { trackQuestCreated, trackQuestCompleted, trackLevelUp, trackStreakAchieved, trackStoryMilestone, trackGoldPurchaseViewed } from '@/lib/analytics';
+import { updateMapProgression, getMapRegions } from '@/lib/mapProgression';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -68,8 +71,14 @@ export default function DashboardPage() {
   const [showGoldPrompt, setShowGoldPrompt] = useState(false);
   const [goldPromptTrigger, setGoldPromptTrigger] = useState(null);
 
+  // Journey map states
+  const [showRegionUnlock, setShowRegionUnlock] = useState(false);
+  const [unlockedRegion, setUnlockedRegion] = useState(null);
+  const [mapRegions, setMapRegions] = useState([]);
+
   useEffect(() => {
     loadUserData();
+    loadMapData();
   }, []);
 
   useEffect(() => {
@@ -77,6 +86,11 @@ export default function DashboardPage() {
       loadJournalEntries();
     }
   }, [showJournalSection, user]);
+
+  async function loadMapData() {
+    const regions = await getMapRegions();
+    setMapRegions(regions);
+  }
 
   async function loadUserData() {
     try {
@@ -421,6 +435,22 @@ export default function DashboardPage() {
             setShowGoldPrompt(true);
             trackGoldPurchaseViewed();
           }, 7000);
+        }
+      }
+
+      // Update map progression
+      if (user) {
+        const mapResult = await updateMapProgression(user.id);
+        if (mapResult.success && mapResult.milestoneUnlocked && mapResult.newRegion) {
+          // Find the newly unlocked region details
+          const newRegion = mapRegions.find(r => r.id === mapResult.newRegion);
+          if (newRegion) {
+            // Show region unlock notification
+            setTimeout(() => {
+              setUnlockedRegion(newRegion);
+              setShowRegionUnlock(true);
+            }, 5000); // Show after 5 seconds to avoid notification overload
+          }
         }
       }
 
@@ -869,6 +899,17 @@ export default function DashboardPage() {
               >
                 📖 Journal
               </button>
+              <button
+                onClick={() => setActiveTab('map')}
+                className={
+                  'px-6 py-3 rounded-lg font-black uppercase text-sm tracking-wide border-3 transition-all ' +
+                  (activeTab === 'map'
+                    ? 'bg-[#D4A574] border-[#0F3460] text-[#0F3460] shadow-[0_5px_0_#0F3460]'
+                    : 'bg-[#0F3460] border-[#1A1A2E] text-gray-300 hover:border-[#D4A574]')
+                }
+              >
+                🗺️ Journey Map
+              </button>
             </div>
           </div>
         )}
@@ -1033,6 +1074,33 @@ export default function DashboardPage() {
         </div>
         )}
 
+        {/* Journey Map Tab Content */}
+        {activeTab === 'map' && (
+          <div className="bg-gradient-to-br from-amber-50 via-yellow-50 to-amber-100 rounded-lg border-4 border-amber-800 p-6 mb-8 shadow-2xl">
+            <div className="mb-6">
+              <div className="flex items-center gap-3 mb-2">
+                <span className="text-4xl">🗺️</span>
+                <h3 className="text-2xl font-black uppercase tracking-wide text-amber-900">Your Epic Journey</h3>
+              </div>
+              <p className="text-amber-800">
+                Track your progress through this ancient map. As you complete quests and level up, new regions reveal themselves. Each location holds its own story and challenges.
+              </p>
+            </div>
+
+            <JourneyMap profile={profile} />
+
+            <div className="mt-6 bg-amber-100 rounded-lg p-4 border-2 border-amber-300">
+              <h4 className="font-bold text-amber-900 mb-2">💡 How It Works</h4>
+              <ul className="text-sm text-amber-800 space-y-1 list-disc list-inside">
+                <li>Complete quests to advance your journey</li>
+                <li>Level up to unlock new regions and territories</li>
+                <li>Discover milestone regions for epic achievements</li>
+                <li>Click on revealed regions to read their lore and stories</li>
+              </ul>
+            </div>
+          </div>
+        )}
+
         {/* Unlock Premium Section (for non-premium users) */}
         {!(profile?.subscription_status === 'active') && (
           <div className="bg-[#1A1A2E] border-3 border-[#FFD93D] rounded-lg p-8 mb-8 shadow-[0_0_30px_rgba(255,217,61,0.4)]">
@@ -1146,6 +1214,18 @@ export default function DashboardPage() {
         trigger={goldPromptTrigger}
         currentGold={profile?.gold || 0}
       />
+
+      {/* Region Unlock Notification */}
+      {showRegionUnlock && unlockedRegion && (
+        <RegionUnlockNotification
+          region={unlockedRegion}
+          onClose={() => {
+            setShowRegionUnlock(false);
+            setUnlockedRegion(null);
+          }}
+          isMilestone={unlockedRegion.region_type === 'milestone' || unlockedRegion.region_type === 'boss_battle'}
+        />
+      )}
       </div>
     </>
   );
