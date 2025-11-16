@@ -110,8 +110,11 @@ export default function SkillsPage() {
   }
 
   function canUnlockSkill(skill) {
+    // Check if profile is loaded
+    if (!profile) return false;
+
     // Check if user has enough skill points
-    if (profile.skill_points < skill.cost) return false;
+    if ((profile.skill_points || 0) < skill.cost) return false;
 
     // Check if skill is already unlocked
     if (isSkillUnlocked(skill.id)) return false;
@@ -178,10 +181,10 @@ export default function SkillsPage() {
             <p className="text-gray-300">Spend skill points to unlock powerful abilities</p>
             <div className="flex items-center gap-6 mt-4">
               <div className="text-2xl font-bold text-yellow-400">
-                {profile.skill_points} Skill Points Available
+                {profile?.skill_points || 0} Skill Points Available
               </div>
               <div className="text-gray-400">
-                Total Earned: {profile.total_skill_points_earned} (1 point every 5 levels)
+                Total Earned: {profile?.total_skill_points_earned || 0} (1 point every 5 levels)
               </div>
             </div>
           </div>
