@@ -30,11 +30,19 @@ export async function POST(request) {
     }
 
     // Get user profile
-    const { data: profile } = await supabaseAdmin
+    const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
-      .select('last_daily_bonus_at, daily_bonus_streak, xp, level')
+      .select('last_daily_bonus_at, daily_bonus_streak, xp, level, skill_points, total_skill_points_earned')
       .eq('id', user.id)
       .single();
+
+    if (profileError) {
+      console.error('Failed to fetch profile:', profileError);
+      return NextResponse.json({
+        error: 'Failed to fetch profile',
+        details: profileError.message
+      }, { status: 500 });
+    }
 
     if (!profile) {
       return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
@@ -76,7 +84,7 @@ export async function POST(request) {
     const bonus = DAILY_BONUSES[streakDay];
 
     // Award gold
-    const { error: goldError } = await supabaseAdmin.rpc('process_gold_transaction', {
+    const { data: goldData, error: goldError } = await supabaseAdmin.rpc('process_gold_transaction', {
       p_user_id: user.id,
       p_amount: bonus.gold,
       p_transaction_type: 'daily_bonus',
@@ -88,8 +96,17 @@ export async function POST(request) {
     });
 
     if (goldError) {
-      console.error('Failed to award daily bonus gold:', goldError);
-      return NextResponse.json({ error: 'Failed to award bonus' }, { status: 500 });
+      console.error('Failed to award daily bonus gold:', {
+        error: goldError,
+        message: goldError.message,
+        details: goldError.details,
+        hint: goldError.hint,
+      });
+      return NextResponse.json({
+        error: 'Failed to award bonus',
+        details: goldError.message,
+        hint: 'Make sure the process_gold_transaction RPC function exists in your database'
+      }, { status: 500 });
     }
 
     // Award XP
@@ -97,16 +114,32 @@ export async function POST(request) {
     const newLevel = Math.floor(newXP / 100) + 1;
     const leveledUp = newLevel > profile.level;
 
+    // Calculate skill points: Award 1 skill point every 5 levels
+    const oldLevel = profile.level;
+    const skillPointsEarned = Math.floor(newLevel / 5) - Math.floor(oldLevel / 5);
+    const newSkillPoints = (profile.skill_points || 0) + skillPointsEarned;
+    const newTotalSkillPoints = (profile.total_skill_points_earned || 0) + skillPointsEarned;
+
     // Update profile
-    await supabaseAdmin
+    const { error: updateError } = await supabaseAdmin
       .from('profiles')
       .update({
         last_daily_bonus_at: now.toISOString(),
         daily_bonus_streak: newStreak,
         xp: newXP,
         level: newLevel,
+        skill_points: newSkillPoints,
+        total_skill_points_earned: newTotalSkillPoints,
       })
       .eq('id', user.id);
+
+    if (updateError) {
+      console.error('Failed to update profile:', updateError);
+      return NextResponse.json({
+        error: 'Failed to update profile',
+        details: updateError.message
+      }, { status: 500 });
+    }
 
     console.log('Daily bonus claimed:', {
       userId: user.id,
@@ -123,11 +156,13 @@ export async function POST(request) {
         ...bonus,
         streak_day: streakDay,
         total_streak: newStreak,
+        skill_points_earned: skillPointsEarned,
       },
       profile: {
         xp: newXP,
         level: newLevel,
         leveled_up: leveledUp,
+        skill_points: newSkillPoints,
       },
     });
 
