@@ -27,6 +27,7 @@ import StoryEventNotification from '@/app/components/StoryEventNotification';
 import DailyBonus from '@/app/components/DailyBonus';
 import GoldPurchasePrompt from '@/app/components/GoldPurchasePrompt';
 import SeasonalEvent from '@/app/components/SeasonalEvent';
+import PWAInstallPrompt from '@/app/components/PWAInstallPrompt';
 import { trackQuestCreated, trackQuestCompleted, trackLevelUp, trackStreakAchieved, trackStoryMilestone, trackGoldPurchaseViewed } from '@/lib/analytics';
 
 export default function DashboardPage() {
@@ -1227,6 +1228,9 @@ export default function DashboardPage() {
         trigger={goldPromptTrigger}
         currentGold={profile?.gold || 0}
       />
+
+      {/* PWA Install Prompt */}
+      <PWAInstallPrompt />
       </div>
     </>
   );
