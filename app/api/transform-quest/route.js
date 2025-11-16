@@ -158,12 +158,20 @@ Original task: "${sanitizedQuestText}"
 
 Transform this boring task into an epic RPG quest that fits the ongoing story. Keep the quest description to 1-2 sentences. Make it exciting and match the archetype style.
 
-Then, provide story metadata in JSON format.
+Then, provide story metadata.
 
-Format your response as:
-QUEST: [1-2 sentence epic quest description]
-STORY_THREAD: [brief story thread name, e.g., "The Shadow Invasion" or "none" if standalone]
-NARRATIVE_IMPACT: [short phrase describing what completing this quest accomplishes in the story, e.g., "Weakens enemy forces" or "none"]`;
+IMPORTANT: You MUST format your response EXACTLY like this (no JSON, no extra formatting):
+
+QUEST: [Your epic 1-2 sentence quest description here]
+STORY_THREAD: [brief story thread name OR "none"]
+NARRATIVE_IMPACT: [short impact phrase OR "none"]
+
+Example:
+QUEST: Infiltrate the goblin encampment under cover of darkness and retrieve the stolen supply manifest before dawn breaks.
+STORY_THREAD: The Shadow War
+NARRATIVE_IMPACT: Weakens enemy supply lines
+
+Now transform the task above:`;
 
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
@@ -178,9 +186,27 @@ NARRATIVE_IMPACT: [short phrase describing what completing this quest accomplish
     const threadMatch = response.match(/STORY_THREAD:\s*(.+?)(?=\nNARRATIVE_IMPACT:|$)/s);
     const impactMatch = response.match(/NARRATIVE_IMPACT:\s*(.+?)$/s);
 
-    const transformedText = questMatch ? questMatch[1].trim() : response;
-    const storyThread = threadMatch ? threadMatch[1].trim() : null;
-    const narrativeImpact = impactMatch ? impactMatch[1].trim() : null;
+    let transformedText, storyThread, narrativeImpact;
+
+    if (questMatch) {
+      // Proper format found
+      transformedText = questMatch[1].trim();
+      storyThread = threadMatch ? threadMatch[1].trim() : null;
+      narrativeImpact = impactMatch ? impactMatch[1].trim() : null;
+    } else {
+      // Fallback: try to extract just the narrative part before any JSON
+      const jsonMatch = response.match(/^(.+?)(?=\s*\{|\s*```json)/s);
+      if (jsonMatch) {
+        // Found text before JSON - use that as the quest
+        transformedText = jsonMatch[1].trim();
+      } else {
+        // No JSON found, use first sentence or two
+        const sentences = response.match(/[^.!?]+[.!?]+/g);
+        transformedText = sentences ? sentences.slice(0, 2).join(' ').trim() : response;
+      }
+      storyThread = null;
+      narrativeImpact = null;
+    }
 
     // Clean up story thread and narrative impact
     const cleanThread = storyThread && storyThread.toLowerCase() !== 'none' ? storyThread : null;
