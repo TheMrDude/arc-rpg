@@ -28,6 +28,9 @@ import DailyBonus from '@/app/components/DailyBonus';
 import GoldPurchasePrompt from '@/app/components/GoldPurchasePrompt';
 import SeasonalEvent from '@/app/components/SeasonalEvent';
 import PWAInstallPrompt from '@/app/components/PWAInstallPrompt';
+import QuestSuggestions from '@/app/components/QuestSuggestions';
+import CharacterBackstory from '@/app/components/CharacterBackstory';
+import QuestTemplateLibrary from '@/app/components/QuestTemplateLibrary';
 import { trackQuestCreated, trackQuestCompleted, trackLevelUp, trackStreakAchieved, trackStoryMilestone, trackGoldPurchaseViewed } from '@/lib/analytics';
 
 export default function DashboardPage() {
@@ -946,6 +949,17 @@ export default function DashboardPage() {
                   </span>
                 )}
               </button>
+              <button
+                onClick={() => setActiveTab('aitools')}
+                className={
+                  'px-6 py-3 rounded-lg font-black uppercase text-sm tracking-wide border-3 transition-all ' +
+                  (activeTab === 'aitools'
+                    ? 'bg-gradient-to-r from-cyan-500 to-blue-500 border-[#0F3460] text-white shadow-[0_5px_0_#0F3460]'
+                    : 'bg-[#0F3460] border-[#1A1A2E] text-gray-300 hover:border-cyan-500')
+                }
+              >
+                🤖 AI Tools
+              </button>
             </div>
           </div>
         )}
@@ -1113,6 +1127,20 @@ export default function DashboardPage() {
         {/* Seasonal Events Tab Content */}
         {activeTab === 'events' && (profile?.is_premium || profile?.subscription_status === 'active') && (
           <SeasonalEvent />
+        )}
+
+        {/* AI Tools Tab Content */}
+        {activeTab === 'aitools' && (profile?.is_premium || profile?.subscription_status === 'active') && (
+          <div className="space-y-8">
+            {/* Character Backstory */}
+            <CharacterBackstory profile={profile} />
+
+            {/* Quest Suggestions */}
+            <QuestSuggestions userSession={user} onQuestAdded={loadUserData} />
+
+            {/* Quest Template Library */}
+            <QuestTemplateLibrary profile={profile} />
+          </div>
         )}
 
         {/* Unlock Premium Section (for non-premium users) */}
