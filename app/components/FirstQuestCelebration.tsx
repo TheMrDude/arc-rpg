@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { trackEvent } from '@/lib/analytics';
+import ShareToSocial from './ShareToSocial';
 
 interface FirstQuestCelebrationProps {
   xp: number;
@@ -139,6 +140,24 @@ export default function FirstQuestCelebration({ xp, onContinue }: FirstQuestCele
               />
             </div>
             <p className="text-sm text-gray-400 mt-2">{xp}/100 XP to Level 2</p>
+          </motion.div>
+
+          {/* Share Achievement */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.9 }}
+            className="mb-6"
+          >
+            <ShareToSocial
+              content={{
+                title: `Just completed my first quest in HabitQuest and earned ${xp} XP! 🎮⚔️`,
+                description: 'Join me on this epic journey to turn boring tasks into legendary quests!',
+                hashtags: ['HabitQuest', 'FirstQuest', 'Gamification', 'LevelUp'],
+              }}
+              compact={true}
+              showLabels={true}
+            />
           </motion.div>
 
           {/* CTA Button */}
