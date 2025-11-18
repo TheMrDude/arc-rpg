@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { supabase } from '@/lib/supabase';
 import PricingSection from '@/components/PricingSection';
+import PricingExitIntent from '../components/PricingExitIntent';
 
 export default function PricingPage() {
   const router = useRouter();
@@ -252,6 +253,9 @@ export default function PricingPage() {
           </div>
         </motion.div>
       </div>
+
+      {/* Exit-intent popup for pricing page */}
+      <PricingExitIntent />
     </div>
   );
 }
