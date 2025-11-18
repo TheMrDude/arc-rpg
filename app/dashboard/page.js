@@ -853,7 +853,68 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Story Progress */}
+        {/* CORE FUNCTIONALITY FIRST - Add Quest */}
+        {((profile?.is_premium || profile?.subscription_status === 'active') ? activeTab === 'quests' : true) && (
+          <div className="bg-[#1A1A2E] border-3 border-[#00D4FF] rounded-lg p-6 mb-8 shadow-[0_0_20px_rgba(0,212,255,0.3)]">
+            <h3 className="text-xl font-black uppercase tracking-wide text-[#00D4FF] mb-4">Add New Quest</h3>
+            <div className="flex gap-4 mb-4">
+              <input
+                type="text"
+                value={newQuestText}
+                onChange={(e) => setNewQuestText(e.target.value)}
+                placeholder="Enter your task..."
+                className="flex-1 px-4 py-3 bg-[#0F3460] text-white border-3 border-[#1A1A2E] rounded-lg focus:outline-none focus:border-[#00D4FF] focus:shadow-[0_0_0_3px_rgba(0,212,255,0.2)] transition-all"
+              />
+              <select
+                value={newQuestDifficulty}
+                onChange={(e) => setNewQuestDifficulty(e.target.value)}
+                className="px-4 py-3 bg-[#0F3460] text-white border-3 border-[#1A1A2E] rounded-lg focus:outline-none focus:border-[#00D4FF] focus:shadow-[0_0_0_3px_rgba(0,212,255,0.2)] transition-all font-bold"
+              >
+                <option value="easy">Easy (10 XP)</option>
+                <option value="medium">Medium (25 XP)</option>
+                <option value="hard">Hard (50 XP)</option>
+              </select>
+              <button
+                onClick={addQuest}
+                disabled={adding}
+                className="px-6 py-3 bg-[#FF6B6B] hover:bg-[#EE5A6F] text-white border-3 border-[#0F3460] rounded-lg font-black uppercase tracking-wide shadow-[0_5px_0_#0F3460] hover:shadow-[0_7px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_2px_0_#0F3460] active:translate-y-1 transition-all disabled:opacity-50"
+              >
+                {adding ? 'Adding...' : 'Add Quest'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* CORE FUNCTIONALITY SECOND - Active Quests */}
+        {((profile?.is_premium || profile?.subscription_status === 'active') ? activeTab === 'quests' : true) && (
+          <div className="bg-[#1A1A2E] border-3 border-[#FF6B6B] rounded-lg p-6 mb-8 shadow-[0_0_20px_rgba(255,107,107,0.3)]">
+            <h3 className="text-xl font-black uppercase tracking-wide text-[#FF6B6B] mb-4">Active Quests</h3>
+            <div className="space-y-4">
+              {quests.filter(q => !q.completed).map((quest) => (
+                <div key={quest.id} className="bg-[#0F3460] p-4 rounded-lg border-2 border-[#1A1A2E] flex justify-between items-start">
+                  <div className="flex-1">
+                    <div className="font-black text-lg text-[#00D4FF]">{quest.transformed_text}</div>
+                    <div className="text-sm text-[#E2E8F0] mt-1">{quest.original_text}</div>
+                    <div className="text-xs text-[#FFD93D] mt-2 font-bold uppercase">
+                      {quest.difficulty} | {quest.xp_value} XP
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => completeQuest(quest.id, quest.xp_value)}
+                    className="ml-4 px-4 py-2 bg-[#48BB78] hover:bg-[#38a169] text-white border-3 border-[#0F3460] rounded-lg font-black uppercase text-sm tracking-wide shadow-[0_3px_0_#0F3460] hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1 transition-all"
+                  >
+                    Complete
+                  </button>
+                </div>
+              ))}
+              {quests.filter(q => !q.completed).length === 0 && (
+                <p className="text-[#00D4FF] text-center py-8 font-bold">No active quests. Add one above!</p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* SUPPORTING ELEMENTS - Story Progress */}
         {profile && (
           <div className="mb-8">
             <StoryProgress profile={profile} />
@@ -1012,68 +1073,6 @@ export default function DashboardPage() {
               ))}
             </div>
           </div>
-        )}
-
-        {/* Quests Tab Content */}
-        {((profile?.is_premium || profile?.subscription_status === 'active') ? activeTab === 'quests' : true) && (
-          <>
-            {/* Add Quest */}
-            <div className="bg-[#1A1A2E] border-3 border-[#00D4FF] rounded-lg p-6 mb-8 shadow-[0_0_20px_rgba(0,212,255,0.3)]">
-              <h3 className="text-xl font-black uppercase tracking-wide text-[#00D4FF] mb-4">Add New Quest</h3>
-              <div className="flex gap-4 mb-4">
-                <input
-                  type="text"
-                  value={newQuestText}
-                  onChange={(e) => setNewQuestText(e.target.value)}
-                  placeholder="Enter your task..."
-                  className="flex-1 px-4 py-3 bg-[#0F3460] text-white border-3 border-[#1A1A2E] rounded-lg focus:outline-none focus:border-[#00D4FF] focus:shadow-[0_0_0_3px_rgba(0,212,255,0.2)] transition-all"
-                />
-                <select
-                  value={newQuestDifficulty}
-                  onChange={(e) => setNewQuestDifficulty(e.target.value)}
-                  className="px-4 py-3 bg-[#0F3460] text-white border-3 border-[#1A1A2E] rounded-lg focus:outline-none focus:border-[#00D4FF] focus:shadow-[0_0_0_3px_rgba(0,212,255,0.2)] transition-all font-bold"
-                >
-                  <option value="easy">Easy (10 XP)</option>
-                  <option value="medium">Medium (25 XP)</option>
-                  <option value="hard">Hard (50 XP)</option>
-                </select>
-                <button
-                  onClick={addQuest}
-                  disabled={adding}
-                  className="px-6 py-3 bg-[#FF6B6B] hover:bg-[#EE5A6F] text-white border-3 border-[#0F3460] rounded-lg font-black uppercase tracking-wide shadow-[0_5px_0_#0F3460] hover:shadow-[0_7px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_2px_0_#0F3460] active:translate-y-1 transition-all disabled:opacity-50"
-                >
-                  {adding ? 'Adding...' : 'Add Quest'}
-                </button>
-              </div>
-            </div>
-
-            {/* Active Quests */}
-            <div className="bg-[#1A1A2E] border-3 border-[#FF6B6B] rounded-lg p-6 mb-8 shadow-[0_0_20px_rgba(255,107,107,0.3)]">
-              <h3 className="text-xl font-black uppercase tracking-wide text-[#FF6B6B] mb-4">Active Quests</h3>
-              <div className="space-y-4">
-                {quests.filter(q => !q.completed).map((quest) => (
-                  <div key={quest.id} className="bg-[#0F3460] p-4 rounded-lg border-2 border-[#1A1A2E] flex justify-between items-start">
-                    <div className="flex-1">
-                      <div className="font-black text-lg text-[#00D4FF]">{quest.transformed_text}</div>
-                      <div className="text-sm text-[#E2E8F0] mt-1">{quest.original_text}</div>
-                      <div className="text-xs text-[#FFD93D] mt-2 font-bold uppercase">
-                        {quest.difficulty} | {quest.xp_value} XP
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => completeQuest(quest.id, quest.xp_value)}
-                      className="ml-4 px-4 py-2 bg-[#48BB78] hover:bg-[#38a169] text-white border-3 border-[#0F3460] rounded-lg font-black uppercase text-sm tracking-wide shadow-[0_3px_0_#0F3460] hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1 transition-all"
-                    >
-                      Complete
-                    </button>
-                  </div>
-                ))}
-                {quests.filter(q => !q.completed).length === 0 && (
-                  <p className="text-[#00D4FF] text-center py-8 font-bold">No active quests. Add one above!</p>
-                )}
-              </div>
-            </div>
-          </>
         )}
 
         {/* Recurring Quests Tab Content */}
