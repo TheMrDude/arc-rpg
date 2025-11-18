@@ -70,7 +70,7 @@ export default function StatsBar() {
     <motion.div
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-gradient-to-r from-[#7C3AED] to-[#FF5733] py-3 px-4 text-center font-bold text-sm"
+      className="bg-gradient-to-r from-[#7C3AED] to-[#FF5733] py-3 px-4 text-center font-bold text-sm text-white"
     >
       <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-center gap-2 sm:gap-4">
         <div className="flex items-center gap-2">

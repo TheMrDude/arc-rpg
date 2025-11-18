@@ -130,7 +130,7 @@ export default function LandingPage() {
             Turn Your Boring To-Do List Into An Epic RPG Adventure
           </p>
 
-          <p className="text-lg sm:text-xl mb-12 text-gray-300 max-w-3xl mx-auto">
+          <p className="text-lg sm:text-xl mb-12 text-gray-100 max-w-3xl mx-auto">
             Join <span className="text-[#F59E0B] font-black">1,247+ achievers</span> who transformed their habits into legendary quests.
             AI-powered. Scientifically addictive. <span className="text-[#10B981] font-bold">Actually fun.</span>
           </p>
@@ -170,7 +170,7 @@ export default function LandingPage() {
               Choose Your Path
             </span>
           </h2>
-          <p className="text-center text-gray-400 mb-12 text-lg">
+          <p className="text-center text-gray-200 mb-12 text-lg">
             Pick the archetype that matches your personality
           </p>
 
@@ -194,7 +194,7 @@ export default function LandingPage() {
                 <h3 className="text-xl font-black text-center mb-1 text-[#00D4FF] group-hover:text-[#FF6B4A]">
                   {archetype.name}
                 </h3>
-                <p className="text-xs text-center text-gray-400">{archetype.trait}</p>
+                <p className="text-xs text-center text-gray-200">{archetype.trait}</p>
               </motion.div>
             ))}
           </div>
@@ -210,7 +210,7 @@ export default function LandingPage() {
           >
             <div className="text-6xl mb-4">😫</div>
             <h3 className="text-2xl font-black mb-4 text-red-400 uppercase">Before HabitQuest</h3>
-            <ul className="text-left space-y-3 text-gray-300">
+            <ul className="text-left space-y-3 text-gray-100">
               <li>❌ Boring to-do lists you never finish</li>
               <li>❌ Zero motivation to start tasks</li>
               <li>❌ Streaks die after 3 days max</li>
@@ -282,7 +282,7 @@ export default function LandingPage() {
                   STEP {item.step}
                 </div>
                 <h3 className="text-2xl font-black mb-3 uppercase text-[#00D4FF]">{item.title}</h3>
-                <p className="text-gray-300">{item.desc}</p>
+                <p className="text-gray-100">{item.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -316,7 +316,7 @@ export default function LandingPage() {
           <h2 className="text-4xl sm:text-5xl font-black mb-6 uppercase">
             YOUR TRANSFORMATION STARTS NOW
           </h2>
-          <p className="text-xl mb-8 text-gray-300">
+          <p className="text-xl mb-8 text-gray-100">
             Join 1,247+ heroes who stopped procrastinating and started conquering.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -365,7 +365,7 @@ export default function LandingPage() {
         </motion.div>
 
         {/* Footer */}
-        <div className="text-center text-gray-400 text-sm border-t border-gray-700 pt-8">
+        <div className="text-center text-gray-200 text-sm border-t border-gray-700 pt-8">
           <p className="mb-4">
             <button onClick={() => router.push('/login')} className="text-[#3B82F6] hover:text-[#2563EB] font-bold">
               Already have an account? Login →
