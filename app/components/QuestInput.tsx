@@ -7,9 +7,10 @@ import { trackEvent } from '@/lib/analytics';
 interface QuestInputProps {
   onTransform: (task: string) => void;
   loading: boolean;
+  remainingPreviews?: number;
 }
 
-export default function QuestInput({ onTransform, loading }: QuestInputProps) {
+export default function QuestInput({ onTransform, loading, remainingPreviews }: QuestInputProps) {
   const [task, setTask] = useState('');
   const [hasTyped, setHasTyped] = useState(false);
 
@@ -109,6 +110,25 @@ export default function QuestInput({ onTransform, loading }: QuestInputProps) {
           '⚔️ Transform My Quest →'
         )}
       </motion.button>
+
+      {/* Urgency message */}
+      {remainingPreviews !== undefined && remainingPreviews <= 2 && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-4 p-3 bg-[#FF6B4A]/20 border-2 border-[#FF6B4A] rounded-lg"
+        >
+          <p className="text-center text-sm text-[#FF6B4A] font-bold">
+            {remainingPreviews === 0 ? (
+              '🔥 No previews left today! Sign up to continue your adventure.'
+            ) : remainingPreviews === 1 ? (
+              '⚡ Only 1 preview left today! Make it count.'
+            ) : (
+              '⏰ Only 2 previews left today!'
+            )}
+          </p>
+        </motion.div>
+      )}
 
       {/* Helpful hint */}
       <p className="text-center text-sm text-gray-400 mt-4">
