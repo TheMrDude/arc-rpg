@@ -8,6 +8,8 @@ import QuestPreview from './components/QuestPreview';
 import StatsBar from './components/StatsBar';
 import ExitIntentPopup from './components/ExitIntentPopup';
 import SocialProofNotifications from './components/SocialProofNotifications';
+import EmailCapture from './components/EmailCapture';
+import TestimonialsCarousel, { extendedTestimonials } from './components/TestimonialsCarousel';
 import { PreviewQuest } from '@/lib/onboarding';
 import { trackEvent } from '@/lib/analytics';
 import Image from 'next/image';
@@ -73,12 +75,6 @@ export default function LandingPage() {
     { name: 'Builder', image: '/images/archetypes/builder.png', trait: 'Creation & Progress' },
     { name: 'Shadow', image: '/images/archetypes/shadow.png', trait: 'Strategy & Depth' },
     { name: 'Sage', image: '/images/archetypes/sage.png', trait: 'Wisdom & Balance' }
-  ];
-
-  const testimonials = [
-    { name: "Sarah M.", text: "Lost 15 lbs by turning exercise into epic quests. I'm addicted!", level: 47 },
-    { name: "Mike R.", text: "Finally kept a 90-day streak. This gamification actually works!", level: 62 },
-    { name: "Alex T.", text: "Went from procrastinator to productivity beast in 30 days.", level: 38 },
   ];
 
   return (
@@ -292,33 +288,22 @@ export default function LandingPage() {
         </div>
 
         {/* Social Proof - Testimonials */}
-        <div className="mb-20">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mb-20"
+        >
           <h2 className="text-4xl font-black text-center mb-12 uppercase">
             HEROES ARE TALKING
           </h2>
 
-          <div className="grid md:grid-cols-3 gap-6">
-            {testimonials.map((testimonial, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="bg-[#16213E] border-2 border-[#00D4FF] rounded-xl p-6"
-              >
-                <div className="flex items-center justify-between mb-3">
-                  <div className="font-black text-lg text-[#F59E0B]">{testimonial.name}</div>
-                  <div className="text-sm bg-gradient-to-r from-[#7C3AED] to-[#FF5733] px-3 py-1 rounded-full font-black">
-                    LVL {testimonial.level}
-                  </div>
-                </div>
-                <p className="text-gray-300 italic">"{testimonial.text}"</p>
-                <div className="mt-3 text-[#10B981] font-bold">⭐⭐⭐⭐⭐</div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
+          <TestimonialsCarousel
+            testimonials={extendedTestimonials}
+            autoPlay={true}
+            interval={5000}
+          />
+        </motion.div>
 
         {/* Final CTA */}
         <motion.div
@@ -348,6 +333,18 @@ export default function LandingPage() {
             </button>
           </div>
         </motion.div>
+
+        {/* Email Capture Section */}
+        <div className="mb-12 max-w-2xl mx-auto">
+          <EmailCapture
+            source="landing_footer"
+            title="🚀 Join The Adventure"
+            description="Be the first to know about new features, power-ups, and epic updates. Join our community of heroes!"
+            buttonText="Count Me In"
+            tags={['newsletter', 'new_features']}
+            inline={false}
+          />
+        </div>
 
         {/* Footer */}
         <div className="text-center text-gray-400 text-sm border-t border-gray-700 pt-8">
