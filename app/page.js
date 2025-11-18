@@ -8,6 +8,26 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#1A1A2E] via-[#16213e] to-[#0F3460] text-white overflow-hidden">
+      {/* Top Navigation for Returning Users */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full border-b border-[#00D4FF]/20 backdrop-blur-sm bg-[#1A1A2E]/50"
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <span className="text-xl sm:text-2xl font-black text-[#FF6B6B]">⚔️ HabitQuest</span>
+          </div>
+          <button
+            onClick={() => router.push('/login')}
+            className="px-4 sm:px-6 py-2 bg-[#00D4FF] hover:bg-[#00B8E6] text-[#1A1A2E] border-2 border-[#0F3460] rounded-lg font-black text-xs sm:text-sm uppercase tracking-wide transition-all duration-200 shadow-[0_3px_0_#0F3460] hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1"
+          >
+            ⚔️ Login
+          </button>
+        </div>
+      </motion.div>
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
         {/* Hero Section */}
         <motion.div
