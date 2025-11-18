@@ -31,7 +31,7 @@ export function SoundProvider({ children }) {
     };
   }, []);
 
-  const play = (sound: SoundName) => {
+  const play = (sound) => {
     soundManager.play(sound);
   };
 
