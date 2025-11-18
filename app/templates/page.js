@@ -501,8 +501,8 @@ export default function TemplatesPage() {
             </div>
           </div>
         </div>
-      <GlobalFooter />
       )}
+      <GlobalFooter />
     </div>
   );
 }
