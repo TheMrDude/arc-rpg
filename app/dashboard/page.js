@@ -30,7 +30,6 @@ import SeasonalEvent from '@/app/components/SeasonalEvent';
 import PWAInstallPrompt from '@/app/components/PWAInstallPrompt';
 import QuestSuggestions from '@/app/components/QuestSuggestions';
 import CharacterBackstory from '@/app/components/CharacterBackstory';
-import QuestTemplateLibrary from '@/app/components/QuestTemplateLibrary';
 import { trackQuestCreated, trackQuestCompleted, trackLevelUp, trackStreakAchieved, trackStoryMilestone, trackGoldPurchaseViewed } from '@/lib/analytics';
 
 export default function DashboardPage() {
@@ -1132,14 +1131,11 @@ export default function DashboardPage() {
         {/* AI Tools Tab Content */}
         {activeTab === 'aitools' && (profile?.is_premium || profile?.subscription_status === 'active') && (
           <div className="space-y-8">
-            {/* Character Backstory */}
+            {/* Character Backstory - AI generates YOUR epic story based on YOUR actual quests */}
             <CharacterBackstory profile={profile} />
 
-            {/* Quest Suggestions */}
+            {/* Quest Suggestions - AI analyzes YOUR patterns and suggests personalized quests */}
             <QuestSuggestions userSession={user} onQuestAdded={loadUserData} />
-
-            {/* Quest Template Library */}
-            <QuestTemplateLibrary profile={profile} />
           </div>
         )}
 
