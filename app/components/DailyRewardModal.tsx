@@ -6,6 +6,7 @@ import confetti from 'canvas-confetti';
 import { checkStreakStatus, claimDailyReward, getStreakCalendar } from '@/lib/streaks';
 import { supabase } from '@/lib/supabase';
 import { trackEvent } from '@/lib/analytics';
+import ShareToSocial from './ShareToSocial';
 
 interface DailyRewardModalProps {
   userId: string;
@@ -244,7 +245,7 @@ export default function DailyRewardModal({ userId, onRewardClaimed }: DailyRewar
                   {reward?.title}
                 </h3>
                 <p className="text-gray-300 mb-4">{reward?.description}</p>
-                <div className="bg-[#0F3460] border-2 border-[#10B981] rounded-xl p-4">
+                <div className="bg-[#0F3460] border-2 border-[#10B981] rounded-xl p-4 mb-4">
                   <div className="text-5xl font-black text-[#10B981]">
                     +{reward?.xp} XP
                   </div>
@@ -252,6 +253,19 @@ export default function DailyRewardModal({ userId, onRewardClaimed }: DailyRewar
                     {streakData.currentStreak + 1} day streak! 🔥
                   </div>
                 </div>
+
+                {/* Share milestone streaks */}
+                {(streakData.currentStreak + 1) >= 7 && (
+                  <ShareToSocial
+                    content={{
+                      title: `Maintained a ${streakData.currentStreak + 1}-day streak in HabitQuest! 🔥⚡`,
+                      description: 'Consistency is my superpower! Join me in turning daily habits into epic quests!',
+                      hashtags: ['HabitQuest', 'Streak', 'Consistency', 'DailyHabits'],
+                    }}
+                    compact={true}
+                    showLabels={true}
+                  />
+                )}
               </motion.div>
             )}
           </motion.div>
