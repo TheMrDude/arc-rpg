@@ -2,8 +2,10 @@ import './globals.css'
 import Script from 'next/script'
 
 export const metadata = {
-  title: 'HabitQuest - Epic Task RPG',
-  description: 'Transform your daily tasks into epic quests. Level up in real life.',
+  title: 'HabitQuest - Turn Your To-Do List Into An Epic RPG Adventure',
+  description: 'Transform boring tasks into epic quests with AI. Join 1,247+ achievers who gamified their habits with XP, leveling, and personalized stories. Start free today!',
+  keywords: ['habit tracker', 'RPG', 'gamification', 'productivity', 'AI', 'task management', 'habits', 'motivation', 'ADHD', 'neurodivergent'],
+  authors: [{ name: 'HabitQuest' }],
   verification: {
     other: {
       'p:domain_verify': '1267df7c10d6f637a50ab5a3d4d02053'
@@ -15,6 +17,33 @@ export const metadata = {
     capable: true,
     statusBarStyle: 'black-translucent',
     title: 'HabitQuest'
+  },
+  openGraph: {
+    title: 'HabitQuest - Turn Your Life Into An Epic RPG',
+    description: 'Stop failing, start conquering. Transform mundane tasks into legendary quests with AI-powered gamification.',
+    url: 'https://habitquest.dev',
+    siteName: 'HabitQuest',
+    images: [
+      {
+        url: 'https://habitquest.dev/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'HabitQuest - Gamified Habit Tracker',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'HabitQuest - Turn Your Life Into An Epic RPG',
+    description: 'Transform boring tasks into epic quests. AI-powered. Scientifically addictive. Actually fun.',
+    images: ['https://habitquest.dev/og-image.png'],
+    creator: '@habitquest',
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
   viewport: {
     width: 'device-width',

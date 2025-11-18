@@ -1,11 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import QuestInput from './components/QuestInput';
 import QuestPreview from './components/QuestPreview';
 import StatsBar from './components/StatsBar';
+import ExitIntentPopup from './components/ExitIntentPopup';
+import SocialProofNotifications from './components/SocialProofNotifications';
 import { PreviewQuest } from '@/lib/onboarding';
 import { trackEvent } from '@/lib/analytics';
 import Image from 'next/image';
@@ -15,6 +17,8 @@ export default function LandingPage() {
   const [loading, setLoading] = useState(false);
   const [previewQuest, setPreviewQuest] = useState<PreviewQuest | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [remainingPreviews, setRemainingPreviews] = useState<number>(3);
+  const questInputRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     trackEvent('landing_page_view', {});
@@ -39,9 +43,15 @@ export default function LandingPage() {
         return;
       }
 
+      // Update remaining previews from API response
+      if (data.remaining !== undefined) {
+        setRemainingPreviews(data.remaining);
+      }
+
       trackEvent('quest_preview_generated', {
         xp: data.xp,
-        difficulty: data.difficulty
+        difficulty: data.difficulty,
+        remaining: data.remaining
       });
 
       setPreviewQuest(data);
@@ -50,6 +60,11 @@ export default function LandingPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleExitIntentTryPreview = () => {
+    // Scroll to quest input
+    questInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   };
 
   const archetypes = [
@@ -125,7 +140,7 @@ export default function LandingPage() {
         </motion.div>
 
         {/* Quest Input Section - THE MAGIC */}
-        <div className="mb-20">
+        <div className="mb-20" ref={questInputRef}>
           <motion.h2
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -134,7 +149,11 @@ export default function LandingPage() {
             SEE THE MAGIC YOURSELF
           </motion.h2>
 
-          <QuestInput onTransform={handleTransform} loading={loading} />
+          <QuestInput
+            onTransform={handleTransform}
+            loading={loading}
+            remainingPreviews={remainingPreviews}
+          />
 
           {error && (
             <motion.div
@@ -348,6 +367,12 @@ export default function LandingPage() {
           onClose={() => setPreviewQuest(null)}
         />
       )}
+
+      {/* Exit Intent Popup */}
+      <ExitIntentPopup onTryPreview={handleExitIntentTryPreview} />
+
+      {/* Social Proof Notifications */}
+      <SocialProofNotifications />
     </div>
   );
 }
