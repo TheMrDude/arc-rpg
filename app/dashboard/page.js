@@ -27,6 +27,10 @@ import StoryEventNotification from '@/app/components/StoryEventNotification';
 import DailyBonus from '@/app/components/DailyBonus';
 import GoldPurchasePrompt from '@/app/components/GoldPurchasePrompt';
 import SeasonalEvent from '@/app/components/SeasonalEvent';
+import StreakProtection from '@/app/components/StreakProtection';
+import LiveActivityFeed from '@/app/components/LiveActivityFeed';
+import AchievementBadges from '@/app/components/AchievementBadges';
+import UpgradePrompt from '@/app/components/UpgradePrompt';
 import { trackQuestCreated, trackQuestCompleted, trackLevelUp, trackStreakAchieved, trackStoryMilestone, trackGoldPurchaseViewed } from '@/lib/analytics';
 
 export default function DashboardPage() {
@@ -71,6 +75,10 @@ export default function DashboardPage() {
 
   // Seasonal event badge states
   const [eventBadgeCount, setEventBadgeCount] = useState(0);
+
+  // Upgrade prompt states
+  const [upgradePromptTrigger, setUpgradePromptTrigger] = useState(null);
+  const [questsCompletedToday, setQuestsCompletedToday] = useState(0);
 
   useEffect(() => {
     loadUserData();
@@ -443,6 +451,29 @@ export default function DashboardPage() {
       // Refresh event badge (quest completion may trigger seasonal challenges)
       if (profile?.is_premium || profile?.subscription_status === 'active') {
         loadEventBadge();
+      }
+
+      // Trigger upgrade prompts at strategic moments (non-premium users only)
+      if (!(profile?.is_premium || profile?.subscription_status === 'active')) {
+        // Track quests completed today
+        const newCount = questsCompletedToday + 1;
+        setQuestsCompletedToday(newCount);
+
+        // Level 10 milestone
+        if (rewards.new_level === 10) {
+          setTimeout(() => setUpgradePromptTrigger('level_10'), 3000);
+        }
+
+        // 5 quests in a day
+        if (newCount === 5) {
+          setTimeout(() => setUpgradePromptTrigger('quest_limit'), 2000);
+        }
+
+        // Streak milestone (7, 14, 21, 30 days)
+        if (data.profile.current_streak >= 7 &&
+            [7, 14, 21, 30].includes(data.profile.current_streak)) {
+          setTimeout(() => setUpgradePromptTrigger('streak_milestone'), 4000);
+        }
       }
     } catch (error) {
       console.error('Error completing quest:', error);
@@ -836,6 +867,16 @@ export default function DashboardPage() {
           </div>
         )}
 
+        {/* Achievement Badges - Collection Mechanic */}
+        {profile && quests && (
+          <AchievementBadges profile={profile} quests={quests} />
+        )}
+
+        {/* Live Activity Feed - Social Proof */}
+        {!(profile?.is_premium || profile?.subscription_status === 'active') && (
+          <LiveActivityFeed />
+        )}
+
         {/* Creature Companion */}
         {creature && (
           <div className="bg-[#1A1A2E] border-3 border-[#00D4FF] rounded-lg p-4 mb-8 shadow-[0_0_20px_rgba(0,212,255,0.3)]">
@@ -1227,6 +1268,23 @@ export default function DashboardPage() {
         trigger={goldPromptTrigger}
         currentGold={profile?.gold || 0}
       />
+
+      {/* Streak Protection - Loss Aversion Mechanic */}
+      {profile && (
+        <StreakProtection
+          streak={profile.current_streak || 0}
+          lastActivityDate={profile.last_activity_date}
+          isPremium={profile.is_premium || profile.subscription_status === 'active'}
+        />
+      )}
+
+      {/* Upgrade Prompt - Strategic Conversion Points */}
+      {profile && upgradePromptTrigger && (
+        <UpgradePrompt
+          trigger={upgradePromptTrigger}
+          profile={profile}
+        />
+      )}
       </div>
     </>
   );
