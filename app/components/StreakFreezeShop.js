@@ -238,7 +238,7 @@ export function StreakFreezeShopCompact({
   currentXP,
   freezeCount,
   onPurchase
-}: Omit<StreakFreezeShopProps, 'className'>) {
+}) {
   const [isPurchasing, setIsPurchasing] = useState(false);
   const canAfford = currentXP >= STREAK_FREEZE_COST;
 
