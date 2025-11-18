@@ -1,16 +1,19 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { supabase } from '@/lib/supabase';
 import { getStoredPreviewQuest, clearStoredPreviewQuest, handleFirstQuestCompletion } from '@/lib/onboarding';
+import { applyReferralCode } from '@/lib/referrals';
 import FirstQuestCelebration from '@/app/components/FirstQuestCelebration';
 
 export default function SignupPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [referralCode, setReferralCode] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
@@ -22,7 +25,13 @@ export default function SignupPage() {
   useEffect(() => {
     const previewQuest = getStoredPreviewQuest();
     setHasPreviewQuest(!!previewQuest);
-  }, []);
+
+    // Check for referral code in URL
+    const refCode = searchParams.get('ref');
+    if (refCode) {
+      setReferralCode(refCode.toUpperCase());
+    }
+  }, [searchParams]);
 
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault();
@@ -38,6 +47,19 @@ export default function SignupPage() {
       if (signupError) throw signupError;
 
       if (data.user) {
+        // Apply referral code if provided
+        if (referralCode.trim()) {
+          const referralResult = await applyReferralCode(
+            referralCode.trim(),
+            data.user.id,
+            supabase
+          );
+          // Don't block signup if referral code is invalid, just log it
+          if (!referralResult.success) {
+            console.warn('Referral code application failed:', referralResult.message);
+          }
+        }
+
         // Check if email confirmation is required
         if (data.user.identities && data.user.identities.length === 0) {
           // Email confirmation required - show message
@@ -154,9 +176,29 @@ export default function SignupPage() {
             />
           </div>
 
-          <p className="text-xs text-[#E2E8F0]/60 mb-6">
+          <p className="text-xs text-[#E2E8F0]/60 mb-4">
             Password must be at least 6 characters long
           </p>
+
+          <div className="mb-6">
+            <label className="block text-white mb-2 font-bold uppercase text-xs sm:text-sm tracking-wide flex items-center gap-2">
+              Referral Code
+              <span className="text-[#FFD93D] text-xs normal-case">(Optional)</span>
+            </label>
+            <input
+              type="text"
+              value={referralCode}
+              onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+              placeholder="FRIEND123"
+              className="w-full px-4 py-3 bg-[#0F3460] text-white placeholder-gray-500 border-3 border-[#1A1A2E] rounded-lg focus:outline-none focus:border-[#FFD93D] focus:shadow-[0_0_15px_rgba(255,217,61,0.3)] transition-all duration-200 uppercase"
+              maxLength={8}
+            />
+            {referralCode && (
+              <p className="text-xs text-[#10B981] mt-1 font-semibold">
+                ✓ You and your friend will both get rewards!
+              </p>
+            )}
+          </div>
 
           <motion.button
             type="submit"
