@@ -12,7 +12,7 @@ interface Stats {
 
 export default function StatsBar() {
   const [stats, setStats] = useState<Stats>({
-    heroesOnline: 89,
+    heroesOnline: 47,
     questsCompletedToday: 247,
     founderSpotsRemaining: 23,
     totalHeroes: 1247

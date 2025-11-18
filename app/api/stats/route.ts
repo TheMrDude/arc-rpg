@@ -46,7 +46,7 @@ export async function GET() {
 
     // Update cache
     cachedStats = {
-      heroesOnline: heroesOnline || 0,
+      heroesOnline: Math.max(10, heroesOnline || 0), // Minimum 10 heroes online
       questsCompletedToday: questsCompletedToday || 0,
       founderSpotsRemaining,
       totalHeroes: 1247, // Will be real count later
@@ -61,7 +61,7 @@ export async function GET() {
 
     // Return fallback stats on error
     return NextResponse.json({
-      heroesOnline: 89,
+      heroesOnline: 47, // Minimum 10 guaranteed
       questsCompletedToday: 247,
       founderSpotsRemaining: 23,
       totalHeroes: 1247,
