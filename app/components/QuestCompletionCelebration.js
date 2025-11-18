@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect, useRef } from 'react';
 import confetti from 'canvas-confetti';
+import ShareToSocial from './ShareToSocial';
 
 export default function QuestCompletionCelebration({
   show,
@@ -254,6 +255,26 @@ export default function QuestCompletionCelebration({
                   </div>
                 </motion.div>
               )}
+
+              {/* Share Achievement */}
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.85 }}
+                className="mb-4"
+              >
+                <ShareToSocial
+                  content={{
+                    title: `Just completed "${questTitle}" in HabitQuest and earned ${totalXP} XP! 🎮⚔️`,
+                    description: rewards.level_up
+                      ? `Leveled up to ${rewards.new_level}! Join me on this epic journey!`
+                      : 'Turning boring tasks into legendary quests!',
+                    hashtags: ['HabitQuest', 'QuestComplete', 'Gamification', 'Productivity'],
+                  }}
+                  compact={true}
+                  showLabels={true}
+                />
+              </motion.div>
 
               {/* Continue Button */}
               <motion.button

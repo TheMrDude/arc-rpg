@@ -1,4 +1,5 @@
 'use client';
+import GlobalFooter from '@/app/components/GlobalFooter';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -411,6 +412,7 @@ export default function EquipmentPage() {
           trigger="insufficient_gold"
           currentGold={profile?.gold || 0}
         />
+      <GlobalFooter />
       </div>
     </div>
   );

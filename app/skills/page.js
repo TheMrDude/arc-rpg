@@ -1,4 +1,5 @@
 'use client';
+import GlobalFooter from '@/app/components/GlobalFooter';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -319,6 +320,7 @@ export default function SkillsPage() {
             })}
           </div>
         </div>
+      <GlobalFooter />
       </div>
     </div>
   );

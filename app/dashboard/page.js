@@ -31,6 +31,7 @@ import StreakProtection from '@/app/components/StreakProtection';
 import LiveActivityFeed from '@/app/components/LiveActivityFeed';
 import AchievementBadges from '@/app/components/AchievementBadges';
 import UpgradePrompt from '@/app/components/UpgradePrompt';
+import GlobalFooter from '@/app/components/GlobalFooter';
 import { trackQuestCreated, trackQuestCompleted, trackLevelUp, trackStreakAchieved, trackStoryMilestone, trackGoldPurchaseViewed } from '@/lib/analytics';
 
 export default function DashboardPage() {
@@ -1284,6 +1285,9 @@ export default function DashboardPage() {
           profile={profile}
         />
       )}
+
+      {/* Global Footer with Share Buttons */}
+      <GlobalFooter />
       </div>
     </>
   );
