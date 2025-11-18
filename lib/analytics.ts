@@ -1,5 +1,7 @@
 // Analytics tracking utility
-// Simple console logging for now, easy to integrate PostHog/Vercel Analytics later
+// Integrated with PostHog for comprehensive event tracking
+
+import { captureEvent } from './posthog';
 
 export type AnalyticsEvent =
   | 'landing_page_view'
@@ -8,22 +10,22 @@ export type AnalyticsEvent =
   | 'preview_modal_opened'
   | 'signup_clicked_from_preview'
   | 'first_quest_completed'
-  | 'archetype_selected';
+  | 'archetype_selected'
+  | 'email_captured';
 
 export function trackEvent(
-  eventName: AnalyticsEvent,
+  eventName: AnalyticsEvent | string,
   properties?: Record<string, any>
 ): void {
   // Log to console for development
-  console.log('[Analytics]', eventName, properties);
+  if (process.env.NODE_ENV === 'development') {
+    console.log('[Analytics]', eventName, properties);
+  }
 
-  // TODO: Add PostHog or Vercel Analytics integration
-  // Example:
-  // if (typeof window !== 'undefined' && window.posthog) {
-  //   window.posthog.capture(eventName, properties);
-  // }
+  // Track with PostHog
+  captureEvent(eventName, properties);
 
-  // For now, also send to our own endpoint for basic tracking
+  // Also send to our own endpoint for basic tracking
   if (typeof window !== 'undefined') {
     fetch('/api/track', {
       method: 'POST',
