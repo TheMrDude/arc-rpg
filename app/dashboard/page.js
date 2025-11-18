@@ -27,9 +27,10 @@ import StoryEventNotification from '@/app/components/StoryEventNotification';
 import DailyBonus from '@/app/components/DailyBonus';
 import GoldPurchasePrompt from '@/app/components/GoldPurchasePrompt';
 import SeasonalEvent from '@/app/components/SeasonalEvent';
-import PWAInstallPrompt from '@/app/components/PWAInstallPrompt';
-import QuestSuggestions from '@/app/components/QuestSuggestions';
-import CharacterBackstory from '@/app/components/CharacterBackstory';
+import StreakProtection from '@/app/components/StreakProtection';
+import LiveActivityFeed from '@/app/components/LiveActivityFeed';
+import AchievementBadges from '@/app/components/AchievementBadges';
+import UpgradePrompt from '@/app/components/UpgradePrompt';
 import { trackQuestCreated, trackQuestCompleted, trackLevelUp, trackStreakAchieved, trackStoryMilestone, trackGoldPurchaseViewed } from '@/lib/analytics';
 
 export default function DashboardPage() {
@@ -74,6 +75,10 @@ export default function DashboardPage() {
 
   // Seasonal event badge states
   const [eventBadgeCount, setEventBadgeCount] = useState(0);
+
+  // Upgrade prompt states
+  const [upgradePromptTrigger, setUpgradePromptTrigger] = useState(null);
+  const [questsCompletedToday, setQuestsCompletedToday] = useState(0);
 
   useEffect(() => {
     loadUserData();
@@ -447,6 +452,29 @@ export default function DashboardPage() {
       if (profile?.is_premium || profile?.subscription_status === 'active') {
         loadEventBadge();
       }
+
+      // Trigger upgrade prompts at strategic moments (non-premium users only)
+      if (!(profile?.is_premium || profile?.subscription_status === 'active')) {
+        // Track quests completed today
+        const newCount = questsCompletedToday + 1;
+        setQuestsCompletedToday(newCount);
+
+        // Level 10 milestone
+        if (rewards.new_level === 10) {
+          setTimeout(() => setUpgradePromptTrigger('level_10'), 3000);
+        }
+
+        // 5 quests in a day
+        if (newCount === 5) {
+          setTimeout(() => setUpgradePromptTrigger('quest_limit'), 2000);
+        }
+
+        // Streak milestone (7, 14, 21, 30 days)
+        if (data.profile.current_streak >= 7 &&
+            [7, 14, 21, 30].includes(data.profile.current_streak)) {
+          setTimeout(() => setUpgradePromptTrigger('streak_milestone'), 4000);
+        }
+      }
     } catch (error) {
       console.error('Error completing quest:', error);
       alert('Failed to complete quest');
@@ -731,60 +759,46 @@ export default function DashboardPage() {
       <div className="min-h-screen bg-gradient-to-br from-[#1A1A2E] via-[#16213e] to-[#0F3460] text-white p-8">
       <div className="max-w-6xl mx-auto">
         {/* Header with Character */}
-        <div className="bg-[#1A1A2E] border-3 border-[#00D4FF] rounded-xl p-6 lg:p-8 mb-8 shadow-[0_0_25px_rgba(0,212,255,0.3)]">
-          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-6">
-            {/* Left side: Character Image + Stats */}
-            <div className="flex gap-4 lg:gap-6 items-center flex-1">
-              {/* Archetype Character Image */}
-              {profile?.archetype && (
-                <div className="flex-shrink-0">
-                  <img
-                    src={`/images/archetypes/${profile.archetype}.png`}
-                    alt={profile.archetype}
-                    className="w-24 h-24 lg:w-32 lg:h-32 object-cover rounded-lg border-3 border-[#FFD93D] shadow-[0_0_20px_rgba(255,217,61,0.5)] transition-transform duration-200 hover:scale-105"
-                  />
-                </div>
-              )}
+        <div className="flex justify-between items-start mb-8">
+          {/* Left side: Character Image + Stats */}
+          <div className="flex gap-6 items-center">
+            {/* Archetype Character Image */}
+            {profile?.archetype && (
+              <div className="flex-shrink-0">
+                <img
+                  src={`/images/archetypes/${profile.archetype}.png`}
+                  alt={profile.archetype}
+                  className="w-32 h-32 object-cover rounded-lg border-3 border-[#FFD93D] shadow-[0_0_20px_rgba(255,217,61,0.5)]"
+                />
+              </div>
+            )}
 
-              {/* Stats */}
-              <div className="flex-1">
-                <div className="flex flex-wrap items-center gap-3 mb-2">
-                  <h1 className="text-2xl lg:text-4xl font-black uppercase tracking-wide text-[#FF6B6B]">
-                    {profile?.archetype} - Level {profile?.level}
-                  </h1>
-                  {(profile?.subscription_status === 'active' || profile?.is_premium) && (
-                    <span className="px-3 py-1 lg:px-4 lg:py-2 bg-[#FFD93D] text-[#1A1A2E] border-3 border-[#0F3460] rounded-lg font-black text-xs lg:text-sm uppercase shadow-[0_3px_0_#0F3460]">
-                      ⚡ FOUNDER
-                    </span>
-                  )}
-                </div>
-                <div className="flex flex-wrap items-center gap-3 lg:gap-4 text-sm lg:text-base">
-                  <div className="px-3 py-1 bg-[#00D4FF]/10 border-2 border-[#00D4FF] rounded-md">
-                    <span className="text-[#00D4FF] font-bold">XP: {profile?.xp} / {(profile?.level || 0) * 100}</span>
-                  </div>
-                  <div className="px-3 py-1 bg-[#FF6B6B]/10 border-2 border-[#FF6B6B] rounded-md">
-                    <span className="text-[#FF6B6B] font-bold">🔥 {profile?.current_streak} day streak</span>
-                  </div>
-                  <div className="px-3 py-1 bg-[#FFD93D]/10 border-2 border-[#FFD93D] rounded-md">
-                    <span className="text-[#FFD93D] font-black">💰 {profile?.gold || 0} Gold</span>
-                  </div>
-                  {profile?.story_chapter && profile.story_chapter > 1 && (
-                    <div className="px-3 py-1 bg-purple-500/10 border-2 border-purple-500 rounded-md">
-                      <span className="text-purple-400 font-bold">📖 Chapter {profile.story_chapter}</span>
-                    </div>
-                  )}
-                </div>
-                {profile?.skill_points > 0 && (
-                  <div className="mt-3 px-4 py-2 bg-purple-600/20 border-2 border-purple-500 rounded-lg inline-block animate-pulse">
-                    <span className="text-purple-300 font-black text-sm">💎 {profile.skill_points} Skill Points Available!</span>
-                  </div>
+            {/* Stats */}
+            <div>
+              <div className="flex items-center gap-3">
+                <h1 className="text-4xl font-black uppercase tracking-wide text-[#FF6B6B]">{profile?.archetype} - Level {profile?.level}</h1>
+                {(profile?.subscription_status === 'active' || profile?.is_premium) && (
+                  <span className="px-4 py-2 bg-[#FFD93D] text-[#1A1A2E] border-3 border-[#0F3460] rounded-lg font-black text-sm uppercase shadow-[0_3px_0_#0F3460]">
+                    ⚡ FOUNDER
+                  </span>
                 )}
               </div>
+              <div className="flex items-center gap-4 mt-1">
+                <p className="text-[#00D4FF] font-bold">XP: {profile?.xp} / {(profile?.level || 0) * 100}</p>
+                <p className="text-[#00D4FF] font-bold">Streak: {profile?.current_streak} days</p>
+                <p className="text-[#FFD93D] font-black">💰 {profile?.gold || 0} Gold</p>
+                {profile?.story_chapter && profile.story_chapter > 1 && (
+                  <p className="text-[#FFD93D] font-bold">📖 Chapter {profile.story_chapter}</p>
+                )}
+              </div>
+              {profile?.skill_points > 0 && (
+                <p className="text-[#FFD93D] font-black mt-1">💎 {profile.skill_points} Skill Points Available!</p>
+              )}
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex flex-wrap gap-2 lg:gap-3">
+          {/* Right side: Buttons */}
+          <div className="flex gap-4">
             {(profile?.is_premium || profile?.subscription_status === 'active') && (
               <>
                 <ArchetypeSwitcher
@@ -794,7 +808,7 @@ export default function DashboardPage() {
                 />
                 <button
                   onClick={() => router.push('/skills')}
-                  className={`px-4 py-2 border-3 rounded-lg font-black uppercase text-xs lg:text-sm tracking-wide shadow-[0_3px_0_#0F3460] hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1 transition-all duration-200 ${
+                  className={`px-4 py-2 border-3 rounded-lg font-black uppercase text-sm tracking-wide shadow-[0_3px_0_#0F3460] hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1 transition-all ${
                     profile?.skill_points > 0
                       ? 'bg-[#9333EA] hover:bg-[#7E22CE] text-white border-[#0F3460] animate-pulse'
                       : 'bg-[#4C1D95] hover:bg-[#5B21B6] text-white border-[#1A1A2E]'
@@ -804,7 +818,7 @@ export default function DashboardPage() {
                 </button>
                 <button
                   onClick={() => router.push('/journey')}
-                  className="px-4 py-2 bg-[#9333EA] hover:bg-[#7E22CE] text-white border-3 border-[#0F3460] rounded-lg font-black uppercase text-xs lg:text-sm tracking-wide shadow-[0_3px_0_#0F3460] hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1 transition-all duration-200"
+                  className="px-4 py-2 bg-[#9333EA] hover:bg-[#7E22CE] text-white border-3 border-[#0F3460] rounded-lg font-black uppercase text-sm tracking-wide shadow-[0_3px_0_#0F3460] hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1 transition-all"
                 >
                   📖 My Journey
                 </button>
@@ -812,48 +826,34 @@ export default function DashboardPage() {
             )}
             <button
               onClick={() => router.push('/history')}
-              className="px-4 py-2 bg-[#0F3460] hover:bg-[#1a4a7a] text-white border-3 border-[#1A1A2E] rounded-lg font-bold uppercase text-xs lg:text-sm tracking-wide transition-all duration-200 hover:-translate-y-0.5"
+              className="px-4 py-2 bg-[#0F3460] hover:bg-[#1a4a7a] text-white border-3 border-[#1A1A2E] rounded-lg font-bold uppercase text-sm tracking-wide transition-all"
             >
-              📜 History
+              History
             </button>
             <button
               onClick={() => router.push('/shop')}
-              className="px-4 py-2 bg-[#FFD93D] hover:bg-[#E6C335] text-[#1A1A2E] border-3 border-[#0F3460] rounded-lg font-black uppercase text-xs lg:text-sm tracking-wide shadow-[0_3px_0_#0F3460] hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1 transition-all duration-200"
+              className="px-4 py-2 bg-[#FFD93D] hover:bg-[#E6C335] text-[#1A1A2E] border-3 border-[#0F3460] rounded-lg font-black uppercase text-sm tracking-wide shadow-[0_3px_0_#0F3460] hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1 transition-all"
             >
               🪙 Gold Shop
             </button>
             {!(profile?.subscription_status === 'active' || profile?.is_premium) && (
               <button
                 onClick={() => router.push('/pricing')}
-                className="px-4 py-2 bg-[#00D4FF] hover:bg-[#00BFFF] text-[#0F3460] border-3 border-[#0F3460] rounded-lg font-black uppercase text-xs lg:text-sm tracking-wide shadow-[0_3px_0_#0F3460] hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1 transition-all duration-200 animate-pulse"
+                className="px-4 py-2 bg-[#00D4FF] hover:bg-[#00BFFF] text-[#0F3460] border-3 border-[#0F3460] rounded-lg font-black uppercase text-sm tracking-wide shadow-[0_3px_0_#0F3460] hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1 transition-all"
               >
                 🔥 Lifetime Access - $47
               </button>
             )}
             <button
               onClick={handleLogout}
-              className="px-4 py-2 bg-[#FF6B6B] hover:bg-[#EE5A6F] text-white border-3 border-[#0F3460] rounded-lg font-bold uppercase text-xs lg:text-sm tracking-wide transition-all duration-200 hover:-translate-y-0.5 active:translate-y-1"
+              className="px-4 py-2 bg-[#FF6B6B] hover:bg-[#EE5A6F] text-white border-3 border-[#0F3460] rounded-lg font-bold uppercase text-sm tracking-wide transition-all"
             >
-              ⏏️ Logout
+              Logout
             </button>
           </div>
         </div>
 
-        {/* Story Progress */}
-        {profile && (
-          <div className="mb-8">
-            <StoryProgress profile={profile} />
-          </div>
-        )}
-
-        {/* Daily Bonus */}
-        {profile && (
-          <div className="mb-8">
-            <DailyBonus profile={profile} onClaim={loadUserData} />
-          </div>
-        )}
-
-        {/* Creature Companion */}
+        {/* Creature Companion - Character Flavor */}
         {creature && (
           <div className="bg-[#1A1A2E] border-3 border-[#00D4FF] rounded-lg p-4 mb-8 shadow-[0_0_20px_rgba(0,212,255,0.3)]">
             <div className="flex items-center gap-4">
@@ -874,7 +874,7 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Boss Encounter */}
+        {/* Boss Encounter - Important Alert */}
         {bossEncounter && (
           <div className="bg-red-900/30 border-3 border-red-500 rounded-lg p-6 mb-8 shadow-[0_0_20px_rgba(239,68,68,0.5)]">
             <div className="flex items-center gap-4">
@@ -962,17 +962,6 @@ export default function DashboardPage() {
                   </span>
                 )}
               </button>
-              <button
-                onClick={() => setActiveTab('aitools')}
-                className={
-                  'px-6 py-3 rounded-lg font-black uppercase text-sm tracking-wide border-3 transition-all ' +
-                  (activeTab === 'aitools'
-                    ? 'bg-gradient-to-r from-cyan-500 to-blue-500 border-[#0F3460] text-white shadow-[0_5px_0_#0F3460]'
-                    : 'bg-[#0F3460] border-[#1A1A2E] text-gray-300 hover:border-cyan-500')
-                }
-              >
-                🤖 AI Tools
-              </button>
             </div>
           </div>
         )}
@@ -1001,103 +990,89 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Quests Tab Content */}
+        {/* CORE FUNCTIONALITY FIRST - Add Quest */}
         {((profile?.is_premium || profile?.subscription_status === 'active') ? activeTab === 'quests' : true) && (
-          <>
-            {/* Add Quest */}
-            <div className="bg-[#1A1A2E] border-3 border-[#00D4FF] rounded-lg p-6 lg:p-8 mb-8 shadow-[0_0_20px_rgba(0,212,255,0.3)] hover:shadow-[0_0_30px_rgba(0,212,255,0.5)] transition-all duration-300">
-              <div className="flex items-center gap-3 mb-6">
-                <span className="text-3xl">⚔️</span>
-                <h3 className="text-xl lg:text-2xl font-black uppercase tracking-wide text-[#00D4FF]">Add New Quest</h3>
-              </div>
-              <p className="text-sm text-[#E2E8F0] mb-6 leading-relaxed">
-                Transform any task into an epic adventure. AI-powered personalization for your journey.
-              </p>
-              <div className="flex flex-col lg:flex-row gap-4">
-                <input
-                  type="text"
-                  value={newQuestText}
-                  onChange={(e) => setNewQuestText(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && !adding && addQuest()}
-                  placeholder="Enter your task... (e.g., 'Complete 30 minutes of exercise')"
-                  className="flex-1 px-4 py-3 bg-[#0F3460] text-white placeholder-gray-400 border-3 border-[#1A1A2E] rounded-lg focus:outline-none focus:border-[#00D4FF] focus:shadow-[0_0_15px_rgba(0,212,255,0.3)] transition-all duration-200"
-                />
-                <select
-                  value={newQuestDifficulty}
-                  onChange={(e) => setNewQuestDifficulty(e.target.value)}
-                  className="px-4 py-3 bg-[#0F3460] text-white border-3 border-[#1A1A2E] rounded-lg focus:outline-none focus:border-[#00D4FF] focus:shadow-[0_0_15px_rgba(0,212,255,0.3)] transition-all duration-200 font-bold cursor-pointer"
-                >
-                  <option value="easy">⚡ Easy (10 XP)</option>
-                  <option value="medium">🔥 Medium (25 XP)</option>
-                  <option value="hard">💀 Hard (50 XP)</option>
-                </select>
-                <button
-                  onClick={addQuest}
-                  disabled={adding || !newQuestText.trim()}
-                  className="px-8 py-3 bg-[#FF6B6B] hover:bg-[#EE5A6F] text-white border-3 border-[#0F3460] rounded-lg font-black uppercase tracking-wide shadow-[0_5px_0_#0F3460] hover:shadow-[0_7px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_2px_0_#0F3460] active:translate-y-1 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
-                >
-                  {adding ? '⏳ Adding...' : '+ Add Quest'}
-                </button>
-              </div>
+          <div className="bg-[#1A1A2E] border-3 border-[#00D4FF] rounded-lg p-6 mb-8 shadow-[0_0_20px_rgba(0,212,255,0.3)]">
+            <h3 className="text-xl font-black uppercase tracking-wide text-[#00D4FF] mb-4">Add New Quest</h3>
+            <div className="flex gap-4 mb-4">
+              <input
+                type="text"
+                value={newQuestText}
+                onChange={(e) => setNewQuestText(e.target.value)}
+                placeholder="Enter your task..."
+                className="flex-1 px-4 py-3 bg-[#0F3460] text-white border-3 border-[#1A1A2E] rounded-lg focus:outline-none focus:border-[#00D4FF] focus:shadow-[0_0_0_3px_rgba(0,212,255,0.2)] transition-all"
+              />
+              <select
+                value={newQuestDifficulty}
+                onChange={(e) => setNewQuestDifficulty(e.target.value)}
+                className="px-4 py-3 bg-[#0F3460] text-white border-3 border-[#1A1A2E] rounded-lg focus:outline-none focus:border-[#00D4FF] focus:shadow-[0_0_0_3px_rgba(0,212,255,0.2)] transition-all font-bold"
+              >
+                <option value="easy">Easy (10 XP)</option>
+                <option value="medium">Medium (25 XP)</option>
+                <option value="hard">Hard (50 XP)</option>
+              </select>
+              <button
+                onClick={addQuest}
+                disabled={adding}
+                className="px-6 py-3 bg-[#FF6B6B] hover:bg-[#EE5A6F] text-white border-3 border-[#0F3460] rounded-lg font-black uppercase tracking-wide shadow-[0_5px_0_#0F3460] hover:shadow-[0_7px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_2px_0_#0F3460] active:translate-y-1 transition-all disabled:opacity-50"
+              >
+                {adding ? 'Adding...' : 'Add Quest'}
+              </button>
             </div>
+          </div>
+        )}
 
-            {/* Active Quests */}
-            <div className="bg-[#1A1A2E] border-3 border-[#FF6B6B] rounded-lg p-6 lg:p-8 mb-8 shadow-[0_0_20px_rgba(255,107,107,0.3)] hover:shadow-[0_0_30px_rgba(255,107,107,0.5)] transition-all duration-300">
-              <div className="flex items-center gap-3 mb-6">
-                <span className="text-3xl">🎯</span>
-                <h3 className="text-xl lg:text-2xl font-black uppercase tracking-wide text-[#FF6B6B]">Active Quests</h3>
-                <span className="ml-auto px-3 py-1 bg-[#FF6B6B]/20 border-2 border-[#FF6B6B] rounded-full text-[#FF6B6B] font-black text-sm">
-                  {quests.filter(q => !q.completed).length}
-                </span>
-              </div>
-              <div className="space-y-4">
-                {quests.filter(q => !q.completed).map((quest) => (
-                  <div
-                    key={quest.id}
-                    className="bg-[#0F3460] p-5 rounded-lg border-2 border-[#1A1A2E] hover:border-[#00D4FF] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:shadow-[0_0_15px_rgba(0,212,255,0.2)] transform hover:translate-x-1 transition-all duration-200"
-                  >
-                    <div className="flex-1">
-                      <div className="font-black text-base lg:text-lg text-[#00D4FF] mb-2 leading-snug">
-                        {quest.transformed_text}
-                      </div>
-                      <div className="text-sm text-[#E2E8F0]/80 mb-2 leading-relaxed">
-                        {quest.original_text}
-                      </div>
-                      <div className="flex items-center gap-3 mt-3">
-                        <span className={`px-3 py-1 rounded-md font-black text-xs uppercase border-2 ${
-                          quest.difficulty === 'easy'
-                            ? 'bg-green-500/20 border-green-500 text-green-400'
-                            : quest.difficulty === 'medium'
-                            ? 'bg-yellow-500/20 border-yellow-500 text-yellow-400'
-                            : 'bg-red-500/20 border-red-500 text-red-400'
-                        }`}>
-                          {quest.difficulty === 'easy' && '⚡'}
-                          {quest.difficulty === 'medium' && '🔥'}
-                          {quest.difficulty === 'hard' && '💀'} {quest.difficulty}
-                        </span>
-                        <span className="px-3 py-1 bg-[#FFD93D]/20 border-2 border-[#FFD93D] rounded-md text-[#FFD93D] font-black text-xs uppercase">
-                          +{quest.xp_value} XP
-                        </span>
-                      </div>
+        {/* CORE FUNCTIONALITY SECOND - Active Quests */}
+        {((profile?.is_premium || profile?.subscription_status === 'active') ? activeTab === 'quests' : true) && (
+          <div className="bg-[#1A1A2E] border-3 border-[#FF6B6B] rounded-lg p-6 mb-8 shadow-[0_0_20px_rgba(255,107,107,0.3)]">
+            <h3 className="text-xl font-black uppercase tracking-wide text-[#FF6B6B] mb-4">Active Quests</h3>
+            <div className="space-y-4">
+              {quests.filter(q => !q.completed).map((quest) => (
+                <div key={quest.id} className="bg-[#0F3460] p-4 rounded-lg border-2 border-[#1A1A2E] flex justify-between items-start">
+                  <div className="flex-1">
+                    <div className="font-black text-lg text-[#00D4FF]">{quest.transformed_text}</div>
+                    <div className="text-sm text-[#E2E8F0] mt-1">{quest.original_text}</div>
+                    <div className="text-xs text-[#FFD93D] mt-2 font-bold uppercase">
+                      {quest.difficulty} | {quest.xp_value} XP
                     </div>
-                    <button
-                      onClick={() => completeQuest(quest.id, quest.xp_value)}
-                      className="w-full sm:w-auto px-6 py-3 bg-[#48BB78] hover:bg-[#38a169] text-white border-3 border-[#0F3460] rounded-lg font-black uppercase text-sm tracking-wide shadow-[0_3px_0_#0F3460] hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1 transition-all duration-200 whitespace-nowrap"
-                    >
-                      ✓ Complete
-                    </button>
                   </div>
-                ))}
-                {quests.filter(q => !q.completed).length === 0 && (
-                  <div className="text-center py-12">
-                    <span className="text-6xl mb-4 block opacity-50">🎯</span>
-                    <p className="text-[#00D4FF] text-lg font-bold mb-2">No active quests yet!</p>
-                    <p className="text-[#E2E8F0]/60 text-sm">Add your first quest above to begin your epic journey.</p>
-                  </div>
-                )}
-              </div>
+                  <button
+                    onClick={() => completeQuest(quest.id, quest.xp_value)}
+                    className="ml-4 px-4 py-2 bg-[#48BB78] hover:bg-[#38a169] text-white border-3 border-[#0F3460] rounded-lg font-black uppercase text-sm tracking-wide shadow-[0_3px_0_#0F3460] hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1 transition-all"
+                  >
+                    Complete
+                  </button>
+                </div>
+              ))}
+              {quests.filter(q => !q.completed).length === 0 && (
+                <p className="text-[#00D4FF] text-center py-8 font-bold">No active quests. Add one above!</p>
+              )}
             </div>
-          </>
+          </div>
+        )}
+
+        {/* SUPPORTING ELEMENTS - Story Progress */}
+        {profile && (
+          <div className="mb-8">
+            <StoryProgress profile={profile} />
+          </div>
+        )}
+
+        {/* Daily Bonus */}
+        {profile && (
+          <div className="mb-8">
+            <DailyBonus profile={profile} onClaim={loadUserData} />
+          </div>
+        )}
+
+        {/* Achievement Badges - Collection Mechanic */}
+        {profile && quests && (
+          <AchievementBadges profile={profile} quests={quests} />
+        )}
+
+        {/* Live Activity Feed - Social Proof */}
+        {!(profile?.is_premium || profile?.subscription_status === 'active') && (
+          <LiveActivityFeed />
         )}
 
         {/* Recurring Quests Tab Content */}
@@ -1177,17 +1152,6 @@ export default function DashboardPage() {
         {/* Seasonal Events Tab Content */}
         {activeTab === 'events' && (profile?.is_premium || profile?.subscription_status === 'active') && (
           <SeasonalEvent />
-        )}
-
-        {/* AI Tools Tab Content */}
-        {activeTab === 'aitools' && (profile?.is_premium || profile?.subscription_status === 'active') && (
-          <div className="space-y-8">
-            {/* Character Backstory - AI generates YOUR epic story based on YOUR actual quests */}
-            <CharacterBackstory profile={profile} />
-
-            {/* Quest Suggestions - AI analyzes YOUR patterns and suggests personalized quests */}
-            <QuestSuggestions userSession={user} onQuestAdded={loadUserData} />
-          </div>
         )}
 
         {/* Unlock Premium Section (for non-premium users) */}
@@ -1304,8 +1268,22 @@ export default function DashboardPage() {
         currentGold={profile?.gold || 0}
       />
 
-      {/* PWA Install Prompt */}
-      <PWAInstallPrompt />
+      {/* Streak Protection - Loss Aversion Mechanic */}
+      {profile && (
+        <StreakProtection
+          streak={profile.current_streak || 0}
+          lastActivityDate={profile.last_activity_date}
+          isPremium={profile.is_premium || profile.subscription_status === 'active'}
+        />
+      )}
+
+      {/* Upgrade Prompt - Strategic Conversion Points */}
+      {profile && upgradePromptTrigger && (
+        <UpgradePrompt
+          trigger={upgradePromptTrigger}
+          profile={profile}
+        />
+      )}
       </div>
     </>
   );
