@@ -9,23 +9,38 @@
  */
 
 const fetch = require('node-fetch');
+const { setupTestUsers } = require('./test-setup');
 
 const API_BASE = process.env.TEST_API_BASE || 'http://localhost:3000';
 
 describe('Authentication Security', () => {
+  let testUsers;
   let validToken;
   let userId;
   let otherUserToken;
   let otherUserId;
+  let premiumToken;
+  let adminToken;
 
   beforeAll(async () => {
-    // TODO: Set up test users via Supabase auth
-    // For now, these should be set in environment
-    validToken = process.env.TEST_USER_TOKEN;
-    userId = process.env.TEST_USER_ID;
-    otherUserToken = process.env.TEST_OTHER_USER_TOKEN;
-    otherUserId = process.env.TEST_OTHER_USER_ID;
-  });
+    // Set up test users via Supabase auth
+    testUsers = await setupTestUsers();
+
+    // Assign test user credentials
+    validToken = testUsers.regular.accessToken;
+    userId = testUsers.regular.userId;
+    otherUserToken = testUsers.other.accessToken;
+    otherUserId = testUsers.other.userId;
+    premiumToken = testUsers.premium.accessToken;
+    adminToken = testUsers.admin.accessToken;
+  }, 30000); // 30 second timeout for setup
+
+  afterAll(async () => {
+    // Clean up test users
+    if (testUsers && testUsers.cleanup) {
+      await testUsers.cleanup();
+    }
+  }, 30000);
 
   describe('Bearer Token Authentication', () => {
     test('should reject requests without Authorization header', async () => {
@@ -62,11 +77,6 @@ describe('Authentication Security', () => {
     });
 
     test('should accept requests with valid Bearer token', async () => {
-      if (!validToken) {
-        console.warn('TEST_USER_TOKEN not set, skipping test');
-        return;
-      }
-
       const res = await fetch(`${API_BASE}/api/transform-quest`, {
         method: 'POST',
         headers: {
@@ -102,11 +112,6 @@ describe('Authentication Security', () => {
 
   describe('Cross-User Data Access Prevention', () => {
     test('should not allow accessing other users quest completion', async () => {
-      if (!validToken || !otherUserId) {
-        console.warn('Test tokens not set, skipping test');
-        return;
-      }
-
       // Try to complete another user's quest
       const res = await fetch(`${API_BASE}/api/complete-quest`, {
         method: 'POST',
@@ -128,11 +133,6 @@ describe('Authentication Security', () => {
 
   describe('Admin Authorization', () => {
     test('should block non-admin access to admin endpoints', async () => {
-      if (!validToken) {
-        console.warn('TEST_USER_TOKEN not set, skipping test');
-        return;
-      }
-
       const res = await fetch(`${API_BASE}/api/admin/rate-limits`, {
         method: 'GET',
         headers: {
@@ -145,12 +145,6 @@ describe('Authentication Security', () => {
     });
 
     test('should allow admin access to admin endpoints', async () => {
-      const adminToken = process.env.TEST_ADMIN_TOKEN;
-      if (!adminToken) {
-        console.warn('TEST_ADMIN_TOKEN not set, skipping test');
-        return;
-      }
-
       const res = await fetch(`${API_BASE}/api/admin/rate-limits?limit=10`, {
         method: 'GET',
         headers: {
@@ -179,12 +173,6 @@ describe('Authentication Security', () => {
     });
 
     test('should prevent already premium users from creating checkout', async () => {
-      const premiumToken = process.env.TEST_PREMIUM_USER_TOKEN;
-      if (!premiumToken) {
-        console.warn('TEST_PREMIUM_USER_TOKEN not set, skipping test');
-        return;
-      }
-
       const res = await fetch(`${API_BASE}/api/create-checkout`, {
         method: 'POST',
         headers: {

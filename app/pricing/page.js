@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
 import { supabase } from '@/lib/supabase';
 import PricingSection from '@/components/PricingSection';
 
@@ -96,71 +97,160 @@ export default function PricingPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#1A1A2E] via-[#16213e] to-[#0F3460] flex items-center justify-center">
-        <div className="text-white text-xl font-black uppercase tracking-wide">Loading...</div>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3 }}
+          className="text-white text-xl font-black uppercase tracking-wide"
+        >
+          Loading...
+        </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1A1A2E] via-[#16213e] to-[#0F3460] text-white p-8">
+    <div className="min-h-screen bg-gradient-to-br from-[#1A1A2E] via-[#16213e] to-[#0F3460] text-white p-4 sm:p-6 lg:p-8 overflow-hidden">
       <div className="max-w-6xl mx-auto">
-        <button
+        <motion.button
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.3 }}
           onClick={() => router.push('/dashboard')}
-          className="mb-8 px-4 py-2 bg-[#00D4FF] hover:bg-[#00B8E6] text-[#1A1A2E] border-3 border-[#0F3460] rounded-lg font-black uppercase text-sm tracking-wide shadow-[0_3px_0_#0F3460] hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1 transition-all"
+          className="mb-6 lg:mb-8 px-4 py-2 bg-[#00D4FF] hover:bg-[#00B8E6] text-[#1A1A2E] border-3 border-[#0F3460] rounded-lg font-black uppercase text-xs sm:text-sm tracking-wide shadow-[0_3px_0_#0F3460] hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1 transition-all duration-200"
         >
           ← Back to Dashboard
-        </button>
+        </motion.button>
 
-        <div className="text-center mb-12">
-          <h1 className="text-5xl font-black mb-4 uppercase tracking-wide text-[#FFD93D]">🔥 Founder's Sale 🔥</h1>
-          <p className="text-[#E2E8F0] text-lg mb-2 font-bold">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="text-center mb-8 lg:mb-12"
+        >
+          <motion.h1
+            initial={{ scale: 0.9 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-black mb-4 uppercase tracking-wide text-[#FFD93D] drop-shadow-[0_0_15px_rgba(255,217,61,0.5)]"
+          >
+            🔥 Founder's Sale 🔥
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="text-[#E2E8F0] text-base sm:text-lg lg:text-xl mb-4 font-bold max-w-3xl mx-auto px-4"
+          >
             Start free forever. Or grab <span className="text-[#FFD93D] font-black">LIFETIME access</span> for a one-time payment.
-          </p>
-          <p className="text-[#FF6B6B] font-black text-xl uppercase">
-            Only {lifetimeSpotsLeft} of 25 spots remaining!
-          </p>
-          <p className="text-[#00D4FF] text-sm mt-2 font-bold">
-            After 25 founders join, this deal disappears forever.
-          </p>
-        </div>
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.4 }}
+            className="inline-block mb-4"
+          >
+            <div className="bg-[#FF6B6B]/20 border-3 border-[#FF6B6B] rounded-xl px-6 py-4 shadow-[0_0_20px_rgba(255,107,107,0.4)]">
+              <p className="text-[#FF6B6B] font-black text-xl sm:text-2xl uppercase">
+                Only {lifetimeSpotsLeft} of 25 spots remaining!
+              </p>
+            </div>
+          </motion.div>
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="text-[#00D4FF] text-sm sm:text-base font-bold max-w-2xl mx-auto px-4"
+          >
+            After 25 founders join, this deal disappears forever. This is <span className="text-[#FFD93D]">your last chance</span> to lock in lifetime access at this price.
+          </motion.p>
+        </motion.div>
 
         {profile?.subscription_status === 'active' && (
-          <div className="bg-[#1A1A2E] border-3 border-[#48BB78] rounded-lg p-4 mb-8 text-center shadow-[0_0_20px_rgba(72,187,120,0.3)]">
-            <p className="text-[#48BB78] text-lg font-black uppercase tracking-wide">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.6 }}
+            className="bg-[#1A1A2E] border-3 border-[#48BB78] rounded-xl p-6 mb-8 text-center shadow-[0_0_25px_rgba(72,187,120,0.4)]"
+          >
+            <p className="text-[#48BB78] text-lg lg:text-xl font-black uppercase tracking-wide">
               🎉 You're a Founder! Lifetime access unlocked.
             </p>
-          </div>
+          </motion.div>
         )}
 
         {profile?.subscription_status !== 'active' && lifetimeSpotsLeft > 0 && (
-          <div className="bg-[#1A1A2E] border-3 border-[#FF6B6B] rounded-lg p-4 mb-8 text-center shadow-[0_0_20px_rgba(255,107,107,0.3)]">
-            <p className="text-[#FF6B6B] text-lg font-black uppercase tracking-wide">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.6 }}
+            className="bg-[#1A1A2E] border-3 border-[#FF6B6B] rounded-xl p-6 mb-8 text-center shadow-[0_0_25px_rgba(255,107,107,0.4)] animate-pulse"
+          >
+            <p className="text-[#FF6B6B] text-lg lg:text-xl font-black uppercase tracking-wide">
               🔥 Only {lifetimeSpotsLeft} of 25 Founder spots remaining!
             </p>
-          </div>
+          </motion.div>
         )}
 
         {profile?.subscription_status !== 'active' && lifetimeSpotsLeft === 0 && (
-          <div className="bg-[#1A1A2E] border-3 border-[#0F3460] rounded-lg p-4 mb-8 text-center">
-            <p className="text-[#E2E8F0] text-lg font-black uppercase tracking-wide">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.6 }}
+            className="bg-[#1A1A2E] border-3 border-[#0F3460] rounded-xl p-6 mb-8 text-center"
+          >
+            <p className="text-[#E2E8F0] text-lg lg:text-xl font-black uppercase tracking-wide">
               All 25 Founder spots claimed. Subscription plans coming soon!
             </p>
-          </div>
+          </motion.div>
         )}
 
-        <PricingSection
-          lifetimeSpotsLeft={lifetimeSpotsLeft}
-          isFounder={profile?.subscription_status === 'active'}
-          checkoutLoading={checkoutLoading}
-          onStartFree={() => router.push('/signup')}
-          onClaimFounder={handleUpgrade}
-        />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7 }}
+        >
+          <PricingSection
+            lifetimeSpotsLeft={lifetimeSpotsLeft}
+            isFounder={profile?.subscription_status === 'active'}
+            checkoutLoading={checkoutLoading}
+            onStartFree={() => router.push('/signup')}
+            onClaimFounder={handleUpgrade}
+          />
+        </motion.div>
 
-        <div className="mt-12 text-center">
-          <p className="text-[#00D4FF] font-bold">💳 Secure payment powered by Stripe</p>
-          <p className="mt-2 text-[#E2E8F0] font-bold">One-time payment. No subscriptions. No hidden fees.</p>
-          <p className="mt-2 text-xs text-[#00D4FF]">Subscription plans coming in ~3 months for those who miss the founder deal.</p>
-        </div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.9 }}
+          className="mt-12 lg:mt-16 text-center space-y-4"
+        >
+          <div className="flex flex-wrap justify-center items-center gap-6 mb-6">
+            <div className="flex items-center gap-2 text-[#00D4FF]">
+              <span className="text-2xl">🔒</span>
+              <span className="font-bold">Secure Payments</span>
+            </div>
+            <div className="flex items-center gap-2 text-[#48BB78]">
+              <span className="text-2xl">✓</span>
+              <span className="font-bold">Instant Access</span>
+            </div>
+            <div className="flex items-center gap-2 text-[#FFD93D]">
+              <span className="text-2xl">⚡</span>
+              <span className="font-bold">No Recurring Fees</span>
+            </div>
+          </div>
+
+          <div className="bg-[#1A1A2E]/50 border-2 border-[#00D4FF]/30 rounded-xl p-6 max-w-2xl mx-auto">
+            <p className="text-[#00D4FF] font-bold text-base sm:text-lg mb-2">💳 Secure payment powered by Stripe</p>
+            <p className="text-[#E2E8F0] font-bold mb-3">One-time payment. No subscriptions. No hidden fees.</p>
+            <p className="text-sm text-[#00D4FF]/80">
+              Subscription plans coming in ~3 months for those who miss the founder deal.
+            </p>
+          </div>
+        </motion.div>
       </div>
     </div>
   );
