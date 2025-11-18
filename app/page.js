@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 
 export default function LandingPage() {
   const router = useRouter();
