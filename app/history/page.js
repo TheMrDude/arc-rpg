@@ -1,4 +1,5 @@
 'use client';
+import GlobalFooter from '@/app/components/GlobalFooter';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -83,6 +84,7 @@ export default function HistoryPage() {
           <p className="text-[#00D4FF] font-bold text-lg">Total Completed: {quests.length} quests</p>
           <p className="text-[#FFD93D] font-black text-lg">Total XP Earned: {quests.reduce((sum, q) => sum + q.xp_value, 0)} XP</p>
         </div>
+      <GlobalFooter />
       </div>
     </div>
   );
