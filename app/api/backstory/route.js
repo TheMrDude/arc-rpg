@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { createClient } from '@supabase/supabase-js';
+import { checkAIRateLimit, logAIUsage } from '@/lib/aiRateLimiting';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,6 +26,17 @@ export async function POST(request) {
 
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Check rate limit
+    const rateLimit = await checkAIRateLimit(user.id, 'backstory');
+    if (!rateLimit.allowed) {
+      return NextResponse.json({
+        error: 'Rate limit exceeded',
+        message: `You can generate ${rateLimit.limit} backstories per day. Try again after ${new Date(rateLimit.resetAt).toLocaleTimeString()}.`,
+        resetAt: rateLimit.resetAt,
+        limit: rateLimit.limit,
+      }, { status: 429 });
     }
 
     // Get user profile

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { createClient } from '@supabase/supabase-js';
+import { checkAIRateLimit, logAIUsage } from '@/lib/aiRateLimiting';
 
 export const dynamic = 'force-dynamic';
 
@@ -36,6 +37,17 @@ export async function GET(request) {
 
     if (!profile) {
       return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
+    }
+
+    // Check rate limit
+    const rateLimit = await checkAIRateLimit(user.id, 'suggestions');
+    if (!rateLimit.allowed) {
+      return NextResponse.json({
+        error: 'Rate limit exceeded',
+        message: `You can generate ${rateLimit.limit} quest suggestion batches per day. You've used ${rateLimit.usedToday}. Try again after ${new Date(rateLimit.resetAt).toLocaleTimeString()}.`,
+        resetAt: rateLimit.resetAt,
+        remaining: rateLimit.remaining
+      }, { status: 429 });
     }
 
     // Get recent completed quests to understand patterns
@@ -108,6 +120,13 @@ Generate 8 quest suggestions now:`;
         });
       }
     }
+
+    // Log AI usage for rate limiting
+    await logAIUsage(user.id, 'suggestions', {
+      suggestions_count: suggestions.length,
+      profile_level: profile.level,
+      archetype: profile.archetype
+    });
 
     return NextResponse.json({
       success: true,
