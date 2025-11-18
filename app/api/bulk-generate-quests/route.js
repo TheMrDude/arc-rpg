@@ -34,25 +34,15 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check if user is admin (you may want to add this check)
+    // ADMIN ONLY - This burns through API credits!
     const { data: profile } = await supabase
       .from('profiles')
       .select('is_admin')
       .eq('id', user.id)
       .single();
 
-    // Allow premium users or admins to generate templates
     if (!profile?.is_admin) {
-      // Check if user has premium
-      const { data: premiumData } = await supabase
-        .from('profiles')
-        .select('premium_tier')
-        .eq('id', user.id)
-        .single();
-
-      if (!premiumData?.premium_tier || premiumData.premium_tier === 'free') {
-        return NextResponse.json({ error: 'Premium required for bulk generation' }, { status: 403 });
-      }
+      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
     }
 
     const generatedQuests = [];

@@ -150,13 +150,15 @@ export default function QuestTemplateLibrary({ profile }) {
           <h2 className="text-3xl font-black text-[#FFD93D] mb-2">📚 Quest Template Library</h2>
           <p className="text-gray-300">Pre-generated epic quests ready to use</p>
         </div>
-        <button
-          onClick={() => generateBulkQuests(60)}
-          disabled={generating}
-          className="px-6 py-3 bg-[#FFD93D] hover:bg-[#FFC700] text-[#0F3460] border-3 border-[#0F3460] rounded-lg font-black uppercase tracking-wide shadow-lg disabled:opacity-50 transition-all hover:scale-105"
-        >
-          {generating ? '⚡ Generating...' : '⚡ Generate 60 Quests'}
-        </button>
+        {profile?.is_admin && (
+          <button
+            onClick={() => generateBulkQuests(60)}
+            disabled={generating}
+            className="px-6 py-3 bg-[#FFD93D] hover:bg-[#FFC700] text-[#0F3460] border-3 border-[#0F3460] rounded-lg font-black uppercase tracking-wide shadow-lg disabled:opacity-50 transition-all hover:scale-105"
+          >
+            {generating ? '⚡ Generating...' : '⚡ Generate 60 Quests (Admin)'}
+          </button>
+        )}
       </div>
 
       {/* Stats */}
