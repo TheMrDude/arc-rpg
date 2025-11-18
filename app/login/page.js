@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
 import { supabase } from '@/lib/supabase';
 
 export default function LoginPage() {
@@ -54,67 +55,112 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1A1A2E] via-[#16213e] to-[#0F3460] flex items-center justify-center p-8">
-      <div className="max-w-md w-full bg-[#1A1A2E] border-3 border-[#00D4FF] rounded-lg p-8 shadow-[0_0_20px_rgba(0,212,255,0.3)]">
-        <h1 className="text-3xl font-black text-[#FF6B6B] mb-2 uppercase tracking-wide">Welcome Back</h1>
-        <p className="text-[#00D4FF] mb-6 font-bold">Login to continue your adventure</p>
+    <div className="min-h-screen bg-gradient-to-br from-[#1A1A2E] via-[#16213e] to-[#0F3460] flex items-center justify-center p-4 sm:p-8">
+      <motion.div
+        initial={{ opacity: 0, y: 20, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        className="max-w-md w-full bg-[#1A1A2E] border-3 border-[#00D4FF] rounded-xl p-6 sm:p-8 shadow-[0_0_25px_rgba(0,212,255,0.4)]"
+      >
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+        >
+          <h1 className="text-2xl sm:text-3xl font-black text-[#FF6B6B] mb-2 uppercase tracking-wide">
+            Welcome Back
+          </h1>
+          <p className="text-[#00D4FF] mb-6 font-bold text-sm sm:text-base">
+            Login to continue your adventure
+          </p>
+        </motion.div>
 
         {error && (
-          <div className="bg-red-900/30 border-3 border-red-500 rounded-lg p-3 mb-4">
+          <motion.div
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="bg-red-900/30 border-3 border-red-500 rounded-lg p-3 mb-4"
+          >
             <p className="text-red-300 text-sm font-bold">{error}</p>
             {error.toLowerCase().includes('confirm') && (
               <button
                 onClick={() => router.push('/confirm-email')}
-                className="text-[#00D4FF] hover:text-[#00B8E6] text-sm font-bold mt-2 underline"
+                className="text-[#00D4FF] hover:text-[#00B8E6] text-sm font-bold mt-2 underline transition-colors duration-200"
               >
                 Resend confirmation email
               </button>
             )}
-          </div>
+          </motion.div>
         )}
 
-        <form onSubmit={handleLogin}>
+        <motion.form
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          onSubmit={handleLogin}
+        >
           <div className="mb-4">
-            <label className="block text-white mb-2 font-bold uppercase text-sm tracking-wide">Email</label>
+            <label className="block text-white mb-2 font-bold uppercase text-xs sm:text-sm tracking-wide">
+              Email
+            </label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 bg-[#0F3460] text-white border-3 border-[#1A1A2E] rounded-lg focus:outline-none focus:border-[#00D4FF] focus:shadow-[0_0_0_3px_rgba(0,212,255,0.2)] transition-all"
+              placeholder="hero@questmail.com"
+              className="w-full px-4 py-3 bg-[#0F3460] text-white placeholder-gray-500 border-3 border-[#1A1A2E] rounded-lg focus:outline-none focus:border-[#00D4FF] focus:shadow-[0_0_15px_rgba(0,212,255,0.3)] transition-all duration-200"
               required
             />
           </div>
 
           <div className="mb-6">
-            <label className="block text-white mb-2 font-bold uppercase text-sm tracking-wide">Password</label>
+            <label className="block text-white mb-2 font-bold uppercase text-xs sm:text-sm tracking-wide">
+              Password
+            </label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-[#0F3460] text-white border-3 border-[#1A1A2E] rounded-lg focus:outline-none focus:border-[#00D4FF] focus:shadow-[0_0_0_3px_rgba(0,212,255,0.2)] transition-all"
+              placeholder="Enter your password"
+              className="w-full px-4 py-3 bg-[#0F3460] text-white placeholder-gray-500 border-3 border-[#1A1A2E] rounded-lg focus:outline-none focus:border-[#00D4FF] focus:shadow-[0_0_15px_rgba(0,212,255,0.3)] transition-all duration-200"
               required
             />
           </div>
 
-          <button
+          <motion.button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-[#FF6B6B] hover:bg-[#EE5A6F] text-white border-3 border-[#0F3460] rounded-lg font-black uppercase tracking-wide transition-all duration-100 shadow-[0_5px_0_#0F3460] hover:shadow-[0_7px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_2px_0_#0F3460] active:translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed"
+            whileHover={!loading ? { scale: 1.02 } : {}}
+            whileTap={!loading ? { scale: 0.98 } : {}}
+            className="w-full py-3 bg-[#FF6B6B] hover:bg-[#EE5A6F] text-white border-3 border-[#0F3460] rounded-lg font-black uppercase tracking-wide transition-all duration-200 shadow-[0_5px_0_#0F3460] hover:shadow-[0_7px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_2px_0_#0F3460] active:translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
           >
-            {loading ? 'Logging in...' : 'Login'}
-          </button>
-        </form>
+            {loading ? '⏳ Logging in...' : '⚔️ Login'}
+          </motion.button>
+        </motion.form>
 
-        <p className="text-[#E2E8F0] text-center mt-6">
-          Don't have an account?{' '}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4 }}
+          className="text-center mt-6"
+        >
+          <p className="text-[#E2E8F0] text-sm">
+            Don't have an account?{' '}
+            <button
+              onClick={() => router.push('/signup')}
+              className="text-[#00D4FF] hover:text-[#00B8E6] font-bold transition-colors duration-200 underline"
+            >
+              Sign Up
+            </button>
+          </p>
           <button
-            onClick={() => router.push('/signup')}
-            className="text-[#00D4FF] hover:text-[#00B8E6] font-bold"
+            onClick={() => router.push('/')}
+            className="text-[#E2E8F0] hover:text-white text-xs mt-3 transition-colors duration-200"
           >
-            Sign Up
+            ← Back to Home
           </button>
-        </p>
-      </div>
+        </motion.div>
+      </motion.div>
     </div>
   );
 }
