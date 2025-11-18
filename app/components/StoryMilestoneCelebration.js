@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect, useState } from 'react';
+import ShareToSocial from './ShareToSocial';
 
 export default function StoryMilestoneCelebration({ storyData, onClose }) {
   const [confetti, setConfetti] = useState([]);
@@ -200,6 +201,28 @@ export default function StoryMilestoneCelebration({ storyData, onClose }) {
                 {type === 'new_story' && 'A new adventure awaits! Complete related quests to advance the story.'}
                 {type === 'major_progress' && 'Your actions have significantly impacted the story!'}
               </p>
+            </motion.div>
+
+            {/* Share Achievement */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.85 }}
+              className="mb-4"
+            >
+              <ShareToSocial
+                content={{
+                  title: type === 'story_completed'
+                    ? `Just completed the "${threadName}" story in HabitQuest! 📖🏆`
+                    : `Progressing through "${threadName}" story in HabitQuest! ⚡📖`,
+                  description: type === 'story_completed'
+                    ? 'Completed an epic saga! Join me in turning life into an RPG adventure!'
+                    : 'Advancing through epic stories by completing quests!',
+                  hashtags: ['HabitQuest', 'StoryMode', 'Gamification', 'RPG'],
+                }}
+                compact={true}
+                showLabels={true}
+              />
             </motion.div>
 
             {/* Continue Button */}
