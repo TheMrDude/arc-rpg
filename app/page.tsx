@@ -10,6 +10,7 @@ import ExitIntentPopup from './components/ExitIntentPopup';
 import SocialProofNotifications from './components/SocialProofNotifications';
 import EmailCapture from './components/EmailCapture';
 import TestimonialsCarousel, { extendedTestimonials } from './components/TestimonialsCarousel';
+import ShareToSocial from './components/ShareToSocial';
 import { PreviewQuest } from '@/lib/onboarding';
 import { trackEvent } from '@/lib/analytics';
 import Image from 'next/image';
@@ -345,6 +346,23 @@ export default function LandingPage() {
             inline={false}
           />
         </div>
+
+        {/* Share to Social Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mb-12 max-w-2xl mx-auto"
+        >
+          <ShareToSocial
+            content={{
+              title: 'HabitQuest - Turn Your Life Into An Epic RPG! 🎮⚔️',
+              description: 'Transform boring tasks into epic quests with AI. Join me on this legendary adventure!',
+              hashtags: ['HabitQuest', 'Gamification', 'Productivity', 'RPG', 'AI'],
+            }}
+            title="Share With Fellow Heroes"
+          />
+        </motion.div>
 
         {/* Footer */}
         <div className="text-center text-gray-400 text-sm border-t border-gray-700 pt-8">
