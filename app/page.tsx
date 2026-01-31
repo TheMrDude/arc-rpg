@@ -131,8 +131,8 @@ export default function LandingPage() {
           </p>
 
           <p className="text-lg sm:text-xl mb-12 text-gray-300 max-w-3xl mx-auto">
-            Join <span className="text-[#F59E0B] font-black">1,247+ achievers</span> who transformed their habits into legendary quests.
-            AI-powered. Scientifically addictive. <span className="text-[#10B981] font-bold">Actually fun.</span>
+            The habit tracker for people who <span className="text-[#F59E0B] font-black">hate habit trackers</span>.
+            AI-powered. Ridiculously fun. <span className="text-[#10B981] font-bold">Try it free — no signup required.</span>
           </p>
         </motion.div>
 
@@ -306,6 +306,43 @@ export default function LandingPage() {
           />
         </motion.div>
 
+        {/* FAQ Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mb-20 max-w-3xl mx-auto"
+        >
+          <h2 className="text-3xl sm:text-4xl font-black text-center mb-12 uppercase text-[#00D4FF]">
+            QUICK QUESTIONS
+          </h2>
+          <div className="space-y-4">
+            {[
+              {
+                q: "Is it actually free?",
+                a: "Yes. Free tier gives you unlimited quests and basic gamification. Premium adds AI storytelling, advanced stats, and lifetime features for a one-time $47."
+              },
+              {
+                q: "Do I need to download anything?",
+                a: "Nope. Works in your browser on any device. Install as an app on your phone if you want (it's a PWA)."
+              },
+              {
+                q: "What if I forget to use it?",
+                a: "We'll nudge you. Streak reminders, daily quest notifications, and gentle \"your character misses you\" prompts keep you coming back."
+              },
+              {
+                q: "Is this just for gamers?",
+                a: "Not at all. If you've ever wished tasks felt less boring, this is for you. The RPG layer makes habits feel rewarding instead of draining."
+              }
+            ].map((item, i) => (
+              <div key={i} className="bg-[#16213E]/50 border-2 border-[#0F3460] rounded-xl p-6">
+                <h3 className="text-lg font-black text-[#F59E0B] mb-2">{item.q}</h3>
+                <p className="text-gray-300">{item.a}</p>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
         {/* Final CTA */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -314,25 +351,25 @@ export default function LandingPage() {
           className="text-center bg-gradient-to-br from-[#16213E] to-[#0F3460] border-4 border-[#FF6B4A] rounded-2xl p-12 max-w-4xl mx-auto mb-12"
         >
           <h2 className="text-4xl sm:text-5xl font-black mb-6 uppercase">
-            YOUR TRANSFORMATION STARTS NOW
+            READY TO MAKE HABITS ACTUALLY FUN?
           </h2>
-          <p className="text-xl mb-8 text-gray-300">
-            Join 1,247+ heroes who stopped procrastinating and started conquering.
+          <p className="text-xl mb-4 text-gray-300">
+            Start free. No credit card. Cancel anytime.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <p className="text-sm mb-8 text-gray-400">
+            Built by a solo dev who got tired of boring habit apps. 🎮
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <button
               onClick={() => router.push('/signup')}
               className="px-12 py-6 bg-gradient-to-r from-[#FF6B4A] to-[#FF5733] hover:from-[#FF5733] hover:to-[#E74C3C] text-white border-3 border-[#0F3460] rounded-xl font-black text-2xl uppercase tracking-wide shadow-lg transition-all hover:scale-105"
             >
-              🚀 Start Free Now
-            </button>
-            <button
-              onClick={() => router.push('/pricing')}
-              className="px-12 py-6 bg-gradient-to-r from-[#9B59B6] to-[#7C3AED] hover:from-[#7C3AED] hover:to-[#6C3AAD] text-white border-3 border-[#0F3460] rounded-xl font-black text-2xl uppercase tracking-wide shadow-lg transition-all hover:scale-105"
-            >
-              ⚡ Get Lifetime Deal - $47
+              🚀 Start Your Quest — Free
             </button>
           </div>
+          <p className="mt-6 text-gray-500 text-sm">
+            Want lifetime access? <button onClick={() => router.push('/pricing')} className="text-[#7C3AED] hover:underline font-bold">See pricing →</button>
+          </p>
         </motion.div>
 
         {/* Email Capture Section */}
@@ -371,7 +408,7 @@ export default function LandingPage() {
               Already have an account? Login →
             </button>
           </p>
-          <p>© 2024 HabitQuest. Transform your life, one epic quest at a time.</p>
+          <p>© 2026 HabitQuest. Transform your life, one epic quest at a time.</p>
         </div>
       </div>
 
