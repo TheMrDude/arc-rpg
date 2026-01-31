@@ -44,12 +44,17 @@ export async function GET() {
 
     const founderSpotsRemaining = Math.max(0, 25 - (premiumUsers || 0));
 
+    // Get total registered users
+    const { count: totalUsers } = await supabase
+      .from('profiles')
+      .select('*', { count: 'exact', head: true });
+
     // Update cache
     cachedStats = {
-      heroesOnline: Math.max(10, heroesOnline || 0), // Minimum 10 heroes online
+      heroesOnline: heroesOnline || 0,
       questsCompletedToday: questsCompletedToday || 0,
       founderSpotsRemaining,
-      totalHeroes: 1247, // Will be real count later
+      totalHeroes: totalUsers || 0,
       updatedAt: now
     };
     cacheTime = now;
@@ -59,12 +64,12 @@ export async function GET() {
   } catch (error) {
     console.error('Error fetching stats:', error);
 
-    // Return fallback stats on error
+    // Return minimal fallback stats on error - no fake numbers
     return NextResponse.json({
-      heroesOnline: 47, // Minimum 10 guaranteed
-      questsCompletedToday: 247,
-      founderSpotsRemaining: 23,
-      totalHeroes: 1247,
+      heroesOnline: 0,
+      questsCompletedToday: 0,
+      founderSpotsRemaining: 25,
+      totalHeroes: 0,
       updatedAt: Date.now()
     });
   }
