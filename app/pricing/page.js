@@ -223,32 +223,75 @@ export default function PricingPage() {
           />
         </motion.div>
 
+        {/* Why HabitQuest is Different */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8 }}
+          className="mt-12 lg:mt-16 max-w-4xl mx-auto"
+        >
+          <h2 className="text-2xl sm:text-3xl font-black text-center mb-8 text-[#00D4FF]">
+            💚 THE ANTI-GUILT HABIT TRACKER
+          </h2>
+          
+          <div className="grid md:grid-cols-2 gap-6 mb-12">
+            <div className="bg-red-900/20 border-2 border-red-500/30 rounded-xl p-6">
+              <h3 className="text-xl font-black text-red-400 mb-4">❌ Other Habit Apps</h3>
+              <ul className="space-y-2 text-gray-300">
+                <li>• Shame you when you break streaks</li>
+                <li>• Penalize missed days with lost progress</li>
+                <li>• Compare you to other users</li>
+                <li>• Make productivity feel like punishment</li>
+                <li>• Boring checkboxes that drain motivation</li>
+              </ul>
+            </div>
+            
+            <div className="bg-green-900/20 border-2 border-green-500/30 rounded-xl p-6">
+              <h3 className="text-xl font-black text-green-400 mb-4">✅ HabitQuest</h3>
+              <ul className="space-y-2 text-gray-300">
+                <li>• <strong>No streak penalties</strong> — ever</li>
+                <li>• Miss a day? Your story continues</li>
+                <li>• Solo journey — no leaderboards</li>
+                <li>• Tasks become adventures you want to do</li>
+                <li>• AI remembers YOUR story across weeks</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="bg-[#1A1A2E] border-2 border-[#FFD93D]/30 rounded-xl p-6 text-center mb-8">
+            <p className="text-xl text-[#FFD93D] font-bold mb-2">
+              "Your life isn't a streak to maintain. It's a story to tell."
+            </p>
+            <p className="text-gray-400">— The HabitQuest Philosophy</p>
+          </div>
+        </motion.div>
+
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.9 }}
-          className="mt-12 lg:mt-16 text-center space-y-4"
+          className="mt-8 text-center space-y-4"
         >
           <div className="flex flex-wrap justify-center items-center gap-6 mb-6">
             <div className="flex items-center gap-2 text-[#00D4FF]">
               <span className="text-2xl">🔒</span>
-              <span className="font-bold">Secure Payments</span>
+              <span className="font-bold">Secure via Stripe</span>
             </div>
             <div className="flex items-center gap-2 text-[#48BB78]">
               <span className="text-2xl">✓</span>
               <span className="font-bold">Instant Access</span>
             </div>
             <div className="flex items-center gap-2 text-[#FFD93D]">
-              <span className="text-2xl">⚡</span>
-              <span className="font-bold">No Recurring Fees</span>
+              <span className="text-2xl">♾️</span>
+              <span className="font-bold">Lifetime Access</span>
             </div>
           </div>
 
           <div className="bg-[#1A1A2E]/50 border-2 border-[#00D4FF]/30 rounded-xl p-6 max-w-2xl mx-auto">
-            <p className="text-[#00D4FF] font-bold text-base sm:text-lg mb-2">💳 Secure payment powered by Stripe</p>
-            <p className="text-[#E2E8F0] font-bold mb-3">One-time payment. No subscriptions. No hidden fees.</p>
-            <p className="text-sm text-[#00D4FF]/80">
-              Subscription plans coming in ~3 months for those who miss the founder deal.
+            <p className="text-[#00D4FF] font-bold text-base sm:text-lg mb-2">💳 One-time payment. No subscriptions.</p>
+            <p className="text-[#E2E8F0] mb-3">Pay once, use forever. All future updates included.</p>
+            <p className="text-sm text-gray-400">
+              Built by a solo dev who got tired of apps that make you feel bad. 🎮
             </p>
           </div>
         </motion.div>
