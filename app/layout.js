@@ -4,7 +4,7 @@ import PostHogProvider from './components/PostHogProvider'
 
 export const metadata = {
   title: 'HabitQuest - Turn Your To-Do List Into An Epic RPG Adventure',
-  description: 'Transform boring tasks into epic quests with AI. Join 1,247+ achievers who gamified their habits with XP, leveling, and personalized stories. Start free today!',
+  description: 'The habit tracker for people who hate habit trackers. Transform boring tasks into epic RPG quests with AI. XP, levels, streaks — actually fun. Start free today!',
   keywords: ['habit tracker', 'RPG', 'gamification', 'productivity', 'AI', 'task management', 'habits', 'motivation', 'ADHD', 'neurodivergent'],
   authors: [{ name: 'HabitQuest' }],
   verification: {
@@ -40,7 +40,10 @@ export const metadata = {
     title: 'HabitQuest - Turn Your Life Into An Epic RPG',
     description: 'Transform boring tasks into epic quests. AI-powered. Scientifically addictive. Actually fun.',
     images: ['https://habitquest.dev/og-image.png'],
-    creator: '@habitquest',
+    creator: '@officialmrdude',
+  },
+  alternates: {
+    canonical: 'https://habitquest.dev',
   },
   robots: {
     index: true,
@@ -73,6 +76,46 @@ export default function RootLayout({ children }) {
         {/* Favicon */}
         <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-96x96.png" />
         <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-72x72.png" />
+
+        {/* JSON-LD Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "SoftwareApplication",
+              "name": "HabitQuest",
+              "applicationCategory": "ProductivityApplication",
+              "operatingSystem": "Web",
+              "description": "AI-powered habit tracker that transforms your tasks into epic RPG quests. Gamify your productivity with XP, levels, and character archetypes.",
+              "url": "https://habitquest.dev",
+              "author": {
+                "@type": "Person",
+                "name": "Mr. Dude",
+                "url": "https://twitter.com/officialmrdude"
+              },
+              "offers": [
+                {
+                  "@type": "Offer",
+                  "price": "0",
+                  "priceCurrency": "USD",
+                  "name": "Free Plan"
+                },
+                {
+                  "@type": "Offer",
+                  "price": "47",
+                  "priceCurrency": "USD",
+                  "name": "Lifetime Deal"
+                }
+              ],
+              "aggregateRating": {
+                "@type": "AggregateRating",
+                "ratingValue": "4.8",
+                "ratingCount": "17"
+              }
+            })
+          }}
+        />
 
         {/* Facebook Pixel */}
         {process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID && (
