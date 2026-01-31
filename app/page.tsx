@@ -130,9 +130,12 @@ export default function LandingPage() {
             Turn Your Boring To-Do List Into An Epic RPG Adventure
           </p>
 
-          <p className="text-lg sm:text-xl mb-12 text-gray-300 max-w-3xl mx-auto">
-            The habit tracker for people who <span className="text-[#F59E0B] font-black">hate habit trackers</span>.
-            AI-powered. Ridiculously fun. <span className="text-[#10B981] font-bold">Try it free — no signup required.</span>
+          <p className="text-lg sm:text-xl mb-6 text-gray-300 max-w-3xl mx-auto">
+            The <span className="text-[#F59E0B] font-black">anti-guilt</span> habit tracker. No streak shame. No punishment for missed days.
+            Just AI that turns your tasks into an <span className="text-[#10B981] font-bold">epic personal story</span>.
+          </p>
+          <p className="text-md mb-12 text-[#FF6B35] font-bold">
+            🔥 Founder pricing: $47 lifetime (only 25 spots) — Then $9/month forever
           </p>
         </motion.div>
 
@@ -353,22 +356,25 @@ export default function LandingPage() {
           <h2 className="text-4xl sm:text-5xl font-black mb-6 uppercase">
             READY TO MAKE HABITS ACTUALLY FUN?
           </h2>
-          <p className="text-xl mb-4 text-gray-300">
-            Start free. No credit card. Cancel anytime.
-          </p>
+          <div className="mb-6 inline-block bg-[#FF6B35]/20 border-2 border-[#FF6B35] rounded-lg px-6 py-3">
+            <p className="text-[#FF6B35] font-black text-lg">
+              🔥 FOUNDER SPECIAL: Only 23 of 25 spots left
+            </p>
+            <p className="text-gray-300 text-sm">$47 once = Lifetime access. Then it's $9/month forever.</p>
+          </div>
           <p className="text-sm mb-8 text-gray-400">
-            Built by a solo dev who got tired of boring habit apps. 🎮
+            No guilt. No punishment. Just your personal quest log. 🎮
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <button
               onClick={() => router.push('/signup')}
-              className="px-12 py-6 bg-gradient-to-r from-[#FF6B4A] to-[#FF5733] hover:from-[#FF5733] hover:to-[#E74C3C] text-white border-3 border-[#0F3460] rounded-xl font-black text-2xl uppercase tracking-wide shadow-lg transition-all hover:scale-105"
+              className="px-12 py-6 bg-[#FF6B35] hover:bg-[#E55A2B] text-white border-3 border-[#0F3460] rounded-xl font-black text-2xl uppercase tracking-wide shadow-lg transition-all hover:scale-105 animate-pulse"
             >
-              🚀 Start Your Quest — Free
+              ⚔️ Claim Your Founder Spot — $47
             </button>
           </div>
-          <p className="mt-6 text-gray-500 text-sm">
-            Want lifetime access? <button onClick={() => router.push('/pricing')} className="text-[#7C3AED] hover:underline font-bold">See pricing →</button>
+          <p className="mt-4 text-gray-400 text-sm">
+            or <button onClick={() => router.push('/signup')} className="text-[#00D4FF] hover:underline">start free</button> with limited features
           </p>
         </motion.div>
 
