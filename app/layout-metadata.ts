@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 
 export const landingPageMetadata: Metadata = {
   title: 'HabitQuest - Turn Your To-Do List Into An Epic RPG Adventure',
-  description: 'Transform boring tasks into epic quests with AI. Join 1,247+ achievers who gamified their habits with XP, leveling, and personalized stories. Start free today!',
+  description: 'The anti-guilt habit tracker. Transform boring tasks into epic RPG quests with AI. No streak shame. No punishment. Just your personal adventure. Start free!',
   keywords: ['habit tracker', 'RPG', 'gamification', 'productivity', 'AI', 'task management', 'habits', 'motivation'],
   authors: [{ name: 'HabitQuest' }],
   openGraph: {
@@ -26,7 +26,7 @@ export const landingPageMetadata: Metadata = {
     title: 'HabitQuest - Turn Your Life Into An Epic RPG',
     description: 'Transform boring tasks into epic quests. AI-powered. Scientifically addictive. Actually fun.',
     images: ['https://habitquest.dev/og-image.png'],
-    creator: '@habitquest',
+    creator: '@officialmrdude',
   },
   robots: {
     index: true,

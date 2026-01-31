@@ -139,10 +139,10 @@ export default function UpgradePrompt({ trigger, profile }) {
         <div className="text-center mb-6 p-4 bg-gradient-to-r from-[#7C3AED]/20 to-[#FF5733]/20 rounded-lg border border-[#FF5733]">
           <div className="flex items-baseline justify-center gap-2 mb-2">
             <span className="text-5xl font-black text-[#FF5733]">$47</span>
-            <span className="text-gray-400 line-through text-2xl">$297</span>
+            <span className="text-gray-400 text-lg">one time</span>
           </div>
-          <div className="text-[#10B981] font-bold mb-1">ONE-TIME PAYMENT • LIFETIME ACCESS</div>
-          <div className="text-sm text-gray-400">⏰ Limited-time Founder's Deal • All future features FREE forever</div>
+          <div className="text-[#10B981] font-bold mb-1">LIFETIME ACCESS • NO SUBSCRIPTIONS</div>
+          <div className="text-sm text-gray-400">Only 25 founder spots. After that, it's $9/month forever.</div>
         </div>
 
         {/* CTA Buttons */}
@@ -165,16 +165,16 @@ export default function UpgradePrompt({ trigger, profile }) {
         <div className="mt-6 pt-6 border-t border-gray-700">
           <div className="grid grid-cols-3 gap-4 text-center text-sm">
             <div>
-              <div className="font-bold text-[#10B981]">1,200+</div>
-              <div className="text-gray-400">Happy Founders</div>
+              <div className="font-bold text-[#10B981]">🔒</div>
+              <div className="text-gray-400">Secure via Stripe</div>
             </div>
             <div>
-              <div className="font-bold text-[#10B981]">100%</div>
-              <div className="text-gray-400">Secure Payment</div>
+              <div className="font-bold text-[#10B981]">💚</div>
+              <div className="text-gray-400">No Guilt, Ever</div>
             </div>
             <div>
-              <div className="font-bold text-[#10B981]">Lifetime</div>
-              <div className="text-gray-400">All Updates FREE</div>
+              <div className="font-bold text-[#10B981]">♾️</div>
+              <div className="text-gray-400">Lifetime Access</div>
             </div>
           </div>
         </div>

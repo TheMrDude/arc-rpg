@@ -19,9 +19,9 @@ export function generateSocialShareUrls(content: ShareContent) {
   const {
     url = typeof window !== 'undefined' ? window.location.href : 'https://habitquest.dev',
     title = 'HabitQuest - Turn Your Life Into An Epic RPG',
-    description = 'Transform boring tasks into epic quests with AI-powered gamification. Join 1,247+ heroes who stopped procrastinating and started conquering!',
+    description = 'The anti-guilt habit tracker. Transform boring tasks into epic RPG quests with AI. No streak shame. No punishment. Just your personal adventure.',
     hashtags = ['HabitQuest', 'Gamification', 'Productivity', 'RPG'],
-    via = 'habitquest',
+    via = 'officialmrdude',
     imageUrl,
   } = content;
 
