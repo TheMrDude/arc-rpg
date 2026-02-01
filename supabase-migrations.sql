@@ -1,6 +1,26 @@
 -- ARC RPG Security & Performance Migrations
 -- Run this file in your Supabase SQL Editor
 
+-- AUTO-PROFILE CREATION TRIGGER
+-- Creates a profile row when a new user signs up via Supabase Auth
+
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.profiles (id)
+  VALUES (NEW.id)
+  ON CONFLICT (id) DO NOTHING;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW
+  EXECUTE FUNCTION public.handle_new_user();
+
 -- PERFORMANCE INDEXES
 
 -- Index for user quest lookups (most common query)
@@ -152,6 +172,12 @@ WITH CHECK (
     OR auth.jwt() ->> 'role' = 'service_role'
   )
 );
+
+-- Users can insert their own profile (for edge cases where trigger fails)
+DROP POLICY IF EXISTS "Users can insert own profile" ON profiles;
+CREATE POLICY "Users can insert own profile"
+ON profiles FOR INSERT
+WITH CHECK (auth.uid() = id);
 
 -- Enable RLS on quests table
 ALTER TABLE quests ENABLE ROW LEVEL SECURITY;

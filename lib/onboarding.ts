@@ -30,14 +30,34 @@ export async function handleFirstQuestCompletion(
   supabase: SupabaseClient
 ): Promise<{ success: boolean; newXP: number; newLevel: number }> {
   try {
-    // 1. Get current user profile
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
+    // 1. Get current user profile (may not exist yet due to trigger timing)
+    let profile = null;
+    let retries = 3;
 
-    if (profileError) throw profileError;
+    while (retries > 0) {
+      const { data, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (!profileError && data) {
+        profile = data;
+        break;
+      }
+
+      // Profile doesn't exist yet, wait and retry
+      retries--;
+      if (retries > 0) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+    }
+
+    // If profile still doesn't exist after retries, return gracefully
+    if (!profile) {
+      console.warn('Profile not found for user after retries:', userId);
+      return { success: false, newXP: 0, newLevel: 1 };
+    }
 
     const currentXP = profile.xp || 0;
     const currentLevel = profile.level || 1;
