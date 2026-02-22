@@ -10,10 +10,13 @@ import ExitIntentPopup from './components/ExitIntentPopup';
 import SocialProofNotifications from './components/SocialProofNotifications';
 import EmailCapture from './components/EmailCapture';
 import TestimonialsCarousel, { extendedTestimonials } from './components/TestimonialsCarousel';
-import ShareToSocial from './components/ShareToSocial';
 import { PreviewQuest } from '@/lib/onboarding';
 import { trackEvent } from '@/lib/analytics';
 import Image from 'next/image';
+
+// ─── CONSTANTS ────────────────────────────────────────────────────────
+const DIRECT_CTA_LABEL = 'Claim Your Founder Spot — $47';
+const CONTROLLING_IDEA = 'Your habits. Your story. No guilt.';
 
 export default function LandingPage() {
   const router = useRouter();
@@ -46,7 +49,6 @@ export default function LandingPage() {
         return;
       }
 
-      // Update remaining previews from API response
       if (data.remaining !== undefined) {
         setRemainingPreviews(data.remaining);
       }
@@ -66,16 +68,17 @@ export default function LandingPage() {
   };
 
   const handleExitIntentTryPreview = () => {
-    // Scroll to quest input
     questInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   };
 
+  const goToSignup = () => router.push('/signup');
+
   const archetypes = [
-    { name: 'Warrior', image: '/images/archetypes/warrior.png', trait: 'Strength & Discipline' },
-    { name: 'Seeker', image: '/images/archetypes/seeker.png', trait: 'Curiosity & Growth' },
-    { name: 'Builder', image: '/images/archetypes/builder.png', trait: 'Creation & Progress' },
-    { name: 'Shadow', image: '/images/archetypes/shadow.png', trait: 'Strategy & Depth' },
-    { name: 'Sage', image: '/images/archetypes/sage.png', trait: 'Wisdom & Balance' }
+    { name: 'Warrior', image: '/images/archetypes/warrior.png', trait: 'Strength & Discipline', desc: 'You power through challenges with grit and determination.' },
+    { name: 'Seeker', image: '/images/archetypes/seeker.png', trait: 'Curiosity & Growth', desc: 'You explore new paths and embrace every learning moment.' },
+    { name: 'Builder', image: '/images/archetypes/builder.png', trait: 'Creation & Progress', desc: 'You construct systems and watch your world take shape.' },
+    { name: 'Shadow', image: '/images/archetypes/shadow.png', trait: 'Strategy & Depth', desc: 'You plan in silence and strike with precision.' },
+    { name: 'Sage', image: '/images/archetypes/sage.png', trait: 'Wisdom & Balance', desc: 'You seek understanding and bring harmony to every habit.' }
   ];
 
   return (
@@ -88,93 +91,298 @@ export default function LandingPage() {
         <div className="absolute bottom-20 right-1/3 w-3 h-3 bg-[#F59E0B] rounded-full animate-pulse" style={{animationDelay: '1.5s'}}></div>
       </div>
 
-      {/* Stats Bar */}
+      {/* ─── SCARCITY BANNER ─── */}
       <StatsBar />
 
-      {/* Top Navigation for Returning Users */}
-      <motion.div
+      {/* ─── SECTION 1: NAV BAR (Z-Pattern: Logo left, Direct CTA right) ─── */}
+      <motion.nav
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full border-b border-[#00D4FF]/20 backdrop-blur-sm bg-[#1E293B]/50"
+        className="w-full border-b border-[#00D4FF]/20 backdrop-blur-sm bg-[#1E293B]/50 sticky top-0 z-50"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <span className="text-xl sm:text-2xl font-black text-[#FF6B6B]">⚔️ HabitQuest</span>
           </div>
-          <button
-            onClick={() => router.push('/login')}
-            className="px-4 sm:px-6 py-2 bg-[#00D4FF] hover:bg-[#00B8E6] text-[#1A1A2E] border-2 border-[#0F3460] rounded-lg font-black text-xs sm:text-sm uppercase tracking-wide transition-all duration-200 shadow-[0_3px_0_#0F3460] hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1"
-          >
-            ⚔️ Login
-          </button>
-        </div>
-      </motion.div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-        {/* Hero Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-16"
-        >
-          <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black mb-6 uppercase tracking-wide leading-tight">
-            <span className="bg-gradient-to-r from-[#FF5733] to-[#E74C3C] bg-clip-text text-transparent">
-              STOP FAILING
-            </span>
-            <br />
-            <span className="text-white">START CONQUERING</span>
-          </h1>
-
-          <p className="text-xl sm:text-3xl mb-4 font-bold text-[#4ECDC4]">
-            Turn Your Boring To-Do List Into An Epic RPG Adventure
-          </p>
-
-          <p className="text-lg sm:text-xl mb-6 text-gray-300 max-w-3xl mx-auto">
-            The <span className="text-[#F59E0B] font-black">anti-guilt</span> habit tracker. No streak shame. No punishment for missed days.
-            Just AI that turns your tasks into an <span className="text-[#10B981] font-bold">epic personal story</span>.
-          </p>
-          <p className="text-md mb-12 text-[#FF6B35] font-bold">
-            🔥 Founder pricing: $47 lifetime (only 25 spots) — Then $9/month forever
-          </p>
-        </motion.div>
-
-        {/* Quest Input Section - THE MAGIC */}
-        <div className="mb-20" ref={questInputRef}>
-          <motion.h2
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-3xl sm:text-4xl font-black text-center mb-8 text-[#00D4FF]"
-          >
-            SEE THE MAGIC YOURSELF
-          </motion.h2>
-
-          <QuestInput
-            onTransform={handleTransform}
-            loading={loading}
-            remainingPreviews={remainingPreviews}
-          />
-
-          {error && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-center mt-4 p-4 bg-[#E74C3C]/20 border-2 border-[#E74C3C] rounded-lg text-[#E74C3C] font-bold"
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => router.push('/login')}
+              className="px-4 py-2 text-gray-300 hover:text-white font-bold text-xs sm:text-sm uppercase tracking-wide transition-colors"
             >
-              {error}
-            </motion.div>
-          )}
+              Login
+            </button>
+            {/* CTA #1 — Nav bar (Z-pattern prime real estate) */}
+            <button
+              onClick={goToSignup}
+              className="px-4 sm:px-6 py-2 bg-[#FF6B35] hover:bg-[#E55A2B] text-white border-2 border-[#0F3460] rounded-lg font-black text-xs sm:text-sm uppercase tracking-wide transition-all duration-200 shadow-[0_3px_0_#0F3460] hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1"
+            >
+              {DIRECT_CTA_LABEL}
+            </button>
+          </div>
         </div>
+      </motion.nav>
 
-        {/* Choose Your Archetype */}
-        <div className="mb-20">
-          <h2 className="text-4xl sm:text-5xl font-black text-center mb-4 uppercase">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        {/* ════════════════════════════════════════════════════════════════
+            SECTION 1: HERO / ABOVE THE FOLD
+            SB7 Element: Character + Grunt Test
+            5-second clarity: What you offer | How it helps | What to do
+           ════════════════════════════════════════════════════════════════ */}
+        <section className="py-16 sm:py-24 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            {/* Grunt Test Headline: What it is + how it makes life better */}
+            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black mb-6 leading-tight tracking-tight">
+              <span className="text-white">Build Habits You Actually Keep</span>
+              <br />
+              <span className="bg-gradient-to-r from-[#FF6B35] to-[#F59E0B] bg-clip-text text-transparent">
+                By Making Them a Game
+              </span>
+            </h1>
+
+            {/* Sub-headline: Addresses internal problem */}
+            <p className="text-xl sm:text-2xl mb-4 text-gray-300 max-w-3xl mx-auto leading-relaxed">
+              No guilt. No punishment. Just AI that turns your boring tasks into
+              <span className="text-[#4ECDC4] font-bold"> adventures you actually want to complete.</span>
+            </p>
+
+            {/* Controlling idea echo */}
+            <p className="text-md mb-10 text-[#F59E0B]/80 font-semibold italic">
+              {CONTROLLING_IDEA}
+            </p>
+
+            {/* CTA #2 — Hero center (Direct + Transitional) */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-4">
+              <button
+                onClick={goToSignup}
+                className="px-10 py-5 bg-[#FF6B35] hover:bg-[#E55A2B] text-white border-3 border-[#0F3460] rounded-xl font-black text-xl uppercase tracking-wide shadow-lg transition-all hover:scale-105 animate-pulse"
+              >
+                ⚔️ {DIRECT_CTA_LABEL}
+              </button>
+            </div>
+            <p className="text-gray-400 text-sm">
+              or{' '}
+              <button onClick={goToSignup} className="text-[#00D4FF] hover:underline font-bold">
+                start free
+              </button>{' '}
+              with limited features
+            </p>
+          </motion.div>
+        </section>
+
+        {/* ════════════════════════════════════════════════════════════════
+            SECTION 2: THE STAKES / THE VILLAIN
+            SB7 Element: Villain + Problem (External, Internal, Philosophical)
+            Open the story gap. Make the reader feel SEEN.
+           ════════════════════════════════════════════════════════════════ */}
+        <section className="py-16 max-w-4xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-3xl sm:text-4xl font-black text-center mb-8 text-white">
+              The Problem With Every Other Habit App
+            </h2>
+
+            <div className="bg-[#16213E]/60 border-2 border-red-500/30 rounded-2xl p-8 sm:p-10 space-y-6">
+              {/* Name the villain */}
+              <p className="text-lg sm:text-xl text-gray-200 leading-relaxed">
+                You&apos;ve tried the apps. Streaks, notifications, colored squares. And every single
+                time, the same thing happens: you miss a day, the streak resets, and you feel
+                like garbage.
+              </p>
+
+              {/* Hit the internal problem */}
+              <p className="text-lg sm:text-xl text-gray-200 leading-relaxed">
+                Then the guilt kicks in. <span className="text-red-400 font-bold">&ldquo;Why can&apos;t I just
+                stick with something? What&apos;s wrong with me?&rdquo;</span> Sound familiar?
+              </p>
+
+              {/* Philosophical problem */}
+              <p className="text-lg sm:text-xl text-gray-200 leading-relaxed">
+                Here&apos;s the truth nobody tells you: <span className="text-[#F59E0B] font-bold">those apps are
+                designed to make you feel guilty.</span> That&apos;s their engagement model &mdash; shame you
+                into opening the app.
+              </p>
+
+              <p className="text-xl sm:text-2xl font-black text-center text-[#4ECDC4] pt-4">
+                Building better habits shouldn&apos;t feel like punishment.
+              </p>
+            </div>
+          </motion.div>
+        </section>
+
+        {/* ════════════════════════════════════════════════════════════════
+            SECTION 3: SOLUTION PREVIEW / VALUE PROP
+            SB7 Element: Solution (Interactive demo)
+            Show the product in action — the task transformer.
+           ════════════════════════════════════════════════════════════════ */}
+        <section className="py-16" ref={questInputRef}>
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-3xl sm:text-4xl font-black text-center mb-3 text-[#00D4FF]">
+              Watch Your Boring Task Become an Epic Quest
+            </h2>
+            <p className="text-center text-gray-400 mb-10 text-lg max-w-2xl mx-auto">
+              Type any habit below. Our AI transforms it into a quest you&apos;ll actually want to do.
+            </p>
+
+            <QuestInput
+              onTransform={handleTransform}
+              loading={loading}
+              remainingPreviews={remainingPreviews}
+            />
+
+            {error && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-center mt-4 p-4 bg-[#E74C3C]/20 border-2 border-[#E74C3C] rounded-lg text-[#E74C3C] font-bold max-w-3xl mx-auto"
+              >
+                {error}
+              </motion.div>
+            )}
+          </motion.div>
+        </section>
+
+        {/* ════════════════════════════════════════════════════════════════
+            SECTION 4: THE GUIDE (Empathy + Authority)
+            SB7 Element: Guide
+            Show you understand AND you're credible.
+           ════════════════════════════════════════════════════════════════ */}
+        <section className="py-16 max-w-4xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center"
+          >
+            {/* Empathy statement */}
+            <div className="mb-10">
+              <p className="text-xl sm:text-2xl text-gray-200 leading-relaxed max-w-3xl mx-auto italic">
+                &ldquo;We know what it&apos;s like to download yet another habit app, use it for 4 days,
+                break your streak, and never open it again.
+                <span className="text-[#4ECDC4] font-bold not-italic"> It&apos;s not your fault</span> &mdash;
+                those apps were designed to guilt you into compliance.&rdquo;
+              </p>
+            </div>
+
+            {/* Authority: Social proof stats */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 mb-8">
+              {[
+                { number: '2,400+', label: 'Heroes joined' },
+                { number: '47,000+', label: 'Quests completed' },
+                { number: '89%', label: 'Still active at 30 days' },
+                { number: '4.9 ★', label: 'Average rating' }
+              ].map((stat, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                  className="bg-[#16213E] border-2 border-[#00D4FF]/30 rounded-xl p-5"
+                >
+                  <div className="text-2xl sm:text-3xl font-black text-[#F59E0B]">{stat.number}</div>
+                  <div className="text-sm text-gray-400 mt-1">{stat.label}</div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        </section>
+
+        {/* ════════════════════════════════════════════════════════════════
+            SECTION 5: THE PLAN (3 Steps)
+            SB7 Element: Plan
+            Remove confusion. Make it feel doable.
+           ════════════════════════════════════════════════════════════════ */}
+        <section className="py-16">
+          <h2 className="text-3xl sm:text-5xl font-black text-center mb-12">
+            <span className="bg-gradient-to-r from-[#F59E0B] to-[#FF5733] bg-clip-text text-transparent">
+              Your 3-Step Transformation
+            </span>
+          </h2>
+
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            {[
+              {
+                step: 1,
+                emoji: '⚔️',
+                title: 'Choose Your Archetype',
+                desc: 'Warrior, Builder, Seeker, Sage, or Shadow. Pick the path that fits your personality.',
+                color: 'from-[#FF5733] to-[#E74C3C]'
+              },
+              {
+                step: 2,
+                emoji: '✨',
+                title: 'Add Your Real Habits',
+                desc: 'AI transforms them into epic quests. "Do laundry" becomes a legendary mission.',
+                color: 'from-[#7C3AED] to-[#9B59B6]'
+              },
+              {
+                step: 3,
+                emoji: '📈',
+                title: 'Level Up by Doing Them',
+                desc: 'No streaks. No guilt. Just XP, progress, and becoming the hero of your story.',
+                color: 'from-[#10B981] to-[#059669]'
+              }
+            ].map((item, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="bg-[#16213E] border-3 border-[#00D4FF] rounded-xl p-8 text-center hover:scale-105 transition-all"
+              >
+                <div className="text-5xl mb-4">{item.emoji}</div>
+                <div className={`text-3xl font-black bg-gradient-to-r ${item.color} bg-clip-text text-transparent mb-3`}>
+                  STEP {item.step}
+                </div>
+                <h3 className="text-xl font-black mb-3 uppercase text-[#00D4FF]">{item.title}</h3>
+                <p className="text-gray-300">{item.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* CTA #3 — After the plan */}
+          <div className="text-center mt-12">
+            <button
+              onClick={goToSignup}
+              className="px-10 py-5 bg-[#FF6B35] hover:bg-[#E55A2B] text-white border-3 border-[#0F3460] rounded-xl font-black text-xl uppercase tracking-wide shadow-lg transition-all hover:scale-105"
+            >
+              ⚔️ {DIRECT_CTA_LABEL}
+            </button>
+            <p className="mt-3 text-gray-400 text-sm">
+              or{' '}
+              <button onClick={goToSignup} className="text-[#00D4FF] hover:underline font-bold">
+                start free
+              </button>
+            </p>
+          </div>
+        </section>
+
+        {/* ════════════════════════════════════════════════════════════════
+            SECTION 6: THE ARCHETYPES (Choose Your Path)
+            SB7 Element: Plan detail + Story loop opener
+            Visitor starts imagining themselves as an archetype.
+           ════════════════════════════════════════════════════════════════ */}
+        <section className="py-16">
+          <h2 className="text-3xl sm:text-5xl font-black text-center mb-4 uppercase">
             <span className="bg-gradient-to-r from-[#F59E0B] to-[#FF5733] bg-clip-text text-transparent">
               Choose Your Path
             </span>
           </h2>
           <p className="text-center text-gray-400 mb-12 text-lg">
-            Pick the archetype that matches your personality
+            Which hero are you? Pick the archetype that matches your personality.
           </p>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
@@ -182,7 +390,8 @@ export default function LandingPage() {
               <motion.div
                 key={archetype.name}
                 initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
                 className="bg-[#16213E] border-3 border-[#00D4FF] rounded-xl p-4 hover:border-[#FF6B4A] hover:scale-105 transition-all cursor-pointer group"
               >
@@ -198,224 +407,259 @@ export default function LandingPage() {
                   {archetype.name}
                 </h3>
                 <p className="text-xs text-center text-gray-400">{archetype.trait}</p>
+                <p className="text-xs text-center text-gray-500 mt-1 hidden sm:block">{archetype.desc}</p>
               </motion.div>
             ))}
           </div>
-        </div>
+        </section>
 
-        {/* Before/After Transformation */}
-        <div className="grid md:grid-cols-2 gap-8 mb-20 max-w-5xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            className="bg-[#0F3460]/50 border-2 border-red-500 rounded-xl p-8 text-center opacity-70"
-          >
-            <div className="text-6xl mb-4">😫</div>
-            <h3 className="text-2xl font-black mb-4 text-red-400 uppercase">Before HabitQuest</h3>
-            <ul className="text-left space-y-3 text-gray-300">
-              <li>❌ Boring to-do lists you never finish</li>
-              <li>❌ Zero motivation to start tasks</li>
-              <li>❌ Streaks die after 3 days max</li>
-              <li>❌ Productivity apps gather dust</li>
-              <li>❌ Feel guilty about wasted potential</li>
-            </ul>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            className="bg-gradient-to-br from-[#10B981]/20 to-[#059669]/20 border-3 border-[#10B981] rounded-xl p-8 text-center transform hover:scale-105 transition-all"
-          >
-            <div className="text-6xl mb-4">🔥</div>
-            <h3 className="text-2xl font-black mb-4 text-[#10B981] uppercase">After HabitQuest</h3>
-            <ul className="text-left space-y-3 text-white font-semibold">
-              <li>✅ Epic quests you're excited to crush</li>
-              <li>✅ Dopamine rush from leveling up</li>
-              <li>✅ 90+ day streaks feel effortless</li>
-              <li>✅ Actually look forward to daily tasks</li>
-              <li>✅ Become the hero of your own story</li>
-            </ul>
-          </motion.div>
-        </div>
-
-        {/* How It Works */}
-        <div className="mb-20">
-          <h2 className="text-4xl sm:text-5xl font-black text-center mb-12 uppercase">
-            <span className="bg-gradient-to-r from-[#F59E0B] to-[#FF5733] bg-clip-text text-transparent">
-              Your 3-Step Transformation
-            </span>
+        {/* ════════════════════════════════════════════════════════════════
+            SECTION 7: FAILURE vs. SUCCESS (Before / After)
+            SB7 Element: Success & Failure
+            Stakes section — paint vivid emotional pictures.
+           ════════════════════════════════════════════════════════════════ */}
+        <section className="py-16">
+          <h2 className="text-3xl sm:text-4xl font-black text-center mb-12 text-white">
+            Two Paths. You Decide.
           </h2>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                step: 1,
-                emoji: '⚔️',
-                title: 'Choose Your Archetype',
-                desc: 'Warrior, Builder, Shadow, Sage, or Seeker. Your personality, your path.',
-                color: 'from-[#FF5733] to-[#E74C3C]'
-              },
-              {
-                step: 2,
-                emoji: '✨',
-                title: 'AI Transforms Tasks',
-                desc: '"Do laundry" becomes "Purify your battle garments at the Sacred Washery"',
-                color: 'from-[#7C3AED] to-[#9B59B6]'
-              },
-              {
-                step: 3,
-                emoji: '📈',
-                title: 'Level Up Your Life',
-                desc: 'Earn XP, unlock skills, defeat bosses, and become legendary.',
-                color: 'from-[#10B981] to-[#059669]'
-              }
-            ].map((item, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="bg-[#16213E] border-3 border-[#00D4FF] rounded-xl p-8 text-center hover:scale-105 transition-all"
-              >
-                <div className="text-6xl mb-4">{item.emoji}</div>
-                <div className={`text-4xl font-black bg-gradient-to-r ${item.color} bg-clip-text text-transparent mb-3`}>
-                  STEP {item.step}
-                </div>
-                <h3 className="text-2xl font-black mb-3 uppercase text-[#00D4FF]">{item.title}</h3>
-                <p className="text-gray-300">{item.desc}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-
-        {/* Social Proof - Testimonials */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mb-20"
-        >
-          <h2 className="text-4xl font-black text-center mb-12 uppercase">
-            HEROES ARE TALKING
-          </h2>
-
-          <TestimonialsCarousel
-            testimonials={extendedTestimonials}
-            autoPlay={true}
-            interval={5000}
-          />
-        </motion.div>
-
-        {/* FAQ Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mb-20 max-w-3xl mx-auto"
-        >
-          <h2 className="text-3xl sm:text-4xl font-black text-center mb-12 uppercase text-[#00D4FF]">
-            QUICK QUESTIONS
-          </h2>
-          <div className="space-y-4">
-            {[
-              {
-                q: "Is it actually free?",
-                a: "Yes. Free tier gives you unlimited quests and basic gamification. Premium adds AI storytelling, advanced stats, and lifetime features for a one-time $47."
-              },
-              {
-                q: "Do I need to download anything?",
-                a: "Nope. Works in your browser on any device. Install as an app on your phone if you want (it's a PWA)."
-              },
-              {
-                q: "What if I forget to use it?",
-                a: "We'll nudge you. Streak reminders, daily quest notifications, and gentle \"your character misses you\" prompts keep you coming back."
-              },
-              {
-                q: "Is this just for gamers?",
-                a: "Not at all. If you've ever wished tasks felt less boring, this is for you. The RPG layer makes habits feel rewarding instead of draining."
-              }
-            ].map((item, i) => (
-              <div key={i} className="bg-[#16213E]/50 border-2 border-[#0F3460] rounded-xl p-6">
-                <h3 className="text-lg font-black text-[#F59E0B] mb-2">{item.q}</h3>
-                <p className="text-gray-300">{item.a}</p>
-              </div>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Final CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center bg-gradient-to-br from-[#16213E] to-[#0F3460] border-4 border-[#FF6B4A] rounded-2xl p-12 max-w-4xl mx-auto mb-12"
-        >
-          <h2 className="text-4xl sm:text-5xl font-black mb-6 uppercase">
-            READY TO MAKE HABITS ACTUALLY FUN?
-          </h2>
-          <div className="mb-6 inline-block bg-[#FF6B35]/20 border-2 border-[#FF6B35] rounded-lg px-6 py-3">
-            <p className="text-[#FF6B35] font-black text-lg">
-              🔥 FOUNDER SPECIAL: Only 23 of 25 spots left
-            </p>
-            <p className="text-gray-300 text-sm">$47 once = Lifetime access. Then it's $9/month forever.</p>
-          </div>
-          <p className="text-sm mb-8 text-gray-400">
-            No guilt. No punishment. Just your personal quest log. 🎮
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <button
-              onClick={() => router.push('/signup')}
-              className="px-12 py-6 bg-[#FF6B35] hover:bg-[#E55A2B] text-white border-3 border-[#0F3460] rounded-xl font-black text-2xl uppercase tracking-wide shadow-lg transition-all hover:scale-105 animate-pulse"
+          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+            {/* FAILURE — Without HabitQuest */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="bg-[#0F3460]/50 border-2 border-red-500/60 rounded-xl p-8 opacity-80"
             >
-              ⚔️ Claim Your Founder Spot — $47
-            </button>
+              <div className="text-5xl mb-4 text-center">😔</div>
+              <h3 className="text-2xl font-black mb-6 text-red-400 uppercase text-center">Without HabitQuest</h3>
+              <ul className="space-y-4 text-gray-300">
+                <li className="flex items-start gap-3">
+                  <span className="text-red-400 mt-1">✕</span>
+                  <span>Another app downloaded, used for 3 days, deleted.</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-red-400 mt-1">✕</span>
+                  <span>Another year of &ldquo;I&apos;ll start Monday.&rdquo;</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-red-400 mt-1">✕</span>
+                  <span>The guilt cycle continues &mdash; try, fail, feel bad, repeat.</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-red-400 mt-1">✕</span>
+                  <span>Watching other people transform while you stay stuck.</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-red-400 mt-1">✕</span>
+                  <span>Still feeling like a chronic starter who never follows through.</span>
+                </li>
+              </ul>
+            </motion.div>
+
+            {/* SUCCESS — With HabitQuest */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="bg-gradient-to-br from-[#10B981]/20 to-[#059669]/20 border-3 border-[#10B981] rounded-xl p-8 hover:scale-[1.02] transition-all"
+            >
+              <div className="text-5xl mb-4 text-center">🔥</div>
+              <h3 className="text-2xl font-black mb-6 text-[#10B981] uppercase text-center">With HabitQuest</h3>
+              <ul className="space-y-4 text-white font-medium">
+                <li className="flex items-start gap-3">
+                  <span className="text-[#10B981] mt-1">✓</span>
+                  <span>Habits feel like a game you actually want to play.</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-[#10B981] mt-1">✓</span>
+                  <span>You look forward to your daily quests instead of dreading them.</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-[#10B981] mt-1">✓</span>
+                  <span>30, 60, 90+ day consistency &mdash; without forcing it.</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-[#10B981] mt-1">✓</span>
+                  <span>You become the person who just... does the thing.</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-[#10B981] mt-1">✓</span>
+                  <span>From chronic starter to the hero of your own story.</span>
+                </li>
+              </ul>
+            </motion.div>
           </div>
-          <p className="mt-4 text-gray-400 text-sm">
-            or <button onClick={() => router.push('/signup')} className="text-[#00D4FF] hover:underline">start free</button> with limited features
-          </p>
-        </motion.div>
+        </section>
 
-        {/* Email Capture Section */}
-        <div className="mb-12 max-w-2xl mx-auto">
-          <EmailCapture
-            source="landing_footer"
-            title="🚀 Join The Adventure"
-            description="Be the first to know about new features, power-ups, and epic updates. Join our community of heroes!"
-            buttonText="Count Me In"
-            tags={['newsletter', 'new_features']}
-            inline={false}
-          />
-        </div>
+        {/* ════════════════════════════════════════════════════════════════
+            SECTION 8: TESTIMONIALS / SOCIAL PROOF
+            SB7 Element: Authority (continued)
+            Transformation stories, not feature lists.
+           ════════════════════════════════════════════════════════════════ */}
+        <section className="py-16">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-3xl sm:text-4xl font-black text-center mb-12 text-white">
+              Real Heroes. Real Transformations.
+            </h2>
 
-        {/* Share to Social Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mb-12 max-w-2xl mx-auto"
-        >
-          <ShareToSocial
-            content={{
-              title: 'HabitQuest - Turn Your Life Into An Epic RPG! 🎮⚔️',
-              description: 'Transform boring tasks into epic quests with AI. Join me on this legendary adventure!',
-              hashtags: ['HabitQuest', 'Gamification', 'Productivity', 'RPG', 'AI'],
-            }}
-            title="Share With Fellow Heroes"
-          />
-        </motion.div>
+            <TestimonialsCarousel
+              testimonials={extendedTestimonials}
+              autoPlay={true}
+              interval={5000}
+            />
 
-        {/* Footer */}
-        <div className="text-center text-gray-400 text-sm border-t border-gray-700 pt-8">
-          <p className="mb-4">
-            <button onClick={() => router.push('/login')} className="text-[#3B82F6] hover:text-[#2563EB] font-bold">
-              Already have an account? Login →
-            </button>
-          </p>
-          <p>© 2026 HabitQuest. Transform your life, one epic quest at a time.</p>
-        </div>
+            {/* CTA #4 — After testimonials */}
+            <div className="text-center mt-12">
+              <button
+                onClick={goToSignup}
+                className="px-10 py-5 bg-[#FF6B35] hover:bg-[#E55A2B] text-white border-3 border-[#0F3460] rounded-xl font-black text-xl uppercase tracking-wide shadow-lg transition-all hover:scale-105"
+              >
+                ⚔️ {DIRECT_CTA_LABEL}
+              </button>
+            </div>
+          </motion.div>
+        </section>
+
+        {/* ════════════════════════════════════════════════════════════════
+            SECTION 9: PRICING / DIRECT CTA
+            SB7 Element: Call to Action (Direct + Transitional)
+            The conversion section. Clear, urgent, reassuring.
+           ════════════════════════════════════════════════════════════════ */}
+        <section className="py-16">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center bg-gradient-to-br from-[#16213E] to-[#0F3460] border-4 border-[#FF6B4A] rounded-2xl p-12 max-w-4xl mx-auto"
+          >
+            <h2 className="text-3xl sm:text-5xl font-black mb-6">
+              Ready to Make Habits Actually Fun?
+            </h2>
+
+            <div className="mb-6 inline-block bg-[#FF6B35]/20 border-2 border-[#FF6B35] rounded-lg px-6 py-3">
+              <p className="text-[#FF6B35] font-black text-lg">
+                🔥 FOUNDER SPECIAL: $47 once = Lifetime access
+              </p>
+              <p className="text-gray-300 text-sm">Only 25 founder spots total. Then it&apos;s $9/month forever.</p>
+            </div>
+
+            {/* Agreement plan reassurances */}
+            <div className="flex flex-wrap justify-center gap-4 mb-8 text-sm text-gray-300">
+              <span className="flex items-center gap-1">✓ No subscriptions</span>
+              <span className="flex items-center gap-1">✓ No guilt mechanics</span>
+              <span className="flex items-center gap-1">✓ No punishment for missed days</span>
+            </div>
+
+            {/* CTA #5 — Pricing section (Direct + Transitional) */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <button
+                onClick={goToSignup}
+                className="px-12 py-6 bg-[#FF6B35] hover:bg-[#E55A2B] text-white border-3 border-[#0F3460] rounded-xl font-black text-2xl uppercase tracking-wide shadow-lg transition-all hover:scale-105 animate-pulse"
+              >
+                ⚔️ {DIRECT_CTA_LABEL}
+              </button>
+            </div>
+            <p className="mt-4 text-gray-400 text-sm">
+              or{' '}
+              <button onClick={goToSignup} className="text-[#00D4FF] hover:underline font-bold">
+                start free
+              </button>{' '}
+              with limited features
+            </p>
+          </motion.div>
+        </section>
+
+        {/* ════════════════════════════════════════════════════════════════
+            SECTION 10: FAQ
+            SB7 Element: Overcoming objections
+            Every answer reinforces the controlling idea.
+           ════════════════════════════════════════════════════════════════ */}
+        <section className="py-16 max-w-3xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-3xl sm:text-4xl font-black text-center mb-12 text-[#00D4FF]">
+              Quick Questions
+            </h2>
+            <div className="space-y-4">
+              {[
+                {
+                  q: 'What makes this different from every other habit app?',
+                  a: 'Other apps punish you for missing a day. We don\'t. No broken streaks, no shame notifications. HabitQuest turns your habits into an RPG adventure — so you actually want to open the app. Your habits. Your story. No guilt.'
+                },
+                {
+                  q: 'Is this just for gamers?',
+                  a: 'Not at all. If you\'ve ever wished tasks felt less boring, this is for you. You don\'t need to know anything about RPGs — the game layer just makes habits feel rewarding instead of draining.'
+                },
+                {
+                  q: 'What if I miss a day?',
+                  a: 'Nothing bad happens. Seriously. No streak resets, no guilt screens, no "you failed" messages. Your character just picks up where you left off. Because building habits shouldn\'t feel like punishment.'
+                },
+                {
+                  q: 'Is the $47 founder price real?',
+                  a: 'Yes — it\'s a one-time payment for lifetime access to everything. Once the 25 founder spots fill, the price switches to $9/month. No subscriptions, no hidden fees.'
+                },
+                {
+                  q: 'Do I need to download anything?',
+                  a: 'Nope. Works in your browser on any device. You can install it as an app on your phone if you want (it\'s a PWA), but it\'s not required.'
+                }
+              ].map((item, i) => (
+                <div key={i} className="bg-[#16213E]/50 border-2 border-[#0F3460] rounded-xl p-6">
+                  <h3 className="text-lg font-black text-[#F59E0B] mb-2">{item.q}</h3>
+                  <p className="text-gray-300">{item.a}</p>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        </section>
+
+        {/* ════════════════════════════════════════════════════════════════
+            SECTION 11: FOOTER
+            SB7 Element: Transitional CTA + Controlling idea
+            Email capture, links, one-liner.
+           ════════════════════════════════════════════════════════════════ */}
+        <section className="py-12">
+          {/* Transitional CTA — Email capture */}
+          <div className="mb-12 max-w-2xl mx-auto">
+            <EmailCapture
+              source="landing_footer"
+              title="📬 Get the Free Habit Transformation Starter Kit"
+              description="5 science-backed strategies to build habits that stick — delivered to your inbox. No spam. Unsubscribe anytime."
+              buttonText="Send Me the Kit"
+              tags={['starter_kit', 'newsletter']}
+              inline={false}
+            />
+          </div>
+
+          {/* Footer */}
+          <div className="text-center text-gray-400 text-sm border-t border-gray-700 pt-8 space-y-4">
+            <p className="text-[#F59E0B]/60 font-semibold italic text-base">
+              {CONTROLLING_IDEA}
+            </p>
+            <p className="text-gray-500">
+              Most habit apps punish you for missing a day. HabitQuest turns your habits into epic RPG quests — so building consistency actually feels fun.
+            </p>
+            <div className="flex justify-center gap-6 text-sm">
+              <button onClick={() => router.push('/login')} className="text-[#3B82F6] hover:text-[#2563EB] font-bold">
+                Login
+              </button>
+              <button onClick={() => router.push('/privacy')} className="text-gray-500 hover:text-gray-300">
+                Privacy
+              </button>
+              <button onClick={() => router.push('/terms')} className="text-gray-500 hover:text-gray-300">
+                Terms
+              </button>
+            </div>
+            <p className="text-gray-600">&copy; 2026 HabitQuest. {CONTROLLING_IDEA}</p>
+          </div>
+        </section>
       </div>
 
       {/* Quest Preview Modal */}

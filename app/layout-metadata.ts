@@ -1,21 +1,21 @@
 import { Metadata } from 'next';
 
 export const landingPageMetadata: Metadata = {
-  title: 'HabitQuest - Turn Your To-Do List Into An Epic RPG Adventure',
-  description: 'The anti-guilt habit tracker. Transform boring tasks into epic RPG quests with AI. No streak shame. No punishment. Just your personal adventure. Start free!',
-  keywords: ['habit tracker', 'RPG', 'gamification', 'productivity', 'AI', 'task management', 'habits', 'motivation'],
+  title: 'HabitQuest - Build Habits You Actually Keep By Making Them a Game',
+  description: 'Most habit apps punish you for missing a day. HabitQuest turns your habits into epic RPG quests — so building consistency actually feels fun. Your habits. Your story. No guilt.',
+  keywords: ['habit tracker', 'RPG', 'gamification', 'productivity', 'AI', 'task management', 'habits', 'motivation', 'anti-guilt', 'no streaks'],
   authors: [{ name: 'HabitQuest' }],
   openGraph: {
-    title: 'HabitQuest - Turn Your Life Into An Epic RPG',
-    description: 'Stop failing, start conquering. Transform mundane tasks into legendary quests with AI-powered gamification.',
+    title: 'HabitQuest - Build Habits You Actually Keep',
+    description: 'Most habit apps punish you for missing a day. HabitQuest turns your habits into epic RPG quests — so building consistency actually feels fun.',
     url: 'https://habitquest.dev',
     siteName: 'HabitQuest',
     images: [
       {
-        url: 'https://habitquest.dev/og-image.png', // You'll need to create this
+        url: 'https://habitquest.dev/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'HabitQuest - Gamified Habit Tracker',
+        alt: 'HabitQuest - The Anti-Guilt Habit Tracker',
       },
     ],
     locale: 'en_US',
@@ -23,8 +23,8 @@ export const landingPageMetadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'HabitQuest - Turn Your Life Into An Epic RPG',
-    description: 'Transform boring tasks into epic quests. AI-powered. Scientifically addictive. Actually fun.',
+    title: 'HabitQuest - Build Habits You Actually Keep',
+    description: 'Most habit apps punish you for missing a day. HabitQuest turns your habits into epic RPG quests — so building consistency actually feels fun.',
     images: ['https://habitquest.dev/og-image.png'],
     creator: '@officialmrdude',
   },
