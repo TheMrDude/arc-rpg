@@ -48,17 +48,17 @@ export default function StatsBar() {
           <span className="hidden sm:inline">
             Only{' '}
             <motion.span
-              key={stats?.founderSpotsRemaining ?? 25}
+              key={stats?.founderSpotsRemaining ?? 23}
               initial={{ scale: 1.2 }}
               animate={{ scale: 1 }}
               className="font-black"
             >
-              {stats?.founderSpotsRemaining ?? 25}
+              {Math.min(stats?.founderSpotsRemaining ?? 23, 23)}
             </motion.span>{' '}
-            of 25 founder spots left
+            founder spots remaining
           </span>
           <span className="sm:hidden">
-            <span className="font-black">{stats?.founderSpotsRemaining ?? 25}/25</span> spots left
+            <span className="font-black">{Math.min(stats?.founderSpotsRemaining ?? 23, 23)}</span> spots left
           </span>
         </div>
 
