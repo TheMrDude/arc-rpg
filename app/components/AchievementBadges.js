@@ -3,7 +3,13 @@
 import { useState, useEffect } from 'react';
 
 export default function AchievementBadges({ profile, quests }) {
-  const [unlockedBadges, setUnlockedBadges] = useState([]);
+  const [unlockedBadges, setUnlockedBadges] = useState(() => {
+    if (typeof window === 'undefined') return [];
+    try {
+      const stored = localStorage.getItem('habitquest_unlocked_badges');
+      return stored ? JSON.parse(stored) : [];
+    } catch { return []; }
+  });
   const [showBadgeUnlock, setShowBadgeUnlock] = useState(null);
 
   const badges = [
@@ -75,10 +81,12 @@ export default function AchievementBadges({ profile, quests }) {
     });
 
     if (newlyUnlocked.length > 0) {
-      setUnlockedBadges(prev => [
-        ...prev,
-        ...newlyUnlocked.map(b => ({ ...b, unlockedAt: Date.now() }))
-      ]);
+      const updated = [
+        ...unlockedBadges,
+        ...newlyUnlocked.map(b => ({ id: b.id, unlockedAt: Date.now() }))
+      ];
+      setUnlockedBadges(updated);
+      try { localStorage.setItem('habitquest_unlocked_badges', JSON.stringify(updated)); } catch {}
 
       // Show celebration for first newly unlocked badge
       setShowBadgeUnlock(newlyUnlocked[0]);
