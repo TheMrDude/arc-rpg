@@ -1,8 +1,13 @@
 'use client';
 
+import { useEffect } from 'react';
 import Link from 'next/link';
 
 export default function TermsOfService() {
+  useEffect(() => {
+    document.title = "Terms of Service \u2014 HabitQuest";
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#1A1A2E] to-[#16213E] text-white">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

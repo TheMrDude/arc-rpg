@@ -20,13 +20,17 @@ export default function PricingPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    document.title = "HabitQuest Pricing \u2014 Free Plan or Pro from $5/mo";
+  }, []);
+
+  useEffect(() => {
     async function loadUser() {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         setUser(user);
         const { data: profileData } = await supabase
           .from('profiles')
-          .select('id, subscription_status, is_premium, subscription_tier')
+          .select('id, subscription_status, is_premium, subscription_tier, trial_ends_at')
           .eq('id', user.id)
           .single();
         setProfile(profileData);
@@ -36,7 +40,46 @@ export default function PricingPage() {
     loadUser();
   }, []);
 
+  const [startingTrial, setStartingTrial] = useState(false);
+
   const isPro = profile?.subscription_tier === 'pro' && profile?.subscription_status === 'active';
+  const isInTrial = profile?.trial_ends_at && new Date(profile.trial_ends_at) > new Date();
+  const hadTrial = !!profile?.trial_ends_at;
+  const isFreeUser = user && !isPro && !isInTrial;
+
+  async function handleStartTrial() {
+    if (!user) {
+      router.push('/signup');
+      return;
+    }
+    setStartingTrial(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        router.push('/login');
+        return;
+      }
+      const res = await fetch('/api/trial/start', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert(data.message || 'Your 7-day Pro trial has started!');
+        router.push('/dashboard');
+      } else {
+        alert(data.error || 'Could not start trial');
+      }
+    } catch (err) {
+      console.error('Trial start error:', err);
+      alert('Something went wrong. Please try again.');
+    } finally {
+      setStartingTrial(false);
+    }
+  }
 
   if (loading) {
     return (
@@ -132,7 +175,7 @@ export default function PricingPage() {
             <div className="text-4xl font-black text-[#F59E0B] mb-1">
               $5<span className="text-lg text-gray-400">/mo</span>
             </div>
-            <p className="text-gray-500 text-sm mb-6">or $39/year (save 35%)</p>
+            <p className="text-gray-500 text-sm mb-6">Billed monthly</p>
 
             <ul className="space-y-3 text-gray-300 text-sm mb-8 flex-1">
               <li className="flex items-start gap-2"><span className="text-[#F59E0B]">✓</span> <strong className="text-white">Unlimited</strong> habits</li>
@@ -149,12 +192,31 @@ export default function PricingPage() {
                 Current Plan
               </div>
             ) : (
-              <a
-                href={stripeLink(STRIPE_LINK_PRO_MONTHLY, user?.email)}
-                className="block w-full px-6 py-3 bg-[#FF6B35] hover:bg-[#E55A2B] text-white rounded-xl font-black text-lg uppercase tracking-wide transition-all hover:scale-105 text-center"
-              >
-                Go Pro — $5/mo
-              </a>
+              <div className="space-y-3">
+                <a
+                  href={stripeLink(STRIPE_LINK_PRO_MONTHLY, user?.email)}
+                  className="block w-full px-6 py-3 bg-[#FF6B35] hover:bg-[#E55A2B] text-white rounded-xl font-black text-lg uppercase tracking-wide transition-all hover:scale-105 text-center"
+                >
+                  Go Pro — $5/mo
+                </a>
+                {!user && !hadTrial && (
+                  <button
+                    onClick={() => router.push('/signup')}
+                    className="block w-full px-6 py-2 bg-transparent hover:bg-[#FF6B35]/10 text-[#FF6B35] border-2 border-[#FF6B35]/50 rounded-xl font-black text-sm uppercase tracking-wide transition-all hover:scale-105 text-center"
+                  >
+                    7-Day Free Trial
+                  </button>
+                )}
+                {isFreeUser && !hadTrial && (
+                  <button
+                    onClick={handleStartTrial}
+                    disabled={startingTrial}
+                    className="block w-full px-6 py-2 bg-transparent hover:bg-[#FF6B35]/10 text-[#FF6B35] border-2 border-[#FF6B35]/50 rounded-xl font-black text-sm uppercase tracking-wide transition-all hover:scale-105 text-center disabled:opacity-50"
+                  >
+                    {startingTrial ? 'Starting...' : 'Start 7-Day Pro Trial'}
+                  </button>
+                )}
+              </div>
             )}
           </motion.div>
 

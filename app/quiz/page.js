@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function QuizPage() {
@@ -8,6 +8,10 @@ export default function QuizPage() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState([]);
   const [result, setResult] = useState(null);
+
+  useEffect(() => {
+    document.title = "What's Your Archetype? \u2014 HabitQuest Quiz";
+  }, []);
 
   const questions = [
     {
