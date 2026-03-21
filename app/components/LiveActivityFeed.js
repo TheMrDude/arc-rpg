@@ -10,7 +10,7 @@ export default function LiveActivityFeed() {
     { text: 'reached Level 25', icon: '⚡', color: '#F59E0B' },
     { text: 'completed a 30-day streak', icon: '🔥', color: '#FF5733' },
     { text: 'defeated a Boss', icon: '⚔️', color: '#10B981' },
-    { text: 'upgraded to Founder', icon: '👑', color: '#7C3AED' },
+    { text: 'upgraded to Pro', icon: '👑', color: '#7C3AED' },
     { text: 'unlocked a new skill', icon: '💎', color: '#3B82F6' },
     { text: 'completed 10 quests today', icon: '🎯', color: '#10B981' },
     { text: 'earned 500 gold', icon: '💰', color: '#F59E0B' },

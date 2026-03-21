@@ -141,7 +141,7 @@ export default function PremiumWelcome({ show, onClose }) {
               className="text-5xl font-black text-[#0F3460] mb-2 uppercase tracking-wide"
               style={{ fontFamily: 'VT323, monospace' }}
             >
-              Welcome, Founder!
+              Welcome, Pro Member!
             </h1>
             <p className="text-[#1A1A2E] font-bold text-lg">
               You've unlocked the full HabitQuest experience

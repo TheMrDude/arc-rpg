@@ -50,7 +50,7 @@ export async function GET(request) {
       return NextResponse.json(
         {
           error: 'Premium feature',
-          message: 'On This Day is a premium feature. Upgrade to Founder Access to unlock.',
+          message: 'On This Day is a premium feature. Upgrade to Pro to unlock.',
           upgrade_required: true
         },
         { status: 403 }

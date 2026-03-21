@@ -43,27 +43,6 @@ export default function StatsBar() {
       className="bg-gradient-to-r from-[#7C3AED] to-[#FF5733] py-3 px-4 text-center font-bold text-sm"
     >
       <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-center gap-2 sm:gap-4">
-        <div className="flex items-center gap-2 text-[#FCD34D]">
-          <span className="text-lg">🔥</span>
-          <span className="hidden sm:inline">
-            Only{' '}
-            <motion.span
-              key={stats?.founderSpotsRemaining ?? 23}
-              initial={{ scale: 1.2 }}
-              animate={{ scale: 1 }}
-              className="font-black"
-            >
-              {Math.min(stats?.founderSpotsRemaining ?? 23, 23)}
-            </motion.span>{' '}
-            founder spots remaining
-          </span>
-          <span className="sm:hidden">
-            <span className="font-black">{Math.min(stats?.founderSpotsRemaining ?? 23, 23)}</span> spots left
-          </span>
-        </div>
-
-        <span className="text-white/50">•</span>
-
         <div className="flex items-center gap-2">
           <span>⚡</span>
           <span className="hidden sm:inline font-bold">Go Pro — $5/mo or $29/yr</span>
