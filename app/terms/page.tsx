@@ -96,8 +96,8 @@ export default function TermsOfService() {
 
             <h3 className="text-xl font-semibold mb-3 mt-6">Pricing</h3>
             <p className="text-gray-300 mb-4">
-              HabitQuest offers a lifetime premium subscription for $47 USD. This is a one-time payment
-              with no recurring charges.
+              HabitQuest offers premium subscriptions starting at $5 USD per month or $29 USD per year. These are recurring payments
+              managed through Stripe.
             </p>
 
             <h3 className="text-xl font-semibold mb-3 mt-6">Premium Features</h3>
@@ -246,7 +246,7 @@ export default function TermsOfService() {
               <li>Errors in AI-generated content</li>
             </ul>
             <p className="text-gray-300 mb-4">
-              Our total liability shall not exceed the amount you paid for premium subscription ($47)
+              Our total liability shall not exceed the amount you paid for premium subscription in the 12 months preceding the claim
               or $100, whichever is greater.
             </p>
           </section>

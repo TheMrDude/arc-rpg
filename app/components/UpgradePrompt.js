@@ -19,7 +19,7 @@ export default function UpgradePrompt({ trigger, profile }) {
         'Set up Recurring Quests to automate habits',
         'Join Seasonal Events for exclusive rewards'
       ],
-      cta: 'Upgrade to Founder - $47',
+      cta: 'Go Pro — $5/mo',
       delay: 2000
     },
     quest_limit: {
@@ -32,7 +32,7 @@ export default function UpgradePrompt({ trigger, profile }) {
         'Seasonal Events add fresh challenges weekly',
         'Never lose progress with Streak Protection'
       ],
-      cta: 'Unlock Full Power - $47',
+      cta: 'Unlock Full Power — $5/mo',
       delay: 1000
     },
     streak_milestone: {
@@ -45,7 +45,7 @@ export default function UpgradePrompt({ trigger, profile }) {
         'Equipment Shop boosts make daily quests easier',
         'Lifetime access means your progress never expires'
       ],
-      cta: 'Protect Your Streak - $47',
+      cta: 'Protect Your Streak — Go Pro',
       delay: 1500
     },
     skill_tree_locked: {
@@ -58,7 +58,7 @@ export default function UpgradePrompt({ trigger, profile }) {
         'Special abilities unique to your archetype',
         'Unlock new skill tiers as you level up'
       ],
-      cta: 'Unlock Skill Tree - $47',
+      cta: 'Unlock Skill Tree — Go Pro',
       delay: 1000
     }
   };
@@ -138,11 +138,11 @@ export default function UpgradePrompt({ trigger, profile }) {
         {/* Pricing */}
         <div className="text-center mb-6 p-4 bg-gradient-to-r from-[#7C3AED]/20 to-[#FF5733]/20 rounded-lg border border-[#FF5733]">
           <div className="flex items-baseline justify-center gap-2 mb-2">
-            <span className="text-5xl font-black text-[#FF5733]">$47</span>
-            <span className="text-gray-400 text-lg">one time</span>
+            <span className="text-5xl font-black text-[#FF5733]">$5<span className="text-xl text-gray-400">/mo</span></span>
+            <span className="text-gray-400 text-lg"></span>
           </div>
-          <div className="text-[#10B981] font-bold mb-1">LIFETIME ACCESS • NO SUBSCRIPTIONS</div>
-          <div className="text-sm text-gray-400">Only 25 founder spots. After that, it's $9/month forever.</div>
+          <div className="text-[#10B981] font-bold mb-1">PRO ACCESS</div>
+          <div className="text-sm text-gray-400">or $29/yr — cancel anytime</div>
         </div>
 
         {/* CTA Buttons */}
@@ -174,7 +174,7 @@ export default function UpgradePrompt({ trigger, profile }) {
             </div>
             <div>
               <div className="font-bold text-[#10B981]">♾️</div>
-              <div className="text-gray-400">Lifetime Access</div>
+              <div className="text-gray-400">or $29/yr — cancel anytime</div>
             </div>
           </div>
         </div>

@@ -135,32 +135,32 @@ export default function PricingExitIntent({ onStay, onGetEmail }: PricingExitInt
               {/* Value Props */}
               <div className="bg-[#0F3460]/50 border-2 border-[#FFD93D] rounded-lg p-6 mb-6 text-left">
                 <h3 className="text-lg font-black text-[#FFD93D] mb-4 text-center">
-                  🔥 Founder's Lifetime Deal - Only $47
+                  🔥 Go Pro — Starting at $5/mo
                 </h3>
 
                 <div className="space-y-3">
                   <div className="flex items-start gap-3">
                     <span className="text-[#10B981] text-xl flex-shrink-0">✓</span>
                     <span className="text-sm text-white">
-                      <strong>Pay once, own forever</strong> - No subscriptions, ever
+                      <strong>Full RPG experience unlocked</strong> - Unlimited habits & quests
                     </span>
                   </div>
                   <div className="flex items-start gap-3">
                     <span className="text-[#10B981] text-xl flex-shrink-0">✓</span>
                     <span className="text-sm text-white">
-                      <strong>All future features FREE</strong> - New archetypes, power-ups, everything
+                      <strong>Boss battles, equipment, quest chains & more</strong>
                     </span>
                   </div>
                   <div className="flex items-start gap-3">
                     <span className="text-[#10B981] text-xl flex-shrink-0">✓</span>
                     <span className="text-sm text-white">
-                      <strong>Founder badge & perks</strong> - Exclusive recognition + early access
+                      <strong>Journal, reflections & priority support</strong>
                     </span>
                   </div>
                   <div className="flex items-start gap-3">
                     <span className="text-[#FFD93D] text-xl flex-shrink-0">⚡</span>
                     <span className="text-sm text-[#FFD93D] font-bold">
-                      Only 23 of 25 spots remaining!
+                      Save 50% with the $29/yr Early Bird plan
                     </span>
                   </div>
                 </div>
@@ -201,7 +201,7 @@ export default function PricingExitIntent({ onStay, onGetEmail }: PricingExitInt
                 onClick={handleClose}
                 className="w-full py-4 bg-gradient-to-r from-[#FFD93D] to-[#FFC700] hover:from-[#FFC700] hover:to-[#FFB600] text-[#1A1A2E] border-3 border-[#0F3460] rounded-xl font-black text-xl uppercase tracking-wide shadow-lg transition-all"
               >
-                💎 Claim My Founder Spot - $47
+                💎 Go Pro Now — $5/mo
               </button>
 
               <p className="text-xs text-gray-500 mt-4">

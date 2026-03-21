@@ -85,7 +85,7 @@ export default function SetupPage() {
             <div className="text-6xl mb-4">✅</div>
             <h1 className="text-3xl font-bold mb-4">Database Setup Complete!</h1>
             <p className="text-gray-300 mb-6">
-              Your ARC RPG database is ready to go. You can now start your adventure!
+              Your HabitQuest database is ready to go. You can now start your adventure!
             </p>
             <button
               onClick={() => router.push('/login')}
@@ -105,7 +105,7 @@ export default function SetupPage() {
         <div className="text-center mb-12">
           <h1 className="text-5xl font-bold mb-4">Database Setup Required</h1>
           <p className="text-xl text-gray-300">
-            Your ARC RPG database needs to be initialized. Follow these steps:
+            Your HabitQuest database needs to be initialized. Follow these steps:
           </p>
           {error && (
             <div className="mt-4 bg-red-600/20 border border-red-500 rounded-lg p-4 text-red-200">
@@ -149,7 +149,7 @@ export default function SetupPage() {
             The SQL file is located in your project root directory:
           </p>
           <code className="block bg-black/50 p-3 rounded text-green-400 font-mono text-sm">
-            /arc-rpg/COMPLETE_SETUP.sql
+            /COMPLETE_SETUP.sql
           </code>
           <p className="text-gray-400 text-sm mt-3">
             Open this file, copy all contents, and paste them into the Supabase SQL editor

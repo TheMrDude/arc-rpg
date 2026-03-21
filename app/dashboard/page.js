@@ -847,7 +847,7 @@ export default function DashboardPage() {
                 onClick={() => router.push('/pricing')}
                 className="px-4 py-2 bg-[#00D4FF] hover:bg-[#00BFFF] text-[#0F3460] border-3 border-[#0F3460] rounded-lg font-black uppercase text-sm tracking-wide shadow-[0_3px_0_#0F3460] hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1 transition-all"
               >
-                🔥 Lifetime Access - $47
+                🔥 Go Pro — $5/mo
               </button>
             )}
             <button
@@ -1164,11 +1164,11 @@ export default function DashboardPage() {
         )}
 
         {/* Unlock Premium Section (for non-premium users) */}
-        {!(profile?.subscription_status === 'active') && (
+        {!(profile?.is_premium || profile?.subscription_status === 'active') && (
           <div className="bg-[#1A1A2E] border-3 border-[#FFD93D] rounded-lg p-8 mb-8 shadow-[0_0_30px_rgba(255,217,61,0.4)]">
             <div className="text-center">
-              <h3 className="text-3xl font-black mb-4 uppercase tracking-wide text-[#FFD93D]">🔥 Limited-Time Founder's Deal</h3>
-              <p className="text-[#E2E8F0] mb-6 font-bold">Get LIFETIME access to all premium features for a one-time payment!</p>
+              <h3 className="text-3xl font-black mb-4 uppercase tracking-wide text-[#FFD93D]">🔥 Unlock the Full RPG Experience</h3>
+              <p className="text-[#E2E8F0] mb-6 font-bold">Go Pro to access all premium features — starting at just $5/month.</p>
               <div className="grid md:grid-cols-3 gap-4 mb-6">
                 <div className="bg-[#0F3460] p-4 rounded-lg border-2 border-[#1A1A2E]">
                   <div className="text-3xl mb-2">🔄</div>
@@ -1190,7 +1190,7 @@ export default function DashboardPage() {
                 onClick={() => router.push('/pricing')}
                 className="px-8 py-4 bg-[#FFD93D] hover:bg-[#E6C335] text-[#1A1A2E] border-3 border-[#0F3460] rounded-lg font-black text-lg uppercase tracking-wide shadow-[0_5px_0_#0F3460] hover:shadow-[0_7px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_2px_0_#0F3460] active:translate-y-1 transition-all"
               >
-                🔥 Get Lifetime Access - $47 (Limited Spots!)
+                🔥 Go Pro — $5/mo or $29/yr
               </button>
             </div>
           </div>

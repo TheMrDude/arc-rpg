@@ -66,8 +66,8 @@ export default function StatsBar() {
 
         <div className="flex items-center gap-2">
           <span>⚡</span>
-          <span className="hidden sm:inline font-bold">$47 lifetime — then $9/month forever</span>
-          <span className="sm:hidden font-bold">$47 lifetime</span>
+          <span className="hidden sm:inline font-bold">Go Pro — $5/mo or $29/yr</span>
+          <span className="sm:hidden font-bold">Pro $5/mo</span>
         </div>
       </div>
     </motion.div>

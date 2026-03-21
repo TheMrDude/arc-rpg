@@ -167,7 +167,7 @@ export default function QuizPage() {
             <div className="bg-gray-800/50 rounded-xl p-6 mb-8">
               <h3 className="text-xl font-bold mb-3">Transform Your To-Do List Into An Epic Quest</h3>
               <p className="text-gray-300 mb-4">
-                Join ARC RPG and turn your daily tasks into heroic adventures matched to your {archetype.name} style!
+                Join HabitQuest and turn your daily tasks into heroic adventures matched to your {archetype.name} style!
               </p>
               <ul className="text-left space-y-2 mb-6 max-w-md mx-auto">
                 <li className="flex items-start">
@@ -210,7 +210,7 @@ export default function QuizPage() {
               <div className="flex gap-4 justify-center">
                 <button
                   onClick={() => {
-                    const text = `I'm a ${archetype.name} in ARC RPG! Find out your archetype:`;
+                    const text = `I'm a ${archetype.name} in HabitQuest! Find out your archetype:`;
                     const url = window.location.origin + '/quiz';
                     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
                   }}

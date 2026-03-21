@@ -44,7 +44,7 @@ export default function ReferralCard({ userId, profile }) {
 
   const handleShare = (platform) => {
     const link = getReferralLink();
-    const text = 'Transform your to-do list into an epic RPG adventure! Join me on ARC RPG:';
+    const text = 'Transform your to-do list into an epic RPG adventure! Join me on HabitQuest:';
 
     let shareUrl = '';
     if (platform === 'twitter') {
@@ -65,7 +65,7 @@ export default function ReferralCard({ userId, profile }) {
         <div>
           <h3 className="text-xl font-bold mb-1">🎁 Refer Friends, Get Rewards!</h3>
           <p className="text-sm text-gray-300">
-            Share ARC RPG and earn premium perks when friends join
+            Share HabitQuest and earn premium perks when friends join
           </p>
         </div>
       </div>
