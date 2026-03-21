@@ -6,9 +6,15 @@ import { getOrCreateProfile } from '@/lib/profile-service';
 // Force dynamic rendering to avoid build-time execution
 export const dynamic = 'force-dynamic';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+// Lazy initialization - clients will be created when first needed
+let stripeClient = null;
+function getStripe() {
+  if (!stripeClient) {
+    stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY);
+  }
+  return stripeClient;
+}
 
-// Lazy initialization - client will be created when first needed
 let supabaseAdmin = null;
 function getSupabaseAdmin() {
   if (!supabaseAdmin) {
@@ -146,7 +152,7 @@ export async function POST(request) {
 
   let event;
   try {
-    event = stripe.webhooks.constructEvent(
+    event = getStripe().webhooks.constructEvent(
       body,
       signature,
       process.env.STRIPE_WEBHOOK_SECRET
@@ -189,8 +195,42 @@ export async function POST(request) {
       return await handleGoldPurchase(session, userId);
     }
 
-    // Handle premium subscription (original code)
-    // Check if user is already premium (idempotency)
+    // Handle pro subscription checkout
+    if (transactionType === 'pro_subscription') {
+      const { error: updateError } = await getSupabaseAdmin()
+        .from('profiles')
+        .update({
+          subscription_status: 'active',
+          subscription_tier: 'pro',
+          premium_since: new Date().toISOString(),
+          is_premium: true,
+          stripe_session_id: session.id,
+          stripe_customer_id: session.customer,
+          stripe_subscription_id: session.subscription,
+        })
+        .eq('id', userId);
+
+      if (updateError) {
+        console.error('Webhook error: Failed to upgrade user to pro', {
+          error: updateError.message,
+          userId,
+          sessionId: session.id,
+          timestamp: new Date().toISOString(),
+        });
+        return NextResponse.json({ error: 'Upgrade failed' }, { status: 500 });
+      }
+
+      console.log('Webhook: User upgraded to pro subscription', {
+        userId,
+        sessionId: session.id,
+        subscriptionId: session.subscription,
+        timestamp: new Date().toISOString(),
+      });
+
+      return NextResponse.json({ received: true });
+    }
+
+    // Handle legacy premium subscription (one-time founder payment)
     const {
       profile,
       created: profileCreated,
@@ -223,7 +263,7 @@ export async function POST(request) {
       return NextResponse.json({ received: true });
     }
 
-    // Upgrade user to premium
+    // Upgrade user to premium (legacy one-time)
     const { error: updateError } = await getSupabaseAdmin()
       .from('profiles')
       .update({
@@ -251,6 +291,57 @@ export async function POST(request) {
       amount: session.amount_total / 100,
       timestamp: new Date().toISOString(),
     });
+  }
+
+  // Handle subscription cancellation
+  if (event.type === 'customer.subscription.deleted' || event.type === 'customer.subscription.updated') {
+    const subscription = event.data.object;
+    const userId = subscription.metadata?.supabase_user_id;
+
+    if (!userId) {
+      // Try to find user by stripe_customer_id
+      const { data: profile } = await getSupabaseAdmin()
+        .from('profiles')
+        .select('id')
+        .eq('stripe_customer_id', subscription.customer)
+        .single();
+
+      if (profile) {
+        if (event.type === 'customer.subscription.deleted' || subscription.status === 'canceled' || subscription.status === 'unpaid') {
+          await getSupabaseAdmin()
+            .from('profiles')
+            .update({
+              subscription_status: 'canceled',
+              subscription_tier: 'free',
+              is_premium: false,
+            })
+            .eq('id', profile.id);
+
+          console.log('Webhook: Subscription canceled, reverted to free', {
+            userId: profile.id,
+            subscriptionId: subscription.id,
+            timestamp: new Date().toISOString(),
+          });
+        }
+      }
+    } else {
+      if (event.type === 'customer.subscription.deleted' || subscription.status === 'canceled' || subscription.status === 'unpaid') {
+        await getSupabaseAdmin()
+          .from('profiles')
+          .update({
+            subscription_status: 'canceled',
+            subscription_tier: 'free',
+            is_premium: false,
+          })
+          .eq('id', userId);
+
+        console.log('Webhook: Subscription canceled, reverted to free', {
+          userId,
+          subscriptionId: subscription.id,
+          timestamp: new Date().toISOString(),
+        });
+      }
+    }
   }
 
   return NextResponse.json({ received: true });
