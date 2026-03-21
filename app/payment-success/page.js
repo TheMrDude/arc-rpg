@@ -59,7 +59,7 @@ function PaymentSuccessContent() {
           <div>
             <div className="text-6xl mb-4">✅</div>
             <p className="text-[#48BB78] text-2xl font-black mb-4 uppercase tracking-wide">Your Premium Access is Active!</p>
-            <p className="text-[#E2E8F0] mb-6 font-bold">Welcome to the Founder's Club!</p>
+            <p className="text-[#E2E8F0] mb-6 font-bold">Welcome to HabitQuest Pro!</p>
             <button
               onClick={() => router.push('/dashboard')}
               className="px-8 py-3 bg-[#FFD93D] hover:bg-[#E6C335] text-[#1A1A2E] border-[3px] border-[#0F3460] rounded-lg font-black uppercase tracking-wide shadow-[0_5px_0_#0F3460] hover:shadow-[0_7px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_2px_0_#0F3460] active:translate-y-1 transition-all"

@@ -58,8 +58,8 @@ export default function AchievementBadges({ profile, quests }) {
     },
     {
       id: 'premium',
-      name: 'Founder',
-      description: 'Unlock Founder status',
+      name: 'Pro Member',
+      description: 'Unlock Pro status',
       icon: '⭐',
       condition: (p) => p.is_premium || p.subscription_status === 'active'
     },

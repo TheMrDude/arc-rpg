@@ -38,12 +38,12 @@ export default function UpgradePrompt({ trigger, profile }) {
     streak_milestone: {
       title: 'Amazing Streak!',
       subtitle: `${profile?.current_streak || 0} days and counting!`,
-      message: 'You\'ve built incredible momentum. Protect your progress with Founder benefits.',
+      message: 'You\'ve built incredible momentum. Protect your progress with Pro benefits.',
       benefits: [
         'Streak Freeze: 1 free pass per week',
         'Recurring Quests keep your streak alive automatically',
         'Equipment Shop boosts make daily quests easier',
-        'Lifetime access means your progress never expires'
+        'Pro access means your progress never expires'
       ],
       cta: 'Protect Your Streak — Go Pro',
       delay: 1500

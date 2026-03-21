@@ -113,7 +113,7 @@ export default function PricingExitIntent({ onStay, onGetEmail }: PricingExitInt
                 Awesome! We'll Keep You Posted
               </h2>
               <p className="text-gray-300 mb-4">
-                We'll send you exclusive founder updates and let you know before spots run out!
+                We'll send you updates about new features and special offers!
               </p>
               <p className="text-sm text-gray-400">
                 Closing in 3 seconds...

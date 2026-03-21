@@ -100,7 +100,7 @@ export async function POST(request) {
             limit: FREE_TIER_MONTHLY_LIMIT,
             current: count,
             upgrade_required: true,
-            message: `You've reached your free limit of ${FREE_TIER_MONTHLY_LIMIT} journal entries this month. Upgrade to Founder Access for unlimited journaling.`
+            message: `You've reached your free limit of ${FREE_TIER_MONTHLY_LIMIT} journal entries this month. Upgrade to Pro for unlimited journaling.`
           },
           { status: 403 }
         );

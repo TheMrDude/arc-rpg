@@ -51,7 +51,7 @@ export default function StreakProtection({ streak, lastActivityDate, isPremium, 
                   <div className="font-black text-[#7C3AED]">PREMIUM: STREAK PROTECTION</div>
                 </div>
                 <p className="text-sm text-gray-300 mb-3">
-                  Founders get 1 "streak freeze" per week. Never lose your progress again.
+                  Pro members get 1 "streak freeze" per week. Never lose your progress again.
                 </p>
                 <button
                   onClick={() => window.location.href = '/pricing'}
