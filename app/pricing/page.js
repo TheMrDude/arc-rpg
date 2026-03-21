@@ -4,16 +4,20 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { supabase } from '@/lib/supabase';
-import PricingSection from '@/components/PricingSection';
-import PricingExitIntent from '../components/PricingExitIntent';
+
+const STRIPE_LINK_PRO_MONTHLY = 'https://buy.stripe.com/fZubJ02TX5SngCc6dadZ602';
+const STRIPE_LINK_PRO_YEARLY = 'https://buy.stripe.com/dRm7sK6695Sn85GgROdZ601';
+
+function stripeLink(baseUrl, email) {
+  if (!email) return baseUrl;
+  return `${baseUrl}?prefilled_email=${encodeURIComponent(email)}`;
+}
 
 export default function PricingPage() {
   const router = useRouter();
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [checkoutLoading, setCheckoutLoading] = useState(false);
-  const [lifetimeSpotsLeft, setLifetimeSpotsLeft] = useState(25);
 
   useEffect(() => {
     async function loadUser() {
@@ -22,283 +26,237 @@ export default function PricingPage() {
         setUser(user);
         const { data: profileData } = await supabase
           .from('profiles')
-          .select('id, subscription_status, is_premium, stripe_session_id, premium_since')
+          .select('id, subscription_status, is_premium, subscription_tier')
           .eq('id', user.id)
           .single();
         setProfile(profileData);
       }
       setLoading(false);
     }
-
-    async function checkLifetimeSpots() {
-      const { count } = await supabase
-        .from('profiles')
-        .select('*', { count: 'exact', head: true })
-        .eq('subscription_status', 'active');
-
-      const spotsRemaining = Math.max(0, 25 - (count || 0));
-      setLifetimeSpotsLeft(spotsRemaining);
-    }
-
     loadUser();
-    checkLifetimeSpots();
   }, []);
 
-  async function handleUpgrade() {
-    console.log('=== HANDLE UPGRADE STARTED ===');
-    console.log('User:', user);
-    console.log('Lifetime spots left:', lifetimeSpotsLeft);
-
-    if (!user) {
-      console.log('No user found, redirecting to login');
-      router.push('/login');
-      return;
-    }
-
-    if (lifetimeSpotsLeft <= 0) {
-      alert('Sorry, all 25 lifetime spots have been claimed!');
-      return;
-    }
-
-    setCheckoutLoading(true);
-
-    try {
-      console.log('Calling /api/create-checkout with userId:', user.id);
-
-      // Send userId to create checkout
-      const response = await fetch('/api/create-checkout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ userId: user.id }),
-      });
-
-      console.log('Response status:', response.status);
-      console.log('Response ok:', response.ok);
-
-      const data = await response.json();
-      console.log('Response data:', data);
-
-      if (data.url) {
-        console.log('Redirecting to Stripe checkout:', data.url);
-        window.location.href = data.url;
-      } else {
-        console.error('No URL in response. Full data:', data);
-        alert(`Failed to create checkout: ${data.error || 'Unknown error'}. Please try again.`);
-        setCheckoutLoading(false);
-      }
-    } catch (error) {
-      console.error('Checkout error:', error);
-      alert('Something went wrong. Please try again.');
-      setCheckoutLoading(false);
-    }
-  }
+  const isPro = profile?.subscription_tier === 'pro' && profile?.subscription_status === 'active';
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#1A1A2E] via-[#16213e] to-[#0F3460] flex items-center justify-center">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.3 }}
-          className="text-white text-xl font-black uppercase tracking-wide"
-        >
-          Loading...
-        </motion.div>
+      <div className="min-h-screen bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#0F172A] flex items-center justify-center">
+        <div className="text-white text-xl font-black uppercase tracking-wide">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1A1A2E] via-[#16213e] to-[#0F3460] text-white p-4 sm:p-6 lg:p-8 overflow-hidden">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#0F172A] text-white p-4 sm:p-6 lg:p-8">
+      <div className="max-w-5xl mx-auto">
         <motion.button
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.3 }}
-          onClick={() => router.push('/dashboard')}
-          className="mb-6 lg:mb-8 px-4 py-2 bg-[#00D4FF] hover:bg-[#00B8E6] text-[#1A1A2E] border-3 border-[#0F3460] rounded-lg font-black uppercase text-xs sm:text-sm tracking-wide shadow-[0_3px_0_#0F3460] hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1 transition-all duration-200"
+          onClick={() => router.push(user ? '/dashboard' : '/')}
+          className="mb-8 px-4 py-2 bg-[#00D4FF] hover:bg-[#00B8E6] text-[#0F172A] rounded-lg font-black uppercase text-sm tracking-wide transition-all hover:-translate-y-0.5"
         >
-          ← Back to Dashboard
+          ← {user ? 'Dashboard' : 'Home'}
         </motion.button>
 
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="text-center mb-8 lg:mb-12"
+          className="text-center mb-12"
         >
-          <motion.h1
-            initial={{ scale: 0.9 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-black mb-4 uppercase tracking-wide text-[#FFD93D] drop-shadow-[0_0_15px_rgba(255,217,61,0.5)]"
-          >
-            🔥 Founder's Sale 🔥
-          </motion.h1>
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black mb-4">
+            <span className="bg-gradient-to-r from-[#FF6B35] to-[#F59E0B] bg-clip-text text-transparent">
+              Pick Your Plan
+            </span>
+          </h1>
+          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+            Start free. Upgrade when you&apos;re ready for the full RPG experience.
+          </p>
+        </motion.div>
 
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="text-[#E2E8F0] text-base sm:text-lg lg:text-xl mb-4 font-bold max-w-3xl mx-auto px-4"
-          >
-            Start free forever. Or grab <span className="text-[#FFD93D] font-black">LIFETIME access</span> for a one-time payment.
-          </motion.p>
-
+        {isPro && (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.4 }}
-            className="inline-block mb-4"
+            className="bg-[#16213E] border-3 border-[#10B981] rounded-xl p-6 mb-8 text-center"
           >
-            <div className="bg-[#FF6B6B]/20 border-3 border-[#FF6B6B] rounded-xl px-6 py-4 shadow-[0_0_20px_rgba(255,107,107,0.4)]">
-              <p className="text-[#FF6B6B] font-black text-xl sm:text-2xl uppercase">
-                Only {lifetimeSpotsLeft} of 25 spots remaining!
-              </p>
+            <p className="text-[#10B981] text-lg font-black uppercase">
+              You&apos;re a Pro member! Full access unlocked.
+            </p>
+          </motion.div>
+        )}
+
+        {/* Pricing Cards */}
+        <div className="grid md:grid-cols-3 gap-6 mb-16">
+          {/* Free Tier */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="bg-[#16213E] border-2 border-[#1E293B] rounded-2xl p-8 flex flex-col"
+          >
+            <h3 className="text-xl font-black text-white mb-1">Free</h3>
+            <div className="text-4xl font-black text-[#00D4FF] mb-1">$0</div>
+            <p className="text-gray-500 text-sm mb-6">Free forever</p>
+
+            <ul className="space-y-3 text-gray-300 text-sm mb-8 flex-1">
+              <li className="flex items-start gap-2"><span className="text-[#10B981]">✓</span> 3 habits</li>
+              <li className="flex items-start gap-2"><span className="text-[#10B981]">✓</span> Basic XP &amp; leveling</li>
+              <li className="flex items-start gap-2"><span className="text-[#10B981]">✓</span> Archetype selection</li>
+              <li className="flex items-start gap-2"><span className="text-[#10B981]">✓</span> AI quest transformation</li>
+              <li className="flex items-start gap-2"><span className="text-gray-600">—</span> <span className="text-gray-600">Boss battles</span></li>
+              <li className="flex items-start gap-2"><span className="text-gray-600">—</span> <span className="text-gray-600">Equipment shop</span></li>
+              <li className="flex items-start gap-2"><span className="text-gray-600">—</span> <span className="text-gray-600">Quest chains</span></li>
+              <li className="flex items-start gap-2"><span className="text-gray-600">—</span> <span className="text-gray-600">Journal &amp; reflections</span></li>
+            </ul>
+
+            <button
+              onClick={() => router.push('/signup')}
+              className="w-full px-6 py-3 bg-[#1E293B] hover:bg-[#2D3B4F] text-white border-2 border-[#00D4FF]/30 rounded-xl font-black text-lg uppercase tracking-wide transition-all hover:scale-105"
+            >
+              Start Free →
+            </button>
+          </motion.div>
+
+          {/* Pro Monthly */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="bg-gradient-to-br from-[#16213E] to-[#0F3460] border-4 border-[#FF6B35] rounded-2xl p-8 flex flex-col relative"
+          >
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#FF6B35] text-white text-xs font-black px-4 py-1 rounded-full uppercase">
+              Most Popular
             </div>
+            <h3 className="text-xl font-black text-white mb-1">Pro</h3>
+            <div className="text-4xl font-black text-[#F59E0B] mb-1">
+              $5<span className="text-lg text-gray-400">/mo</span>
+            </div>
+            <p className="text-gray-500 text-sm mb-6">or $39/year (save 35%)</p>
+
+            <ul className="space-y-3 text-gray-300 text-sm mb-8 flex-1">
+              <li className="flex items-start gap-2"><span className="text-[#F59E0B]">✓</span> <strong className="text-white">Unlimited</strong> habits</li>
+              <li className="flex items-start gap-2"><span className="text-[#F59E0B]">✓</span> Boss battles</li>
+              <li className="flex items-start gap-2"><span className="text-[#F59E0B]">✓</span> Equipment shop</li>
+              <li className="flex items-start gap-2"><span className="text-[#F59E0B]">✓</span> Quest chains</li>
+              <li className="flex items-start gap-2"><span className="text-[#F59E0B]">✓</span> Journal &amp; reflections</li>
+              <li className="flex items-start gap-2"><span className="text-[#F59E0B]">✓</span> Weekly digest emails</li>
+              <li className="flex items-start gap-2"><span className="text-[#F59E0B]">✓</span> Priority support</li>
+            </ul>
+
+            {isPro ? (
+              <div className="w-full px-6 py-3 bg-[#FF6B35]/50 text-white rounded-xl font-black text-lg uppercase tracking-wide text-center opacity-50 cursor-not-allowed">
+                Current Plan
+              </div>
+            ) : (
+              <a
+                href={stripeLink(STRIPE_LINK_PRO_MONTHLY, user?.email)}
+                className="block w-full px-6 py-3 bg-[#FF6B35] hover:bg-[#E55A2B] text-white rounded-xl font-black text-lg uppercase tracking-wide transition-all hover:scale-105 text-center"
+              >
+                Go Pro — $5/mo
+              </a>
+            )}
           </motion.div>
 
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="text-[#00D4FF] text-sm sm:text-base font-bold max-w-2xl mx-auto px-4"
-          >
-            After 25 founders join, this deal disappears forever. This is <span className="text-[#FFD93D]">your last chance</span> to lock in lifetime access at this price.
-          </motion.p>
-        </motion.div>
-
-        {profile?.subscription_status === 'active' && (
+          {/* Early Bird Annual */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.6 }}
-            className="bg-[#1A1A2E] border-3 border-[#48BB78] rounded-xl p-6 mb-8 text-center shadow-[0_0_25px_rgba(72,187,120,0.4)]"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="bg-[#16213E] border-2 border-[#F59E0B]/50 rounded-2xl p-8 flex flex-col relative"
           >
-            <p className="text-[#48BB78] text-lg lg:text-xl font-black uppercase tracking-wide">
-              🎉 You're a Founder! Lifetime access unlocked.
-            </p>
-          </motion.div>
-        )}
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#F59E0B] text-[#0F172A] text-xs font-black px-4 py-1 rounded-full uppercase">
+              Best Value
+            </div>
+            <h3 className="text-xl font-black text-white mb-1">Early Bird</h3>
+            <div className="text-4xl font-black text-[#10B981] mb-1">
+              $29<span className="text-lg text-gray-400">/year</span>
+            </div>
+            <p className="text-gray-500 text-sm mb-6">Limited-time launch price</p>
 
-        {profile?.subscription_status !== 'active' && lifetimeSpotsLeft > 0 && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.6 }}
-            className="bg-[#1A1A2E] border-3 border-[#FF6B6B] rounded-xl p-6 mb-8 text-center shadow-[0_0_25px_rgba(255,107,107,0.4)] animate-pulse"
-          >
-            <p className="text-[#FF6B6B] text-lg lg:text-xl font-black uppercase tracking-wide">
-              🔥 Only {lifetimeSpotsLeft} of 25 Founder spots remaining!
-            </p>
-          </motion.div>
-        )}
+            <ul className="space-y-3 text-gray-300 text-sm mb-8 flex-1">
+              <li className="flex items-start gap-2"><span className="text-[#10B981]">✓</span> Everything in Pro</li>
+              <li className="flex items-start gap-2"><span className="text-[#10B981]">✓</span> Save 50% vs monthly</li>
+              <li className="flex items-start gap-2"><span className="text-[#10B981]">✓</span> Lock in launch pricing</li>
+              <li className="flex items-start gap-2"><span className="text-[#10B981]">✓</span> <strong className="text-white">$2.42/mo</strong> effective</li>
+            </ul>
 
-        {profile?.subscription_status !== 'active' && lifetimeSpotsLeft === 0 && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.6 }}
-            className="bg-[#1A1A2E] border-3 border-[#0F3460] rounded-xl p-6 mb-8 text-center"
-          >
-            <p className="text-[#E2E8F0] text-lg lg:text-xl font-black uppercase tracking-wide">
-              All 25 Founder spots claimed. Subscription plans coming soon!
-            </p>
+            {isPro ? (
+              <div className="w-full px-6 py-3 bg-[#10B981]/50 text-white rounded-xl font-black text-lg uppercase tracking-wide text-center opacity-50 cursor-not-allowed">
+                Current Plan
+              </div>
+            ) : (
+              <a
+                href={stripeLink(STRIPE_LINK_PRO_YEARLY, user?.email)}
+                className="block w-full px-6 py-3 bg-[#10B981] hover:bg-[#059669] text-white rounded-xl font-black text-lg uppercase tracking-wide transition-all hover:scale-105 text-center"
+              >
+                Get Early Bird — $29/yr
+              </a>
+            )}
           </motion.div>
-        )}
+        </div>
 
+        {/* Comparison: Anti-guilt */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
-        >
-          <PricingSection
-            lifetimeSpotsLeft={lifetimeSpotsLeft}
-            isFounder={profile?.subscription_status === 'active'}
-            checkoutLoading={checkoutLoading}
-            onStartFree={() => router.push('/signup')}
-            onClaimFounder={handleUpgrade}
-          />
-        </motion.div>
-
-        {/* Why HabitQuest is Different */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
-          className="mt-12 lg:mt-16 max-w-4xl mx-auto"
+          transition={{ delay: 0.5 }}
+          className="max-w-4xl mx-auto mb-16"
         >
           <h2 className="text-2xl sm:text-3xl font-black text-center mb-8 text-[#00D4FF]">
-            💚 THE ANTI-GUILT HABIT TRACKER
+            The Anti-Guilt Habit Tracker
           </h2>
-          
-          <div className="grid md:grid-cols-2 gap-6 mb-12">
+
+          <div className="grid md:grid-cols-2 gap-6">
             <div className="bg-red-900/20 border-2 border-red-500/30 rounded-xl p-6">
-              <h3 className="text-xl font-black text-red-400 mb-4">❌ Other Habit Apps</h3>
+              <h3 className="text-xl font-black text-red-400 mb-4">Other Habit Apps</h3>
               <ul className="space-y-2 text-gray-300">
                 <li>• Shame you when you break streaks</li>
                 <li>• Penalize missed days with lost progress</li>
                 <li>• Compare you to other users</li>
                 <li>• Make productivity feel like punishment</li>
-                <li>• Boring checkboxes that drain motivation</li>
               </ul>
             </div>
-            
+
             <div className="bg-green-900/20 border-2 border-green-500/30 rounded-xl p-6">
-              <h3 className="text-xl font-black text-green-400 mb-4">✅ HabitQuest</h3>
+              <h3 className="text-xl font-black text-green-400 mb-4">HabitQuest</h3>
               <ul className="space-y-2 text-gray-300">
                 <li>• <strong>No streak penalties</strong> — ever</li>
                 <li>• Miss a day? Your story continues</li>
                 <li>• Solo journey — no leaderboards</li>
                 <li>• Tasks become adventures you want to do</li>
-                <li>• AI remembers YOUR story across weeks</li>
               </ul>
             </div>
           </div>
-
-          <div className="bg-[#1A1A2E] border-2 border-[#FFD93D]/30 rounded-xl p-6 text-center mb-8">
-            <p className="text-xl text-[#FFD93D] font-bold mb-2">
-              "Your life isn't a streak to maintain. It's a story to tell."
-            </p>
-            <p className="text-gray-400">— The HabitQuest Philosophy</p>
-          </div>
         </motion.div>
 
+        {/* Reassurances */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.9 }}
-          className="mt-8 text-center space-y-4"
+          transition={{ delay: 0.6 }}
+          className="text-center space-y-4 pb-12"
         >
           <div className="flex flex-wrap justify-center items-center gap-6 mb-6">
             <div className="flex items-center gap-2 text-[#00D4FF]">
               <span className="text-2xl">🔒</span>
               <span className="font-bold">Secure via Stripe</span>
             </div>
-            <div className="flex items-center gap-2 text-[#48BB78]">
+            <div className="flex items-center gap-2 text-[#10B981]">
               <span className="text-2xl">✓</span>
-              <span className="font-bold">Instant Access</span>
+              <span className="font-bold">Cancel anytime</span>
             </div>
-            <div className="flex items-center gap-2 text-[#FFD93D]">
+            <div className="flex items-center gap-2 text-[#F59E0B]">
               <span className="text-2xl">♾️</span>
-              <span className="font-bold">Lifetime Access</span>
+              <span className="font-bold">Free tier forever</span>
             </div>
           </div>
 
-          <div className="bg-[#1A1A2E]/50 border-2 border-[#00D4FF]/30 rounded-xl p-6 max-w-2xl mx-auto">
-            <p className="text-[#00D4FF] font-bold text-base sm:text-lg mb-2">💳 One-time payment. No subscriptions.</p>
-            <p className="text-[#E2E8F0] mb-3">Pay once, use forever. All future updates included.</p>
-            <p className="text-sm text-gray-400">
-              Built by a solo dev who got tired of apps that make you feel bad. 🎮
-            </p>
-          </div>
+          <p className="text-sm text-gray-500">
+            Built by a solo dev who got tired of apps that make you feel bad.
+          </p>
         </motion.div>
       </div>
-
-      {/* Exit-intent popup for pricing page */}
-      <PricingExitIntent />
     </div>
   );
 }
