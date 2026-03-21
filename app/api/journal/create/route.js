@@ -40,6 +40,22 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // SECURITY: Rate limit check (10 per minute)
+    const rateLimit = await checkRateLimit(user.id, 'journal-create');
+
+    if (!rateLimit.allowed) {
+      console.warn('Rate limit exceeded:', {
+        userId: user.id,
+        endpoint: 'journal-create',
+        current: rateLimit.current,
+        limit: rateLimit.limit,
+        resetAt: rateLimit.reset_at,
+        timestamp: new Date().toISOString()
+      });
+
+      return createRateLimitResponse(rateLimit);
+    }
+
     const { entry_text, mood } = await request.json();
 
     // SECURE: Input validation
@@ -128,6 +144,48 @@ export async function POST(request) {
         { error: 'Failed to create journal entry' },
         { status: 500 }
       );
+    }
+
+    // RACE CONDITION FIX: After inserting, re-count entries for the month.
+    // If a concurrent request also passed the earlier count check and inserted,
+    // we may now be over the limit. If so, delete this entry and return 403.
+    if (!isPremium) {
+      const startOfMonthRecheck = new Date();
+      startOfMonthRecheck.setDate(1);
+      startOfMonthRecheck.setHours(0, 0, 0, 0);
+
+      const { count: recheckCount } = await supabaseAdmin
+        .from('journal_entries')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .gte('created_at', startOfMonthRecheck.toISOString());
+
+      if (recheckCount && recheckCount > FREE_TIER_MONTHLY_LIMIT) {
+        // Over limit due to race condition — roll back by deleting the just-inserted entry
+        await supabaseAdmin
+          .from('journal_entries')
+          .delete()
+          .eq('id', entry.id);
+
+        console.warn('Journal create: race condition detected, rolled back entry', {
+          userId: user.id,
+          entryId: entry.id,
+          recheckCount,
+          limit: FREE_TIER_MONTHLY_LIMIT,
+          timestamp: new Date().toISOString(),
+        });
+
+        return NextResponse.json(
+          {
+            error: 'Monthly limit reached',
+            limit: FREE_TIER_MONTHLY_LIMIT,
+            current: recheckCount - 1,
+            upgrade_required: true,
+            message: `You've reached your free limit of ${FREE_TIER_MONTHLY_LIMIT} journal entries this month. Upgrade to Pro for unlimited journaling.`
+          },
+          { status: 403 }
+        );
+      }
     }
 
     // Check for equipment/boss unlocks (premium only)

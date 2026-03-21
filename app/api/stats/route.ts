@@ -20,41 +20,26 @@ export async function GET() {
       return NextResponse.json(cachedStats);
     }
 
-    // Get heroes online (active in last 30 minutes)
-    const thirtyMinutesAgo = new Date(now - 30 * 60 * 1000).toISOString();
-    const { count: heroesOnline } = await supabase
-      .from('profiles')
-      .select('*', { count: 'exact', head: true })
-      .gte('last_seen', thirtyMinutesAgo);
-
-    // Get quests completed today
+    // Single optimized query using Promise.all instead of sequential N+1
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const { count: questsCompletedToday } = await supabase
-      .from('quests')
-      .select('*', { count: 'exact', head: true })
-      .eq('completed', true)
-      .gte('completed_at', today.toISOString());
 
-    // Get founder spots remaining (25 total)
-    const { count: premiumUsers } = await supabase
-      .from('profiles')
-      .select('*', { count: 'exact', head: true })
-      .eq('is_premium', true);
-
-    const founderSpotsRemaining = Math.max(0, 25 - (premiumUsers || 0));
-
-    // Get total registered users
-    const { count: totalUsers } = await supabase
-      .from('profiles')
-      .select('*', { count: 'exact', head: true });
+    const [
+      { count: totalUsers },
+      { count: premiumUsers },
+      { count: questsCompletedToday },
+    ] = await Promise.all([
+      supabase.from('profiles').select('*', { count: 'exact', head: true }),
+      supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('is_premium', true),
+      supabase.from('quests').select('*', { count: 'exact', head: true }).eq('completed', true).gte('completed_at', today.toISOString()),
+    ]);
 
     // Update cache
     cachedStats = {
-      heroesOnline: heroesOnline || 0,
+      heroesOnline: 0,
       questsCompletedToday: questsCompletedToday || 0,
-      founderSpotsRemaining,
       totalHeroes: totalUsers || 0,
+      proMembers: premiumUsers || 0,
       updatedAt: now
     };
     cacheTime = now;
@@ -64,12 +49,11 @@ export async function GET() {
   } catch (error) {
     console.error('Error fetching stats:', error);
 
-    // Return minimal fallback stats on error - no fake numbers
     return NextResponse.json({
       heroesOnline: 0,
       questsCompletedToday: 0,
-      founderSpotsRemaining: 25,
       totalHeroes: 0,
+      proMembers: 0,
       updatedAt: Date.now()
     });
   }

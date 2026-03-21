@@ -42,7 +42,10 @@ export async function middleware(request) {
     '/skills',
     '/equipment',
     '/shop',
-    '/payment-success'
+    '/payment-success',
+    '/admin',
+    '/journal',
+    '/journey'
   ];
 
   // Check if current path matches any protected route
