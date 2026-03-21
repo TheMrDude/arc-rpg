@@ -115,7 +115,7 @@ export async function POST(request) {
             currency: 'usd',
             product_data: {
               name: `${goldPackage.name} - ${goldPackage.gold.toLocaleString()} Gold`,
-              description: `Purchase ${goldPackage.gold.toLocaleString()} gold coins for ARC RPG`,
+              description: `Purchase ${goldPackage.gold.toLocaleString()} gold coins for HabitQuest`,
               images: ['https://via.placeholder.com/300x300.png?text=Gold'], // Replace with actual image
             },
             unit_amount: goldPackage.price, // Amount in cents

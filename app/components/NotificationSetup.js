@@ -37,7 +37,7 @@ export default function NotificationSetup({ userId }) {
 
       if (result === 'granted') {
         // Show success notification
-        new Notification('ARC RPG', {
+        new Notification('HabitQuest', {
           body: 'You\'ll now get daily reminders to complete your quests!',
           icon: '/favicon.ico',
           tag: 'welcome'
@@ -76,7 +76,7 @@ export default function NotificationSetup({ userId }) {
 
       setTimeout(() => {
         if (Notification.permission === 'granted') {
-          new Notification('ARC RPG - Your Quests Await!', {
+          new Notification('HabitQuest - Your Quests Await!', {
             body: 'Time to level up! Complete today\'s quests to maintain your streak.',
             icon: '/favicon.ico',
             tag: 'daily-reminder',

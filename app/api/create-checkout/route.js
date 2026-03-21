@@ -113,7 +113,7 @@ export async function POST(request) {
               name: 'HabitQuest Founder Access',
               description: `Lifetime premium access. ${reservationResult.remaining} of 25 spots remaining.`,
             },
-            unit_amount: 4700, // $47.00 - server-side only!
+            unit_amount: 500, // $5.00/mo - server-side only! Note: primary checkout uses Stripe Payment Links, not this endpoint
           },
           quantity: 1,
         },

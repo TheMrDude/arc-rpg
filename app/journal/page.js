@@ -40,7 +40,7 @@ export default function JournalPage() {
               </ul>
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-yellow-400 mb-2">Founder Access ($47)</h3>
+              <h3 className="text-lg font-semibold text-yellow-400 mb-2">Pro Access ($5/mo)</h3>
               <ul className="space-y-2 text-gray-300 text-sm">
                 <li>✓ Unlimited journal entries</li>
                 <li>✓ Deep AI transformations (~250 words with quest suggestions)</li>

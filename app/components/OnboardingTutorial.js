@@ -7,7 +7,7 @@ export default function OnboardingTutorial({ profile, onComplete, onSkip }) {
 
   const steps = [
     {
-      title: "Welcome to ARC RPG!",
+      title: "Welcome to HabitQuest!",
       description: "Transform your boring to-do list into an epic adventure. Let me show you around!",
       highlight: null,
       position: "center"

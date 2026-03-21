@@ -218,7 +218,7 @@ export default function RateLimitStatus({ userId, isPremium, onUpgradeClick }) {
                         onClick={onUpgradeClick}
                         className="px-3 py-1 bg-[#00D4FF] hover:bg-[#00BBE6] text-[#0F3460] rounded font-black text-xs uppercase border-2 border-[#0F3460] transition-all"
                       >
-                        🔥 $47
+                        🔥 Go Pro
                       </button>
                     )}
                   </div>
