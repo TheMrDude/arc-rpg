@@ -74,15 +74,21 @@ export default function AchievementBadges({ profile, quests }) {
   useEffect(() => {
     if (!profile || !quests) return;
 
+    // Always read from localStorage to avoid stale closure issues
+    let alreadySeen = [];
+    try {
+      const stored = localStorage.getItem('habitquest_unlocked_badges');
+      if (stored) alreadySeen = JSON.parse(stored);
+    } catch {}
+    const seenIds = new Set(alreadySeen.map(b => b.id));
+
     const newlyUnlocked = badges.filter(badge => {
-      const isUnlocked = badge.condition(profile, quests);
-      const wasUnlocked = unlockedBadges.some(b => b.id === badge.id);
-      return isUnlocked && !wasUnlocked;
+      return badge.condition(profile, quests) && !seenIds.has(badge.id);
     });
 
     if (newlyUnlocked.length > 0) {
       const updated = [
-        ...unlockedBadges,
+        ...alreadySeen,
         ...newlyUnlocked.map(b => ({ id: b.id, unlockedAt: Date.now() }))
       ];
       setUnlockedBadges(updated);
@@ -91,8 +97,12 @@ export default function AchievementBadges({ profile, quests }) {
       // Show celebration for first newly unlocked badge
       setShowBadgeUnlock(newlyUnlocked[0]);
       setTimeout(() => setShowBadgeUnlock(null), 5000);
+    } else {
+      // Sync state with what's stored (no popup)
+      setUnlockedBadges(alreadySeen);
     }
-  }, [profile, quests]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile?.id, profile?.level, profile?.current_streak, profile?.gold, quests?.length]);
 
   const allBadges = badges.map(badge => {
     const isUnlocked = profile && quests ? badge.condition(profile, quests) : false;
