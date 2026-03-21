@@ -25,6 +25,8 @@ import RateLimitStatus from '@/app/components/RateLimitStatus';
 import StoryProgress from '@/app/components/StoryProgress';
 import StoryEventNotification from '@/app/components/StoryEventNotification';
 import DailyBonus from '@/app/components/DailyBonus';
+import DailyLoginReward from '@/app/components/DailyLoginReward';
+import WelcomeQuestChain from '@/app/components/WelcomeQuestChain';
 import GoldPurchasePrompt from '@/app/components/GoldPurchasePrompt';
 import SeasonalEvent from '@/app/components/SeasonalEvent';
 import StreakProtection from '@/app/components/StreakProtection';
@@ -748,6 +750,9 @@ export default function DashboardPage() {
 
   return (
     <>
+      {/* Daily Login Reward — fires on load, once per session */}
+      {user && <DailyLoginReward userId={user.id} onRewardClaimed={() => loadUserData()} />}
+
       {/* Emotional Login Transition */}
       {showLoginTransition && profile && (
         <LoginTransition
@@ -990,6 +995,9 @@ export default function DashboardPage() {
             </div>
           </div>
         )}
+
+        {/* Welcome Quest Chain — first thing new users see */}
+        {user && <WelcomeQuestChain userId={user.id} />}
 
         {/* CORE FUNCTIONALITY FIRST - Add Quest */}
         {((profile?.is_premium || profile?.subscription_status === 'active') ? activeTab === 'quests' : true) && (
