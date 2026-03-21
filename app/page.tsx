@@ -5,17 +5,15 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import QuestInput from './components/QuestInput';
 import QuestPreview from './components/QuestPreview';
-import StatsBar from './components/StatsBar';
 import ExitIntentPopup from './components/ExitIntentPopup';
-import SocialProofNotifications from './components/SocialProofNotifications';
 import EmailCapture from './components/EmailCapture';
-import TestimonialsCarousel, { extendedTestimonials } from './components/TestimonialsCarousel';
 import { PreviewQuest } from '@/lib/onboarding';
 import { trackEvent } from '@/lib/analytics';
 import Image from 'next/image';
 
 // ─── CONSTANTS ────────────────────────────────────────────────────────
-const DIRECT_CTA_LABEL = 'Claim Your Founder Spot — $47';
+const PRIMARY_CTA_LABEL = 'Start Free →';
+const SECONDARY_CTA_LABEL = 'Go Pro — $5/mo';
 const CONTROLLING_IDEA = 'Your habits. Your story. No guilt.';
 
 export default function LandingPage() {
@@ -91,9 +89,6 @@ export default function LandingPage() {
         <div className="absolute bottom-20 right-1/3 w-3 h-3 bg-[#F59E0B] rounded-full animate-pulse" style={{animationDelay: '1.5s'}}></div>
       </div>
 
-      {/* ─── SCARCITY BANNER ─── */}
-      <StatsBar />
-
       {/* ─── SECTION 1: NAV BAR (Z-Pattern: Logo left, Direct CTA right) ─── */}
       <motion.nav
         initial={{ opacity: 0, y: -20 }}
@@ -112,12 +107,12 @@ export default function LandingPage() {
             >
               Login
             </button>
-            {/* CTA #1 — Nav bar (Z-pattern prime real estate) */}
+            {/* CTA #1 — Nav bar */}
             <button
               onClick={goToSignup}
               className="px-4 sm:px-6 py-2 bg-[#FF6B35] hover:bg-[#E55A2B] text-white border-2 border-[#0F3460] rounded-lg font-black text-xs sm:text-sm uppercase tracking-wide transition-all duration-200 shadow-[0_3px_0_#0F3460] hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1"
             >
-              {DIRECT_CTA_LABEL}
+              {PRIMARY_CTA_LABEL}
             </button>
           </div>
         </div>
@@ -155,21 +150,23 @@ export default function LandingPage() {
               {CONTROLLING_IDEA}
             </p>
 
-            {/* CTA #2 — Hero center (Direct + Transitional) */}
+            {/* CTA #2 — Hero center */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-4">
               <button
                 onClick={goToSignup}
-                className="px-10 py-5 bg-[#FF6B35] hover:bg-[#E55A2B] text-white border-3 border-[#0F3460] rounded-xl font-black text-xl uppercase tracking-wide shadow-lg transition-all hover:scale-105 animate-pulse"
+                className="px-10 py-5 bg-[#FF6B35] hover:bg-[#E55A2B] text-white border-3 border-[#0F3460] rounded-xl font-black text-xl uppercase tracking-wide shadow-lg transition-all hover:scale-105"
               >
-                ⚔️ {DIRECT_CTA_LABEL}
+                ⚔️ {PRIMARY_CTA_LABEL}
+              </button>
+              <button
+                onClick={goToSignup}
+                className="px-8 py-4 bg-transparent hover:bg-[#00D4FF]/10 text-[#00D4FF] border-2 border-[#00D4FF] rounded-xl font-black text-lg uppercase tracking-wide transition-all hover:scale-105"
+              >
+                {SECONDARY_CTA_LABEL}
               </button>
             </div>
             <p className="text-gray-400 text-sm">
-              or{' '}
-              <button onClick={goToSignup} className="text-[#00D4FF] hover:underline font-bold">
-                start free
-              </button>{' '}
-              with limited features
+              Free forever. No credit card required.
             </p>
           </motion.div>
         </section>
@@ -275,26 +272,22 @@ export default function LandingPage() {
               </p>
             </div>
 
-            {/* Authority: Social proof stats */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 mb-8">
-              {[
-                { number: '2,400+', label: 'Heroes joined' },
-                { number: '47,000+', label: 'Quests completed' },
-                { number: '89%', label: 'Still active at 30 days' },
-                { number: '4.9 ★', label: 'Average rating' }
-              ].map((stat, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
-                  className="bg-[#16213E] border-2 border-[#00D4FF]/30 rounded-xl p-5"
-                >
-                  <div className="text-2xl sm:text-3xl font-black text-[#F59E0B]">{stat.number}</div>
-                  <div className="text-sm text-gray-400 mt-1">{stat.label}</div>
-                </motion.div>
-              ))}
+            {/* Authority: Building in Public */}
+            <div className="bg-[#16213E] border-2 border-[#00D4FF]/30 rounded-xl p-8 mb-8">
+              <h3 className="text-xl font-black text-[#00D4FF] mb-3">🔨 Building in Public</h3>
+              <p className="text-gray-300 leading-relaxed mb-4">
+                HabitQuest is an indie project built by a solo developer who got tired of guilt-based
+                habit apps. We&apos;re early, we&apos;re scrappy, and we&apos;re building this alongside
+                our first users. No inflated metrics &mdash; just honest progress.
+              </p>
+              <a
+                href="https://substack.com/@officialmrdude"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-[#F59E0B] hover:text-[#FBBF24] font-bold transition-colors"
+              >
+                Follow the journey on Substack →
+              </a>
             </div>
           </motion.div>
         </section>
@@ -359,13 +352,10 @@ export default function LandingPage() {
               onClick={goToSignup}
               className="px-10 py-5 bg-[#FF6B35] hover:bg-[#E55A2B] text-white border-3 border-[#0F3460] rounded-xl font-black text-xl uppercase tracking-wide shadow-lg transition-all hover:scale-105"
             >
-              ⚔️ {DIRECT_CTA_LABEL}
+              ⚔️ {PRIMARY_CTA_LABEL}
             </button>
             <p className="mt-3 text-gray-400 text-sm">
-              or{' '}
-              <button onClick={goToSignup} className="text-[#00D4FF] hover:underline font-bold">
-                start free
-              </button>
+              Free forever. No credit card required.
             </p>
           </div>
         </section>
@@ -502,26 +492,23 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
+            className="text-center max-w-3xl mx-auto"
           >
-            <h2 className="text-3xl sm:text-4xl font-black text-center mb-12 text-white">
-              Real Heroes. Real Transformations.
+            <h2 className="text-3xl sm:text-4xl font-black mb-6 text-white">
+              Be One of the First
             </h2>
+            <p className="text-xl text-gray-300 leading-relaxed mb-8">
+              Early adopters are testing HabitQuest right now. Be one of the first to try
+              the anti-guilt habit tracker.
+            </p>
 
-            <TestimonialsCarousel
-              testimonials={extendedTestimonials}
-              autoPlay={true}
-              interval={5000}
-            />
-
-            {/* CTA #4 — After testimonials */}
-            <div className="text-center mt-12">
-              <button
-                onClick={goToSignup}
-                className="px-10 py-5 bg-[#FF6B35] hover:bg-[#E55A2B] text-white border-3 border-[#0F3460] rounded-xl font-black text-xl uppercase tracking-wide shadow-lg transition-all hover:scale-105"
-              >
-                ⚔️ {DIRECT_CTA_LABEL}
-              </button>
-            </div>
+            {/* CTA #4 — Join the Beta */}
+            <button
+              onClick={goToSignup}
+              className="px-10 py-5 bg-[#FF6B35] hover:bg-[#E55A2B] text-white border-3 border-[#0F3460] rounded-xl font-black text-xl uppercase tracking-wide shadow-lg transition-all hover:scale-105"
+            >
+              Join the Beta — It&apos;s Free
+            </button>
           </motion.div>
         </section>
 
@@ -535,42 +522,85 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center bg-gradient-to-br from-[#16213E] to-[#0F3460] border-4 border-[#FF6B4A] rounded-2xl p-12 max-w-4xl mx-auto"
+            className="text-center max-w-5xl mx-auto"
           >
-            <h2 className="text-3xl sm:text-5xl font-black mb-6">
+            <h2 className="text-3xl sm:text-5xl font-black mb-4">
               Ready to Make Habits Actually Fun?
             </h2>
+            <p className="text-gray-400 mb-12 text-lg">Pick the plan that fits your quest.</p>
 
-            <div className="mb-6 inline-block bg-[#FF6B35]/20 border-2 border-[#FF6B35] rounded-lg px-6 py-3">
-              <p className="text-[#FF6B35] font-black text-lg">
-                🔥 FOUNDER SPECIAL: $47 once = Lifetime access
-              </p>
-              <p className="text-gray-300 text-sm">Only 25 founder spots total. Then it&apos;s $9/month forever.</p>
+            {/* Pricing tiers */}
+            <div className="grid md:grid-cols-3 gap-6 mb-8">
+              {/* Free tier */}
+              <div className="bg-[#16213E] border-2 border-[#0F3460] rounded-2xl p-8 text-left">
+                <h3 className="text-xl font-black text-white mb-1">Free</h3>
+                <div className="text-3xl font-black text-[#00D4FF] mb-4">$0</div>
+                <ul className="space-y-3 text-gray-300 text-sm mb-8">
+                  <li className="flex items-start gap-2"><span className="text-[#10B981]">✓</span> 3 habits</li>
+                  <li className="flex items-start gap-2"><span className="text-[#10B981]">✓</span> Basic XP &amp; leveling</li>
+                  <li className="flex items-start gap-2"><span className="text-[#10B981]">✓</span> Archetype selection</li>
+                  <li className="flex items-start gap-2"><span className="text-[#10B981]">✓</span> AI quest transformation</li>
+                </ul>
+                <button
+                  onClick={goToSignup}
+                  className="w-full px-6 py-3 bg-[#FF6B35] hover:bg-[#E55A2B] text-white rounded-xl font-black text-lg uppercase tracking-wide transition-all hover:scale-105"
+                >
+                  {PRIMARY_CTA_LABEL}
+                </button>
+              </div>
+
+              {/* Pro tier */}
+              <div className="bg-gradient-to-br from-[#16213E] to-[#0F3460] border-4 border-[#FF6B4A] rounded-2xl p-8 text-left relative">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#FF6B35] text-white text-xs font-black px-4 py-1 rounded-full uppercase">
+                  Most Popular
+                </div>
+                <h3 className="text-xl font-black text-white mb-1">Pro</h3>
+                <div className="text-3xl font-black text-[#F59E0B] mb-1">$5<span className="text-lg text-gray-400">/mo</span></div>
+                <p className="text-gray-500 text-sm mb-4">or $39/year (save 35%)</p>
+                <ul className="space-y-3 text-gray-300 text-sm mb-8">
+                  <li className="flex items-start gap-2"><span className="text-[#F59E0B]">✓</span> Unlimited habits</li>
+                  <li className="flex items-start gap-2"><span className="text-[#F59E0B]">✓</span> Boss battles</li>
+                  <li className="flex items-start gap-2"><span className="text-[#F59E0B]">✓</span> Equipment shop</li>
+                  <li className="flex items-start gap-2"><span className="text-[#F59E0B]">✓</span> Quest chains</li>
+                  <li className="flex items-start gap-2"><span className="text-[#F59E0B]">✓</span> Journal &amp; reflections</li>
+                  <li className="flex items-start gap-2"><span className="text-[#F59E0B]">✓</span> Weekly digest emails</li>
+                </ul>
+                <button
+                  onClick={goToSignup}
+                  className="w-full px-6 py-3 bg-[#FF6B35] hover:bg-[#E55A2B] text-white rounded-xl font-black text-lg uppercase tracking-wide transition-all hover:scale-105"
+                >
+                  {SECONDARY_CTA_LABEL}
+                </button>
+              </div>
+
+              {/* Early Bird tier */}
+              <div className="bg-[#16213E] border-2 border-[#F59E0B]/50 rounded-2xl p-8 text-left relative">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#F59E0B] text-[#0F172A] text-xs font-black px-4 py-1 rounded-full uppercase">
+                  Limited Time
+                </div>
+                <h3 className="text-xl font-black text-white mb-1">Early Bird</h3>
+                <div className="text-3xl font-black text-[#10B981] mb-1">$29<span className="text-lg text-gray-400">/year</span></div>
+                <p className="text-gray-500 text-sm mb-4">Same as Pro — launch price</p>
+                <ul className="space-y-3 text-gray-300 text-sm mb-8">
+                  <li className="flex items-start gap-2"><span className="text-[#10B981]">✓</span> Everything in Pro</li>
+                  <li className="flex items-start gap-2"><span className="text-[#10B981]">✓</span> Save 50% vs monthly</li>
+                  <li className="flex items-start gap-2"><span className="text-[#10B981]">✓</span> Lock in launch pricing</li>
+                </ul>
+                <button
+                  onClick={goToSignup}
+                  className="w-full px-6 py-3 bg-[#10B981] hover:bg-[#059669] text-white rounded-xl font-black text-lg uppercase tracking-wide transition-all hover:scale-105"
+                >
+                  Get Early Bird →
+                </button>
+              </div>
             </div>
 
-            {/* Agreement plan reassurances */}
-            <div className="flex flex-wrap justify-center gap-4 mb-8 text-sm text-gray-300">
-              <span className="flex items-center gap-1">✓ No subscriptions</span>
+            {/* Reassurances */}
+            <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-300">
+              <span className="flex items-center gap-1">✓ Free forever tier</span>
               <span className="flex items-center gap-1">✓ No guilt mechanics</span>
               <span className="flex items-center gap-1">✓ No punishment for missed days</span>
             </div>
-
-            {/* CTA #5 — Pricing section (Direct + Transitional) */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <button
-                onClick={goToSignup}
-                className="px-12 py-6 bg-[#FF6B35] hover:bg-[#E55A2B] text-white border-3 border-[#0F3460] rounded-xl font-black text-2xl uppercase tracking-wide shadow-lg transition-all hover:scale-105 animate-pulse"
-              >
-                ⚔️ {DIRECT_CTA_LABEL}
-              </button>
-            </div>
-            <p className="mt-4 text-gray-400 text-sm">
-              or{' '}
-              <button onClick={goToSignup} className="text-[#00D4FF] hover:underline font-bold">
-                start free
-              </button>{' '}
-              with limited features
-            </p>
           </motion.div>
         </section>
 
@@ -603,8 +633,8 @@ export default function LandingPage() {
                   a: 'Nothing bad happens. Seriously. No streak resets, no guilt screens, no "you failed" messages. Your character just picks up where you left off. Because building habits shouldn\'t feel like punishment.'
                 },
                 {
-                  q: 'Is the $47 founder price real?',
-                  a: 'Yes — it\'s a one-time payment for lifetime access to everything. Once the 25 founder spots fill, the price switches to $9/month. No subscriptions, no hidden fees.'
+                  q: 'What do I get for free?',
+                  a: 'Track up to 3 habits, choose your archetype, and get AI quest transformation — completely free, forever. Pro unlocks unlimited habits, boss battles, equipment, and the full RPG experience.'
                 },
                 {
                   q: 'Do I need to download anything?',
@@ -673,8 +703,6 @@ export default function LandingPage() {
       {/* Exit Intent Popup */}
       <ExitIntentPopup onTryPreview={handleExitIntentTryPreview} />
 
-      {/* Social Proof Notifications */}
-      <SocialProofNotifications />
     </div>
   );
 }
