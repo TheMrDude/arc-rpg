@@ -33,6 +33,7 @@ import StreakProtection from '@/app/components/StreakProtection';
 import LiveActivityFeed from '@/app/components/LiveActivityFeed';
 import AchievementBadges from '@/app/components/AchievementBadges';
 import UpgradePrompt from '@/app/components/UpgradePrompt';
+import HabitLimitModal from '@/app/components/HabitLimitModal';
 import GlobalFooter from '@/app/components/GlobalFooter';
 import { ErrorBoundary } from '@/app/components/ErrorBoundary';
 import { trackQuestCreated, trackQuestCompleted, trackLevelUp, trackStreakAchieved, trackStoryMilestone, trackGoldPurchaseViewed } from '@/lib/analytics';
@@ -84,7 +85,11 @@ export default function DashboardPage() {
   const [upgradePromptTrigger, setUpgradePromptTrigger] = useState(null);
   const [questsCompletedToday, setQuestsCompletedToday] = useState(0);
 
+  // Habit limit modal state
+  const [showHabitLimitModal, setShowHabitLimitModal] = useState(false);
+
   useEffect(() => {
+    document.title = "Dashboard \u2014 HabitQuest";
     loadUserData();
   }, []);
 
@@ -270,6 +275,14 @@ export default function DashboardPage() {
 
   async function addQuest() {
     if (!newQuestText.trim()) return;
+
+    // Check habit limit for free users
+    const isPro = profile?.is_premium || profile?.subscription_status === 'active' || profile?.subscription_tier === 'pro';
+    if (!isPro && quests.filter(q => !q.completed).length >= 3) {
+      setShowHabitLimitModal(true);
+      return;
+    }
+
     setAdding(true);
 
     try {
@@ -998,6 +1011,18 @@ export default function DashboardPage() {
           </div>
         )}
 
+        {/* Trial Status Banner */}
+        {profile?.trial_ends_at && new Date(profile.trial_ends_at) > new Date() && !profile?.is_premium && (
+          <div className="bg-gradient-to-r from-[#7C3AED]/20 to-[#FF6B35]/20 border-2 border-[#7C3AED] rounded-xl p-4 mb-6 text-center">
+            <p className="text-[#7C3AED] font-black text-sm uppercase">
+              Pro Trial — {Math.ceil((new Date(profile.trial_ends_at) - new Date()) / (1000 * 60 * 60 * 24))} days remaining
+            </p>
+            <p className="text-gray-400 text-xs mt-1">
+              <a href="/pricing" className="text-[#FF6B35] hover:underline font-bold">Upgrade now</a> to keep Pro features after your trial ends
+            </p>
+          </div>
+        )}
+
         {/* Welcome Quest Chain — first thing new users see */}
         {user && <WelcomeQuestChain userId={user.id} />}
 
@@ -1295,6 +1320,14 @@ export default function DashboardPage() {
           profile={profile}
         />
       )}
+
+      {/* Habit Limit Modal for Free Users */}
+      <HabitLimitModal
+        isOpen={showHabitLimitModal}
+        onClose={() => setShowHabitLimitModal(false)}
+        onUpgrade={() => { setShowHabitLimitModal(false); router.push('/pricing'); }}
+        currentHabits={quests.filter(q => !q.completed).length}
+      />
 
       {/* Global Footer with Share Buttons */}
       <GlobalFooter />

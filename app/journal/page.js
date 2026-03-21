@@ -1,5 +1,10 @@
 import JournalEntry from '@/app/components/JournalEntry';
 
+export const metadata = {
+  title: 'Quest Journal \u2014 HabitQuest',
+  description: 'Transform your daily experiences into epic tales with the HabitQuest journal.',
+};
+
 /**
  * JOURNAL PAGE
  *

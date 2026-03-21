@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /confirm-email
+Disallow: /payment-success
+Disallow: /setup
+
+Sitemap: https://habitquest.dev/sitemap.xml
