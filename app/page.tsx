@@ -15,6 +15,13 @@ import Image from 'next/image';
 const PRIMARY_CTA_LABEL = 'Start Free →';
 const SECONDARY_CTA_LABEL = 'Go Pro — $5/mo';
 const CONTROLLING_IDEA = 'Your habits. Your story. No guilt.';
+const STRIPE_LINK_PRO_MONTHLY = 'https://buy.stripe.com/fZubJ02TX5SngCc6dadZ602';
+const STRIPE_LINK_PRO_YEARLY = 'https://buy.stripe.com/dRm7sK6695Sn85GgROdZ601';
+
+function stripeLink(baseUrl: string, email?: string | null) {
+  if (!email) return baseUrl;
+  return `${baseUrl}?prefilled_email=${encodeURIComponent(email)}`;
+}
 
 export default function LandingPage() {
   const router = useRouter();
@@ -22,10 +29,17 @@ export default function LandingPage() {
   const [previewQuest, setPreviewQuest] = useState<PreviewQuest | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [remainingPreviews, setRemainingPreviews] = useState<number>(3);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
   const questInputRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     trackEvent('landing_page_view', {});
+    // Try to get logged-in user email for Stripe prefill
+    import('@/lib/supabase').then(({ supabase }) => {
+      supabase.auth.getUser().then(({ data }) => {
+        if (data?.user?.email) setUserEmail(data.user.email);
+      });
+    }).catch(() => {});
   }, []);
 
   const handleTransform = async (task: string) => {
@@ -70,6 +84,7 @@ export default function LandingPage() {
   };
 
   const goToSignup = () => router.push('/signup');
+  const goToPricing = () => router.push('/pricing');
 
   const archetypes = [
     { name: 'Warrior', image: '/images/archetypes/warrior.png', trait: 'Strength & Discipline', desc: 'You power through challenges with grit and determination.' },
@@ -158,12 +173,12 @@ export default function LandingPage() {
               >
                 ⚔️ {PRIMARY_CTA_LABEL}
               </button>
-              <button
-                onClick={goToSignup}
-                className="px-8 py-4 bg-transparent hover:bg-[#00D4FF]/10 text-[#00D4FF] border-2 border-[#00D4FF] rounded-xl font-black text-lg uppercase tracking-wide transition-all hover:scale-105"
+              <a
+                href={stripeLink(STRIPE_LINK_PRO_MONTHLY, userEmail)}
+                className="px-8 py-4 bg-transparent hover:bg-[#00D4FF]/10 text-[#00D4FF] border-2 border-[#00D4FF] rounded-xl font-black text-lg uppercase tracking-wide transition-all hover:scale-105 inline-block"
               >
                 {SECONDARY_CTA_LABEL}
-              </button>
+              </a>
             </div>
             <p className="text-gray-400 text-sm">
               Free forever. No credit card required.
@@ -565,12 +580,12 @@ export default function LandingPage() {
                   <li className="flex items-start gap-2"><span className="text-[#F59E0B]">✓</span> Journal &amp; reflections</li>
                   <li className="flex items-start gap-2"><span className="text-[#F59E0B]">✓</span> Weekly digest emails</li>
                 </ul>
-                <button
-                  onClick={goToSignup}
-                  className="w-full px-6 py-3 bg-[#FF6B35] hover:bg-[#E55A2B] text-white rounded-xl font-black text-lg uppercase tracking-wide transition-all hover:scale-105"
+                <a
+                  href={stripeLink(STRIPE_LINK_PRO_MONTHLY, userEmail)}
+                  className="block w-full px-6 py-3 bg-[#FF6B35] hover:bg-[#E55A2B] text-white rounded-xl font-black text-lg uppercase tracking-wide transition-all hover:scale-105 text-center"
                 >
                   {SECONDARY_CTA_LABEL}
-                </button>
+                </a>
               </div>
 
               {/* Early Bird tier */}
@@ -586,12 +601,12 @@ export default function LandingPage() {
                   <li className="flex items-start gap-2"><span className="text-[#10B981]">✓</span> Save 50% vs monthly</li>
                   <li className="flex items-start gap-2"><span className="text-[#10B981]">✓</span> Lock in launch pricing</li>
                 </ul>
-                <button
-                  onClick={goToSignup}
-                  className="w-full px-6 py-3 bg-[#10B981] hover:bg-[#059669] text-white rounded-xl font-black text-lg uppercase tracking-wide transition-all hover:scale-105"
+                <a
+                  href={stripeLink(STRIPE_LINK_PRO_YEARLY, userEmail)}
+                  className="block w-full px-6 py-3 bg-[#10B981] hover:bg-[#059669] text-white rounded-xl font-black text-lg uppercase tracking-wide transition-all hover:scale-105 text-center"
                 >
                   Get Early Bird →
-                </button>
+                </a>
               </div>
             </div>
 
