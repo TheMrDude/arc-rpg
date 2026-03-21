@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { checkRateLimit, getClientIP } from '@/lib/rate-limit';
+import { requireAdmin } from '@/lib/admin-auth';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -51,11 +52,9 @@ export async function POST(request: Request) {
       );
     }
 
-    // Get metadata
+    // Get metadata (minimal — no IP or user-agent for privacy)
     const metadata = {
-      ip: clientIP,
-      userAgent: request.headers.get('user-agent'),
-      referer: request.headers.get('referer'),
+      source,
       timestamp: new Date().toISOString()
     };
 
@@ -115,10 +114,12 @@ export async function POST(request: Request) {
   }
 }
 
-// GET endpoint for admin stats (optional)
+// GET endpoint for admin stats (admin only)
 export async function GET(request: Request) {
   try {
-    // TODO: Add admin authentication check here
+    // Require admin authentication
+    const adminCheck = await requireAdmin(request);
+    if (adminCheck.error) return adminCheck.error;
 
     // Get total subscribers
     const { count: totalSubscribers } = await supabase

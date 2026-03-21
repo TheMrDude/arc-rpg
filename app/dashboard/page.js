@@ -34,6 +34,7 @@ import LiveActivityFeed from '@/app/components/LiveActivityFeed';
 import AchievementBadges from '@/app/components/AchievementBadges';
 import UpgradePrompt from '@/app/components/UpgradePrompt';
 import GlobalFooter from '@/app/components/GlobalFooter';
+import { ErrorBoundary } from '@/app/components/ErrorBoundary';
 import { trackQuestCreated, trackQuestCompleted, trackLevelUp, trackStreakAchieved, trackStoryMilestone, trackGoldPurchaseViewed } from '@/lib/analytics';
 
 export default function DashboardPage() {
@@ -749,6 +750,7 @@ export default function DashboardPage() {
   const creature = profile ? getCreatureCompanion(quests, profile.last_quest_date) : null;
 
   return (
+    <ErrorBoundary>
     <>
       {/* Daily Login Reward — fires on load, once per session */}
       {user && <DailyLoginReward userId={user.id} onRewardClaimed={() => loadUserData()} />}
@@ -1298,5 +1300,6 @@ export default function DashboardPage() {
       <GlobalFooter />
       </div>
     </>
+    </ErrorBoundary>
   );
 }

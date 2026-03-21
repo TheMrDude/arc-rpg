@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { resolveRequestOrigin } from '@/lib/request-origin';
+import { checkRateLimit, createRateLimitResponse } from '@/lib/rate-limiter';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -48,6 +49,22 @@ export async function POST(request) {
         timestamp: new Date().toISOString(),
       });
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // SECURITY: Rate limit check (5 per minute)
+    const rateLimit = await checkRateLimit(user.id, 'purchase-gold');
+
+    if (!rateLimit.allowed) {
+      console.warn('Rate limit exceeded:', {
+        userId: user.id,
+        endpoint: 'purchase-gold',
+        current: rateLimit.current,
+        limit: rateLimit.limit,
+        resetAt: rateLimit.reset_at,
+        timestamp: new Date().toISOString()
+      });
+
+      return createRateLimitResponse(rateLimit);
     }
 
     // SECURITY: Validate input

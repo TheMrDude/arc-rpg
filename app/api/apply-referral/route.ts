@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { applyReferralCode } from '@/lib/referrals';
+import { authenticateRequest } from '@/lib/api-auth';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -9,12 +10,29 @@ const supabase = createClient(
 
 export async function POST(request: Request) {
   try {
+    // Authenticate the request
+    const { user, error: authError } = await authenticateRequest(request);
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
     const { referralCode, userId } = await request.json();
 
     if (!referralCode || !userId) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
+      );
+    }
+
+    // Verify the authenticated user matches the userId in the request
+    if (user.id !== userId) {
+      return NextResponse.json(
+        { error: 'Forbidden: userId does not match authenticated user' },
+        { status: 403 }
       );
     }
 

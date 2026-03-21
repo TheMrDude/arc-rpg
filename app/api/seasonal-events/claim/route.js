@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { checkRateLimit, createRateLimitResponse } from '@/lib/rate-limiter';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -18,6 +19,22 @@ export async function POST(request) {
 
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // SECURITY: Rate limit check (5 per minute)
+    const rateLimit = await checkRateLimit(user.id, 'seasonal-claim');
+
+    if (!rateLimit.allowed) {
+      console.warn('Rate limit exceeded:', {
+        userId: user.id,
+        endpoint: 'seasonal-claim',
+        current: rateLimit.current,
+        limit: rateLimit.limit,
+        resetAt: rateLimit.reset_at,
+        timestamp: new Date().toISOString()
+      });
+
+      return createRateLimitResponse(rateLimit);
     }
 
     const body = await request.json();

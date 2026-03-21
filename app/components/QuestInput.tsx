@@ -50,12 +50,13 @@ export default function QuestInput({ onTransform, loading, remainingPreviews }: 
           placeholder="What do you want to accomplish today?"
           disabled={loading}
           maxLength={100}
+          aria-label="Enter your habit or task"
           className="w-full px-6 py-5 text-lg sm:text-xl bg-[#16213E] border-3 border-[#00D4FF] rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-[#FF6B4A] focus:ring-4 focus:ring-[#FF6B4A]/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           style={{ fontSize: '18px' }} // Prevent iOS zoom
         />
 
         {/* Character counter */}
-        <div className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-400">
+        <div aria-live="polite" className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-400">
           {charCount}/100
         </div>
       </div>
@@ -65,6 +66,7 @@ export default function QuestInput({ onTransform, loading, remainingPreviews }: 
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
+          role="alert"
           className="text-sm text-[#E74C3C] mt-2 ml-2"
         >
           Give us a bit more detail!
