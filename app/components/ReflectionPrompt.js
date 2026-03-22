@@ -84,16 +84,17 @@ export default function ReflectionPrompt({ show, onClose, questId, questTitle, o
         exit={{ opacity: 0 }}
       >
         <motion.div
-          className="absolute inset-0 bg-black bg-opacity-80 backdrop-blur-sm"
+          className="absolute inset-0 bg-black/80 backdrop-blur-sm"
           onClick={handleSkip}
         />
 
         <motion.div
-          className="relative bg-white rounded-3xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
+          className="relative max-w-lg w-full max-h-[90vh]"
           initial={{ scale: 0.9, opacity: 0, y: 20 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.9, opacity: 0, y: 20 }}
         >
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-h-[90vh] overflow-y-auto">
           {showSuccess ? (
             <div className="p-12 text-center">
               <div className="text-8xl mb-4">✨</div>
@@ -102,7 +103,7 @@ export default function ReflectionPrompt({ show, onClose, questId, questTitle, o
             </div>
           ) : (
             <>
-              <div className="bg-gradient-to-br from-purple-500 to-pink-500 p-6 text-center">
+              <div className="bg-gradient-to-br from-purple-500 to-pink-500 p-6 text-center rounded-t-3xl">
                 <div className="text-6xl mb-3">🎉</div>
                 <h2 className="text-2xl font-black text-white mb-1">Quest Complete!</h2>
                 <p className="text-purple-100 font-semibold">{questTitle}</p>
@@ -172,6 +173,7 @@ export default function ReflectionPrompt({ show, onClose, questId, questTitle, o
               </div>
             </>
           )}
+          </div>
         </motion.div>
       </motion.div>
     </AnimatePresence>,
