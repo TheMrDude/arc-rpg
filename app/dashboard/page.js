@@ -96,6 +96,7 @@ export default function DashboardPage() {
   // D10 Encounter states
   const [showDiceRoll, setShowDiceRoll] = useState(false);
   const [encounterData, setEncounterData] = useState(null);
+  const encounterRef = useRef(null); // ref to avoid stale closures
   const [activeEffects, setActiveEffects] = useState([]);
 
   // Unlock toast states
@@ -487,6 +488,7 @@ export default function DashboardPage() {
       // Store encounter for later — will show AFTER celebration/reflection modals close
       if (data.encounter) {
         setEncounterData(data.encounter);
+        encounterRef.current = data.encounter;
       }
 
       // Reload user data
@@ -529,7 +531,7 @@ export default function DashboardPage() {
       // Dice roll will show when reflection closes (see handleReflectionClose)
     } else {
       // No reflection — show dice roll now if one is pending
-      if (encounterData) {
+      if (encounterRef.current) {
         setTimeout(() => setShowDiceRoll(true), 300);
       }
     }
@@ -552,6 +554,7 @@ export default function DashboardPage() {
   const handleDiceClaimReward = () => {
     setShowDiceRoll(false);
     setEncounterData(null);
+    encounterRef.current = null;
     // Rewards already applied server-side, just reload
     loadUserData();
   };
@@ -1156,7 +1159,7 @@ export default function DashboardPage() {
           onClose={() => {
             setShowReflection(false);
             // Show dice roll AFTER reflection closes
-            if (encounterData) {
+            if (encounterRef.current) {
               setTimeout(() => setShowDiceRoll(true), 300);
             }
           }}
