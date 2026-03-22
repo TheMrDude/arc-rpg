@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { RARITY_COLORS } from '@/lib/encounterTable';
 
 export default function DiceRoll({ encounter, onClaim, show }) {
@@ -55,7 +56,9 @@ export default function DiceRoll({ encounter, onClaim, show }) {
     default: rewardText = '';
   }
 
-  return (
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
     <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/85" style={{ animation: 'fadeIn 0.3s ease' }}>
       <div className="flex flex-col items-center gap-6 p-8">
 
@@ -219,6 +222,7 @@ export default function DiceRoll({ encounter, onClaim, show }) {
           to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
-    </div>
+    </div>,
+    document.body
   );
 }
