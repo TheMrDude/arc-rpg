@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const MOOD_OPTIONS = [
@@ -63,18 +64,27 @@ export default function ReflectionPrompt({ show, onClose, questId, questTitle, o
     onClose();
   };
 
-  if (!show) return null;
+  // Lock body scroll when open
+  useEffect(() => {
+    if (show) {
+      document.body.style.overflow = 'hidden';
+      return () => { document.body.style.overflow = ''; };
+    }
+  }, [show]);
 
-  return (
+  if (!show) return null;
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 z-50 flex items-center justify-center p-4"
+        className="fixed inset-0 z-[55] flex items-center justify-center p-4"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
       >
         <motion.div
-          className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"
+          className="absolute inset-0 bg-black bg-opacity-80 backdrop-blur-sm"
           onClick={handleSkip}
         />
 
@@ -164,6 +174,7 @@ export default function ReflectionPrompt({ show, onClose, questId, questTitle, o
           )}
         </motion.div>
       </motion.div>
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }
