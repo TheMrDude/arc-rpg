@@ -10,7 +10,7 @@ export const initPostHog = () => {
     if (key) {
       posthog.init(key, {
         api_host: host,
-        loaded: (posthog) => {
+        loaded: (posthog: any) => {
           if (process.env.NODE_ENV === 'development') posthog.debug();
         },
         capture_pageview: false, // We'll manually track pageviews
