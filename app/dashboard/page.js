@@ -1,11 +1,11 @@
 'use client';
-// Force rebuild: Dashboard layout fixed - Add Quest before Active Quests
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { getUnlockedSkills } from '@/lib/skills';
-import { checkBossEncounter, calculateStreak, checkComebackBonus, getCreatureCompanion } from '@/lib/encounters';
+import { checkBossEncounter, getCreatureCompanion } from '@/lib/encounters';
+import { getDashboardSections, getNewUnlocks } from '@/lib/dashboardVisibility';
 import OnboardingTutorial from '@/app/components/OnboardingTutorial';
 import NotificationSetup from '@/app/components/NotificationSetup';
 import ReferralCard from '@/app/components/ReferralCard';
@@ -21,7 +21,6 @@ import RecurringQuests from '@/app/components/RecurringQuests';
 import ArchetypeSwitcher from '@/app/components/ArchetypeSwitcher';
 import TemplateLibrary from '@/app/components/TemplateLibrary';
 import EquipmentShop from '@/app/components/EquipmentShop';
-import RateLimitStatus from '@/app/components/RateLimitStatus';
 import StoryProgress from '@/app/components/StoryProgress';
 import StoryEventNotification from '@/app/components/StoryEventNotification';
 import DailyBonus from '@/app/components/DailyBonus';
@@ -30,16 +29,22 @@ import WelcomeQuestChain from '@/app/components/WelcomeQuestChain';
 import GoldPurchasePrompt from '@/app/components/GoldPurchasePrompt';
 import SeasonalEvent from '@/app/components/SeasonalEvent';
 import StreakProtection from '@/app/components/StreakProtection';
-import LiveActivityFeed from '@/app/components/LiveActivityFeed';
 import AchievementBadges from '@/app/components/AchievementBadges';
 import UpgradePrompt from '@/app/components/UpgradePrompt';
 import HabitLimitModal from '@/app/components/HabitLimitModal';
 import GlobalFooter from '@/app/components/GlobalFooter';
 import { ErrorBoundary } from '@/app/components/ErrorBoundary';
+import CompactCharacterCard from '@/app/components/CompactCharacterCard';
+import QuestInputRedesigned from '@/app/components/QuestInputRedesigned';
+import FirstTimeEmptyState from '@/app/components/FirstTimeEmptyState';
+import DiceRoll from '@/app/components/DiceRoll';
+import ActiveEffects from '@/app/components/ActiveEffects';
+import UnlockToast from '@/app/components/UnlockToast';
 import { trackQuestCreated, trackQuestCompleted, trackLevelUp, trackStreakAchieved, trackStoryMilestone, trackGoldPurchaseViewed } from '@/lib/analytics';
 
 export default function DashboardPage() {
   const router = useRouter();
+  const questInputRef = useRef(null);
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [quests, setQuests] = useState([]);
@@ -88,8 +93,16 @@ export default function DashboardPage() {
   // Habit limit modal state
   const [showHabitLimitModal, setShowHabitLimitModal] = useState(false);
 
+  // D10 Encounter states
+  const [showDiceRoll, setShowDiceRoll] = useState(false);
+  const [encounterData, setEncounterData] = useState(null);
+  const [activeEffects, setActiveEffects] = useState([]);
+
+  // Unlock toast states
+  const [newUnlocks, setNewUnlocks] = useState([]);
+
   useEffect(() => {
-    document.title = "Dashboard \u2014 HabitQuest";
+    document.title = "Dashboard — HabitQuest";
     loadUserData();
   }, []);
 
@@ -102,11 +115,42 @@ export default function DashboardPage() {
   useEffect(() => {
     if (user && (profile?.is_premium || profile?.subscription_status === 'active')) {
       loadEventBadge();
-      // Refresh badge every 30 seconds
       const interval = setInterval(loadEventBadge, 30000);
       return () => clearInterval(interval);
     }
   }, [user, profile]);
+
+  // Load active effects
+  useEffect(() => {
+    if (user) {
+      loadActiveEffects();
+    }
+  }, [user]);
+
+  // Check for new unlocks when profile changes
+  useEffect(() => {
+    if (profile && user) {
+      const sections = getDashboardSections(profile);
+      const unlocks = getNewUnlocks(sections, user.id);
+      if (unlocks.length > 0) {
+        setNewUnlocks(unlocks);
+      }
+    }
+  }, [profile?.level, profile?.quests_completed]);
+
+  async function loadActiveEffects() {
+    try {
+      const { data } = await supabase
+        .from('active_effects')
+        .select('*')
+        .eq('user_id', user.id)
+        .gt('quests_remaining', 0);
+      setActiveEffects(data || []);
+    } catch (err) {
+      // Table may not exist yet
+      setActiveEffects([]);
+    }
+  }
 
   async function loadUserData() {
     try {
@@ -144,7 +188,7 @@ export default function DashboardPage() {
 
       setQuests(questsData || []);
 
-      // Check if this is the user's first login to dashboard (persists across sessions)
+      // Check if this is the user's first login to dashboard
       const hasSeenDashboard = localStorage.getItem(`dashboard_seen_${user.id}`);
       if (!hasSeenDashboard) {
         setIsFirstLogin(true);
@@ -157,7 +201,6 @@ export default function DashboardPage() {
         setShowLoginTransition(true);
         sessionStorage.setItem(`login_transition_${user.id}`, 'true');
       } else {
-        // Already seen this session, don't show transition
         setShowLoginTransition(false);
       }
 
@@ -166,16 +209,26 @@ export default function DashboardPage() {
       const demoQuestsCreated = localStorage.getItem(`demo_quests_${user.id}`);
 
       if (!hasSeenOnboarding && questsData && questsData.length === 0) {
-        // New user with no quests - show onboarding
         setShowOnboarding(true);
       }
 
       // Create demo quests for new users
       if (!demoQuestsCreated && questsData && questsData.length === 0) {
-        // Delay demo quest creation slightly to let page load
         setTimeout(() => {
           createDemoQuests();
         }, 1000);
+      }
+
+      // Load active effects
+      try {
+        const { data: effects } = await supabase
+          .from('active_effects')
+          .select('*')
+          .eq('user_id', user.id)
+          .gt('quests_remaining', 0);
+        setActiveEffects(effects || []);
+      } catch (err) {
+        setActiveEffects([]);
       }
     } catch (error) {
       console.error('Error loading data:', error);
@@ -201,36 +254,20 @@ export default function DashboardPage() {
   async function createDemoQuests() {
     if (!user || !profile) return;
 
-    // Check if demo quests already created
     const demoCreated = localStorage.getItem(`demo_quests_${user.id}`);
     if (demoCreated) return;
 
     const demoQuests = [
-      {
-        original_text: 'Make your bed',
-        difficulty: 'easy',
-        xp_value: 10
-      },
-      {
-        original_text: 'Exercise for 30 minutes',
-        difficulty: 'medium',
-        xp_value: 25
-      },
-      {
-        original_text: 'Complete an important project task',
-        difficulty: 'hard',
-        xp_value: 50
-      }
+      { original_text: 'Make your bed', difficulty: 'easy', xp_value: 10 },
+      { original_text: 'Exercise for 30 minutes', difficulty: 'medium', xp_value: 25 },
+      { original_text: 'Complete an important project task', difficulty: 'hard', xp_value: 50 },
     ];
 
     try {
-      // Get session for API call
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
 
-      // Transform and insert each quest
       for (const quest of demoQuests) {
-        // Transform the quest
         const response = await fetch('/api/transform-quest', {
           method: 'POST',
           headers: {
@@ -247,7 +284,6 @@ export default function DashboardPage() {
         const data = await response.json();
 
         if (response.ok && data.transformedText) {
-          // Insert the quest with story continuity
           await supabase
             .from('quests')
             .insert({
@@ -263,10 +299,7 @@ export default function DashboardPage() {
         }
       }
 
-      // Mark demo quests as created
       localStorage.setItem(`demo_quests_${user.id}`, 'created');
-
-      // Reload quests to show the new demo quests
       loadUserData();
     } catch (error) {
       console.error('Error creating demo quests:', error);
@@ -289,7 +322,6 @@ export default function DashboardPage() {
       const xpValues = { easy: 10, medium: 25, hard: 50 };
       const xp = xpValues[newQuestDifficulty];
 
-      // Get session token for auth
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
       if (sessionError || !session || !session.access_token) {
@@ -349,9 +381,7 @@ export default function DashboardPage() {
         return;
       }
 
-      // Track quest creation
       trackQuestCreated(newQuestDifficulty, profile.archetype);
-
       setNewQuestText('');
       loadUserData();
     } catch (error) {
@@ -364,7 +394,6 @@ export default function DashboardPage() {
 
   async function completeQuest(questId, xpValue) {
     try {
-      // Get session token for auth
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
       if (sessionError || !session || !session.access_token) {
@@ -374,10 +403,8 @@ export default function DashboardPage() {
         return;
       }
 
-      // Get quest data before completion
       const questToComplete = quests.find(q => q.id === questId);
 
-      // SECURITY: Use server-side API for quest completion
       const response = await fetch('/api/complete-quest', {
         method: 'POST',
         headers: {
@@ -432,14 +459,12 @@ export default function DashboardPage() {
       if (data.story) {
         if (data.story.story_completed) {
           trackStoryMilestone('story_completed', profile.current_story_thread, 100);
-
-          // Show gold purchase prompt after story completion (25% chance)
           if (Math.random() < 0.25) {
             setTimeout(() => {
               setGoldPromptTrigger('story_completion');
               setShowGoldPrompt(true);
               trackGoldPurchaseViewed();
-            }, 8000); // Show 8 seconds after quest completion
+            }, 8000);
           }
         } else if (data.story.new_story_started) {
           trackStoryMilestone('new_story', data.story.current_thread, data.story.thread_completion);
@@ -451,8 +476,6 @@ export default function DashboardPage() {
       // Track streak achievements
       if (data.profile.current_streak >= 7 && data.profile.current_streak % 7 === 0) {
         trackStreakAchieved(data.profile.current_streak);
-
-        // Show gold purchase prompt for quest streaks (20% chance)
         if (Math.random() < 0.2) {
           setTimeout(() => {
             setGoldPromptTrigger('quest_streak');
@@ -462,31 +485,34 @@ export default function DashboardPage() {
         }
       }
 
-      // Reload user data to reflect changes
+      // Handle D10 random encounter from server response
+      if (data.encounter) {
+        // Delay showing dice roll until after celebration
+        setTimeout(() => {
+          setEncounterData(data.encounter);
+          setShowDiceRoll(true);
+        }, 3000);
+      }
+
+      // Reload user data
       await loadUserData();
 
-      // Refresh event badge (quest completion may trigger seasonal challenges)
+      // Refresh event badge
       if (profile?.is_premium || profile?.subscription_status === 'active') {
         loadEventBadge();
       }
 
-      // Trigger upgrade prompts at strategic moments (non-premium users only)
+      // Trigger upgrade prompts for non-premium users
       if (!(profile?.is_premium || profile?.subscription_status === 'active')) {
-        // Track quests completed today
         const newCount = questsCompletedToday + 1;
         setQuestsCompletedToday(newCount);
 
-        // Level 10 milestone
         if (rewards.new_level === 10) {
           setTimeout(() => setUpgradePromptTrigger('level_10'), 3000);
         }
-
-        // 5 quests in a day
         if (newCount === 5) {
           setTimeout(() => setUpgradePromptTrigger('quest_limit'), 2000);
         }
-
-        // Streak milestone (7, 14, 21, 30 days)
         if (data.profile.current_streak >= 7 &&
             [7, 14, 21, 30].includes(data.profile.current_streak)) {
           setTimeout(() => setUpgradePromptTrigger('streak_milestone'), 4000);
@@ -501,26 +527,30 @@ export default function DashboardPage() {
   const handleCelebrationClose = () => {
     setShowQuestCelebration(false);
 
-    // Show reflection prompt (optional, not every time)
-    if (completedQuestData && Math.random() < 0.5) { // 50% chance
+    if (completedQuestData && Math.random() < 0.5) {
       setShowReflection(true);
     }
 
-    // Show milestone celebration if there was a level up
     if (milestoneData) {
       setTimeout(() => {
         setShowMilestoneCelebration(true);
       }, 300);
 
-      // Show gold purchase prompt after level milestone (30% chance)
       if (Math.random() < 0.3) {
         setTimeout(() => {
           setGoldPromptTrigger('level_milestone');
           setShowGoldPrompt(true);
           trackGoldPurchaseViewed();
-        }, 6000); // Show 6 seconds after milestone celebration starts
+        }, 6000);
       }
     }
+  };
+
+  const handleDiceClaimReward = () => {
+    setShowDiceRoll(false);
+    setEncounterData(null);
+    // Rewards already applied server-side, just reload
+    loadUserData();
   };
 
   const handleReflectionSubmit = async (reflection, mood) => {
@@ -544,7 +574,6 @@ export default function DashboardPage() {
       });
 
       if (response.ok) {
-        // Reload to show new XP from reflection bonus
         loadUserData();
       }
     } catch (error) {
@@ -560,9 +589,7 @@ export default function DashboardPage() {
       if (!session) return;
 
       const response = await fetch(`/api/journals/list?limit=20&offset=${offset}`, {
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`
-        }
+        headers: { 'Authorization': `Bearer ${session.access_token}` }
       });
 
       const data = await response.json();
@@ -589,32 +616,18 @@ export default function DashboardPage() {
       if (!session) return;
 
       const response = await fetch('/api/seasonal-events', {
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`
-        }
+        headers: { 'Authorization': `Bearer ${session.access_token}` }
       });
 
       const data = await response.json();
 
       if (data.active) {
-        let count = 0;
-
-        // Count incomplete challenges
-        const incompleteChallenges = data.challenges.filter(challenge => {
-          const progress = data.challengeProgress.find(cp => cp.challenge_id === challenge.id);
-          return !progress?.completed;
-        });
-        count += incompleteChallenges.length;
-
-        // Count affordable rewards not yet claimed
         const affordableRewards = data.rewards.filter(reward => {
           const isClaimed = data.userProgress.rewards_claimed?.some(r => r.reward_id === reward.id);
           const canAfford = data.userProgress.event_points >= reward.cost_event_points;
           const notSoldOut = reward.limited_quantity === null || reward.remaining_quantity > 0;
           return !isClaimed && canAfford && notSoldOut;
         });
-
-        // Show affordable rewards count (more actionable than challenge count)
         setEventBadgeCount(affordableRewards.length);
       } else {
         setEventBadgeCount(0);
@@ -627,7 +640,6 @@ export default function DashboardPage() {
 
   const handleJournalSubmit = async (journalData) => {
     if (!user) return;
-
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
@@ -645,8 +657,6 @@ export default function DashboardPage() {
         const error = await response.json();
         throw new Error(error.error || 'Failed to save journal entry');
       }
-
-      // Reload journal entries to show the new one
       loadJournalEntries(0);
     } catch (error) {
       console.error('Error saving journal entry:', error);
@@ -654,9 +664,7 @@ export default function DashboardPage() {
     }
   };
 
-  const handleLoadMoreJournals = () => {
-    loadJournalEntries(journalOffset + 20);
-  };
+  const handleLoadMoreJournals = () => { loadJournalEntries(journalOffset + 20); };
 
   const handleJournalDelete = async (entryId) => {
     try {
@@ -665,9 +673,7 @@ export default function DashboardPage() {
 
       const response = await fetch(`/api/journals/delete?id=${entryId}`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`
-        }
+        headers: { 'Authorization': `Bearer ${session.access_token}` }
       });
 
       if (!response.ok) {
@@ -675,7 +681,6 @@ export default function DashboardPage() {
         throw new Error(error.error || 'Failed to delete journal entry');
       }
 
-      // Remove the entry from the local state
       setJournalEntries(prev => prev.filter(entry => entry.id !== entryId));
       setJournalTotal(prev => prev - 1);
     } catch (error) {
@@ -686,13 +691,8 @@ export default function DashboardPage() {
 
   const handlePremiumWelcomeClose = async () => {
     setShowPremiumWelcome(false);
-
-    // Mark as shown in database
     if (user) {
-      await supabase
-        .from('profiles')
-        .update({ shown_premium_welcome: true })
-        .eq('id', user.id);
+      await supabase.from('profiles').update({ shown_premium_welcome: true }).eq('id', user.id);
     }
   };
 
@@ -702,11 +702,9 @@ export default function DashboardPage() {
 
   async function generateQuestsFromTemplates() {
     if (generating) return;
-
     setGenerating(true);
     try {
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-
       if (sessionError || !session || !session.access_token) {
         console.error('Session error:', sessionError);
         alert('Session expired. Please log in again.');
@@ -717,25 +715,22 @@ export default function DashboardPage() {
 
       const response = await fetch('/api/generate-from-templates', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`
-        },
+        headers: { 'Authorization': `Bearer ${session.access_token}` },
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        console.error('Generate from templates error:', data);
         alert(data.message || data.error || 'Failed to generate quests');
         setGenerating(false);
         return;
       }
 
       if (data.questsCreated === 0) {
-        alert('No new quests to generate. Templates may have already generated quests recently based on their schedule.');
+        alert('No new quests to generate. Templates may have already generated quests recently.');
       } else {
         alert(`Successfully generated ${data.questsCreated} quests!`);
-        loadUserData(); // Reload to show new quests
+        loadUserData();
       }
     } catch (error) {
       console.error('Error generating quests:', error);
@@ -750,6 +745,15 @@ export default function DashboardPage() {
     router.push('/');
   }
 
+  function scrollToQuestInput() {
+    questInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    // Focus the input after scroll
+    setTimeout(() => {
+      const input = questInputRef.current?.querySelector('input[type="text"]');
+      input?.focus();
+    }, 500);
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#1A1A2E] via-[#16213e] to-[#0F3460] flex items-center justify-center">
@@ -758,14 +762,18 @@ export default function DashboardPage() {
     );
   }
 
+  const isPremium = profile?.is_premium || profile?.subscription_status === 'active';
+  const sections = getDashboardSections(profile);
   const unlockedSkills = profile ? getUnlockedSkills(profile.archetype, profile.level) : [];
   const bossEncounter = checkBossEncounter(quests);
-  const creature = profile ? getCreatureCompanion(quests, profile.last_quest_date) : null;
+  const creature = sections.companion ? getCreatureCompanion(quests, profile?.last_quest_date) : null;
+  const activeQuestsList = quests.filter(q => !q.completed);
+  const isNewUser = (profile?.level || 1) <= 2 && activeQuestsList.length === 0;
 
   return (
     <ErrorBoundary>
     <>
-      {/* Daily Login Reward — fires on load, once per session */}
+      {/* Daily Login Reward */}
       {user && <DailyLoginReward userId={user.id} onRewardClaimed={() => loadUserData()} />}
 
       {/* Emotional Login Transition */}
@@ -777,228 +785,210 @@ export default function DashboardPage() {
         />
       )}
 
-      <div className="min-h-screen bg-gradient-to-br from-[#1A1A2E] via-[#16213e] to-[#0F3460] text-white p-8">
-      <div className="max-w-6xl mx-auto">
-        {/* Header with Character */}
-        <div className="flex justify-between items-start mb-8">
-          {/* Left side: Character Image + Stats */}
-          <div className="flex gap-6 items-center">
-            {/* Archetype Character Image */}
-            {profile?.archetype && (
-              <div className="flex-shrink-0">
-                <img
-                  src={`/images/archetypes/${profile.archetype}.png`}
-                  alt={profile.archetype}
-                  className="w-32 h-32 object-cover rounded-lg border-3 border-[#FFD93D] shadow-[0_0_20px_rgba(255,217,61,0.5)]"
-                />
-              </div>
-            )}
+      {/* Unlock Toast Notifications */}
+      <UnlockToast unlocks={newUnlocks} />
 
-            {/* Stats */}
-            <div>
-              <div className="flex items-center gap-3">
-                <h1 className="text-4xl font-black uppercase tracking-wide text-[#FF6B6B]">{profile?.archetype} - Level {profile?.level}</h1>
-                {(profile?.subscription_status === 'active' || profile?.is_premium) && (
-                  <span className="px-4 py-2 bg-[#FFD93D] text-[#1A1A2E] border-3 border-[#0F3460] rounded-lg font-black text-sm uppercase shadow-[0_3px_0_#0F3460]">
-                    ⚡ FOUNDER
-                  </span>
-                )}
-              </div>
-              <div className="flex items-center gap-4 mt-1">
-                <p className="text-[#00D4FF] font-bold">XP: {profile?.xp} / {(profile?.level || 0) * 100}</p>
-                <p className="text-[#00D4FF] font-bold">Streak: {profile?.current_streak} days</p>
-                <p className="text-[#FFD93D] font-black">💰 {profile?.gold || 0} Gold</p>
-                {profile?.story_chapter && profile.story_chapter > 1 && (
-                  <p className="text-[#FFD93D] font-bold">📖 Chapter {profile.story_chapter}</p>
-                )}
-              </div>
-              {profile?.skill_points > 0 && (
-                <p className="text-[#FFD93D] font-black mt-1">💎 {profile.skill_points} Skill Points Available!</p>
-              )}
-            </div>
-          </div>
+      <div className="min-h-screen bg-gradient-to-br from-[#1A1A2E] via-[#16213e] to-[#0F3460] text-white p-4 sm:p-8">
+      <div className="max-w-4xl mx-auto">
 
-          {/* Right side: Buttons */}
-          <div className="flex gap-4">
-            {(profile?.is_premium || profile?.subscription_status === 'active') && (
-              <>
-                <ArchetypeSwitcher
-                  currentArchetype={profile.archetype}
-                  isPremium={true}
-                  onSwitch={loadUserData}
-                />
-                <button
-                  onClick={() => router.push('/skills')}
-                  className={`px-4 py-2 border-3 rounded-lg font-black uppercase text-sm tracking-wide shadow-[0_3px_0_#0F3460] hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1 transition-all ${
-                    profile?.skill_points > 0
-                      ? 'bg-[#9333EA] hover:bg-[#7E22CE] text-white border-[#0F3460] animate-pulse'
-                      : 'bg-[#4C1D95] hover:bg-[#5B21B6] text-white border-[#1A1A2E]'
-                  }`}
-                >
-                  💎 Skill Tree {profile?.skill_points > 0 && `(${profile.skill_points})`}
-                </button>
-                <button
-                  onClick={() => router.push('/journey')}
-                  className="px-4 py-2 bg-[#9333EA] hover:bg-[#7E22CE] text-white border-3 border-[#0F3460] rounded-lg font-black uppercase text-sm tracking-wide shadow-[0_3px_0_#0F3460] hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1 transition-all"
-                >
-                  📖 My Journey
-                </button>
-              </>
+        {/* Top Navigation Bar */}
+        <div className="flex justify-between items-center mb-4">
+          <div className="flex items-center gap-2 flex-wrap">
+            {sections.switchArchetype && isPremium && (
+              <ArchetypeSwitcher
+                currentArchetype={profile.archetype}
+                isPremium={true}
+                onSwitch={loadUserData}
+              />
             )}
-            <button
-              onClick={() => router.push('/history')}
-              className="px-4 py-2 bg-[#0F3460] hover:bg-[#1a4a7a] text-white border-3 border-[#1A1A2E] rounded-lg font-bold uppercase text-sm tracking-wide transition-all"
-            >
-              History
-            </button>
+            {sections.skillTree && isPremium && (
+              <button
+                onClick={() => router.push('/skills')}
+                className={`px-3 py-1.5 border-2 rounded-lg font-black uppercase text-xs tracking-wide transition-all ${
+                  profile?.skill_points > 0
+                    ? 'bg-[#9333EA] hover:bg-[#7E22CE] text-white border-[#0F3460] animate-pulse'
+                    : 'bg-[#4C1D95] hover:bg-[#5B21B6] text-white border-[#1A1A2E]'
+                }`}
+              >
+                💎 Skills {profile?.skill_points > 0 && `(${profile.skill_points})`}
+              </button>
+            )}
+            {sections.journeyNav && isPremium && (
+              <button
+                onClick={() => router.push('/journey')}
+                className="px-3 py-1.5 bg-[#9333EA] hover:bg-[#7E22CE] text-white border-2 border-[#0F3460] rounded-lg font-black uppercase text-xs tracking-wide transition-all"
+              >
+                📖 Journey
+              </button>
+            )}
+            {sections.historyNav && (
+              <button
+                onClick={() => router.push('/history')}
+                className="px-3 py-1.5 bg-[#0F3460] hover:bg-[#1a4a7a] text-white border-2 border-[#1A1A2E] rounded-lg font-bold uppercase text-xs tracking-wide transition-all"
+              >
+                📜 History
+              </button>
+            )}
             <button
               onClick={() => router.push('/shop')}
-              className="px-4 py-2 bg-[#FFD93D] hover:bg-[#E6C335] text-[#1A1A2E] border-3 border-[#0F3460] rounded-lg font-black uppercase text-sm tracking-wide shadow-[0_3px_0_#0F3460] hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1 transition-all"
+              className="px-3 py-1.5 bg-[#FFD93D] hover:bg-[#E6C335] text-[#1A1A2E] border-2 border-[#0F3460] rounded-lg font-black uppercase text-xs tracking-wide transition-all"
             >
               🪙 Gold Shop
             </button>
-            {!(profile?.subscription_status === 'active' || profile?.is_premium) && (
+            {!isPremium && (
               <button
                 onClick={() => router.push('/pricing')}
-                className="px-4 py-2 bg-[#00D4FF] hover:bg-[#00BFFF] text-[#0F3460] border-3 border-[#0F3460] rounded-lg font-black uppercase text-sm tracking-wide shadow-[0_3px_0_#0F3460] hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1 transition-all"
+                className="px-3 py-1.5 bg-[#00D4FF] hover:bg-[#00BFFF] text-[#0F3460] border-2 border-[#0F3460] rounded-lg font-black uppercase text-xs tracking-wide transition-all"
               >
-                🔥 Go Pro — $5/mo
+                🔥 Go Pro
               </button>
             )}
-            <button
-              onClick={handleLogout}
-              className="px-4 py-2 bg-[#FF6B6B] hover:bg-[#EE5A6F] text-white border-3 border-[#0F3460] rounded-lg font-bold uppercase text-sm tracking-wide transition-all"
-            >
-              Logout
-            </button>
           </div>
+          <button
+            onClick={handleLogout}
+            className="px-3 py-1.5 bg-[#FF6B6B] hover:bg-[#EE5A6F] text-white border-2 border-[#0F3460] rounded-lg font-bold uppercase text-xs tracking-wide transition-all"
+            title="Logout"
+          >
+            Logout
+          </button>
         </div>
 
-        {/* Creature Companion - Character Flavor */}
-        {creature && (
-          <div className="bg-[#1A1A2E] border-3 border-[#00D4FF] rounded-lg p-4 mb-8 shadow-[0_0_20px_rgba(0,212,255,0.3)]">
-            <div className="flex items-center gap-4">
-              {creature.image ? (
-                <img
-                  src={creature.image}
-                  alt={creature.name}
-                  className="w-16 h-16 object-contain rounded-lg"
-                />
-              ) : (
-                <span className="text-4xl">{creature.emoji}</span>
-              )}
-              <div>
-                <h3 className="font-black uppercase tracking-wide text-[#00D4FF]">{creature.name}</h3>
-                <p className="text-sm text-[#E2E8F0]">{creature.description}</p>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Compact Character Card */}
+        <CompactCharacterCard
+          profile={profile}
+          creature={creature}
+          isPremium={isPremium}
+        />
 
-        {/* Boss Encounter - Important Alert */}
+        {/* Active Effects Bar */}
+        <ActiveEffects effects={activeEffects} />
+
+        {/* Boss Encounter Alert */}
         {bossEncounter && (
-          <div className="bg-red-900/30 border-3 border-red-500 rounded-lg p-6 mb-8 shadow-[0_0_20px_rgba(239,68,68,0.5)]">
+          <div className="bg-red-900/30 border-3 border-red-500 rounded-lg p-4 mb-6 shadow-[0_0_20px_rgba(239,68,68,0.5)]">
             <div className="flex items-center gap-4">
-              <span className="text-5xl">{bossEncounter.emoji}</span>
+              <span className="text-4xl">{bossEncounter.emoji}</span>
               <div>
-                <h3 className="text-2xl font-black uppercase tracking-wide text-[#FF6B6B]">{bossEncounter.name}</h3>
-                <p className="text-[#E2E8F0]">{bossEncounter.description}</p>
+                <h3 className="text-xl font-black uppercase tracking-wide text-[#FF6B6B]">{bossEncounter.name}</h3>
+                <p className="text-sm text-[#E2E8F0]">{bossEncounter.description}</p>
               </div>
             </div>
           </div>
         )}
 
-        {/* Premium Tab Navigation */}
-        {(profile?.is_premium || profile?.subscription_status === 'active') && (
-          <div className="mb-8">
-            <div className="flex flex-wrap gap-3 mb-6">
-              <button
-                onClick={() => setActiveTab('quests')}
-                className={
-                  'px-6 py-3 rounded-lg font-black uppercase text-sm tracking-wide border-3 transition-all ' +
-                  (activeTab === 'quests'
-                    ? 'bg-[#FF6B6B] border-[#0F3460] text-white shadow-[0_5px_0_#0F3460]'
-                    : 'bg-[#0F3460] border-[#1A1A2E] text-gray-300 hover:border-[#FF6B6B]')
-                }
-              >
-                📋 Quests
-              </button>
-              <button
-                onClick={() => setActiveTab('recurring')}
-                className={
-                  'px-6 py-3 rounded-lg font-black uppercase text-sm tracking-wide border-3 transition-all ' +
-                  (activeTab === 'recurring'
-                    ? 'bg-[#00D4FF] border-[#0F3460] text-[#0F3460] shadow-[0_5px_0_#0F3460]'
-                    : 'bg-[#0F3460] border-[#1A1A2E] text-gray-300 hover:border-[#00D4FF]')
-                }
-              >
-                🔄 Recurring
-              </button>
-              <button
-                onClick={() => setActiveTab('templates')}
-                className={
-                  'px-6 py-3 rounded-lg font-black uppercase text-sm tracking-wide border-3 transition-all ' +
-                  (activeTab === 'templates'
-                    ? 'bg-[#FFD93D] border-[#0F3460] text-[#0F3460] shadow-[0_5px_0_#0F3460]'
-                    : 'bg-[#0F3460] border-[#1A1A2E] text-gray-300 hover:border-[#FFD93D]')
-                }
-              >
-                📚 Templates
-              </button>
-              <button
-                onClick={() => setActiveTab('equipment')}
-                className={
-                  'px-6 py-3 rounded-lg font-black uppercase text-sm tracking-wide border-3 transition-all ' +
-                  (activeTab === 'equipment'
-                    ? 'bg-[#48BB78] border-[#0F3460] text-white shadow-[0_5px_0_#0F3460]'
-                    : 'bg-[#0F3460] border-[#1A1A2E] text-gray-300 hover:border-[#48BB78]')
-                }
-              >
-                ⚔️ Equipment
-              </button>
-              <button
-                onClick={() => setActiveTab('journal')}
-                className={
-                  'px-6 py-3 rounded-lg font-black uppercase text-sm tracking-wide border-3 transition-all ' +
-                  (activeTab === 'journal'
-                    ? 'bg-[#9333EA] border-[#0F3460] text-white shadow-[0_5px_0_#0F3460]'
-                    : 'bg-[#0F3460] border-[#1A1A2E] text-gray-300 hover:border-[#9333EA]')
-                }
-              >
-                📖 Journal
-              </button>
-              <button
-                onClick={() => setActiveTab('events')}
-                className={
-                  'px-6 py-3 rounded-lg font-black uppercase text-sm tracking-wide border-3 transition-all relative ' +
-                  (activeTab === 'events'
-                    ? 'bg-gradient-to-r from-purple-600 to-pink-600 border-[#0F3460] text-white shadow-[0_5px_0_#0F3460]'
-                    : 'bg-[#0F3460] border-[#1A1A2E] text-gray-300 hover:border-purple-500')
-                }
-              >
-                🎊 Events
-                {eventBadgeCount > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-black rounded-full w-6 h-6 flex items-center justify-center border-2 border-[#0F3460] animate-pulse">
-                    {eventBadgeCount}
-                  </span>
-                )}
-              </button>
+        {/* Trial Status Banner */}
+        {profile?.trial_ends_at && new Date(profile.trial_ends_at) > new Date() && !profile?.is_premium && (
+          <div className="bg-gradient-to-r from-[#7C3AED]/20 to-[#FF6B35]/20 border-2 border-[#7C3AED] rounded-xl p-3 mb-4 text-center">
+            <p className="text-[#7C3AED] font-black text-sm uppercase">
+              Pro Trial — {Math.ceil((new Date(profile.trial_ends_at) - new Date()) / (1000 * 60 * 60 * 24))} days remaining
+            </p>
+            <p className="text-gray-400 text-xs mt-1">
+              <a href="/pricing" className="text-[#FF6B35] hover:underline font-bold">Upgrade now</a> to keep Pro features
+            </p>
+          </div>
+        )}
+
+        {/* Welcome Quest Chain — first thing new users see */}
+        {user && <WelcomeQuestChain userId={user.id} />}
+
+        {/* Tab Bar — Only at Level 10+ */}
+        {sections.tabBar && (
+          <div className="mb-6">
+            <div className="flex flex-wrap gap-2">
+              {[
+                { key: 'quests', icon: '📋', label: 'Quests', color: '#FF6B6B' },
+                { key: 'recurring', icon: '🔄', label: 'Recurring', color: '#00D4FF' },
+                { key: 'templates', icon: '📦', label: 'Templates', color: '#FFD93D' },
+                { key: 'equipment', icon: '⚔️', label: 'Equipment', color: '#48BB78' },
+                { key: 'journal', icon: '📖', label: 'Journal', color: '#9333EA' },
+                { key: 'events', icon: '🎉', label: 'Events', color: '#ec4899', badge: eventBadgeCount },
+              ].map(tab => (
+                <button
+                  key={tab.key}
+                  onClick={() => setActiveTab(tab.key)}
+                  className={`px-4 py-2 rounded-full font-black uppercase text-xs tracking-wide border-2 transition-all relative ${
+                    activeTab === tab.key
+                      ? 'text-white shadow-[0_3px_0_#0F3460]'
+                      : 'bg-[#0F3460] border-[#1A1A2E] text-gray-400 hover:text-white'
+                  }`}
+                  style={
+                    activeTab === tab.key
+                      ? { backgroundColor: tab.color, borderColor: tab.color }
+                      : {}
+                  }
+                >
+                  {tab.icon} {tab.label}
+                  {tab.badge > 0 && (
+                    <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] font-black rounded-full w-5 h-5 flex items-center justify-center border border-[#0F3460] animate-pulse">
+                      {tab.badge}
+                    </span>
+                  )}
+                </button>
+              ))}
             </div>
           </div>
         )}
 
-        {/* Rate Limit Status */}
-        {user && profile && (
-          <RateLimitStatus
-            userId={user.id}
-            isPremium={profile.is_premium || profile.subscription_status === 'active'}
-            onUpgradeClick={() => router.push('/pricing')}
-          />
+        {/* ── QUESTS TAB (or always visible if no tab bar) ── */}
+        {(sections.tabBar ? activeTab === 'quests' : true) && (
+          <>
+            {/* Quest Input — THE HERO */}
+            <div ref={questInputRef}>
+              <QuestInputRedesigned
+                onAddQuest={addQuest}
+                adding={adding}
+                questText={newQuestText}
+                setQuestText={setNewQuestText}
+                difficulty={newQuestDifficulty}
+                setDifficulty={setNewQuestDifficulty}
+              />
+            </div>
+
+            {/* Active Quests */}
+            <div className="bg-[#1A1A2E] border-3 border-[#FF6B6B] rounded-lg p-6 mb-6 shadow-[0_0_20px_rgba(255,107,107,0.3)]">
+              <h3 className="text-xl font-black uppercase tracking-wide text-[#FF6B6B] mb-4">Active Quests</h3>
+              <div className="space-y-4">
+                {activeQuestsList.map((quest) => (
+                  <div key={quest.id} className="bg-[#0F3460] p-4 rounded-lg border-2 border-[#1A1A2E] flex justify-between items-start">
+                    <div className="flex-1">
+                      <div className="font-black text-lg text-[#00D4FF]">{quest.transformed_text}</div>
+                      <div className="text-sm text-[#E2E8F0] mt-1">{quest.original_text}</div>
+                      <div className="text-xs text-[#FFD93D] mt-2 font-bold uppercase">
+                        {quest.difficulty} | {quest.xp_value} XP
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => completeQuest(quest.id, quest.xp_value)}
+                      className="ml-4 px-4 py-2 bg-[#48BB78] hover:bg-[#38a169] text-white border-3 border-[#0F3460] rounded-lg font-black uppercase text-sm tracking-wide shadow-[0_3px_0_#0F3460] hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1 transition-all"
+                    >
+                      Complete
+                    </button>
+                  </div>
+                ))}
+                {activeQuestsList.length === 0 && (
+                  isNewUser ? (
+                    <FirstTimeEmptyState onTryQuest={scrollToQuestInput} />
+                  ) : (
+                    <p className="text-[#00D4FF] text-center py-8 font-bold">No active quests. Add one above!</p>
+                  )
+                )}
+              </div>
+            </div>
+          </>
         )}
 
-        {/* Skills */}
-        {unlockedSkills.length > 0 && (
-          <div className="bg-[#1A1A2E] border-3 border-[#FFD93D] rounded-lg p-6 mb-8 shadow-[0_0_20px_rgba(255,217,61,0.3)]">
+        {/* ── PROGRESSIVE SECTIONS ── */}
+
+        {/* Story Progress — Level 7+ */}
+        {sections.yourStory && profile && (sections.tabBar ? activeTab === 'quests' : true) && (
+          <div className="mb-6">
+            <StoryProgress profile={profile} />
+          </div>
+        )}
+
+        {/* Unlocked Skills — Level 5+ */}
+        {sections.unlockedSkills && unlockedSkills.length > 0 && (sections.tabBar ? activeTab === 'quests' : true) && (
+          <div className="bg-[#1A1A2E] border-3 border-[#FFD93D] rounded-lg p-6 mb-6 shadow-[0_0_20px_rgba(255,217,61,0.3)]">
             <h3 className="text-xl font-black uppercase tracking-wide text-[#FFD93D] mb-4">Unlocked Skills</h3>
             <div className="grid md:grid-cols-2 gap-4">
               {unlockedSkills.map((skill, i) => (
@@ -1011,211 +1001,117 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Trial Status Banner */}
-        {profile?.trial_ends_at && new Date(profile.trial_ends_at) > new Date() && !profile?.is_premium && (
-          <div className="bg-gradient-to-r from-[#7C3AED]/20 to-[#FF6B35]/20 border-2 border-[#7C3AED] rounded-xl p-4 mb-6 text-center">
-            <p className="text-[#7C3AED] font-black text-sm uppercase">
-              Pro Trial — {Math.ceil((new Date(profile.trial_ends_at) - new Date()) / (1000 * 60 * 60 * 24))} days remaining
-            </p>
-            <p className="text-gray-400 text-xs mt-1">
-              <a href="/pricing" className="text-[#FF6B35] hover:underline font-bold">Upgrade now</a> to keep Pro features after your trial ends
-            </p>
-          </div>
-        )}
-
-        {/* Welcome Quest Chain — first thing new users see */}
-        {user && <WelcomeQuestChain userId={user.id} />}
-
-        {/* CORE FUNCTIONALITY FIRST - Add Quest */}
-        {((profile?.is_premium || profile?.subscription_status === 'active') ? activeTab === 'quests' : true) && (
-          <div className="bg-[#1A1A2E] border-3 border-[#00D4FF] rounded-lg p-6 mb-8 shadow-[0_0_20px_rgba(0,212,255,0.3)]">
-            <h3 className="text-xl font-black uppercase tracking-wide text-[#00D4FF] mb-4">Add New Quest</h3>
-            <div className="flex gap-4 mb-4">
-              <input
-                type="text"
-                value={newQuestText}
-                onChange={(e) => setNewQuestText(e.target.value)}
-                placeholder="Enter your task..."
-                className="flex-1 px-4 py-3 bg-[#0F3460] text-white border-3 border-[#1A1A2E] rounded-lg focus:outline-none focus:border-[#00D4FF] focus:shadow-[0_0_0_3px_rgba(0,212,255,0.2)] transition-all"
-              />
-              <select
-                value={newQuestDifficulty}
-                onChange={(e) => setNewQuestDifficulty(e.target.value)}
-                className="px-4 py-3 bg-[#0F3460] text-white border-3 border-[#1A1A2E] rounded-lg focus:outline-none focus:border-[#00D4FF] focus:shadow-[0_0_0_3px_rgba(0,212,255,0.2)] transition-all font-bold"
-              >
-                <option value="easy">Easy (10 XP)</option>
-                <option value="medium">Medium (25 XP)</option>
-                <option value="hard">Hard (50 XP)</option>
-              </select>
-              <button
-                onClick={addQuest}
-                disabled={adding}
-                className="px-6 py-3 bg-[#FF6B6B] hover:bg-[#EE5A6F] text-white border-3 border-[#0F3460] rounded-lg font-black uppercase tracking-wide shadow-[0_5px_0_#0F3460] hover:shadow-[0_7px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_2px_0_#0F3460] active:translate-y-1 transition-all disabled:opacity-50"
-              >
-                {adding ? 'Adding...' : 'Add Quest'}
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* CORE FUNCTIONALITY SECOND - Active Quests */}
-        {((profile?.is_premium || profile?.subscription_status === 'active') ? activeTab === 'quests' : true) && (
-          <div className="bg-[#1A1A2E] border-3 border-[#FF6B6B] rounded-lg p-6 mb-8 shadow-[0_0_20px_rgba(255,107,107,0.3)]">
-            <h3 className="text-xl font-black uppercase tracking-wide text-[#FF6B6B] mb-4">Active Quests</h3>
-            <div className="space-y-4">
-              {quests.filter(q => !q.completed).map((quest) => (
-                <div key={quest.id} className="bg-[#0F3460] p-4 rounded-lg border-2 border-[#1A1A2E] flex justify-between items-start">
-                  <div className="flex-1">
-                    <div className="font-black text-lg text-[#00D4FF]">{quest.transformed_text}</div>
-                    <div className="text-sm text-[#E2E8F0] mt-1">{quest.original_text}</div>
-                    <div className="text-xs text-[#FFD93D] mt-2 font-bold uppercase">
-                      {quest.difficulty} | {quest.xp_value} XP
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => completeQuest(quest.id, quest.xp_value)}
-                    className="ml-4 px-4 py-2 bg-[#48BB78] hover:bg-[#38a169] text-white border-3 border-[#0F3460] rounded-lg font-black uppercase text-sm tracking-wide shadow-[0_3px_0_#0F3460] hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1 transition-all"
-                  >
-                    Complete
-                  </button>
-                </div>
-              ))}
-              {quests.filter(q => !q.completed).length === 0 && (
-                <p className="text-[#00D4FF] text-center py-8 font-bold">No active quests. Add one above!</p>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* SUPPORTING ELEMENTS - Story Progress */}
-        {profile && (
-          <div className="mb-8">
-            <StoryProgress profile={profile} />
-          </div>
-        )}
-
-        {/* Daily Bonus */}
-        {profile && (
-          <div className="mb-8">
+        {/* Daily Bonus — Level 3+ (simple) / Level 10+ (full) */}
+        {sections.dailyBonusSimple && profile && (sections.tabBar ? activeTab === 'quests' : true) && (
+          <div className="mb-6">
             <DailyBonus profile={profile} onClaim={loadUserData} />
           </div>
         )}
 
-        {/* Achievement Badges - Collection Mechanic */}
-        {profile && quests && (
+        {/* Achievement Badges — Level 5+ */}
+        {sections.achievementsEarned && profile && quests && (sections.tabBar ? activeTab === 'quests' : true) && (
           <AchievementBadges profile={profile} quests={quests} />
         )}
 
-        {/* Live Activity Feed - Social Proof */}
-        {!(profile?.is_premium || profile?.subscription_status === 'active') && (
-          <LiveActivityFeed />
-        )}
+        {/* ── TAB CONTENT (Level 10+) ── */}
 
-        {/* Recurring Quests Tab Content */}
-        {activeTab === 'recurring' && (profile?.is_premium || profile?.subscription_status === 'active') && (
+        {/* Recurring Quests Tab */}
+        {sections.tabBar && activeTab === 'recurring' && (
           <RecurringQuests
-            isPremium={profile.is_premium || profile.subscription_status === 'active'}
+            isPremium={isPremium}
             archetype={profile.archetype}
           />
         )}
 
-        {/* Templates Tab Content */}
-        {activeTab === 'templates' && (profile?.is_premium || profile?.subscription_status === 'active') && (
+        {/* Templates Tab */}
+        {sections.tabBar && activeTab === 'templates' && (
           <TemplateLibrary
-            isPremium={profile.is_premium || profile.subscription_status === 'active'}
+            isPremium={isPremium}
             archetype={profile.archetype}
             onQuestsAdded={loadUserData}
           />
         )}
 
-        {/* Equipment Tab Content */}
-        {activeTab === 'equipment' && (profile?.is_premium || profile?.subscription_status === 'active') && (
+        {/* Equipment Tab */}
+        {sections.tabBar && activeTab === 'equipment' && (
           <EquipmentShop
-            isPremium={profile.is_premium || profile.subscription_status === 'active'}
+            isPremium={isPremium}
             gold={profile.gold || 0}
             onGoldChange={handleGoldChange}
           />
         )}
 
-        {/* Journal Tab Content */}
-        {((profile?.is_premium || profile?.subscription_status === 'active') ? activeTab === 'journal' : true) && (
-        <div className="bg-[#1A1A2E] border-3 border-[#FFD93D] rounded-lg p-6 mb-8 shadow-[0_0_20px_rgba(255,217,61,0.3)]">
-          <div className="flex justify-between items-center mb-4">
-            <div className="flex items-center gap-3">
-              <span className="text-3xl">📖</span>
-              <h3 className="text-xl font-black uppercase tracking-wide text-[#FFD93D]">Hero's Journal</h3>
+        {/* Journal Tab */}
+        {sections.tabBar && activeTab === 'journal' && (
+          <div className="bg-[#1A1A2E] border-3 border-[#FFD93D] rounded-lg p-6 mb-6 shadow-[0_0_20px_rgba(255,217,61,0.3)]">
+            <div className="flex justify-between items-center mb-4">
+              <div className="flex items-center gap-3">
+                <span className="text-3xl">📖</span>
+                <h3 className="text-xl font-black uppercase tracking-wide text-[#FFD93D]">Hero&apos;s Journal</h3>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowJournalEntry(true)}
+                  className="px-4 py-2 bg-[#FFD93D] hover:bg-[#E6C335] text-[#1A1A2E] border-3 border-[#0F3460] rounded-lg font-black uppercase text-sm tracking-wide shadow-[0_4px_0_#0F3460] hover:shadow-[0_6px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_2px_0_#0F3460] active:translate-y-1 transition-all"
+                >
+                  ✍️ Write
+                </button>
+                <button
+                  onClick={() => setShowJournalSection(!showJournalSection)}
+                  className="px-4 py-2 bg-[#00D4FF] hover:bg-[#00BBE6] text-[#0F3460] border-3 border-[#0F3460] rounded-lg font-black uppercase text-sm tracking-wide shadow-[0_4px_0_#0F3460] hover:shadow-[0_6px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_2px_0_#0F3460] active:translate-y-1 transition-all"
+                >
+                  {showJournalSection ? '▲ Hide' : '▼ View'} Timeline
+                </button>
+              </div>
             </div>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowJournalEntry(true)}
-                className="px-6 py-3 bg-[#FFD93D] hover:bg-[#E6C335] text-[#1A1A2E] border-3 border-[#0F3460] rounded-lg font-black uppercase text-sm tracking-wide shadow-[0_5px_0_#0F3460] hover:shadow-[0_7px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_2px_0_#0F3460] active:translate-y-1 transition-all"
-              >
-                ✍️ Write Entry
-              </button>
-              <button
-                onClick={() => setShowJournalSection(!showJournalSection)}
-                className="px-6 py-3 bg-[#00D4FF] hover:bg-[#00BBE6] text-[#0F3460] border-3 border-[#0F3460] rounded-lg font-black uppercase text-sm tracking-wide shadow-[0_5px_0_#0F3460] hover:shadow-[0_7px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_2px_0_#0F3460] active:translate-y-1 transition-all"
-              >
-                {showJournalSection ? '▲ Hide' : '▼ View'} Timeline
-              </button>
-            </div>
+            <p className="text-[#E2E8F0] text-sm mb-4">
+              Document your journey, reflect on your progress, and let the AI transform your story into an epic tale.
+            </p>
+            {showJournalSection && (
+              <div className="mb-6">
+                <OnThisDay />
+              </div>
+            )}
+            {showJournalSection && (
+              <JournalTimeline
+                entries={journalEntries}
+                isLoading={journalLoading}
+                onLoadMore={handleLoadMoreJournals}
+                onDelete={handleJournalDelete}
+                hasMore={journalEntries.length < journalTotal}
+              />
+            )}
           </div>
-
-          <p className="text-[#E2E8F0] text-sm mb-4">
-            Document your journey, reflect on your progress, and let the AI transform your story into an epic tale.
-          </p>
-
-          {/* On This Day Widget */}
-          {showJournalSection && (
-            <div className="mb-6">
-              <OnThisDay />
-            </div>
-          )}
-
-          {/* Journal Timeline */}
-          {showJournalSection && (
-            <JournalTimeline
-              entries={journalEntries}
-              isLoading={journalLoading}
-              onLoadMore={handleLoadMoreJournals}
-              onDelete={handleJournalDelete}
-              hasMore={journalEntries.length < journalTotal}
-            />
-          )}
-        </div>
         )}
 
-        {/* Seasonal Events Tab Content */}
-        {activeTab === 'events' && (profile?.is_premium || profile?.subscription_status === 'active') && (
+        {/* Seasonal Events Tab */}
+        {sections.tabBar && activeTab === 'events' && (
           <SeasonalEvent />
         )}
 
         {/* Unlock Premium Section (for non-premium users) */}
-        {!(profile?.is_premium || profile?.subscription_status === 'active') && (
-          <div className="bg-[#1A1A2E] border-3 border-[#FFD93D] rounded-lg p-8 mb-8 shadow-[0_0_30px_rgba(255,217,61,0.4)]">
+        {!isPremium && (
+          <div className="bg-[#1A1A2E] border-3 border-[#FFD93D] rounded-lg p-8 mb-6 shadow-[0_0_30px_rgba(255,217,61,0.4)]">
             <div className="text-center">
-              <h3 className="text-3xl font-black mb-4 uppercase tracking-wide text-[#FFD93D]">🔥 Unlock the Full RPG Experience</h3>
+              <h3 className="text-2xl font-black mb-4 uppercase tracking-wide text-[#FFD93D]">🔥 Unlock the Full RPG Experience</h3>
               <p className="text-[#E2E8F0] mb-6 font-bold">Go Pro to access all premium features — starting at just $5/month.</p>
-              <div className="grid md:grid-cols-3 gap-4 mb-6">
-                <div className="bg-[#0F3460] p-4 rounded-lg border-2 border-[#1A1A2E]">
-                  <div className="text-3xl mb-2">🔄</div>
-                  <div className="font-black text-[#00D4FF]">Quest Templates</div>
-                  <div className="text-sm text-[#E2E8F0]">Automate daily tasks</div>
+              <div className="grid grid-cols-3 gap-3 mb-6">
+                <div className="bg-[#0F3460] p-3 rounded-lg border-2 border-[#1A1A2E]">
+                  <div className="text-2xl mb-1">🔄</div>
+                  <div className="font-black text-[#00D4FF] text-sm">Templates</div>
                 </div>
-                <div className="bg-[#0F3460] p-4 rounded-lg border-2 border-[#1A1A2E]">
-                  <div className="text-3xl mb-2">⚔️</div>
-                  <div className="font-black text-[#FF6B6B]">Equipment Shop</div>
-                  <div className="text-sm text-[#E2E8F0]">Boost XP gains</div>
+                <div className="bg-[#0F3460] p-3 rounded-lg border-2 border-[#1A1A2E]">
+                  <div className="text-2xl mb-1">⚔️</div>
+                  <div className="font-black text-[#FF6B6B] text-sm">Equipment</div>
                 </div>
-                <div className="bg-[#0F3460] p-4 rounded-lg border-2 border-[#1A1A2E]">
-                  <div className="text-3xl mb-2">🌳</div>
-                  <div className="font-black text-[#48BB78]">Skill Trees</div>
-                  <div className="text-sm text-[#E2E8F0]">Unlock abilities</div>
+                <div className="bg-[#0F3460] p-3 rounded-lg border-2 border-[#1A1A2E]">
+                  <div className="text-2xl mb-1">🌳</div>
+                  <div className="font-black text-[#48BB78] text-sm">Skill Trees</div>
                 </div>
               </div>
               <button
                 onClick={() => router.push('/pricing')}
-                className="px-8 py-4 bg-[#FFD93D] hover:bg-[#E6C335] text-[#1A1A2E] border-3 border-[#0F3460] rounded-lg font-black text-lg uppercase tracking-wide shadow-[0_5px_0_#0F3460] hover:shadow-[0_7px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_2px_0_#0F3460] active:translate-y-1 transition-all"
+                className="px-8 py-3 bg-[#FFD93D] hover:bg-[#E6C335] text-[#1A1A2E] border-3 border-[#0F3460] rounded-lg font-black text-lg uppercase tracking-wide shadow-[0_5px_0_#0F3460] hover:shadow-[0_7px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_2px_0_#0F3460] active:translate-y-1 transition-all"
               >
                 🔥 Go Pro — $5/mo or $29/yr
               </button>
@@ -1223,9 +1119,9 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Referral Card */}
-        {user && profile && (
-          <div className="mb-8">
+        {/* Referral Card — Level 10+ */}
+        {sections.referFriends && user && profile && (
+          <div className="mb-6">
             <ReferralCard userId={user.id} profile={profile} />
           </div>
         )}
@@ -1277,6 +1173,13 @@ export default function DashboardPage() {
         />
       )}
 
+      {/* D10 Random Encounter Dice Roll */}
+      <DiceRoll
+        show={showDiceRoll}
+        encounter={encounterData}
+        onClaim={handleDiceClaimReward}
+      />
+
       {/* Journal Entry Modal */}
       {showJournalEntry && profile && (
         <JournalEntry
@@ -1304,16 +1207,16 @@ export default function DashboardPage() {
         currentGold={profile?.gold || 0}
       />
 
-      {/* Streak Protection - Loss Aversion Mechanic */}
+      {/* Streak Protection */}
       {profile && (
         <StreakProtection
           streak={profile.current_streak || 0}
           lastActivityDate={profile.last_activity_date}
-          isPremium={profile.is_premium || profile.subscription_status === 'active'}
+          isPremium={isPremium}
         />
       )}
 
-      {/* Upgrade Prompt - Strategic Conversion Points */}
+      {/* Upgrade Prompt */}
       {profile && upgradePromptTrigger && (
         <UpgradePrompt
           trigger={upgradePromptTrigger}
@@ -1321,7 +1224,7 @@ export default function DashboardPage() {
         />
       )}
 
-      {/* Habit Limit Modal for Free Users */}
+      {/* Habit Limit Modal */}
       <HabitLimitModal
         isOpen={showHabitLimitModal}
         onClose={() => setShowHabitLimitModal(false)}
@@ -1329,7 +1232,7 @@ export default function DashboardPage() {
         currentHabits={quests.filter(q => !q.completed).length}
       />
 
-      {/* Global Footer with Share Buttons */}
+      {/* Footer */}
       <GlobalFooter />
       </div>
     </>
