@@ -485,13 +485,9 @@ export default function DashboardPage() {
         }
       }
 
-      // Handle D10 random encounter from server response
+      // Store encounter for later — will show AFTER celebration/reflection modals close
       if (data.encounter) {
-        // Delay showing dice roll until after celebration
-        setTimeout(() => {
-          setEncounterData(data.encounter);
-          setShowDiceRoll(true);
-        }, 3000);
+        setEncounterData(data.encounter);
       }
 
       // Reload user data
@@ -527,8 +523,16 @@ export default function DashboardPage() {
   const handleCelebrationClose = () => {
     setShowQuestCelebration(false);
 
-    if (completedQuestData && Math.random() < 0.5) {
+    const showsReflection = completedQuestData && Math.random() < 0.5;
+
+    if (showsReflection) {
       setShowReflection(true);
+      // Dice roll will show when reflection closes (see handleReflectionClose)
+    } else {
+      // No reflection — show dice roll now if one is pending
+      if (encounterData) {
+        setTimeout(() => setShowDiceRoll(true), 300);
+      }
     }
 
     if (milestoneData) {
@@ -1152,7 +1156,13 @@ export default function DashboardPage() {
       {showReflection && completedQuestData && (
         <ReflectionPrompt
           show={showReflection}
-          onClose={() => setShowReflection(false)}
+          onClose={() => {
+            setShowReflection(false);
+            // Show dice roll AFTER reflection closes
+            if (encounterData) {
+              setTimeout(() => setShowDiceRoll(true), 300);
+            }
+          }}
           questId={completedQuestData.questId}
           questTitle={completedQuestData.questTitle}
           onSubmit={handleReflectionSubmit}
