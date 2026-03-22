@@ -28,6 +28,7 @@ import DailyLoginReward from '@/app/components/DailyLoginReward';
 import WelcomeQuestChain from '@/app/components/WelcomeQuestChain';
 import GoldPurchasePrompt from '@/app/components/GoldPurchasePrompt';
 import SeasonalEvent from '@/app/components/SeasonalEvent';
+import EventStoryModal from '@/app/components/EventStoryModal';
 import StreakProtection from '@/app/components/StreakProtection';
 import AchievementBadges from '@/app/components/AchievementBadges';
 import UpgradePrompt from '@/app/components/UpgradePrompt';
@@ -98,6 +99,11 @@ export default function DashboardPage() {
   const [encounterData, setEncounterData] = useState(null);
   const encounterRef = useRef(null); // ref to avoid stale closures
   const [activeEffects, setActiveEffects] = useState([]);
+
+  // Event story states
+  const [showEventStory, setShowEventStory] = useState(false);
+  const [eventStoryData, setEventStoryData] = useState(null);
+  const [eventStoryMeta, setEventStoryMeta] = useState({ name: '', icon: '' });
 
   // Unlock toast states
   const [newUnlocks, setNewUnlocks] = useState([]);
@@ -557,6 +563,41 @@ export default function DashboardPage() {
     encounterRef.current = null;
     // Rewards already applied server-side, just reload
     loadUserData();
+  };
+
+  // Seasonal event completion handler
+  const handleEventComplete = async (eventId, eventName, eventIcon) => {
+    // Check if story was already generated (stored in story_progress.completed_events)
+    const completedEvents = profile?.story_progress?.completed_events || [];
+    if (completedEvents.some(e => e.event === eventName)) return;
+
+    setEventStoryMeta({ name: eventName, icon: eventIcon });
+    setShowEventStory(true);
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const response = await fetch('/api/generate-event-story', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ event_id: eventId }),
+      });
+
+      const data = await response.json();
+      if (data.success && data.story) {
+        setEventStoryData(data.story);
+      } else {
+        // API returned error — close after brief delay
+        setTimeout(() => setShowEventStory(false), 3000);
+      }
+    } catch (error) {
+      console.error('Failed to generate event story:', error);
+      setTimeout(() => setShowEventStory(false), 3000);
+    }
   };
 
   const handleReflectionSubmit = async (reflection, mood) => {
@@ -1095,7 +1136,7 @@ export default function DashboardPage() {
 
         {/* Seasonal Events Tab */}
         {sections.tabBar && activeTab === 'events' && (
-          <SeasonalEvent />
+          <SeasonalEvent onEventComplete={handleEventComplete} />
         )}
 
         {/* Unlock Premium Section (for non-premium users) */}
@@ -1187,6 +1228,19 @@ export default function DashboardPage() {
         show={showDiceRoll}
         encounter={encounterData}
         onClaim={handleDiceClaimReward}
+      />
+
+      {/* Event Story Modal */}
+      <EventStoryModal
+        show={showEventStory}
+        eventName={eventStoryMeta.name}
+        eventIcon={eventStoryMeta.icon}
+        story={eventStoryData}
+        onClose={() => {
+          setShowEventStory(false);
+          setEventStoryData(null);
+          loadUserData();
+        }}
       />
 
       {/* Journal Entry Modal */}

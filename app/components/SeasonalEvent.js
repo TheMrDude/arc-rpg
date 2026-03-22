@@ -3,10 +3,11 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 
-export default function SeasonalEvent() {
+export default function SeasonalEvent({ onEventComplete }) {
   const [eventData, setEventData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedTab, setSelectedTab] = useState('challenges');
+  const [eventCompleteChecked, setEventCompleteChecked] = useState(false);
 
   useEffect(() => {
     loadEventData();
@@ -32,7 +33,17 @@ export default function SeasonalEvent() {
 
       if (data.active) {
         setEventData(data);
-        console.log('SeasonalEvent: Event data set:', data);
+
+        // Check if all challenges are completed
+        if (!eventCompleteChecked && data.challenges && data.challenges.length > 0 && data.challengeProgress) {
+          const progressMap = {};
+          data.challengeProgress.forEach(cp => { progressMap[cp.challenge_id] = cp; });
+          const allComplete = data.challenges.every(c => progressMap[c.id]?.completed);
+          if (allComplete && onEventComplete) {
+            setEventCompleteChecked(true);
+            onEventComplete(data.event.id, data.event.name, data.event.icon);
+          }
+        }
       } else {
         console.log('SeasonalEvent: No active event found');
       }
