@@ -50,7 +50,7 @@ export default function DashboardPage() {
   const [quests, setQuests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [newQuestText, setNewQuestText] = useState('');
-  const [newQuestDifficulty, setNewQuestDifficulty] = useState('medium');
+  // difficulty is now AI-assigned, no user selection needed
   const [adding, setAdding] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -277,7 +277,6 @@ export default function DashboardPage() {
           body: JSON.stringify({
             questText: quest.original_text,
             archetype: profile.archetype,
-            difficulty: quest.difficulty,
           }),
         });
 
@@ -290,8 +289,8 @@ export default function DashboardPage() {
               user_id: user.id,
               original_text: quest.original_text,
               transformed_text: data.transformedText,
-              difficulty: quest.difficulty,
-              xp_value: quest.xp_value,
+              difficulty: data.difficulty || quest.difficulty,
+              xp_value: data.xpValue || quest.xp_value,
               completed: false,
               story_thread: data.storyThread || null,
               narrative_impact: data.narrativeImpact || null,
@@ -319,9 +318,6 @@ export default function DashboardPage() {
     setAdding(true);
 
     try {
-      const xpValues = { easy: 10, medium: 25, hard: 50 };
-      const xp = xpValues[newQuestDifficulty];
-
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
       if (sessionError || !session || !session.access_token) {
@@ -341,7 +337,6 @@ export default function DashboardPage() {
         body: JSON.stringify({
           questText: newQuestText,
           archetype: profile.archetype,
-          difficulty: newQuestDifficulty,
         }),
       });
 
@@ -361,14 +356,18 @@ export default function DashboardPage() {
         return;
       }
 
+      // Use AI-assigned difficulty and XP
+      const aiDifficulty = data.difficulty || 'medium';
+      const aiXp = data.xpValue || 25;
+
       const { error } = await supabase
         .from('quests')
         .insert({
           user_id: user.id,
           original_text: newQuestText,
           transformed_text: data.transformedText,
-          difficulty: newQuestDifficulty,
-          xp_value: xp,
+          difficulty: aiDifficulty,
+          xp_value: aiXp,
           completed: false,
           story_thread: data.storyThread || null,
           narrative_impact: data.narrativeImpact || null,
@@ -381,7 +380,7 @@ export default function DashboardPage() {
         return;
       }
 
-      trackQuestCreated(newQuestDifficulty, profile.archetype);
+      trackQuestCreated(aiDifficulty, profile.archetype);
       setNewQuestText('');
       loadUserData();
     } catch (error) {
@@ -943,8 +942,6 @@ export default function DashboardPage() {
                 adding={adding}
                 questText={newQuestText}
                 setQuestText={setNewQuestText}
-                difficulty={newQuestDifficulty}
-                setDifficulty={setNewQuestDifficulty}
               />
             </div>
 

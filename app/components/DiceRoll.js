@@ -1,39 +1,43 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { RARITY_COLORS } from '@/lib/encounterTable';
 
 export default function DiceRoll({ encounter, onClaim, show }) {
-  const [phase, setPhase] = useState('spinning'); // spinning -> revealed -> card
-  const [displayNumber, setDisplayNumber] = useState(1);
+  const [phase, setPhase] = useState('waiting'); // waiting -> spinning -> landed -> reveal
+  const [displayNumber, setDisplayNumber] = useState('?');
+  const spinIntervalRef = useRef(null);
 
   useEffect(() => {
     if (!show || !encounter) return;
+    // Reset to waiting state when a new encounter appears
+    setPhase('waiting');
+    setDisplayNumber('?');
+
+    return () => {
+      if (spinIntervalRef.current) clearInterval(spinIntervalRef.current);
+    };
+  }, [show, encounter]);
+
+  function handleRoll() {
+    if (phase !== 'waiting' || !encounter) return;
     setPhase('spinning');
 
     // Rapid number cycling during spin
-    const interval = setInterval(() => {
+    spinIntervalRef.current = setInterval(() => {
       setDisplayNumber(Math.floor(Math.random() * 10) + 1);
     }, 80);
 
     // Stop spinning after 1.5s, show actual roll
-    const revealTimer = setTimeout(() => {
-      clearInterval(interval);
+    setTimeout(() => {
+      if (spinIntervalRef.current) clearInterval(spinIntervalRef.current);
       setDisplayNumber(encounter.roll);
-      setPhase('revealed');
+      setPhase('landed');
+
+      // Show encounter card after 0.5s pause
+      setTimeout(() => setPhase('reveal'), 500);
     }, 1500);
-
-    // Show encounter card after 2.5s
-    const cardTimer = setTimeout(() => {
-      setPhase('card');
-    }, 2500);
-
-    return () => {
-      clearInterval(interval);
-      clearTimeout(revealTimer);
-      clearTimeout(cardTimer);
-    };
-  }, [show, encounter]);
+  }
 
   if (!show || !encounter) return null;
 
@@ -52,23 +56,46 @@ export default function DiceRoll({ encounter, onClaim, show }) {
   }
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/80 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/85" style={{ animation: 'fadeIn 0.3s ease' }}>
       <div className="flex flex-col items-center gap-6 p-8">
-        {/* Dice */}
+
+        {/* Header text — waiting phase */}
+        {phase === 'waiting' && (
+          <div className="text-center mb-2" style={{ animation: 'fadeIn 0.3s ease' }}>
+            <h2 className="text-xl font-black uppercase tracking-wide text-[#22d3ee] mb-2">
+              ⚔️ Random Encounter!
+            </h2>
+            <p className="text-[#94a3b8] text-sm">Something stirs in the shadows...</p>
+          </div>
+        )}
+
+        {/* D10 Dice */}
         <div className="relative">
           <div
-            className={`dice-d10 ${phase === 'spinning' ? 'dice-spinning' : ''} ${isLegendary && phase !== 'spinning' ? 'dice-legendary' : ''}`}
+            onClick={handleRoll}
+            className="dice-d10"
             style={{
-              boxShadow: phase !== 'spinning' ? `0 0 ${isLegendary ? '50' : '30'}px ${rarity.glow}` : '0 0 20px rgba(34, 211, 238, 0.3)',
-              borderColor: phase !== 'spinning' ? rarity.border : '#22d3ee',
+              cursor: phase === 'waiting' ? 'pointer' : 'default',
+              borderColor: (phase === 'landed' || phase === 'reveal') ? rarity.border : '#22d3ee',
+              boxShadow: (phase === 'landed' || phase === 'reveal')
+                ? `0 0 ${isLegendary ? '50' : '40'}px ${rarity.glow}`
+                : '0 0 20px rgba(34, 211, 238, 0.3)',
+              animation: phase === 'waiting' ? 'dicePulse 1.5s ease-in-out infinite' :
+                         phase === 'spinning' ? 'diceRoll 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)' :
+                         phase === 'landed' ? 'diceBounce 0.3s ease' :
+                         isLegendary ? 'legendaryPulse 0.5s ease-in-out infinite alternate' : 'none',
             }}
           >
-            <span style={{ color: phase !== 'spinning' ? rarity.text : '#22d3ee' }}>
+            <span
+              className="text-[2.5rem] font-black"
+              style={{ color: (phase === 'landed' || phase === 'reveal') ? rarity.text : '#22d3ee' }}
+            >
               {displayNumber}
             </span>
           </div>
+
           {/* Legendary particles */}
-          {isLegendary && phase !== 'spinning' && (
+          {isLegendary && (phase === 'landed' || phase === 'reveal') && (
             <div className="absolute inset-0 pointer-events-none">
               {[...Array(12)].map((_, i) => (
                 <div
@@ -87,33 +114,56 @@ export default function DiceRoll({ encounter, onClaim, show }) {
           )}
         </div>
 
-        {/* Encounter Text */}
-        {phase === 'revealed' && (
-          <p className="text-xl font-black uppercase tracking-wide text-white animate-fade-in">
+        {/* Tap to roll label — waiting phase */}
+        {phase === 'waiting' && (
+          <p
+            className="text-[#22d3ee] text-sm font-black uppercase tracking-[3px]"
+            style={{ animation: 'dicePulse 1.5s ease-in-out infinite' }}
+          >
+            TAP TO ROLL
+          </p>
+        )}
+
+        {/* Encounter name — landed phase */}
+        {phase === 'landed' && (
+          <p className="text-xl font-black uppercase tracking-wide text-white" style={{ animation: 'fadeIn 0.3s ease' }}>
             {encounter.icon} {encounter.name}
           </p>
         )}
 
-        {/* Encounter Card */}
-        {phase === 'card' && (
+        {/* Encounter Card — reveal phase */}
+        {phase === 'reveal' && (
           <div
-            className="bg-[#1A1A2E] rounded-lg p-6 max-w-sm w-full text-center animate-slide-up"
-            style={{ borderWidth: '3px', borderStyle: 'solid', borderColor: rarity.border, boxShadow: `0 0 30px ${rarity.glow}` }}
+            className="bg-[#1e293b] rounded-xl p-6 max-w-[350px] w-[90vw] text-center"
+            style={{
+              borderWidth: '2px',
+              borderStyle: 'solid',
+              borderColor: rarity.border,
+              boxShadow: `0 0 30px ${rarity.glow}`,
+              animation: 'slideUp 0.4s ease',
+            }}
           >
-            <div className="text-4xl mb-3">{encounter.icon}</div>
+            <div className="text-5xl mb-3">{encounter.icon}</div>
             <h3 className="text-xl font-black uppercase tracking-wide mb-2" style={{ color: rarity.text }}>
               {encounter.name}
             </h3>
             <div className="w-16 h-0.5 mx-auto mb-3" style={{ backgroundColor: rarity.border }} />
-            <p className="text-[#E2E8F0] italic mb-4">&ldquo;{encounter.description}&rdquo;</p>
-            <p className="text-sm font-bold text-[#FFD93D] mb-4">Reward: {rewardText}</p>
+            <p className="text-[#94a3b8] italic mb-4 text-[0.95rem]">&ldquo;{encounter.description}&rdquo;</p>
+            <p className="text-sm font-bold text-[#22d3ee] mb-4">Reward: {rewardText}</p>
             <button
               onClick={onClaim}
-              className="px-8 py-3 bg-[#FF6B6B] hover:bg-[#EE5A6F] text-white border-3 border-[#0F3460] rounded-lg font-black uppercase tracking-wide shadow-[0_5px_0_#0F3460] hover:shadow-[0_7px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_2px_0_#0F3460] active:translate-y-1 transition-all"
+              className="px-8 py-3 rounded-lg font-black text-base cursor-pointer transition-all hover:scale-105"
+              style={{
+                background: 'linear-gradient(135deg, #22d3ee, #06b6d4)',
+                color: '#0f172a',
+                border: 'none',
+              }}
+              onMouseEnter={(e) => e.target.style.boxShadow = '0 0 20px rgba(34, 211, 238, 0.5)'}
+              onMouseLeave={(e) => e.target.style.boxShadow = 'none'}
             >
-              ✨ Claim Reward
+              ✨ CLAIM REWARD
             </button>
-            <p className="text-xs mt-3 uppercase tracking-wider" style={{ color: rarity.text }}>
+            <p className="text-xs mt-3 uppercase tracking-[2px]" style={{ color: rarity.text }}>
               — {encounter.rarity} Encounter —
             </p>
           </div>
@@ -129,16 +179,15 @@ export default function DiceRoll({ encounter, onClaim, show }) {
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 2.5rem;
-          font-weight: 900;
-          transition: box-shadow 0.3s ease, border-color 0.3s ease;
           border: 3px solid;
+          transition: box-shadow 0.3s ease, border-color 0.3s ease;
         }
-        .dice-spinning {
-          animation: diceRoll 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        .dice-d10:hover {
+          transform: scale(1.05);
         }
-        .dice-legendary {
-          animation: legendaryPulse 0.5s ease-in-out infinite alternate;
+        @keyframes dicePulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.7; transform: scale(1.05); }
         }
         @keyframes diceRoll {
           0% { transform: rotateX(0deg) rotateY(0deg) scale(0.5); opacity: 0; }
@@ -148,19 +197,18 @@ export default function DiceRoll({ encounter, onClaim, show }) {
           80% { transform: rotateX(1300deg) rotateY(650deg) scale(1); }
           100% { transform: rotateX(1440deg) rotateY(720deg) scale(1); }
         }
+        @keyframes diceBounce {
+          0% { transform: scale(1.3); }
+          50% { transform: scale(0.95); }
+          100% { transform: scale(1); }
+        }
         @keyframes legendaryPulse {
           from { box-shadow: 0 0 30px rgba(234, 179, 8, 0.5); }
           to { box-shadow: 0 0 60px rgba(234, 179, 8, 0.9); }
         }
         @keyframes particle {
-          0% { opacity: 1; transform: rotate(var(--rotation)) translateY(-30px) scale(1); }
-          100% { opacity: 0; transform: rotate(var(--rotation)) translateY(-80px) scale(0); }
-        }
-        .animate-fade-in {
-          animation: fadeIn 0.3s ease-out;
-        }
-        .animate-slide-up {
-          animation: slideUp 0.4s ease-out;
+          0% { opacity: 1; transform: translateY(-30px) scale(1); }
+          100% { opacity: 0; transform: translateY(-80px) scale(0); }
         }
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(10px); }

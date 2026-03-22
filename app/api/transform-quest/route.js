@@ -79,10 +79,8 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Invalid archetype' }, { status: 400 });
     }
 
-    const validDifficulties = ['easy', 'medium', 'hard'];
-    if (!difficulty || !validDifficulties.includes(difficulty)) {
-      return NextResponse.json({ error: 'Invalid difficulty' }, { status: 400 });
-    }
+    // difficulty is now optional — AI will assign it
+    const userDifficulty = difficulty; // may be undefined
 
     // SECURE: Sanitize input (remove potentially harmful characters)
     const sanitizedQuestText = questText
@@ -150,7 +148,6 @@ export async function POST(request) {
 
 Archetype: ${archetype.toUpperCase()}
 Style: ${archetypeStyles[archetype] || archetypeStyles.warrior}
-Difficulty: ${difficulty}
 Player Level: ${userLevel}
 ${recentQuestContext}
 
@@ -158,16 +155,23 @@ Original task: "${sanitizedQuestText}"
 
 Transform this boring task into an epic RPG quest that fits the ongoing story. Keep the quest description to 1-2 sentences. Make it exciting and match the archetype style.
 
-Then, provide story metadata.
+Then, assess the difficulty of the ORIGINAL task (not the RPG version) and provide story metadata.
+
+Difficulty guidelines:
+- EASY: Quick tasks under 15 minutes, low effort, routine (e.g., "drink water", "take vitamins", "make bed", "check email")
+- MEDIUM: Tasks requiring 15-60 minutes or moderate effort (e.g., "go for a run", "study for an hour", "cook dinner", "clean the house")
+- HARD: Tasks requiring 60+ minutes, high effort, or significant willpower (e.g., "complete a full workout", "write 2000 words", "deep clean entire apartment", "study for exam for 3 hours")
 
 IMPORTANT: You MUST format your response EXACTLY like this (no JSON, no extra formatting):
 
 QUEST: [Your epic 1-2 sentence quest description here]
+DIFFICULTY: [easy OR medium OR hard]
 STORY_THREAD: [brief story thread name OR "none"]
 NARRATIVE_IMPACT: [short impact phrase OR "none"]
 
 Example:
 QUEST: Infiltrate the goblin encampment under cover of darkness and retrieve the stolen supply manifest before dawn breaks.
+DIFFICULTY: medium
 STORY_THREAD: The Shadow War
 NARRATIVE_IMPACT: Weakens enemy supply lines
 
@@ -181,41 +185,48 @@ Now transform the task above:`;
 
     const response = message.content[0].text.trim();
 
-    // Parse the response to extract quest, story thread, and narrative impact
-    const questMatch = response.match(/QUEST:\s*(.+?)(?=\nSTORY_THREAD:|$)/s);
+    // Parse the response to extract quest, difficulty, story thread, and narrative impact
+    const questMatch = response.match(/QUEST:\s*(.+?)(?=\nDIFFICULTY:|\nSTORY_THREAD:|$)/s);
+    const difficultyMatch = response.match(/DIFFICULTY:\s*(.+?)(?=\nSTORY_THREAD:|$)/s);
     const threadMatch = response.match(/STORY_THREAD:\s*(.+?)(?=\nNARRATIVE_IMPACT:|$)/s);
     const impactMatch = response.match(/NARRATIVE_IMPACT:\s*(.+?)$/s);
 
-    let transformedText, storyThread, narrativeImpact;
+    let transformedText, storyThread, narrativeImpact, aiDifficulty;
 
     if (questMatch) {
       // Proper format found
       transformedText = questMatch[1].trim();
       storyThread = threadMatch ? threadMatch[1].trim() : null;
       narrativeImpact = impactMatch ? impactMatch[1].trim() : null;
+
+      // Parse AI difficulty (fallback to medium if invalid)
+      const rawDifficulty = difficultyMatch ? difficultyMatch[1].trim().toLowerCase() : 'medium';
+      aiDifficulty = ['easy', 'medium', 'hard'].includes(rawDifficulty) ? rawDifficulty : 'medium';
     } else {
       // Fallback: try to extract just the narrative part before any JSON
       const jsonMatch = response.match(/^(.+?)(?=\s*\{|\s*```json)/s);
       if (jsonMatch) {
-        // Found text before JSON - use that as the quest
         transformedText = jsonMatch[1].trim();
       } else {
-        // No JSON found, use first sentence or two
         const sentences = response.match(/[^.!?]+[.!?]+/g);
         transformedText = sentences ? sentences.slice(0, 2).join(' ').trim() : response;
       }
       storyThread = null;
       narrativeImpact = null;
+      aiDifficulty = 'medium'; // fallback
     }
 
     // Clean up story thread and narrative impact
     const cleanThread = storyThread && storyThread.toLowerCase() !== 'none' ? storyThread : null;
     const cleanImpact = narrativeImpact && narrativeImpact.toLowerCase() !== 'none' ? narrativeImpact : null;
 
+    // XP values by difficulty
+    const XP_VALUES = { easy: 10, medium: 25, hard: 50 };
+
     console.log('Quest transformed successfully', {
       userId: user.id,
       archetype,
-      difficulty,
+      difficulty: aiDifficulty,
       storyThread: cleanThread,
       narrativeImpact: cleanImpact,
       timestamp: new Date().toISOString(),
@@ -223,6 +234,8 @@ Now transform the task above:`;
 
     return NextResponse.json({
       transformedText,
+      difficulty: aiDifficulty,
+      xpValue: XP_VALUES[aiDifficulty] || 25,
       storyThread: cleanThread,
       narrativeImpact: cleanImpact ? { description: cleanImpact } : null
     });
