@@ -6,7 +6,6 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(request) {
   try {
-    // Authenticate user
     const { user, error: authError } = await authenticateRequest(request);
     if (authError || !user) {
       return NextResponse.json({ error: authError || 'Unauthorized' }, { status: 401 });
@@ -14,19 +13,14 @@ export async function GET(request) {
 
     const supabaseAdmin = getSupabaseAdminClient();
 
-    // Check if user is premium
+    // Check premium status
     const { data: profile } = await supabaseAdmin
       .from('profiles')
-      .select('is_premium')
+      .select('is_premium, subscription_status')
       .eq('id', user.id)
       .single();
 
-    if (!profile?.is_premium) {
-      return NextResponse.json(
-        { error: 'Premium feature - upgrade to access recurring quests' },
-        { status: 403 }
-      );
-    }
+    const isPremium = profile?.is_premium || profile?.subscription_status === 'active';
 
     // Fetch recurring quests
     const { data: quests, error: fetchError } = await supabaseAdmin
@@ -40,7 +34,15 @@ export async function GET(request) {
       return NextResponse.json({ error: 'Failed to fetch recurring quests' }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true, quests: quests || [] });
+    const activeCount = (quests || []).filter(q => q.is_active).length;
+
+    return NextResponse.json({
+      success: true,
+      recurring_quests: quests || [],
+      count: activeCount,
+      limit: isPremium ? null : 3,
+      is_premium: isPremium,
+    });
   } catch (error) {
     console.error('Recurring quests list error:', error);
     return NextResponse.json({ error: 'Failed to fetch recurring quests' }, { status: 500 });
