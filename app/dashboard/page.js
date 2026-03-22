@@ -24,6 +24,7 @@ import EquipmentShop from '@/app/components/EquipmentShop';
 import StoryProgress from '@/app/components/StoryProgress';
 import StoryEventNotification from '@/app/components/StoryEventNotification';
 import DailyBonus from '@/app/components/DailyBonus';
+import SimpleDailyBonus from '@/app/components/SimpleDailyBonus';
 import DailyLoginReward from '@/app/components/DailyLoginReward';
 import WelcomeQuestChain from '@/app/components/WelcomeQuestChain';
 import GoldPurchasePrompt from '@/app/components/GoldPurchasePrompt';
@@ -1001,8 +1002,13 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Daily Bonus — Level 3+ (simple) / Level 10+ (full) */}
-        {sections.dailyBonusSimple && profile && (sections.tabBar ? activeTab === 'quests' : true) && (
+        {/* Daily Bonus — Simple (Level 3-9) */}
+        {sections.dailyBonusSimple && !sections.fullDailyBonus && profile && (sections.tabBar ? activeTab === 'quests' : true) && (
+          <SimpleDailyBonus profile={profile} onClaim={loadUserData} />
+        )}
+
+        {/* Daily Bonus — Full 7-day grid (Level 10+) */}
+        {sections.fullDailyBonus && profile && (sections.tabBar ? activeTab === 'quests' : true) && (
           <div className="mb-6">
             <DailyBonus profile={profile} onClaim={loadUserData} />
           </div>

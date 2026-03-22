@@ -104,14 +104,14 @@ export default function AchievementBadges({ profile, quests }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile?.id, profile?.level, profile?.current_streak, profile?.gold, quests?.length]);
 
-  const allBadges = badges.map(badge => {
-    const isUnlocked = profile && quests ? badge.condition(profile, quests) : false;
-    const unlockedData = unlockedBadges.find(b => b.id === badge.id);
-    return { ...badge, isUnlocked, unlockedAt: unlockedData?.unlockedAt };
-  });
+  const earnedBadges = badges
+    .filter(badge => profile && quests ? badge.condition(profile, quests) : false)
+    .map(badge => {
+      const unlockedData = unlockedBadges.find(b => b.id === badge.id);
+      return { ...badge, unlockedAt: unlockedData?.unlockedAt };
+    });
 
-  const unlockedCount = allBadges.filter(b => b.isUnlocked).length;
-  const totalCount = allBadges.length;
+  if (earnedBadges.length === 0) return null;
 
   return (
     <>
@@ -131,63 +131,31 @@ export default function AchievementBadges({ profile, quests }) {
         </div>
       )}
 
-      {/* Badge Display */}
+      {/* Badge Display — earned only */}
       <div className="card-retro border-[#F59E0B] p-6 mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <span className="text-3xl">🏆</span>
-            <div>
-              <h3 className="text-xl font-black uppercase text-[#F59E0B]">Achievements</h3>
-              <p className="text-sm text-gray-400">
-                {unlockedCount} / {totalCount} badges earned
-              </p>
-            </div>
-          </div>
-
-          {/* Progress bar */}
-          <div className="w-32">
-            <div className="progress-bar h-3">
-              <div
-                className="progress-fill"
-                style={{ width: `${(unlockedCount / totalCount) * 100}%` }}
-              ></div>
-            </div>
-          </div>
+        <div className="flex items-center gap-3 mb-4">
+          <span className="text-3xl">🏆</span>
+          <h3 className="text-xl font-black uppercase text-[#F59E0B]">Achievements</h3>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          {allBadges.map((badge) => (
+          {earnedBadges.map((badge) => (
             <div
               key={badge.id}
-              className={`
-                bg-[#0F172A] rounded-lg p-4 text-center border-2 transition-all
-                ${badge.isUnlocked
-                  ? 'border-[#F59E0B] transform hover:scale-105 cursor-pointer'
-                  : 'border-gray-700 opacity-40 grayscale'
-                }
-              `}
+              className="bg-[#0F172A] rounded-lg p-4 text-center border-2 border-[#F59E0B] transform hover:scale-105 cursor-pointer transition-all"
               title={badge.description}
             >
-              <div className={`text-4xl mb-2 ${badge.isUnlocked ? '' : 'blur-sm'}`}>
-                {badge.isUnlocked ? badge.icon : '🔒'}
-              </div>
-              <div className={`text-sm font-black ${badge.isUnlocked ? 'text-white' : 'text-gray-600'}`}>
-                {badge.name}
-              </div>
-              {!badge.isUnlocked && (
-                <div className="text-xs text-gray-500 mt-1">{badge.description}</div>
-              )}
+              <div className="text-4xl mb-2">{badge.icon}</div>
+              <div className="text-sm font-black text-white">{badge.name}</div>
             </div>
           ))}
         </div>
 
-        {unlockedCount < totalCount && (
-          <div className="mt-4 pt-4 border-t border-gray-700 text-center">
-            <p className="text-sm text-gray-400">
-              Unlock <span className="text-[#F59E0B] font-bold">{totalCount - unlockedCount} more badges</span> by completing quests and leveling up!
-            </p>
-          </div>
-        )}
+        <div className="mt-4 pt-4 border-t border-gray-700 text-center">
+          <p className="text-sm text-gray-400">
+            {earnedBadges.length} badge{earnedBadges.length !== 1 ? 's' : ''} earned — keep questing to unlock more!
+          </p>
+        </div>
       </div>
     </>
   );

@@ -3,50 +3,43 @@
 import { useState, useEffect } from 'react';
 
 export default function UnlockToast({ unlocks }) {
-  const [visibleIndex, setVisibleIndex] = useState(0);
+  const [activeToast, setActiveToast] = useState(null);
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     if (!unlocks || unlocks.length === 0) return;
 
-    // Show first unlock immediately
-    setIsVisible(true);
+    let index = 0;
 
-    // Cycle through unlocks
-    const timer = setInterval(() => {
-      setIsVisible(false);
+    function showNext() {
+      if (index >= unlocks.length) return;
 
+      setActiveToast(unlocks[index]);
+      setIsVisible(true);
+
+      // Auto-hide after 4 seconds
       setTimeout(() => {
-        setVisibleIndex(prev => {
-          const next = prev + 1;
-          if (next >= unlocks.length) {
-            clearInterval(timer);
-            return prev;
-          }
-          setIsVisible(true);
-          return next;
-        });
-      }, 400);
-    }, 4000);
+        setIsVisible(false);
 
-    // Hide last one after 4 seconds
-    const hideTimer = setTimeout(() => {
-      setIsVisible(false);
-    }, unlocks.length * 4000);
+        // After fade-out animation (400ms), show next with 2s gap
+        setTimeout(() => {
+          index++;
+          showNext();
+        }, 2000);
+      }, 4000);
+    }
 
-    return () => {
-      clearInterval(timer);
-      clearTimeout(hideTimer);
-    };
+    // Start showing first toast after a brief delay
+    const startTimer = setTimeout(showNext, 500);
+
+    return () => clearTimeout(startTimer);
   }, [unlocks]);
 
-  if (!unlocks || unlocks.length === 0 || visibleIndex >= unlocks.length) return null;
-
-  const unlock = unlocks[visibleIndex];
+  if (!activeToast) return null;
 
   return (
     <div
-      className={`fixed top-4 right-4 z-[80] max-w-sm transition-all duration-400 ${
+      className={`fixed top-4 right-4 z-[80] max-w-sm transition-all duration-500 ${
         isVisible
           ? 'translate-x-0 opacity-100'
           : 'translate-x-full opacity-0'
@@ -54,12 +47,12 @@ export default function UnlockToast({ unlocks }) {
     >
       <div className="bg-[#1A1A2E] border-2 border-[#00D4FF] rounded-lg p-4 shadow-[0_0_20px_rgba(0,212,255,0.3)]">
         <div className="flex items-start gap-3">
-          <span className="text-2xl">{unlock.icon}</span>
+          <span className="text-2xl">{activeToast.icon}</span>
           <div>
             <p className="text-[#00D4FF] font-black uppercase text-sm tracking-wide">
-              🔓 New Unlocked: {unlock.title}!
+              🔓 New Unlocked: {activeToast.title}!
             </p>
-            <p className="text-[#E2E8F0] text-xs mt-1">{unlock.description}</p>
+            <p className="text-[#E2E8F0] text-xs mt-1">{activeToast.description}</p>
           </div>
         </div>
       </div>
