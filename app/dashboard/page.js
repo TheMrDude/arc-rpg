@@ -8,7 +8,6 @@ import { checkBossEncounter, getCreatureCompanion } from '@/lib/encounters';
 import { getDashboardSections, getNewUnlocks } from '@/lib/dashboardVisibility';
 import OnboardingTutorial from '@/app/components/OnboardingTutorial';
 import NotificationSetup from '@/app/components/NotificationSetup';
-import ReferralCard from '@/app/components/ReferralCard';
 import QuestCompletionCelebration from '@/app/components/QuestCompletionCelebration';
 import ReflectionPrompt from '@/app/components/ReflectionPrompt';
 import MilestoneCelebration from '@/app/components/animations/MilestoneCelebration';
@@ -1125,12 +1124,6 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Referral Card — Level 10+ */}
-        {sections.referFriends && user && profile && (
-          <div className="mb-6">
-            <ReferralCard userId={user.id} profile={profile} />
-          </div>
-        )}
       </div>
 
       {/* Onboarding Tutorial */}
