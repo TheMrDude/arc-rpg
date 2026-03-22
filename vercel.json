@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/recurring-quests/generate",
+      "schedule": "0 0 * * *"
+    }
+  ]
+}

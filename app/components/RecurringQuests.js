@@ -1,393 +1,262 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/lib/supabase-client';
 
 const RECURRENCE_OPTIONS = [
-  { value: 'daily', label: 'Every Day', icon: '📅' },
+  { value: 'daily', label: 'Daily', icon: '📅' },
   { value: 'weekly', label: 'Weekly', icon: '📆' },
   { value: 'custom', label: 'Custom', icon: '⚙️' },
 ];
 
-const DAYS_OF_WEEK = [
-  { value: 0, label: 'Sun' },
-  { value: 1, label: 'Mon' },
-  { value: 2, label: 'Tue' },
-  { value: 3, label: 'Wed' },
-  { value: 4, label: 'Thu' },
-  { value: 5, label: 'Fri' },
-  { value: 6, label: 'Sat' },
-];
-
-function CreateRecurringQuestModal({ show, onClose, onSubmit, archetype }) {
+function CreateRecurringQuestModal({ show, onClose, onSubmit }) {
   const [questText, setQuestText] = useState('');
-  const [difficulty, setDifficulty] = useState('medium');
   const [recurrenceType, setRecurrenceType] = useState('daily');
-  const [recurrenceInterval, setRecurrenceInterval] = useState(1);
-  const [dayOfWeek, setDayOfWeek] = useState(1); // Monday default
-  const [isTransforming, setIsTransforming] = useState(false);
-  const [transformedText, setTransformedText] = useState('');
+  const [recurrenceInterval, setRecurrenceInterval] = useState(3);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
     if (show) {
-      // Reset form
       setQuestText('');
-      setDifficulty('medium');
       setRecurrenceType('daily');
-      setRecurrenceInterval(1);
-      setDayOfWeek(1);
-      setTransformedText('');
+      setRecurrenceInterval(3);
       setError('');
+      document.body.style.overflow = 'hidden';
+      return () => { document.body.style.overflow = ''; };
     }
   }, [show]);
 
-  const handleTransform = async () => {
+  const handleSubmit = async () => {
     if (!questText.trim()) {
-      setError('Please enter quest text first');
+      setError('Please enter your habit');
       return;
     }
 
-    setIsTransforming(true);
+    setIsSubmitting(true);
     setError('');
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error('Not authenticated');
-
-      const response = await fetch('/api/transform-quest', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({
-          questText,
-          archetype,
-          difficulty,
-        }),
+      await onSubmit({
+        original_text: questText.trim(),
+        recurrence_type: recurrenceType,
+        recurrence_interval: recurrenceType === 'custom' ? recurrenceInterval : 1,
       });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to transform quest');
-      }
-
-      setTransformedText(data.transformedText);
+      onClose();
     } catch (err) {
-      setError(err.message || 'Failed to transform quest');
+      setError(err.message || 'Failed to create recurring quest');
     } finally {
-      setIsTransforming(false);
+      setIsSubmitting(false);
     }
-  };
-
-  const handleSubmit = async () => {
-    if (!questText.trim()) {
-      setError('Please enter quest text');
-      return;
-    }
-
-    const xpValues = { easy: 10, medium: 25, hard: 50 };
-
-    await onSubmit({
-      original_text: questText.trim(),
-      transformed_text: transformedText || questText.trim(),
-      difficulty,
-      xp_value: xpValues[difficulty],
-      recurrence_type: recurrenceType,
-      recurrence_interval: recurrenceType === 'custom' ? recurrenceInterval : 1,
-      recurrence_day_of_week: recurrenceType === 'weekly' ? dayOfWeek : null,
-      is_active: true,
-    });
   };
 
   if (!show) return null;
+  if (typeof document === 'undefined') return null;
 
-  return (
-    <AnimatePresence>
-      <motion.div
-        className="fixed inset-0 z-50 flex items-center justify-center p-4"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-      >
-        <div className="absolute inset-0 bg-black bg-opacity-70 backdrop-blur-sm" onClick={onClose} />
+  return createPortal(
+    <div className="fixed inset-0 z-[55] flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
 
-        <motion.div
-          className="relative bg-[#1A1A2E] rounded-2xl shadow-[0_0_40px_rgba(0,212,255,0.3)] max-w-2xl w-full overflow-hidden border-3 border-[#00D4FF]"
-          initial={{ scale: 0.9, opacity: 0, y: 20 }}
-          animate={{ scale: 1, opacity: 1, y: 0 }}
-          exit={{ scale: 0.9, opacity: 0, y: 20 }}
-        >
+      <div className="relative max-w-lg w-full max-h-[90vh]">
+        <div className="bg-[#1A1A2E] rounded-2xl shadow-[0_0_40px_rgba(0,212,255,0.3)] w-full max-h-[90vh] overflow-y-auto border-2 border-[#00D4FF]">
           {/* Header */}
-          <div className="bg-gradient-to-r from-[#0F3460] to-[#1A1A2E] p-6 border-b-3 border-[#00D4FF]">
-            <div className="flex items-center gap-3 mb-2">
-              <span className="text-5xl">🔄</span>
-              <h2 className="text-3xl font-black text-[#00D4FF]" style={{ fontFamily: 'VT323, monospace' }}>
-                CREATE RECURRING QUEST
-              </h2>
+          <div className="bg-gradient-to-r from-[#0F3460] to-[#1A1A2E] p-5 border-b border-[#00D4FF]/30">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span className="text-3xl">🔄</span>
+                <h2 className="text-xl font-black text-[#00D4FF] uppercase tracking-wide">
+                  New Recurring Quest
+                </h2>
+              </div>
+              <button onClick={onClose} className="text-gray-400 hover:text-white text-2xl">✕</button>
             </div>
-            <p className="text-gray-300 text-sm">Build habits that repeat automatically</p>
           </div>
 
           {/* Content */}
-          <div className="p-6 max-h-[70vh] overflow-y-auto">
+          <div className="p-5 space-y-5">
             {/* Quest Text */}
-            <div className="mb-4">
-              <label className="block text-white font-bold mb-2">Quest Text</label>
+            <div>
+              <label className="block text-white font-bold mb-2 text-sm">What habit do you want to build?</label>
               <input
                 type="text"
                 value={questText}
-                onChange={(e) => {
-                  setQuestText(e.target.value);
-                  setError('');
-                }}
-                placeholder="Exercise for 30 minutes"
+                onChange={(e) => { setQuestText(e.target.value); setError(''); }}
+                placeholder='e.g. "Read for 20 minutes" or "Go for a run"'
                 maxLength={200}
-                className="w-full px-4 py-3 bg-[#0F3460] text-white border-2 border-[#00D4FF] border-opacity-30 rounded-lg focus:border-opacity-100 focus:outline-none"
+                className="w-full px-4 py-3 bg-[#0F3460] text-white border-2 border-[#00D4FF]/30 rounded-lg focus:border-[#00D4FF] focus:outline-none placeholder-gray-500"
+                autoFocus
               />
-              <p className="text-xs text-gray-400 mt-1">{questText.length}/200 characters</p>
-            </div>
-
-            {/* Difficulty */}
-            <div className="mb-4">
-              <label className="block text-white font-bold mb-2">Difficulty</label>
-              <div className="grid grid-cols-3 gap-3">
-                {['easy', 'medium', 'hard'].map((diff) => (
-                  <button
-                    key={diff}
-                    onClick={() => setDifficulty(diff)}
-                    className={
-                      'py-3 px-4 rounded-lg font-black uppercase border-3 transition-all ' +
-                      (difficulty === diff
-                        ? 'bg-[#00D4FF] border-[#0F3460] text-[#0F3460] shadow-[0_4px_0_#0F3460]'
-                        : 'bg-[#0F3460] border-[#1A1A2E] text-gray-300 hover:border-[#00D4FF]')
-                    }
-                  >
-                    {diff}
-                  </button>
-                ))}
-              </div>
             </div>
 
             {/* Recurrence Type */}
-            <div className="mb-4">
-              <label className="block text-white font-bold mb-2">Repeats</label>
-              <div className="grid grid-cols-3 gap-3 mb-3">
+            <div>
+              <label className="block text-white font-bold mb-2 text-sm">How often?</label>
+              <div className="grid grid-cols-3 gap-3">
                 {RECURRENCE_OPTIONS.map((option) => (
                   <button
                     key={option.value}
                     onClick={() => setRecurrenceType(option.value)}
                     className={
-                      'py-3 px-4 rounded-lg font-bold border-3 transition-all ' +
+                      'py-3 px-4 rounded-lg font-bold text-sm border-2 transition-all text-center ' +
                       (recurrenceType === option.value
-                        ? 'bg-[#FFD93D] border-[#0F3460] text-[#0F3460] shadow-[0_4px_0_#0F3460]'
-                        : 'bg-[#0F3460] border-[#1A1A2E] text-gray-300 hover:border-[#FFD93D]')
+                        ? 'bg-[#22d3ee]/20 border-[#22d3ee] text-[#22d3ee]'
+                        : 'bg-[#0F3460] border-[#1A1A2E] text-gray-400 hover:border-[#22d3ee]/50')
                     }
                   >
-                    <div className="text-2xl mb-1">{option.icon}</div>
+                    <div className="text-xl mb-1">{option.icon}</div>
                     {option.label}
                   </button>
                 ))}
               </div>
 
-              {/* Weekly: Day Selector */}
-              {recurrenceType === 'weekly' && (
-                <div className="bg-[#0F3460] p-4 rounded-lg border-2 border-[#00D4FF] border-opacity-30">
-                  <label className="block text-white font-bold mb-2 text-sm">Select Day</label>
-                  <div className="grid grid-cols-7 gap-2">
-                    {DAYS_OF_WEEK.map((day) => (
-                      <button
-                        key={day.value}
-                        onClick={() => setDayOfWeek(day.value)}
-                        className={
-                          'py-2 px-3 rounded font-bold text-sm transition-all ' +
-                          (dayOfWeek === day.value
-                            ? 'bg-[#00D4FF] text-[#0F3460]'
-                            : 'bg-[#1A1A2E] text-gray-400 hover:bg-[#00D4FF] hover:text-[#0F3460]')
-                        }
-                      >
-                        {day.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
               {/* Custom: Interval Input */}
               {recurrenceType === 'custom' && (
-                <div className="bg-[#0F3460] p-4 rounded-lg border-2 border-[#00D4FF] border-opacity-30">
-                  <label className="block text-white font-bold mb-2 text-sm">Repeat Every</label>
+                <div className="mt-3 bg-[#0F3460] p-4 rounded-lg border border-[#00D4FF]/20">
                   <div className="flex items-center gap-3">
+                    <span className="text-white font-bold text-sm">Every</span>
                     <input
                       type="number"
-                      min="1"
+                      min="2"
                       max="30"
                       value={recurrenceInterval}
-                      onChange={(e) => setRecurrenceInterval(parseInt(e.target.value) || 1)}
-                      className="w-20 px-3 py-2 bg-[#1A1A2E] text-white border-2 border-[#00D4FF] rounded font-bold text-center focus:outline-none"
+                      onChange={(e) => setRecurrenceInterval(Math.max(2, Math.min(30, parseInt(e.target.value) || 2)))}
+                      className="w-16 px-3 py-2 bg-[#1A1A2E] text-white border-2 border-[#00D4FF]/30 rounded font-bold text-center focus:outline-none focus:border-[#00D4FF]"
                     />
-                    <span className="text-white font-bold">day(s)</span>
+                    <span className="text-white font-bold text-sm">days</span>
                   </div>
                 </div>
               )}
             </div>
 
-            {/* Transform Button */}
-            <button
-              onClick={handleTransform}
-              disabled={isTransforming || !questText.trim()}
-              className={
-                'w-full py-3 px-6 rounded-lg font-black uppercase border-3 transition-all mb-4 ' +
-                (isTransforming || !questText.trim()
-                  ? 'bg-gray-600 border-gray-700 text-gray-400 cursor-not-allowed'
-                  : 'bg-[#FF6B6B] border-[#0F3460] text-white hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1 shadow-[0_3px_0_#0F3460]')
-              }
-            >
-              {isTransforming ? '⏳ Transforming...' : '✨ Transform to Epic'}
-            </button>
-
-            {/* Transformed Preview */}
-            {transformedText && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                className="mb-4 p-4 bg-gradient-to-br from-[#0F3460] to-[#1A1A2E] rounded-lg border-2 border-[#FFD93D]"
-              >
-                <p className="text-xs text-[#FFD93D] font-bold mb-2">EPIC VERSION:</p>
-                <p className="text-white italic">{transformedText}</p>
-              </motion.div>
-            )}
+            {/* Info text */}
+            <p className="text-gray-500 text-xs">
+              💡 The AI will transform your habit into an epic quest and auto-assign difficulty.
+              A new quest instance generates on your chosen schedule.
+            </p>
 
             {error && (
-              <p className="text-[#FF6B6B] font-bold text-sm mb-4">⚠️ {error}</p>
+              <p className="text-[#f43f5e] font-bold text-sm">⚠️ {error}</p>
             )}
-          </div>
 
-          {/* Footer */}
-          <div className="p-6 bg-[#0F3460] border-t-3 border-[#1A1A2E] flex gap-3">
-            <button
-              onClick={onClose}
-              className="flex-1 py-3 px-6 bg-transparent border-2 border-gray-500 hover:border-gray-400 text-gray-400 hover:text-gray-300 font-bold rounded-lg transition-colors"
-            >
-              Cancel
-            </button>
+            {/* Submit */}
             <button
               onClick={handleSubmit}
-              disabled={!questText.trim()}
+              disabled={isSubmitting || !questText.trim()}
               className={
-                'flex-1 py-3 px-6 rounded-lg font-black uppercase border-3 transition-all ' +
-                (!questText.trim()
-                  ? 'bg-gray-600 border-gray-700 text-gray-400 cursor-not-allowed'
-                  : 'bg-[#48BB78] border-[#0F3460] text-white hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1 shadow-[0_3px_0_#0F3460]')
+                'w-full py-3 px-6 rounded-lg font-black uppercase text-sm tracking-wide transition-all ' +
+                (isSubmitting || !questText.trim()
+                  ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                  : 'bg-[#22d3ee] hover:bg-[#06b6d4] text-[#0f172a] hover:shadow-[0_0_20px_rgba(34,211,238,0.3)]')
               }
             >
-              Create Recurring Quest
+              {isSubmitting ? '⏳ Creating...' : '⚡ Create Recurring Quest'}
             </button>
           </div>
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
+        </div>
+      </div>
+    </div>,
+    document.body
   );
 }
 
-function RecurringQuestCard({ quest, onToggle, onEdit, onDelete }) {
-  const getRecurrenceText = () => {
-    if (quest.recurrence_type === 'daily') {
-      return 'Every day';
-    } else if (quest.recurrence_type === 'weekly') {
-      const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-      return `Every ${days[quest.recurrence_day_of_week]}`;
-    } else {
-      return `Every ${quest.recurrence_interval} day${quest.recurrence_interval > 1 ? 's' : ''}`;
-    }
+function RecurringQuestCard({ quest, onToggle, onDelete }) {
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
+  const getRecurrenceLabel = () => {
+    if (quest.recurrence_type === 'daily') return 'DAILY';
+    if (quest.recurrence_type === 'weekly') return 'WEEKLY';
+    return `EVERY ${quest.recurrence_interval} DAYS`;
   };
 
-  const getNextOccurrence = () => {
-    const now = new Date();
-    let next = new Date();
-
-    if (quest.last_generated_at) {
-      next = new Date(quest.last_generated_at);
-    }
-
-    if (quest.recurrence_type === 'daily') {
-      next.setDate(next.getDate() + 1);
-    } else if (quest.recurrence_type === 'weekly') {
-      next.setDate(next.getDate() + 7);
-    } else {
-      next.setDate(next.getDate() + quest.recurrence_interval);
-    }
-
-    return next > now ? next.toLocaleDateString() : 'Today';
+  const difficultyColors = {
+    easy: 'text-green-400',
+    medium: 'text-[#22d3ee]',
+    hard: 'text-[#f43f5e]',
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className={
-        'bg-[#0F3460] p-5 rounded-lg border-2 transition-all ' +
-        (quest.is_active
-          ? 'border-[#00D4FF] border-opacity-50 hover:border-opacity-100'
-          : 'border-gray-600 opacity-60')
-      }
-    >
-      <div className="flex justify-between items-start mb-3">
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-2xl">
-              {quest.recurrence_type === 'daily' ? '📅' : quest.recurrence_type === 'weekly' ? '📆' : '⚙️'}
+    <div className={
+      'bg-slate-800/50 rounded-lg p-4 border transition-all ' +
+      (quest.is_active
+        ? 'border-cyan-500/20 hover:border-cyan-500/40'
+        : 'border-gray-700/50 opacity-60')
+    }>
+      <div className="flex justify-between items-start gap-3">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap mb-1">
+            <h3 className="text-white font-bold text-sm truncate">{quest.original_text}</h3>
+            <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-cyan-500/10 text-[#22d3ee] border border-cyan-500/20 whitespace-nowrap">
+              {getRecurrenceLabel()}
             </span>
-            <h3 className="text-lg font-black text-[#00D4FF]">{quest.transformed_text}</h3>
+            {!quest.is_active && (
+              <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                PAUSED
+              </span>
+            )}
           </div>
-          <p className="text-sm text-gray-300 mb-2">{quest.original_text}</p>
-          <div className="flex items-center gap-4 text-xs">
-            <span className="text-[#FFD93D] font-bold uppercase">{quest.difficulty} | {quest.xp_value} XP</span>
-            <span className="text-gray-400">{getRecurrenceText()}</span>
-            <span className="text-[#48BB78]">Next: {getNextOccurrence()}</span>
+          <p className="text-gray-400 text-xs italic truncate mb-2">{quest.transformed_text}</p>
+          <div className="flex items-center gap-3 text-xs">
+            <span className={`font-bold uppercase ${difficultyColors[quest.difficulty] || 'text-gray-400'}`}>
+              {quest.difficulty} · {quest.xp_value} XP
+            </span>
           </div>
         </div>
 
-        {/* Active/Paused Toggle */}
-        <button
-          onClick={() => onToggle(quest.id, !quest.is_active)}
-          className={
-            'ml-4 px-4 py-2 rounded-lg font-bold text-sm border-2 transition-all ' +
-            (quest.is_active
-              ? 'bg-[#48BB78] border-[#0F3460] text-white'
-              : 'bg-gray-600 border-gray-700 text-gray-300')
-          }
-        >
-          {quest.is_active ? '✓ Active' : '⏸ Paused'}
-        </button>
-      </div>
+        {/* Actions */}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <button
+            onClick={() => onToggle(quest.id, !quest.is_active)}
+            className={
+              'px-3 py-1.5 rounded text-xs font-bold border transition-all ' +
+              (quest.is_active
+                ? 'bg-transparent border-gray-600 text-gray-400 hover:border-amber-500 hover:text-amber-400'
+                : 'bg-transparent border-green-600/50 text-green-400 hover:border-green-500')
+            }
+          >
+            {quest.is_active ? '⏸' : '▶'}
+          </button>
 
-      {/* Action Buttons */}
-      <div className="flex gap-2 mt-3 pt-3 border-t border-gray-700">
-        <button
-          onClick={() => onDelete(quest.id)}
-          className="px-3 py-1 text-xs bg-[#FF6B6B] hover:bg-[#EE5A6F] text-white rounded font-bold transition-colors"
-        >
-          🗑️ Delete
-        </button>
+          {confirmDelete ? (
+            <div className="flex gap-1">
+              <button
+                onClick={() => { onDelete(quest.id); setConfirmDelete(false); }}
+                className="px-2 py-1.5 rounded text-xs font-bold bg-red-600 text-white"
+              >
+                Yes
+              </button>
+              <button
+                onClick={() => setConfirmDelete(false)}
+                className="px-2 py-1.5 rounded text-xs font-bold bg-gray-700 text-gray-300"
+              >
+                No
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setConfirmDelete(true)}
+              className="px-3 py-1.5 rounded text-xs font-bold border border-gray-700 text-gray-500 hover:border-red-500 hover:text-red-400 transition-all"
+            >
+              🗑
+            </button>
+          )}
+        </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
-export default function RecurringQuests({ isPremium, archetype }) {
+export default function RecurringQuests({ isPremium, archetype, onQuestCreated }) {
   const [quests, setQuests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [questLimit, setQuestLimit] = useState(3);
+  const [activeCount, setActiveCount] = useState(0);
 
   useEffect(() => {
-    if (isPremium) {
-      loadRecurringQuests();
-    }
-  }, [isPremium]);
+    loadRecurringQuests();
+  }, []);
 
   const loadRecurringQuests = async () => {
     try {
@@ -396,14 +265,14 @@ export default function RecurringQuests({ isPremium, archetype }) {
       if (!session) return;
 
       const response = await fetch('/api/recurring-quests/list', {
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
+        headers: { Authorization: `Bearer ${session.access_token}` },
       });
 
       const data = await response.json();
-      if (response.ok) {
-        setQuests(data.quests || []);
+      if (response.ok && data.success) {
+        setQuests(data.recurring_quests || []);
+        setActiveCount(data.count || 0);
+        setQuestLimit(data.limit);
       }
     } catch (error) {
       console.error('Error loading recurring quests:', error);
@@ -413,26 +282,26 @@ export default function RecurringQuests({ isPremium, archetype }) {
   };
 
   const handleCreate = async (questData) => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) throw new Error('Not authenticated');
 
-      const response = await fetch('/api/recurring-quests/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify(questData),
-      });
+    const response = await fetch('/api/recurring-quests/create', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify(questData),
+    });
 
-      if (response.ok) {
-        setShowCreateModal(false);
-        loadRecurringQuests();
-      }
-    } catch (error) {
-      console.error('Error creating recurring quest:', error);
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error || 'Failed to create');
     }
+
+    await loadRecurringQuests();
+    // Notify parent to refresh quest list (first instance was generated)
+    if (onQuestCreated) onQuestCreated();
   };
 
   const handleToggle = async (questId, isActive) => {
@@ -449,17 +318,13 @@ export default function RecurringQuests({ isPremium, archetype }) {
         body: JSON.stringify({ quest_id: questId, is_active: isActive }),
       });
 
-      if (response.ok) {
-        loadRecurringQuests();
-      }
+      if (response.ok) await loadRecurringQuests();
     } catch (error) {
       console.error('Error toggling recurring quest:', error);
     }
   };
 
   const handleDelete = async (questId) => {
-    if (!confirm('Are you sure you want to delete this recurring quest?')) return;
-
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
@@ -473,56 +338,66 @@ export default function RecurringQuests({ isPremium, archetype }) {
         body: JSON.stringify({ quest_id: questId }),
       });
 
-      if (response.ok) {
-        loadRecurringQuests();
-      }
+      if (response.ok) await loadRecurringQuests();
     } catch (error) {
       console.error('Error deleting recurring quest:', error);
     }
   };
 
-  if (!isPremium) {
-    return null;
-  }
+  const canCreate = !questLimit || activeCount < questLimit;
 
   if (loading) {
     return (
-      <div className="bg-[#1A1A2E] border-3 border-[#00D4FF] rounded-lg p-8 text-center">
-        <p className="text-white font-bold">Loading recurring quests...</p>
+      <div className="text-center py-8">
+        <div className="animate-spin text-3xl mb-2">⚙️</div>
+        <p className="text-gray-400 text-sm">Loading recurring quests...</p>
       </div>
     );
   }
 
   return (
     <>
-      <div className="bg-[#1A1A2E] border-3 border-[#00D4FF] rounded-lg p-6 shadow-[0_0_20px_rgba(0,212,255,0.3)]">
-        <div className="flex justify-between items-center mb-6">
+      <div className="space-y-4">
+        {/* Header */}
+        <div className="flex justify-between items-center">
           <div>
-            <h2 className="text-2xl font-black text-[#00D4FF] uppercase tracking-wide">
+            <h2 className="text-lg font-black text-[#22d3ee] uppercase tracking-wide">
               🔄 Recurring Quests
             </h2>
-            <p className="text-gray-300 text-sm mt-1">Habits that repeat automatically</p>
+            <p className="text-gray-500 text-xs mt-0.5">Habits that auto-generate on schedule</p>
           </div>
           <button
             onClick={() => setShowCreateModal(true)}
-            className="px-6 py-3 bg-[#00D4FF] hover:bg-[#00BBE6] text-[#0F3460] border-3 border-[#0F3460] rounded-lg font-black uppercase text-sm tracking-wide shadow-[0_5px_0_#0F3460] hover:shadow-[0_7px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_2px_0_#0F3460] active:translate-y-1 transition-all"
+            disabled={!canCreate}
+            className={
+              'px-4 py-2 rounded-lg font-black uppercase text-xs tracking-wide transition-all ' +
+              (canCreate
+                ? 'bg-[#22d3ee] hover:bg-[#06b6d4] text-[#0f172a]'
+                : 'bg-gray-700 text-gray-500 cursor-not-allowed')
+            }
           >
-            + New Recurring Quest
+            + New
           </button>
         </div>
 
+        {/* Quest list or empty state */}
         {quests.length === 0 ? (
-          <div className="text-center py-16">
-            <div className="text-7xl mb-4">🔄</div>
-            <h3 className="text-2xl font-black text-[#FFD93D] mb-2">
-              No recurring quests yet
-            </h3>
-            <p className="text-gray-300 mb-6">
-              Build habits that repeat automatically. Create your first recurring quest!
+          <div className="text-center py-12 bg-slate-800/30 rounded-lg border border-cyan-500/10">
+            <div className="text-5xl mb-3">🔄</div>
+            <h3 className="text-lg font-black text-[#22d3ee] mb-2">No Recurring Quests Yet</h3>
+            <p className="text-gray-400 text-sm mb-4 max-w-xs mx-auto">
+              Turn your daily habits into auto-generating quests.
+              Set it once, and your quest log fills itself.
             </p>
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="px-6 py-2.5 bg-[#22d3ee] hover:bg-[#06b6d4] text-[#0f172a] rounded-lg font-black uppercase text-xs tracking-wide transition-all"
+            >
+              + Create Your First Recurring Quest
+            </button>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {quests.map((quest) => (
               <RecurringQuestCard
                 key={quest.id}
@@ -533,13 +408,24 @@ export default function RecurringQuests({ isPremium, archetype }) {
             ))}
           </div>
         )}
+
+        {/* Free tier limit indicator */}
+        {questLimit && (
+          <div className="text-center text-xs text-gray-500 pt-2">
+            {activeCount} of {questLimit} recurring quests used (Free tier)
+            {!canCreate && (
+              <span className="block mt-1 text-[#22d3ee]">
+                <a href="/pricing" className="underline hover:text-[#06b6d4]">Upgrade to Pro</a> for unlimited
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       <CreateRecurringQuestModal
         show={showCreateModal}
         onClose={() => setShowCreateModal(false)}
         onSubmit={handleCreate}
-        archetype={archetype}
       />
     </>
   );

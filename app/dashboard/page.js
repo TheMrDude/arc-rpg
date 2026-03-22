@@ -1070,6 +1070,7 @@ export default function DashboardPage() {
           <RecurringQuests
             isPremium={isPremium}
             archetype={profile.archetype}
+            onQuestCreated={() => loadUserData()}
           />
         )}
 
