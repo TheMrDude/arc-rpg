@@ -13,6 +13,14 @@ export default function QuestCompletionCelebration({
 }) {
   const audioRef = useRef(null);
 
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (show) {
+      document.body.style.overflow = 'hidden';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [show]);
+
   useEffect(() => {
     if (show) {
       // Trigger confetti celebration
@@ -73,7 +81,7 @@ export default function QuestCompletionCelebration({
         >
           {/* Backdrop */}
           <motion.div
-            className="absolute inset-0 bg-black bg-opacity-60 backdrop-blur-sm"
+            className="absolute inset-0 bg-black bg-opacity-80 backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -82,7 +90,7 @@ export default function QuestCompletionCelebration({
 
           {/* Modal Content */}
           <motion.div
-            className="relative bg-gradient-to-br from-[#1A1A2E] via-[#16213e] to-[#0F3460] rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden border-4 border-[#FFD93D]"
+            className="relative bg-gradient-to-br from-[#1A1A2E] via-[#16213e] to-[#0F3460] rounded-3xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto border-4 border-[#FFD93D]"
             initial={{ scale: 0.8, opacity: 0, y: 50 }}
             animate={{
               scale: 1,

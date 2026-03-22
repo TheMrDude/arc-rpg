@@ -79,7 +79,7 @@ export default function ReflectionPrompt({ show, onClose, questId, questTitle, o
         />
 
         <motion.div
-          className="relative bg-white rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden"
+          className="relative bg-white rounded-3xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
           initial={{ scale: 0.9, opacity: 0, y: 20 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.9, opacity: 0, y: 20 }}
