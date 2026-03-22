@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { authenticateRequest } from '@/lib/api-auth';
+import { rollForEncounter, getEncounterRewards } from '@/lib/encounterService';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -120,9 +121,34 @@ export async function POST(request) {
     const comebackBonus = checkComebackBonus(profile.last_quest_date);
     const bonusXP = comebackBonus ? 20 : 0;
 
-    // Calculate total XP with equipment bonuses
-    const baseXP = quest.xp_value + bonusXP;
-    const totalXP = Math.floor(baseXP * xpMultiplier);
+    // Check for active effects (bonus_xp, double_xp from encounters)
+    let effectBonusXP = 0;
+    let effectMultiplier = 1;
+    let effectsToConsume = [];
+    try {
+      const { data: activeEffects } = await supabaseAdmin
+        .from('active_effects')
+        .select('*')
+        .eq('user_id', user.id)
+        .gt('quests_remaining', 0);
+
+      if (activeEffects && activeEffects.length > 0) {
+        for (const effect of activeEffects) {
+          if (effect.effect_type === 'bonus_xp') {
+            effectBonusXP += effect.effect_value;
+          } else if (effect.effect_type === 'double_xp') {
+            effectMultiplier = Math.max(effectMultiplier, effect.effect_value);
+          }
+          effectsToConsume.push(effect);
+        }
+      }
+    } catch (err) {
+      // active_effects table may not exist yet — ignore
+    }
+
+    // Calculate total XP with equipment bonuses + active effects
+    const baseXP = quest.xp_value + bonusXP + effectBonusXP;
+    const totalXP = Math.floor(baseXP * xpMultiplier * effectMultiplier);
     const equipmentBonus = totalXP - baseXP;
 
     // Calculate new level and streak
@@ -184,7 +210,93 @@ export async function POST(request) {
     }
 
     const result = goldTransaction?.[0];
-    const newGoldBalance = result?.new_balance || profile.gold + goldReward;
+    let newGoldBalance = result?.new_balance || profile.gold + goldReward;
+
+    // Consume active effects (decrement quests_remaining, delete if 0)
+    for (const effect of effectsToConsume) {
+      try {
+        const newRemaining = effect.quests_remaining - 1;
+        if (newRemaining <= 0) {
+          await supabaseAdmin.from('active_effects').delete().eq('id', effect.id);
+        } else {
+          await supabaseAdmin.from('active_effects').update({ quests_remaining: newRemaining }).eq('id', effect.id);
+        }
+      } catch (err) {
+        console.error('Failed to consume effect:', err);
+      }
+    }
+
+    // Increment quests_completed counter
+    try {
+      await supabaseAdmin
+        .from('profiles')
+        .update({ quests_completed: (profile.quests_completed || 0) + 1 })
+        .eq('id', user.id);
+    } catch (err) {
+      // Column may not exist yet — ignore
+    }
+
+    // D10 Random Encounter System (30% chance)
+    let encounterResponse = null;
+    const encounter = rollForEncounter();
+
+    if (encounter) {
+      const { goldChange, effectToCreate } = getEncounterRewards(encounter);
+
+      // Apply encounter gold (positive or negative)
+      if (goldChange !== 0) {
+        try {
+          const { data: encounterGoldTx } = await supabaseAdmin
+            .rpc('process_gold_transaction', {
+              p_user_id: user.id,
+              p_amount: goldChange,
+              p_transaction_type: 'encounter_reward',
+              p_reference_id: quest_id,
+              p_metadata: {
+                encounter_name: encounter.name,
+                encounter_roll: encounter.roll,
+              }
+            });
+          const encounterResult = encounterGoldTx?.[0];
+          if (encounterResult) {
+            newGoldBalance = encounterResult.new_balance;
+          } else {
+            newGoldBalance = Math.max(0, newGoldBalance + goldChange);
+          }
+        } catch (err) {
+          console.error('Failed to process encounter gold:', err);
+          newGoldBalance = Math.max(0, newGoldBalance + goldChange);
+        }
+      }
+
+      // Create active effect if encounter grants one
+      if (effectToCreate) {
+        try {
+          await supabaseAdmin.from('active_effects').insert({
+            user_id: user.id,
+            ...effectToCreate,
+          });
+        } catch (err) {
+          console.error('Failed to create encounter effect:', err);
+        }
+      }
+
+      // Log the encounter
+      try {
+        await supabaseAdmin.from('encounter_log').insert({
+          user_id: user.id,
+          roll_value: encounter.roll,
+          encounter_name: encounter.name,
+          encounter_rarity: encounter.rarity,
+          reward_type: encounter.rewardType,
+          reward_value: encounter.rewardValue,
+        });
+      } catch (err) {
+        // encounter_log table may not exist yet — ignore
+      }
+
+      encounterResponse = encounter;
+    }
 
     console.log('Quest completed successfully', {
       userId: user.id,
@@ -197,6 +309,7 @@ export async function POST(request) {
       goldReward,
       newLevel,
       newGoldBalance,
+      encounter: encounter?.name || null,
       timestamp: new Date().toISOString(),
     });
 
@@ -224,7 +337,8 @@ export async function POST(request) {
         thread_completion: storyUpdates.storyProgress.thread_completion,
         story_completed: storyUpdates.storyProgress.thread_completion === 0 && profile.current_story_thread !== null,
         new_story_started: storyUpdates.currentThread && storyUpdates.currentThread !== profile.current_story_thread,
-      }
+      },
+      encounter: encounterResponse,
     });
 
   } catch (error) {
