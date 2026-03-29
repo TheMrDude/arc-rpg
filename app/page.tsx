@@ -116,18 +116,18 @@ export default function LandingPage() {
             <span className="text-xl sm:text-2xl font-black text-[#FF6B6B]">⚔️ HabitQuest</span>
           </div>
           <div className="flex items-center gap-3">
-                        <button
-                                        onClick={() => router.push('/blog')}
-                                        className="px-4 py-2 text-gray-300 hover:text-white font-bold text-xs sm:text-sm uppercase tracking-wide transition-colors"
-                                      >
-                                      Blog
-                        </button>button>
-                      <button
-                                      onClick={() => router.push('/pricing')}
-                                      className="px-4 py-2 text-gray-300 hover:text-white font-bold text-xs sm:text-sm uppercase tracking-wide transition-colors"
-                                    >
-                                    Pricing
-                      </button>button></button>
+            <button
+              onClick={() => router.push('/blog')}
+              className="px-4 py-2 text-gray-300 hover:text-white font-bold text-xs sm:text-sm uppercase tracking-wide transition-colors"
+            >
+              Blog
+            </button>
+            <button
+              onClick={() => router.push('/pricing')}
+              className="px-4 py-2 text-gray-300 hover:text-white font-bold text-xs sm:text-sm uppercase tracking-wide transition-colors"
+            >
+              Pricing
+            </button>
             <button
               onClick={() => router.push('/login')}
               className="px-4 py-2 text-gray-300 hover:text-white font-bold text-xs sm:text-sm uppercase tracking-wide transition-colors"
