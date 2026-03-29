@@ -93,7 +93,12 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
           />
 
           <div className="mt-12 mb-12">
-            <EmailCapture source={`blog-${slug}`} variant="banner" />
+            <EmailCapture
+              source={`blog-${slug}`}
+              title="Join the Quest"
+              description="Get weekly habit science, productivity tactics, and exclusive HabitQuest updates. Level up your life — no spam, ever."
+              buttonText="Join Now"
+            />
           </div>
 
           <div className="mt-16 p-8 rounded-xl bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 text-center">
