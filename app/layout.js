@@ -8,6 +8,7 @@ export const metadata = {
   keywords: ['habit tracker', 'RPG', 'gamification', 'productivity', 'AI', 'task management', 'habits', 'motivation', 'ADHD', 'neurodivergent', 'no guilt', 'anti-guilt'],
   authors: [{ name: 'HabitQuest' }],
   verification: {
+    google: 'uodx1uvhWnPVjgnrCRoa0xDdg19WCuoA5fjCA5AQS0w',
     other: {
       'p:domain_verify': '1267df7c10d6f637a50ab5a3d4d02053'
     }
