@@ -2,6 +2,13 @@
 
 import { useState } from 'react';
 
+/**
+ * @typedef {Object} EmailCaptureProps
+ * @property {string} [source]
+ * @property {'inline' | 'banner'} [variant]
+ */
+
+/** @param {EmailCaptureProps} props */
 export default function EmailCapture({ source = 'blog', variant = 'inline' }) {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
