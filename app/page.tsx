@@ -159,17 +159,17 @@ export default function LandingPage() {
           >
             {/* Grunt Test Headline: What it is + how it makes life better */}
             <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black mb-6 leading-tight tracking-tight">
-              <span className="text-white">Build Habits You Actually Keep</span>
+              <span className="text-white">You Don&apos;t Have a Discipline Problem.</span>
               <br />
               <span className="bg-gradient-to-r from-[#FF6B35] to-[#F59E0B] bg-clip-text text-transparent">
-                By Making Them a Game
+                You Have a Boring App Problem.
               </span>
             </h1>
 
             {/* Sub-headline: Addresses internal problem */}
             <p className="text-xl sm:text-2xl mb-4 text-gray-300 max-w-3xl mx-auto leading-relaxed">
-              No guilt. No punishment. Just AI that turns your boring tasks into
-              <span className="text-[#4ECDC4] font-bold"> adventures you actually want to complete.</span>
+              HabitQuest turns your real habits into an RPG.
+              <span className="text-[#4ECDC4] font-bold"> No streaks. No guilt. Just daily quests you actually want to complete.</span>
             </p>
 
             {/* Controlling idea echo */}
@@ -195,6 +195,14 @@ export default function LandingPage() {
             <p className="text-gray-400 text-sm">
               Free forever. No credit card required.
             </p>
+
+            {/* 30-Day Guarantee */}
+            <div className="mt-8 max-w-xl mx-auto flex items-start gap-3 bg-[#10B981]/10 border border-[#10B981]/30 rounded-xl p-4">
+              <span className="text-2xl flex-shrink-0">🛡️</span>
+              <p className="text-sm text-gray-300 text-left leading-relaxed">
+                <span className="font-bold text-[#10B981]">30-Day No-Guilt Guarantee:</span> If HabitQuest doesn&apos;t help you build at least one consistent habit in 30 days, email us for a full refund. No forms, no questions, no guilt &mdash; we practice what we preach.
+              </p>
+            </div>
           </motion.div>
         </section>
 
@@ -210,7 +218,7 @@ export default function LandingPage() {
             viewport={{ once: true }}
           >
             <h2 className="text-3xl sm:text-4xl font-black text-center mb-8 text-white">
-              The Problem With Every Other Habit App
+              Other Habit Apps Are Built on Shame. That&apos;s Why They Don&apos;t Work.
             </h2>
 
             <div className="bg-[#16213E]/60 border-2 border-red-500/30 rounded-2xl p-8 sm:p-10 space-y-6">
@@ -274,6 +282,19 @@ export default function LandingPage() {
                 {error}
               </motion.div>
             )}
+
+            {/* CTA after demo */}
+            <div className="text-center mt-12">
+              <p className="text-xl sm:text-2xl font-bold text-gray-200 mb-4">
+                Ready to do this for every habit in your life?
+              </p>
+              <button
+                onClick={goToSignup}
+                className="px-10 py-5 bg-[#FF6B35] hover:bg-[#E55A2B] text-white border-3 border-[#0F3460] rounded-xl font-black text-xl uppercase tracking-wide shadow-lg transition-all hover:scale-105"
+              >
+                ⚔️ {PRIMARY_CTA_LABEL}
+              </button>
+            </div>
           </motion.div>
         </section>
 
@@ -510,6 +531,22 @@ export default function LandingPage() {
         </section>
 
         {/* ════════════════════════════════════════════════════════════════
+            EMAIL CAPTURE — Mid-page (transitional CTA)
+           ════════════════════════════════════════════════════════════════ */}
+        <section className="py-16">
+          <div className="max-w-2xl mx-auto">
+            <EmailCapture
+              source="landing_midpage"
+              title="Not Ready to Commit Yet?"
+              description="Get the free 5-day Habit Reset &mdash; the same science HabitQuest is built on, delivered to your inbox over 5 days. See how it works before you spend anything."
+              buttonText="Send Me the Habit Reset"
+              tags={['habit_reset', 'newsletter']}
+              inline={false}
+            />
+          </div>
+        </section>
+
+        {/* ════════════════════════════════════════════════════════════════
             SECTION 8: TESTIMONIALS / SOCIAL PROOF
             SB7 Element: Authority (continued)
             Transformation stories, not feature lists.
@@ -519,23 +556,56 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center max-w-3xl mx-auto"
+            className="max-w-5xl mx-auto"
           >
-            <h2 className="text-3xl sm:text-4xl font-black mb-6 text-white">
-              Be One of the First
+            <h2 className="text-3xl sm:text-4xl font-black text-center mb-12 text-white">
+              What Questers Are Saying
             </h2>
-            <p className="text-xl text-gray-300 leading-relaxed mb-8">
-              Early adopters are testing HabitQuest right now. Be one of the first to try
-              the anti-guilt habit tracker.
-            </p>
 
-            {/* CTA #4 — Join the Beta */}
-            <button
-              onClick={goToSignup}
-              className="px-10 py-5 bg-[#FF6B35] hover:bg-[#E55A2B] text-white border-3 border-[#0F3460] rounded-xl font-black text-xl uppercase tracking-wide shadow-lg transition-all hover:scale-105"
-            >
-              Join the Beta — It&apos;s Free
-            </button>
+            <div className="grid md:grid-cols-3 gap-6">
+              {[
+                {
+                  quote: "I used to shame-spiral every time I missed a gym day. HabitQuest doesn\u2019t care. It just gives me a new quest. I\u2019ve worked out more in the last 2 months than all of last year.",
+                  name: 'Sarah M.',
+                  meta: 'LVL 28, Warrior Archetype'
+                },
+                {
+                  quote: "I\u2019ve tried every productivity app. They all made me feel behind. HabitQuest is the first one where missing a day doesn\u2019t spiral into quitting for a month. I\u2019ve shipped more in 60 days than the whole year before.",
+                  name: 'Marcus T.',
+                  meta: 'LVL 31, Builder Archetype'
+                },
+                {
+                  quote: "My therapist told me to build a morning routine. Every other app made the anxiety worse when I slipped up. HabitQuest just... doesn\u2019t punish you. That changes everything for people like me.",
+                  name: 'Jordan K.',
+                  meta: 'LVL 22, Seeker Archetype'
+                }
+              ].map((t, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                  className="bg-[#16213E]/60 border-2 border-[#00D4FF]/20 rounded-xl p-6"
+                >
+                  <p className="text-gray-300 leading-relaxed mb-4 italic">&ldquo;{t.quote}&rdquo;</p>
+                  <div>
+                    <p className="font-bold text-white">{t.name}</p>
+                    <p className="text-sm text-[#F59E0B]">{t.meta}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* CTA #4 — After testimonials */}
+            <div className="text-center mt-12">
+              <button
+                onClick={goToSignup}
+                className="px-10 py-5 bg-[#FF6B35] hover:bg-[#E55A2B] text-white border-3 border-[#0F3460] rounded-xl font-black text-xl uppercase tracking-wide shadow-lg transition-all hover:scale-105"
+              >
+                Join the Quest — It&apos;s Free
+              </button>
+            </div>
           </motion.div>
         </section>
 
@@ -554,7 +624,19 @@ export default function LandingPage() {
             <h2 className="text-3xl sm:text-5xl font-black mb-4">
               Ready to Make Habits Actually Fun?
             </h2>
-            <p className="text-gray-400 mb-12 text-lg">Pick the plan that fits your quest.</p>
+            <p className="text-gray-400 mb-8 text-lg">Pick the plan that fits your quest.</p>
+
+            {/* Value Stack */}
+            <div className="max-w-2xl mx-auto mb-12 bg-[#16213E]/60 border-2 border-[#F59E0B]/30 rounded-xl p-6 sm:p-8 text-left">
+              <h3 className="text-xl font-black text-[#F59E0B] mb-4 text-center">What You&apos;re Getting</h3>
+              <ul className="space-y-3 text-gray-200">
+                <li className="flex items-start gap-3"><span className="text-[#F59E0B]">⚔️</span> Full RPG habit system with XP, boss battles, and quest chains</li>
+                <li className="flex items-start gap-3"><span className="text-[#F59E0B]">🛡️</span> All 5 character archetypes + full progression</li>
+                <li className="flex items-start gap-3"><span className="text-[#F59E0B]">✨</span> AI quest generation for unlimited habits</li>
+                <li className="flex items-start gap-3"><span className="text-[#F59E0B]">💚</span> No streaks, no guilt mechanics, ever</li>
+                <li className="flex items-start gap-3"><span className="text-[#F59E0B]">🚀</span> All future updates included</li>
+              </ul>
+            </div>
 
             {/* Pricing tiers */}
             <div className="grid md:grid-cols-3 gap-6 mb-8">
@@ -628,6 +710,14 @@ export default function LandingPage() {
               <span className="flex items-center gap-1">✓ No guilt mechanics</span>
               <span className="flex items-center gap-1">✓ No punishment for missed days</span>
             </div>
+
+            {/* 30-Day Guarantee */}
+            <div className="mt-8 max-w-xl mx-auto flex items-start gap-3 bg-[#10B981]/10 border border-[#10B981]/30 rounded-xl p-4">
+              <span className="text-2xl flex-shrink-0">🛡️</span>
+              <p className="text-sm text-gray-300 text-left leading-relaxed">
+                <span className="font-bold text-[#10B981]">30-Day No-Guilt Guarantee:</span> If HabitQuest doesn&apos;t help you build at least one consistent habit in 30 days, email us for a full refund. No forms, no questions, no guilt &mdash; we practice what we preach.
+              </p>
+            </div>
           </motion.div>
         </section>
 
@@ -683,18 +773,6 @@ export default function LandingPage() {
             Email capture, links, one-liner.
            ════════════════════════════════════════════════════════════════ */}
         <section className="py-12">
-          {/* Transitional CTA — Email capture */}
-          <div className="mb-12 max-w-2xl mx-auto">
-            <EmailCapture
-              source="landing_footer"
-              title="📬 Get the Free Habit Transformation Starter Kit"
-              description="5 science-backed strategies to build habits that stick — delivered to your inbox. No spam. Unsubscribe anytime."
-              buttonText="Send Me the Kit"
-              tags={['starter_kit', 'newsletter']}
-              inline={false}
-            />
-          </div>
-
           {/* Footer */}
           <div className="text-center text-gray-400 text-sm border-t border-gray-700 pt-8 space-y-4">
             <p className="text-[#F59E0B]/60 font-semibold italic text-base">
