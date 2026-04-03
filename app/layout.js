@@ -78,7 +78,28 @@ export default function RootLayout({ children }) {
         <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-96x96.png" />
         <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-72x72.png" />
 
-        {/* JSON-LD moved to public/structured-data.json for security */}
+        {/* JSON-LD Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify([
+              {
+                "@context": "https://schema.org",
+                "@type": "Organization",
+                "name": "HabitQuest",
+                "url": "https://habitquest.dev",
+                "description": "ADHD-friendly gamified habit tracker that uses RPG mechanics instead of streaks",
+                "logo": "https://habitquest.dev/icons/icon-192x192.png"
+              },
+              {
+                "@context": "https://schema.org",
+                "@type": "WebSite",
+                "name": "HabitQuest",
+                "url": "https://habitquest.dev"
+              }
+            ])
+          }}
+        />
 
         {/* Facebook Pixel */}
         {process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID && (
