@@ -8,6 +8,7 @@ export const dynamic = 'force-dynamic';
 const ALLOWED_PRICE_IDS = [
   process.env.STRIPE_PRO_MONTHLY_PRICE_ID,
   process.env.STRIPE_PRO_YEARLY_PRICE_ID,
+  process.env.STRIPE_EARLY_BIRD_YEARLY_PRICE_ID,
 ].filter(Boolean);
 
 export async function POST(request: Request) {
