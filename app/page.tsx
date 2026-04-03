@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import QuestInput from './components/QuestInput';
 import QuestPreview from './components/QuestPreview';
@@ -657,7 +658,7 @@ export default function LandingPage() {
                   readTime: '5 min read',
                 },
               ].map((post) => (
-                <a
+                <Link
                   key={post.slug}
                   href={`/blog/${post.slug}`}
                   className="group bg-[#16213E]/60 border-2 border-[#0F3460] rounded-xl p-6 hover:border-[#00D4FF]/50 transition-all duration-300"
@@ -667,16 +668,16 @@ export default function LandingPage() {
                   </h3>
                   <p className="text-gray-400 text-sm mb-3 leading-relaxed">{post.description}</p>
                   <span className="text-xs text-[#00D4FF]/70">{post.readTime}</span>
-                </a>
+                </Link>
               ))}
             </div>
             <div className="text-center mt-8">
-              <a
+              <Link
                 href="/blog"
                 className="text-[#00D4FF] hover:text-white font-bold text-sm uppercase tracking-wide transition-colors"
               >
                 View All Posts →
-              </a>
+              </Link>
             </div>
           </motion.div>
         </section>
