@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getAllPostSlugs, getPostBySlug } from '@/lib/blog';
+import { getAllPostSlugs, getPostBySlug, getAllPosts } from '@/lib/blog';
 import GlobalFooter from '@/app/components/GlobalFooter';
 import EmailCapture from '@/app/components/EmailCapture';
 
@@ -116,6 +116,38 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
               buttonText="Join Now"
             />
           </div>
+
+          {/* Related Posts */}
+          {(() => {
+            const allPosts = getAllPosts();
+            const currentTags = new Set(post.tags.map((t: string) => t.toLowerCase()));
+            const otherPosts = allPosts.filter((p: { slug: string }) => p.slug !== slug);
+            const scored = otherPosts.map((p: { tags: string[]; slug: string; title: string; description: string }) => ({
+              ...p,
+              score: p.tags.filter((t: string) => currentTags.has(t.toLowerCase())).length,
+            }));
+            scored.sort((a: { score: number }, b: { score: number }) => b.score - a.score);
+            const related = scored.slice(0, 3);
+            return related.length > 0 ? (
+              <div className="mt-16 mb-12">
+                <h3 className="text-2xl font-bold text-amber-400 mb-6">Related Posts</h3>
+                <div className="grid sm:grid-cols-3 gap-4">
+                  {related.map((rp: { slug: string; title: string; description: string }) => (
+                    <Link
+                      key={rp.slug}
+                      href={`/blog/${rp.slug}`}
+                      className="group block p-5 rounded-xl bg-gray-800/50 border border-gray-700/50 hover:border-amber-500/30 transition-all"
+                    >
+                      <h4 className="text-base font-bold text-white group-hover:text-amber-400 transition-colors mb-2 leading-snug">
+                        {rp.title}
+                      </h4>
+                      <p className="text-sm text-gray-400 leading-relaxed line-clamp-2">{rp.description}</p>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ) : null;
+          })()}
 
           <div className="mt-16 p-8 rounded-xl bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 text-center">
             <h3 className="text-2xl font-bold text-amber-400 mb-2">Ready to make your habits epic?</h3>
