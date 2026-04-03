@@ -96,6 +96,20 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#0F172A] text-white overflow-hidden">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          "mainEntity": [
+            { "@type": "Question", "name": "What makes this different from every other habit app?", "acceptedAnswer": { "@type": "Answer", "text": "Other apps punish you for missing a day. We don't. No broken streaks, no shame notifications. HabitQuest turns your habits into an RPG adventure — so you actually want to open the app. Your habits. Your story. No guilt." } },
+            { "@type": "Question", "name": "Is this just for gamers?", "acceptedAnswer": { "@type": "Answer", "text": "Not at all. If you've ever wished tasks felt less boring, this is for you. You don't need to know anything about RPGs — the game layer just makes habits feel rewarding instead of draining." } },
+            { "@type": "Question", "name": "What if I miss a day?", "acceptedAnswer": { "@type": "Answer", "text": "Nothing bad happens. Seriously. No streak resets, no guilt screens, no \"you failed\" messages. Your character just picks up where you left off. Because building habits shouldn't feel like punishment." } },
+            { "@type": "Question", "name": "What do I get for free?", "acceptedAnswer": { "@type": "Answer", "text": "Track up to 3 habits, choose your archetype, and get AI quest transformation — completely free, forever. Pro unlocks unlimited habits, boss battles, equipment, and the full RPG experience." } },
+            { "@type": "Question", "name": "Do I need to download anything?", "acceptedAnswer": { "@type": "Answer", "text": "Nope. Works in your browser on any device. You can install it as an app on your phone if you want (it's a PWA), but it's not required." } }
+          ]
+        }) }}
+      />
       {/* Floating particles background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none opacity-20">
         <div className="absolute top-20 left-10 w-2 h-2 bg-[#FF5733] rounded-full animate-pulse"></div>
