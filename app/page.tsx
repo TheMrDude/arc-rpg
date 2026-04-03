@@ -624,6 +624,64 @@ export default function LandingPage() {
         </section>
 
         {/* ════════════════════════════════════════════════════════════════
+            LATEST FROM THE BLOG
+           ════════════════════════════════════════════════════════════════ */}
+        <section className="py-16">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="max-w-5xl mx-auto"
+          >
+            <h2 className="text-3xl sm:text-4xl font-black text-center mb-12 text-[#00D4FF]">
+              Latest from the Blog
+            </h2>
+            <div className="grid md:grid-cols-3 gap-6">
+              {[
+                {
+                  slug: 'breaking-bad-habits',
+                  title: 'Breaking Bad Habits: 7 Evidence-Based Strategies That Actually Work',
+                  description: 'Most advice on breaking bad habits is wrong. Here are 7 strategies backed by behavioral science.',
+                  readTime: '6 min read',
+                },
+                {
+                  slug: 'deep-work-habits',
+                  title: 'Deep Work Habits: How to Build Focus in a Distracted World',
+                  description: 'The average person is interrupted every 11 minutes. Here\'s how to build deep work habits that protect your focus.',
+                  readTime: '6 min read',
+                },
+                {
+                  slug: 'habit-stacking-science',
+                  title: 'The Science of Habit Stacking: How to Build Multiple Habits Without Willpower',
+                  description: 'Habit stacking uses existing neural pathways to anchor new behaviors. Learn the science behind why it works.',
+                  readTime: '5 min read',
+                },
+              ].map((post) => (
+                <a
+                  key={post.slug}
+                  href={`/blog/${post.slug}`}
+                  className="group bg-[#16213E]/60 border-2 border-[#0F3460] rounded-xl p-6 hover:border-[#00D4FF]/50 transition-all duration-300"
+                >
+                  <h3 className="text-lg font-black text-white mb-2 group-hover:text-[#00D4FF] transition-colors leading-snug">
+                    {post.title}
+                  </h3>
+                  <p className="text-gray-400 text-sm mb-3 leading-relaxed">{post.description}</p>
+                  <span className="text-xs text-[#00D4FF]/70">{post.readTime}</span>
+                </a>
+              ))}
+            </div>
+            <div className="text-center mt-8">
+              <a
+                href="/blog"
+                className="text-[#00D4FF] hover:text-white font-bold text-sm uppercase tracking-wide transition-colors"
+              >
+                View All Posts →
+              </a>
+            </div>
+          </motion.div>
+        </section>
+
+        {/* ════════════════════════════════════════════════════════════════
             SECTION 9: PRICING / DIRECT CTA
             SB7 Element: Call to Action (Direct + Transitional)
             The conversion section. Clear, urgent, reassuring.
