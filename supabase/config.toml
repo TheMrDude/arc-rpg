@@ -3,3 +3,6 @@ verify_jwt = false
 
 [functions.onboarding-nurture]
 verify_jwt = false
+
+[functions.send-welcome-email]
+verify_jwt = false
