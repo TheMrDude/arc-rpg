@@ -3,7 +3,7 @@ import Script from 'next/script'
 import PostHogProvider from './components/PostHogProvider'
 
 export const metadata = {
-  title: 'HabitQuest - Build Habits You Actually Keep By Making Them a Game',
+  title: 'HabitQuest - ADHD-Friendly Gamified Habit Tracker | No Streaks, No Guilt',
   description: 'Most habit apps punish you for missing a day. HabitQuest turns your habits into epic RPG quests — so building consistency actually feels fun. Your habits. Your story. No guilt.',
   keywords: ['habit tracker', 'RPG', 'gamification', 'productivity', 'AI', 'task management', 'habits', 'motivation', 'ADHD', 'neurodivergent', 'no guilt', 'anti-guilt'],
   authors: [{ name: 'HabitQuest' }],

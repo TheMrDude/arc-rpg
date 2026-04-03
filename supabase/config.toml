@@ -1,0 +1,5 @@
+[functions.re-engagement]
+verify_jwt = false
+
+[functions.onboarding-nurture]
+verify_jwt = false
