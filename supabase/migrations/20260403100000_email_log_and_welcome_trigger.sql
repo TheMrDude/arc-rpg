@@ -21,7 +21,7 @@ CREATE POLICY "Service role full access to email_log"
   ON email_log FOR ALL
   USING (auth.role() = 'service_role');
 
--- Database trigger: call send-welcome-email when a new profile is inserted
+-- Database trigger: call welcome-email when a new profile is inserted
 CREATE OR REPLACE FUNCTION trigger_welcome_email()
 RETURNS TRIGGER AS $$
 DECLARE
@@ -39,7 +39,7 @@ BEGIN
   -- Only fire if we have the required config
   IF supabase_url IS NOT NULL AND service_role_key IS NOT NULL AND user_email IS NOT NULL THEN
     PERFORM net.http_post(
-      url := supabase_url || '/functions/v1/send-welcome-email',
+      url := supabase_url || '/functions/v1/welcome-email',
       headers := jsonb_build_object(
         'Content-Type', 'application/json',
         'Authorization', 'Bearer ' || service_role_key
