@@ -876,6 +876,21 @@ export default function DashboardPage() {
                 📜 History
               </button>
             )}
+            {profile?.active_campaign_id ? (
+              <button
+                onClick={() => router.push(profile.campaign_role === 'dm' ? '/campaign/dm' : '/campaign/player')}
+                className="px-3 py-1.5 bg-[#22d3ee]/20 hover:bg-[#22d3ee]/30 text-[#22d3ee] border-2 border-[#22d3ee]/40 rounded-lg font-black uppercase text-xs tracking-wide transition-all"
+              >
+                {profile.campaign_role === 'dm' ? '⚔ My Campaign' : '🛡 My Campaign'}
+              </button>
+            ) : (
+              <button
+                onClick={() => router.push('/campaign/setup')}
+                className="px-3 py-1.5 bg-[#0f172a] hover:bg-[#1e293b] text-[#22d3ee] border-2 border-[#22d3ee]/30 rounded-lg font-black uppercase text-xs tracking-wide transition-all"
+              >
+                🎲 Join Campaign
+              </button>
+            )}
             <button
               onClick={() => router.push('/shop')}
               className="px-3 py-1.5 bg-[#FFD93D] hover:bg-[#E6C335] text-[#1A1A2E] border-2 border-[#0F3460] rounded-lg font-black uppercase text-xs tracking-wide transition-all"
