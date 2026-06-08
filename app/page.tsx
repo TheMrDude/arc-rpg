@@ -13,8 +13,8 @@ import { trackEvent } from '@/lib/analytics';
 import Image from 'next/image'
 
 // ─── CONSTANTS ────────────────────────────────────────────────────────
-const PRIMARY_CTA_LABEL = 'Start Free →';
-const SECONDARY_CTA_LABEL = 'Go Pro — $5/mo';
+const PRIMARY_CTA_LABEL = 'Start Free — No Credit Card';
+const SECONDARY_CTA_LABEL = 'Get Pro →';
 const CONTROLLING_IDEA = 'Your habits. Your story. No guilt.';
 const STRIPE_LINK_PRO_MONTHLY = 'https://buy.stripe.com/fZubJ02TX5SngCc6dadZ602';
 const STRIPE_LINK_PRO_YEARLY = 'https://buy.stripe.com/dRm7sK6695Sn85GgROdZ601';
@@ -201,12 +201,12 @@ export default function LandingPage() {
               >
                 ⚔️ {PRIMARY_CTA_LABEL}
               </button>
-              <a
-                href={stripeLink(STRIPE_LINK_PRO_MONTHLY, userEmail)}
+              <button
+                onClick={() => router.push('/signup?plan=pro_monthly')}
                 className="px-8 py-4 bg-transparent hover:bg-[#00D4FF]/10 text-[#00D4FF] border-2 border-[#00D4FF] rounded-xl font-black text-lg uppercase tracking-wide transition-all hover:scale-105 inline-block"
               >
                 {SECONDARY_CTA_LABEL}
-              </a>
+              </button>
             </div>
             <p className="text-gray-400 text-sm">
               Free forever. No credit card required.
@@ -696,7 +696,7 @@ export default function LandingPage() {
             className="text-center max-w-5xl mx-auto"
           >
             <h2 className="text-3xl sm:text-5xl font-black mb-4">
-              Ready to Make Habits Actually Fun?
+              Everything You Need to Actually Build the Habit.
             </h2>
             <p className="text-gray-400 mb-8 text-lg">Pick the plan that fits your quest.</p>
 
@@ -707,18 +707,20 @@ export default function LandingPage() {
                 <li className="flex items-start gap-3"><span className="text-[#F59E0B]">⚔️</span> Full RPG habit system with XP, boss battles, and quest chains</li>
                 <li className="flex items-start gap-3"><span className="text-[#F59E0B]">🛡️</span> All 5 character archetypes + full progression</li>
                 <li className="flex items-start gap-3"><span className="text-[#F59E0B]">✨</span> AI quest generation for unlimited habits</li>
+                <li className="flex items-start gap-3"><span className="text-[#F59E0B]">⚔️</span> D&amp;D campaign layer &mdash; turn your habits into your character&apos;s downtime actions</li>
                 <li className="flex items-start gap-3"><span className="text-[#F59E0B]">💚</span> No streaks, no guilt mechanics, ever</li>
                 <li className="flex items-start gap-3"><span className="text-[#F59E0B]">🚀</span> All future updates included</li>
               </ul>
             </div>
 
-            {/* Pricing tiers */}
-            <div className="grid md:grid-cols-3 gap-6 mb-8">
+            {/* Pricing tiers — 4 columns */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
               {/* Free tier */}
-              <div className="bg-[#16213E] border-2 border-[#0F3460] rounded-2xl p-8 text-left">
+              <div className="bg-[#16213E] border-2 border-[#0F3460] rounded-2xl p-6 text-left flex flex-col">
                 <h3 className="text-xl font-black text-white mb-1">Free</h3>
-                <div className="text-3xl font-black text-[#00D4FF] mb-4">$0</div>
-                <ul className="space-y-3 text-gray-300 text-sm mb-8">
+                <div className="text-3xl font-black text-[#00D4FF] mb-1">$0</div>
+                <p className="text-gray-500 text-sm mb-4">forever</p>
+                <ul className="space-y-2 text-gray-300 text-sm mb-6 flex-1">
                   <li className="flex items-start gap-2"><span className="text-[#10B981]">✓</span> 3 habits</li>
                   <li className="flex items-start gap-2"><span className="text-[#10B981]">✓</span> Basic XP &amp; leveling</li>
                   <li className="flex items-start gap-2"><span className="text-[#10B981]">✓</span> Archetype selection</li>
@@ -726,59 +728,83 @@ export default function LandingPage() {
                 </ul>
                 <button
                   onClick={goToSignup}
-                  className="w-full px-6 py-3 bg-[#FF6B35] hover:bg-[#E55A2B] text-white rounded-xl font-black text-lg uppercase tracking-wide transition-all hover:scale-105"
+                  className="w-full px-4 py-3 bg-[#FF6B35] hover:bg-[#E55A2B] text-white rounded-xl font-black text-sm uppercase tracking-wide transition-all hover:scale-105"
                 >
-                  {PRIMARY_CTA_LABEL}
+                  Start Free
                 </button>
               </div>
 
-              {/* Pro tier */}
-              <div className="bg-gradient-to-br from-[#16213E] to-[#0F3460] border-4 border-[#FF6B4A] rounded-2xl p-8 text-left relative">
+              {/* Pro Monthly tier */}
+              <div className="bg-gradient-to-br from-[#16213E] to-[#0F3460] border-4 border-[#FF6B4A] rounded-2xl p-6 text-left relative flex flex-col">
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#FF6B35] text-white text-xs font-black px-4 py-1 rounded-full uppercase">
                   Most Popular
                 </div>
-                <h3 className="text-xl font-black text-white mb-1">Pro</h3>
+                <h3 className="text-xl font-black text-white mb-1">Pro Monthly</h3>
                 <div className="text-3xl font-black text-[#F59E0B] mb-1">$5<span className="text-lg text-gray-400">/mo</span></div>
-                <p className="text-gray-500 text-sm mb-4">or $39/year (save 35%)</p>
-                <ul className="space-y-3 text-gray-300 text-sm mb-8">
+                <p className="text-gray-500 text-sm mb-4">billed monthly</p>
+                <ul className="space-y-2 text-gray-300 text-sm mb-6 flex-1">
                   <li className="flex items-start gap-2"><span className="text-[#F59E0B]">✓</span> Unlimited habits</li>
                   <li className="flex items-start gap-2"><span className="text-[#F59E0B]">✓</span> Boss battles</li>
                   <li className="flex items-start gap-2"><span className="text-[#F59E0B]">✓</span> Equipment shop</li>
                   <li className="flex items-start gap-2"><span className="text-[#F59E0B]">✓</span> Quest chains</li>
                   <li className="flex items-start gap-2"><span className="text-[#F59E0B]">✓</span> Journal &amp; reflections</li>
-                  <li className="flex items-start gap-2"><span className="text-[#F59E0B]">✓</span> Weekly digest emails</li>
+                  <li className="flex items-start gap-2"><span className="text-[#F59E0B]">✓</span> Campaign layer</li>
                 </ul>
-                <a
-                  href={stripeLink(STRIPE_LINK_PRO_MONTHLY, userEmail)}
-                  className="block w-full px-6 py-3 bg-[#FF6B35] hover:bg-[#E55A2B] text-white rounded-xl font-black text-lg uppercase tracking-wide transition-all hover:scale-105 text-center"
+                <button
+                  onClick={() => router.push('/signup?plan=pro_monthly')}
+                  className="w-full px-4 py-3 bg-[#FF6B35] hover:bg-[#E55A2B] text-white rounded-xl font-black text-sm uppercase tracking-wide transition-all hover:scale-105"
                 >
-                  {SECONDARY_CTA_LABEL}
-                </a>
+                  Get Pro
+                </button>
+              </div>
+
+              {/* Pro Annual tier */}
+              <div className="bg-[#16213E] border-2 border-[#7C3AED]/60 rounded-2xl p-6 text-left relative flex flex-col">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#7C3AED] text-white text-xs font-black px-4 py-1 rounded-full uppercase">
+                  Save 35%
+                </div>
+                <h3 className="text-xl font-black text-white mb-1">Pro Annual</h3>
+                <div className="text-3xl font-black text-[#7C3AED] mb-1">$39<span className="text-lg text-gray-400">/yr</span></div>
+                <p className="text-gray-500 text-sm mb-4">$3.25/mo billed annually</p>
+                <ul className="space-y-2 text-gray-300 text-sm mb-6 flex-1">
+                  <li className="flex items-start gap-2"><span className="text-[#7C3AED]">✓</span> Everything in Pro</li>
+                  <li className="flex items-start gap-2"><span className="text-[#7C3AED]">✓</span> 2 months free vs monthly</li>
+                  <li className="flex items-start gap-2"><span className="text-[#7C3AED]">✓</span> Cancel anytime</li>
+                </ul>
+                <button
+                  onClick={() => router.push('/signup?plan=pro_annual')}
+                  className="w-full px-4 py-3 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl font-black text-sm uppercase tracking-wide transition-all hover:scale-105"
+                >
+                  Get Pro Annual
+                </button>
               </div>
 
               {/* Early Bird tier */}
-              <div className="bg-[#16213E] border-2 border-[#F59E0B]/50 rounded-2xl p-8 text-left relative">
+              <div className="bg-[#16213E] border-2 border-[#F59E0B]/50 rounded-2xl p-6 text-left relative flex flex-col">
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#F59E0B] text-[#0F172A] text-xs font-black px-4 py-1 rounded-full uppercase">
                   Limited Time
                 </div>
                 <h3 className="text-xl font-black text-white mb-1">Early Bird</h3>
-                <div className="text-3xl font-black text-[#10B981] mb-1">$29<span className="text-lg text-gray-400">/year</span></div>
-                <p className="text-gray-500 text-sm mb-4">Same as Pro — launch price</p>
-                <ul className="space-y-3 text-gray-300 text-sm mb-8">
+                <div className="text-3xl font-black text-[#10B981] mb-1">$29<span className="text-lg text-gray-400">/yr</span></div>
+                <p className="text-gray-500 text-sm mb-4">same as Pro — launch price</p>
+                <ul className="space-y-2 text-gray-300 text-sm mb-6 flex-1">
                   <li className="flex items-start gap-2"><span className="text-[#10B981]">✓</span> Everything in Pro</li>
                   <li className="flex items-start gap-2"><span className="text-[#10B981]">✓</span> Save 50% vs monthly</li>
                   <li className="flex items-start gap-2"><span className="text-[#10B981]">✓</span> Lock in launch pricing</li>
                 </ul>
-                <a
-                  href={stripeLink(STRIPE_LINK_EARLY_BIRD, userEmail)}
-                  className="block w-full px-6 py-3 bg-[#10B981] hover:bg-[#059669] text-white rounded-xl font-black text-lg uppercase tracking-wide transition-all hover:scale-105 text-center"
+                <button
+                  onClick={() => router.push('/signup?plan=early_bird')}
+                  className="w-full px-4 py-3 bg-[#10B981] hover:bg-[#059669] text-white rounded-xl font-black text-sm uppercase tracking-wide transition-all hover:scale-105"
                 >
-                  Get Early Bird →
-                </a>
+                  Get Early Bird
+                </button>
               </div>
             </div>
 
             {/* Reassurances */}
+            <p className="text-center text-gray-500 text-sm mb-4">
+              No credit card required to start. Cancel Pro anytime.
+            </p>
             <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-300">
               <span className="flex items-center gap-1">✓ Free forever tier</span>
               <span className="flex items-center gap-1">✓ No guilt mechanics</span>
