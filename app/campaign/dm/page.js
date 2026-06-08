@@ -334,6 +334,13 @@ export default function DMDashboard() {
             </div>
             <div className="h-4 w-px bg-gray-700" />
             <span className="text-[#f4c553] text-xs font-black uppercase">Session {campaign?.current_session || 0}</span>
+            <div className="h-4 w-px bg-gray-700" />
+            <button
+              onClick={() => router.push('/campaign/world')}
+              className="text-gray-400 hover:text-[#f4c553] text-xs font-bold transition-colors"
+            >
+              🗺️ World Map
+            </button>
           </div>
           <div className="flex items-center gap-2">
             <span className="text-gray-500 text-xs font-mono">{campaign?.invite_code}</span>
