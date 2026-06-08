@@ -121,7 +121,13 @@ export default function PlayerCampaignPage() {
           >
             ← Dashboard
           </button>
-          <span className="text-[#22d3ee] font-black text-xs uppercase tracking-widest">Player View</span>
+          <button
+            onClick={() => router.push('/campaign/world')}
+            className="text-gray-400 hover:text-[#f4c553] text-xs font-bold transition-colors"
+          >
+            🗺️ World Map
+          </button>
+          <span className="text-[#22d3ee] font-black text-xs uppercase tracking-widest ml-auto">Player View</span>
         </div>
 
         {/* Character Header */}
