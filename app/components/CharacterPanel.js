@@ -54,7 +54,6 @@ export default function CharacterPanel({ profile, creature, isPremium, equipment
 
   const xpProgress = xpInLevel / 100;
   const strokeDashoffset = RING_CIRCUMFERENCE * (1 - xpProgress);
-  const isFounder = isPremium && profile.premium_since;
   const title = `Level ${profile.level} ${profile.archetype ? profile.archetype.charAt(0).toUpperCase() + profile.archetype.slice(1) : 'Adventurer'}`;
 
   return (
@@ -103,11 +102,6 @@ export default function CharacterPanel({ profile, creature, isPremium, equipment
               <h1 className="text-lg sm:text-xl font-black uppercase tracking-wide text-[#FF6B6B]">
                 {title}
               </h1>
-              {isFounder && (
-                <span className="px-1.5 py-0.5 border border-[#00D4FF] text-[#00D4FF] rounded text-[10px] font-black uppercase">
-                  ⚡ Founder
-                </span>
-              )}
               {isPremium && (
                 <span className="px-2 py-0.5 bg-[#FFD93D] text-[#1A1A2E] rounded text-xs font-black uppercase">
                   PRO

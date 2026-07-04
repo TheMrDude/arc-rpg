@@ -15,7 +15,7 @@ const SKILL_TREES = {
       { id: 'power_1', name: 'Strength I', description: '+5% XP on all quests', cost: 1, requires: [] },
       { id: 'power_2', name: 'Strength II', description: '+10% XP on all quests', cost: 1, requires: ['power_1'] },
       { id: 'power_3', name: 'Titan Force', description: '+20% XP on hard quests', cost: 2, requires: ['power_2'] },
-      { id: 'power_4', name: 'Unstoppable', description: 'Streaks give bonus XP', cost: 2, requires: ['power_2'] },
+      { id: 'power_4', name: 'Unstoppable', description: 'Active days in a row give bonus XP', cost: 2, requires: ['power_2'] },
       { id: 'power_5', name: 'Legendary Might', description: '+50% XP on boss battles', cost: 3, requires: ['power_3', 'power_4'] },
     ]
   },

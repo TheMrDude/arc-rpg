@@ -3,10 +3,10 @@ import { getAllPosts } from '@/lib/blog';
 import GlobalFooter from '@/app/components/GlobalFooter';
 
 export const metadata = {
-  title: 'Blog \u2014 HabitQuest | Habits, Productivity & Gamification',
+  title: 'Blog | HabitQuest: Habits, Productivity & Gamification',
   description: 'Science-backed articles on building better habits through gamification, productivity systems for ADHD, and how RPG mechanics make habit tracking actually fun.',
   openGraph: {
-    title: 'Blog \u2014 HabitQuest',
+    title: 'Blog | HabitQuest',
     description: 'Science-backed articles on habits, productivity, and gamification.',
     url: 'https://habitquest.dev/blog',
     siteName: 'HabitQuest',
@@ -48,7 +48,7 @@ export default function BlogIndex() {
             The HabitQuest <span className="text-amber-400">Blog</span>
           </h1>
           <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-            Science-backed strategies for building habits that actually stick \u2014 through gamification, behavioral science, and a little bit of RPG magic.
+            Science-backed strategies for building habits that actually stick, through gamification, behavioral science, and a little bit of RPG magic.
           </p>
         </div>
       </section>

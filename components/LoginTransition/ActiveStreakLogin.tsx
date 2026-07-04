@@ -169,7 +169,7 @@ export default function ActiveStreakLogin({ streakCount, onComplete }: ActiveStr
         </motion.div>
 
         <h1 className="text-3xl font-black text-white mb-2 uppercase tracking-wide drop-shadow-lg">
-          {streakCount} Day Streak!
+          {streakCount} Day{streakCount === 1 ? '' : 's'} Strong!
         </h1>
         <p className="text-lg text-yellow-100 font-bold drop-shadow-md">
           Keep the momentum going!

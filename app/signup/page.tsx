@@ -23,7 +23,7 @@ function SignupForm() {
   const [hasPreviewQuest, setHasPreviewQuest] = useState(false);
 
   useEffect(() => {
-    document.title = "Sign Up Free \u2014 HabitQuest";
+    document.title = "Sign Up Free | HabitQuest";
   }, []);
 
   useEffect(() => {

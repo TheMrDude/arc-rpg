@@ -26,7 +26,7 @@ const FEATURE_SLIDES = [
   {
     icon: '⚔️',
     title: 'Equipment & Companions',
-    description: 'Collect legendary gear and companions. Boost your XP, protect your streaks, and customize your hero.',
+    description: 'Collect legendary gear and companions. Boost your XP, keep your momentum, and customize your hero.',
     color: '#48BB78',
   },
 ];

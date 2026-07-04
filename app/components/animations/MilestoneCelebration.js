@@ -14,7 +14,7 @@ const LEVEL_UNLOCKS = {
     unlocks: [
       '🔄 Recurring Quests - Set up daily, weekly habits',
       '🐾 First Companion - Unlock your first companion pet',
-      '🛡️ Streak Freeze Shop - Protect your streak'
+      '🌟 Skill Tree - Your first passive ability awakens'
     ]
   },
   10: {
@@ -28,25 +28,25 @@ const LEVEL_UNLOCKS = {
   15: {
     title: 'Master Questor',
     unlocks: [
-      '🎨 Custom Categories - Organize quests your way',
-      '🔍 Advanced Filters - Powerful quest management',
-      '😊 Mood Tracking - Track emotional patterns'
+      '🌟 New Skill Tier - A stronger passive ability unlocks',
+      '😊 Mood Tracking - Track emotional patterns in your journal',
+      '📜 Chronicle Depth - Your story grows richer each week'
     ]
   },
   20: {
     title: 'Legendary Champion',
     unlocks: [
-      '👥 Party Quests - Collaborate with friends',
-      '🔌 API Access - Integrate with other apps',
+      '👥 Party Quests - Team up in campaign mode',
+      '🌊 The Sunken City - A new world map region opens',
       '⚜️ Legendary Equipment - Exclusive power-ups'
     ]
   },
   25: {
     title: 'Immortal Legend',
     unlocks: [
-      '👑 Custom Avatar Designer - Create unique character art',
-      '🎯 Advanced Analytics - Deep insights into your progress',
-      '✨ Exclusive Badge Collection - Rare achievements unlocked'
+      '✨ Exclusive Badge Collection - Rare achievements unlocked',
+      '📜 Chronicle Milestone - This moment joins your story',
+      '⛰️ Deepstone Mines Ahead - A new region opens at Level 30'
     ]
   }
 };
@@ -144,7 +144,7 @@ export default function MilestoneCelebration({
       case 'level':
         return 'Level Up!';
       case 'streak':
-        return `${milestone}-Day Streak!`;
+        return `${milestone} Active Days!`;
       case 'achievement':
         return 'Achievement Unlocked!';
       default:
@@ -283,7 +283,7 @@ export default function MilestoneCelebration({
                   transition={{ delay: 0.5 }}
                   className="text-2xl text-white font-bold relative z-10"
                 >
-                  {milestone} days of dedication!
+                  {milestone} days of showing up for yourself!
                 </motion.p>
               )}
             </div>

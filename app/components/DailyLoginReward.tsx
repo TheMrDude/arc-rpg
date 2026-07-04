@@ -172,7 +172,7 @@ export default function DailyLoginReward({ userId, onRewardClaimed }: DailyLogin
                     : 'text-xl text-[#00D4FF]'
                 }`}
               >
-                {isStreakBonus ? 'Streak Bonus!' : 'Daily Login Reward'}
+                {isStreakBonus ? 'Milestone Bonus!' : 'Daily Login Reward'}
               </h2>
             </div>
 
@@ -196,7 +196,7 @@ export default function DailyLoginReward({ userId, onRewardClaimed }: DailyLogin
               </div>
               {reward.bonus_gold > 0 && (
                 <div className="text-sm text-gray-400 mt-1">
-                  ({reward.base_gold} base + {reward.bonus_gold} streak bonus)
+                  ({reward.base_gold} base + {reward.bonus_gold} milestone bonus)
                 </div>
               )}
             </motion.div>
@@ -209,7 +209,7 @@ export default function DailyLoginReward({ userId, onRewardClaimed }: DailyLogin
             {/* Streak day */}
             <div className="text-center">
               <span className="text-xs font-bold text-gray-500 uppercase">
-                Streak Day {reward.streak_day} of 7
+                Bonus Day {reward.streak_day} of 7
               </span>
             </div>
 

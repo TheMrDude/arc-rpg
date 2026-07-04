@@ -23,14 +23,14 @@ export default function AchievementBadges({ profile, quests }) {
     {
       id: 'streak_7',
       name: 'Week Warrior',
-      description: 'Maintain a 7-day streak',
+      description: 'Stay active 7 days in a row',
       icon: '🔥',
       condition: (p) => p.current_streak >= 7
     },
     {
       id: 'streak_30',
       name: 'Monthly Master',
-      description: 'Maintain a 30-day streak',
+      description: 'Stay active 30 days in a row',
       icon: '💪',
       condition: (p) => p.current_streak >= 30
     },
@@ -153,7 +153,7 @@ export default function AchievementBadges({ profile, quests }) {
 
         <div className="mt-4 pt-4 border-t border-gray-700 text-center">
           <p className="text-sm text-gray-400">
-            {earnedBadges.length} badge{earnedBadges.length !== 1 ? 's' : ''} earned — keep questing to unlock more!
+            {earnedBadges.length} badge{earnedBadges.length !== 1 ? 's' : ''} earned. Keep questing to unlock more!
           </p>
         </div>
       </div>

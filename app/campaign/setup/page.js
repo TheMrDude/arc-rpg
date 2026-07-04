@@ -21,7 +21,7 @@ export default function CampaignSetupPage() {
   const [characterName, setCharacterName] = useState('');
 
   useEffect(() => {
-    document.title = 'Join a Campaign — HabitQuest';
+    document.title = 'Join a Campaign | HabitQuest';
     checkExistingCampaign();
   }, []);
 

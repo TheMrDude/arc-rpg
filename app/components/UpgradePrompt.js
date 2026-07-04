@@ -19,7 +19,7 @@ export default function UpgradePrompt({ trigger, profile }) {
         'Set up Recurring Quests to automate habits',
         'Join Seasonal Events for exclusive rewards'
       ],
-      cta: 'Go Pro — $5/mo',
+      cta: 'Go Pro for $5/mo',
       delay: 2000
     },
     quest_limit: {
@@ -30,22 +30,22 @@ export default function UpgradePrompt({ trigger, profile }) {
         'Recurring Quests automate your daily routine',
         'Equipment boosts help you level up 50% faster',
         'Seasonal Events add fresh challenges weekly',
-        'Never lose progress with Streak Protection'
+        'Momentum Boost covers a busy day each week'
       ],
-      cta: 'Unlock Full Power — $5/mo',
+      cta: 'Unlock Full Power for $5/mo',
       delay: 1000
     },
     streak_milestone: {
-      title: 'Amazing Streak!',
-      subtitle: `${profile?.current_streak || 0} days and counting!`,
-      message: 'You\'ve built incredible momentum. Protect your progress with Pro benefits.',
+      title: 'Incredible Momentum!',
+      subtitle: `${profile?.current_streak || 0} active days and counting!`,
+      message: 'You\'ve built real momentum. Keep it rolling with Pro benefits.',
       benefits: [
-        'Streak Freeze: 1 free pass per week',
-        'Recurring Quests keep your streak alive automatically',
+        'Momentum Boost: cover one busy day each week',
+        'Recurring Quests keep your routine running automatically',
         'Equipment Shop boosts make daily quests easier',
         'Pro access means your progress never expires'
       ],
-      cta: 'Protect Your Streak — Go Pro',
+      cta: 'Keep Your Momentum with Pro',
       delay: 1500
     },
     skill_tree_locked: {
@@ -58,7 +58,7 @@ export default function UpgradePrompt({ trigger, profile }) {
         'Special abilities unique to your archetype',
         'Unlock new skill tiers as you level up'
       ],
-      cta: 'Unlock Skill Tree — Go Pro',
+      cta: 'Unlock Skill Tree with Pro',
       delay: 1000
     }
   };
@@ -123,7 +123,7 @@ export default function UpgradePrompt({ trigger, profile }) {
         {/* Benefits */}
         <div className="bg-[#0F172A] rounded-lg p-6 mb-6">
           <h3 className="text-xl font-black mb-4 text-center text-[#10B981]">
-            UNLOCK WITH FOUNDER STATUS:
+            UNLOCK WITH PRO:
           </h3>
           <div className="space-y-3">
             {prompt.benefits.map((benefit, index) => (
@@ -142,7 +142,7 @@ export default function UpgradePrompt({ trigger, profile }) {
             <span className="text-gray-400 text-lg"></span>
           </div>
           <div className="text-[#10B981] font-bold mb-1">PRO ACCESS</div>
-          <div className="text-sm text-gray-400">or $29/yr — cancel anytime</div>
+          <div className="text-sm text-gray-400">or $29/yr, cancel anytime</div>
         </div>
 
         {/* CTA Buttons */}
@@ -174,7 +174,7 @@ export default function UpgradePrompt({ trigger, profile }) {
             </div>
             <div>
               <div className="font-bold text-[#10B981]">♾️</div>
-              <div className="text-gray-400">or $29/yr — cancel anytime</div>
+              <div className="text-gray-400">Cancel Anytime</div>
             </div>
           </div>
         </div>

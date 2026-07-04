@@ -172,7 +172,7 @@ Return ONLY a JSON object with these fields:
     const updatedStoryProgress = {
       ...storyProgress,
       recent_events: [
-        `🏆 EVENT COMPLETED: "${event.name}" — ${storyData.narrative_reward}`,
+        `🏆 EVENT COMPLETED: "${event.name}" - ${storyData.narrative_reward}`,
         ...(storyProgress.recent_events || []),
       ].slice(0, 10),
       completed_events: [

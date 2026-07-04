@@ -134,7 +134,7 @@ export default function DashboardPage() {
   const [newUnlocks, setNewUnlocks] = useState([]);
 
   useEffect(() => {
-    document.title = "Dashboard — HabitQuest";
+    document.title = "Dashboard | HabitQuest";
     loadUserData();
   }, []);
 
@@ -1000,7 +1000,7 @@ export default function DashboardPage() {
               milestone: region.name,
               type: 'achievement',
               unlocks: [
-                `${region.icon} ${region.name} — ${region.subtitle}`,
+                `${region.icon} ${region.name}: ${region.subtitle}`,
                 `New territory: ${region.habitTheme}`,
               ],
             });
@@ -1028,7 +1028,7 @@ export default function DashboardPage() {
         {profile?.trial_ends_at && new Date(profile.trial_ends_at) > new Date() && !profile?.is_premium && (
           <div className="bg-gradient-to-r from-[#7C3AED]/20 to-[#FF6B35]/20 border-2 border-[#7C3AED] rounded-xl p-3 mb-4 text-center">
             <p className="text-[#7C3AED] font-black text-sm uppercase">
-              Pro Trial — {Math.ceil((new Date(profile.trial_ends_at) - new Date()) / (1000 * 60 * 60 * 24))} days remaining
+              Pro Trial: {Math.ceil((new Date(profile.trial_ends_at) - new Date()) / (1000 * 60 * 60 * 24))} days remaining
             </p>
             <p className="text-gray-400 text-xs mt-1">
               <a href="/pricing" className="text-[#FF6B35] hover:underline font-bold">Upgrade now</a> to keep Pro features
@@ -1256,7 +1256,7 @@ export default function DashboardPage() {
           <div className="bg-[#1A1A2E] border-3 border-[#FFD93D] rounded-lg p-8 mb-6 shadow-[0_0_30px_rgba(255,217,61,0.4)]">
             <div className="text-center">
               <h3 className="text-2xl font-black mb-4 uppercase tracking-wide text-[#FFD93D]">🔥 Unlock the Full RPG Experience</h3>
-              <p className="text-[#E2E8F0] mb-6 font-bold">Go Pro to access all premium features — starting at just $5/month.</p>
+              <p className="text-[#E2E8F0] mb-6 font-bold">Go Pro to access all premium features, starting at just $5/month.</p>
               <div className="grid grid-cols-3 gap-3 mb-6">
                 <div className="bg-[#0F3460] p-3 rounded-lg border-2 border-[#1A1A2E]">
                   <div className="text-2xl mb-1">🔄</div>
@@ -1275,7 +1275,7 @@ export default function DashboardPage() {
                 onClick={() => router.push('/pricing')}
                 className="px-8 py-3 bg-[#FFD93D] hover:bg-[#E6C335] text-[#1A1A2E] border-3 border-[#0F3460] rounded-lg font-black text-lg uppercase tracking-wide shadow-[0_5px_0_#0F3460] hover:shadow-[0_7px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_2px_0_#0F3460] active:translate-y-1 transition-all"
               >
-                🔥 Go Pro — $5/mo or $29/yr
+                🔥 Go Pro, $5/mo or $29/yr
               </button>
             </div>
           </div>

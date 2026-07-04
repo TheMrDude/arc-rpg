@@ -32,7 +32,7 @@ export default function HabitLimitModal({ isOpen, onClose, onUpgrade, currentHab
               You've Mastered the Starter Path!
             </h2>
             <p className="text-gray-300 mb-2">
-              You're tracking {currentHabits} habits — that's impressive!
+              You're tracking {currentHabits} habits, that's impressive!
             </p>
             <p className="text-[#FF6B35] font-bold mb-6">
               Ready for unlimited quests and the full RPG experience?
@@ -57,7 +57,7 @@ export default function HabitLimitModal({ isOpen, onClose, onUpgrade, currentHab
               onClick={onUpgrade}
               className="w-full px-6 py-4 bg-[#FF6B35] hover:bg-[#E55A2B] text-white rounded-xl font-black text-lg uppercase tracking-wide transition-all hover:scale-105 mb-3"
             >
-              Unlock Pro — $5/mo
+              Unlock Pro for $5/mo
             </button>
             <button
               onClick={onClose}

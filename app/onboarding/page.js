@@ -364,7 +364,7 @@ export default function OnboardingPage() {
 
                 <div className="space-y-3 text-left max-w-md mx-auto">
                   {[
-                    '✨ Streak tracking and protection',
+                    '✨ Weekly Momentum meter, no streaks to lose',
                     '✨ Character progression and levels',
                     '✨ Weekly AI story chapters',
                     '✨ Cloud sync across all devices',

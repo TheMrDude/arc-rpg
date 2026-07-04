@@ -71,8 +71,8 @@ serve(async (req: Request) => {
         body = "Complete your first habit quest to earn XP and start leveling up!";
       } else if (daysSinceSignup === 3 && user.xp < 100) {
         step = "streak_intro";
-        title = "Streaks = bonus XP";
-        body = "Did you know? Completing habits on consecutive days builds a streak for bonus XP!";
+        title = "Momentum = bonus XP";
+        body = "Did you know? Staying active 4 days a week fills your Momentum meter for bonus XP!";
       } else if (daysSinceSignup === 7 && user.level < 3) {
         step = "weekly_checkin";
         title = "One week in!";

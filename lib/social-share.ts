@@ -150,7 +150,7 @@ export function getMobileShareInstructions(platform: 'instagram' | 'tiktok'): {
         '2. Create a video about your HabitQuest journey',
         '3. Use hashtag #HabitQuest',
         '4. Mention habitquest.dev in your video',
-        '5. Watch your streak grow viral!',
+        '5. Watch your story go viral!',
       ],
       appUrl: 'tiktok://app',
     };

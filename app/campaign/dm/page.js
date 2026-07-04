@@ -86,7 +86,7 @@ export default function DMDashboard() {
   const [dialogueForm, setDialogueForm] = useState({ npc_id: '', scenario: '' });
 
   useEffect(() => {
-    document.title = 'Campaign HQ — HabitQuest';
+    document.title = 'Campaign HQ | HabitQuest';
     loadData();
   }, []);
 
@@ -449,7 +449,7 @@ export default function DMDashboard() {
                       <span className="text-[#f43f5e] font-bold">{member.character_name}</span>
                       {member.recent_quests.length > 0 ? (
                         <span className="text-gray-400">
-                          {' — '}
+                          {': '}
                           {member.recent_quests.map((q, i) => (
                             <span key={i}>
                               <em>"{q.transformed_text}"</em>
@@ -458,7 +458,7 @@ export default function DMDashboard() {
                           ))}
                         </span>
                       ) : (
-                        <span className="text-gray-600"> — No activity logged this week</span>
+                        <span className="text-gray-600">: No activity logged this week</span>
                       )}
                     </div>
                   ))}

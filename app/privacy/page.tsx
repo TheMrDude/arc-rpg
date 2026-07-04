@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 export default function PrivacyPolicy() {
   useEffect(() => {
-    document.title = "Privacy Policy \u2014 HabitQuest";
+    document.title = "Privacy Policy | HabitQuest";
   }, []);
 
   return (
@@ -55,7 +55,7 @@ export default function PrivacyPolicy() {
               <li>Quest titles and descriptions you create</li>
               <li>Completion status and timestamps</li>
               <li>Experience points (XP) and level progression</li>
-              <li>Streaks, achievements, and badges earned</li>
+              <li>Activity history, achievements, and badges earned</li>
               <li>Journal entries and reflections</li>
               <li>Equipment purchases and skill tree selections</li>
             </ul>
@@ -88,7 +88,7 @@ export default function PrivacyPolicy() {
               <li><strong>Provide our service:</strong> Create your personalized RPG experience, track progress, and generate AI-powered quest narratives</li>
               <li><strong>Process payments:</strong> Handle subscription purchases and verify payment status</li>
               <li><strong>Improve our app:</strong> Analyze usage patterns to enhance features and fix bugs</li>
-              <li><strong>Send notifications:</strong> Quest reminders, achievement unlocks, and streak alerts (if you enable them)</li>
+              <li><strong>Send notifications:</strong> Quest reminders, achievement unlocks, and momentum updates (if you enable them)</li>
               <li><strong>Customer support:</strong> Respond to your inquiries and troubleshoot issues</li>
               <li><strong>Security:</strong> Detect and prevent fraud, abuse, and security incidents</li>
               <li><strong>Legal compliance:</strong> Comply with legal obligations and enforce our Terms of Service</li>

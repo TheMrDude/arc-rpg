@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   try {
     const post = await getPostBySlug(slug);
     return {
-      title: `${post.title} — HabitQuest Blog`,
+      title: `${post.title} | HabitQuest Blog`,
       description: post.description,
       openGraph: {
         title: post.title,
@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       twitter: { card: 'summary_large_image', title: post.title, description: post.description },
     };
   } catch {
-    return { title: 'Post Not Found — HabitQuest Blog' };
+    return { title: 'Post Not Found | HabitQuest Blog' };
   }
 }
 
@@ -112,7 +112,7 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
             <EmailCapture
               source={`blog-${slug}`}
               title="Join the Quest"
-              description="Get weekly habit science, productivity tactics, and exclusive HabitQuest updates. Level up your life — no spam, ever."
+              description="Get weekly habit science, productivity tactics, and exclusive HabitQuest updates. Level up your life. No spam, ever."
               buttonText="Join Now"
             />
           </div>
@@ -151,7 +151,7 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
 
           <div className="mt-16 p-8 rounded-xl bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 text-center">
             <h3 className="text-2xl font-bold text-amber-400 mb-2">Ready to make your habits epic?</h3>
-            <p className="text-gray-400 mb-6">HabitQuest turns your daily tasks into RPG quests — with AI storytelling, character progression, and zero guilt.</p>
+            <p className="text-gray-400 mb-6">HabitQuest turns your daily tasks into RPG quests, with AI storytelling, character progression, and zero guilt.</p>
             <Link href="/signup" className="inline-block bg-amber-500 hover:bg-amber-400 text-gray-900 font-bold px-8 py-3 rounded-lg transition-colors text-lg">
               Start Free →
             </Link>

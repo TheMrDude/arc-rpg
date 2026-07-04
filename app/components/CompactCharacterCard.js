@@ -6,7 +6,6 @@ export default function CompactCharacterCard({ profile, creature, isPremium }) {
   const xpInLevel = profile.xp % 100;
   const xpProgress = (xpInLevel / 100) * 100;
   const xpNeeded = (profile.level || 1) * 100;
-  const isFounder = isPremium && profile.premium_since;
 
   return (
     <div className="bg-[#1A1A2E] border-3 border-[#00D4FF] rounded-lg p-4 mb-6 shadow-[0_0_20px_rgba(0,212,255,0.3)]">
@@ -34,11 +33,6 @@ export default function CompactCharacterCard({ profile, creature, isPremium }) {
               <span className="text-sm font-black text-[#00D4FF]">
                 LV {profile.level}
               </span>
-              {isFounder && (
-                <span className="px-1.5 py-0.5 border border-[#00D4FF] text-[#00D4FF] rounded text-[10px] font-black uppercase">
-                  ⚡ Founder
-                </span>
-              )}
               {isPremium && (
                 <span className="px-2 py-0.5 bg-[#FFD93D] text-[#1A1A2E] rounded text-xs font-black uppercase">
                   PRO
@@ -47,7 +41,7 @@ export default function CompactCharacterCard({ profile, creature, isPremium }) {
             </div>
             <div className="flex items-center gap-3 text-sm">
               {profile.current_streak > 0 && (
-                <span className="text-[#FF6B6B] font-black" title="Current streak">
+                <span className="text-[#FF6B6B] font-black" title="Days active in a row">
                   🔥 {profile.current_streak}
                 </span>
               )}

@@ -78,7 +78,7 @@ serve(async (req: Request) => {
         p_user_id: user.id,
         p_type: "re_engagement",
         p_title: "Your quest awaits!",
-        p_body: `You've been away for ${daysInactive} days. Your Level ${user.level} character misses you!`,
+        p_body: `Your Level ${user.level} character is right where you left off. New quests await, no catching up required!`,
         p_icon: "/icons/quest-bell.png",
         p_data: JSON.stringify({ type: "re_engagement", days_inactive: daysInactive }),
       });

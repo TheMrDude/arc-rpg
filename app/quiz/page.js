@@ -10,7 +10,7 @@ export default function QuizPage() {
   const [result, setResult] = useState(null);
 
   useEffect(() => {
-    document.title = "What's Your Archetype? \u2014 HabitQuest Quiz";
+    document.title = "What's Your Archetype? | HabitQuest Quiz";
   }, []);
 
   const questions = [

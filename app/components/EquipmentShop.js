@@ -54,7 +54,7 @@ function EquipmentCard({ item, owned, equipped, gold, onPurchase, onEquip }) {
               </p>
             )}
             {item.stat_bonus.streak_protection && (
-              <p className="text-[#48BB78] font-bold">Streak Protection</p>
+              <p className="text-[#48BB78] font-bold">Momentum Protection</p>
             )}
           </div>
         )}

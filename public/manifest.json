@@ -1,7 +1,7 @@
 {
   "name": "HabitQuest - Epic Task RPG",
   "short_name": "HabitQuest",
-  "description": "Transform your daily tasks into epic quests. Level up in real life.",
+  "description": "Turn daily tasks into epic quests and level up in real life. Your habits. Your story. No guilt.",
   "start_url": "/dashboard",
   "display": "standalone",
   "background_color": "#1A1A2E",

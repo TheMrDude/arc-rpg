@@ -16,7 +16,7 @@ export default function PlayerCampaignPage() {
   const [latestSession, setLatestSession] = useState(null);
 
   useEffect(() => {
-    document.title = 'My Campaign — HabitQuest';
+    document.title = 'My Campaign | HabitQuest';
     loadData();
   }, []);
 
