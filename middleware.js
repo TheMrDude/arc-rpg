@@ -29,7 +29,10 @@ export async function middleware(request) {
   // Handle auth redirects before rate limiting
 
   // Define route categories
-  const publicRoutes = ['/', '/pricing'];
+  // Note: '/pricing' is intentionally NOT in this list — authenticated
+  // non-premium users need to reach it to upgrade. Redirecting them to
+  // /dashboard here made the "Go Pro" button a dead end.
+  const publicRoutes = ['/'];
   const authRoutes = ['/login', '/signup', '/confirm-email'];
   const callbackRoutes = ['/auth/callback'];
   const protectedRoutes = [

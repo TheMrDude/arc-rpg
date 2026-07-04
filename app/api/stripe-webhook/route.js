@@ -168,8 +168,20 @@ export async function POST(request) {
   // Handle successful checkout
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
-    const userId = session.metadata.user_id || session.metadata.supabase_user_id || session.metadata.userId;
-    const transactionType = session.metadata.type || session.metadata.transaction_type;
+    // Sessions created from static Stripe Payment Links (buy.stripe.com links)
+    // carry no metadata at all — the only identifier that survives is
+    // client_reference_id, which pricing/page.js attaches via the link's URL.
+    const userId =
+      session.metadata.user_id ||
+      session.metadata.supabase_user_id ||
+      session.metadata.userId ||
+      session.client_reference_id;
+    let transactionType = session.metadata.type || session.metadata.transaction_type;
+    // Payment Link sessions have no metadata to tag the transaction type;
+    // infer it from the Checkout Session mode instead.
+    if (!transactionType && session.mode === 'subscription') {
+      transactionType = 'pro_subscription';
+    }
 
     if (!userId) {
       console.error('Webhook error: No userId in session metadata', {
