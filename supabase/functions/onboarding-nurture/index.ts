@@ -1,3 +1,5 @@
+// STALE: the deployed onboarding-nurture function (Supabase, v3+) is a Resend
+// email drip, not this push-notification version. Do not deploy this file over it.
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
