@@ -2,6 +2,10 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { authenticateRequest } from '@/lib/api-auth';
 import { rollForEncounter, getEncounterRewards } from '@/lib/encounterService';
+import { getIsoWeekKey } from '@/lib/date-utils';
+import { MOMENTUM_GOAL_DAYS } from '@/lib/momentum';
+
+const MOMENTUM_BONUS_XP = 25;
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -298,6 +302,77 @@ export async function POST(request) {
       encounterResponse = encounter;
     }
 
+    // Chest drop: a small, always-positive bonus, mutually exclusive with
+    // the D10 encounter above so a single quest completion only ever
+    // triggers one surprise-reward moment (never both, never negative).
+    let chestDrop = null;
+    if (!encounter && Math.random() < 0.3) {
+      const chestGold = Math.floor(Math.random() * 31) + 10; // 10-40 gold
+
+      try {
+        const { data: chestGoldTx } = await supabaseAdmin
+          .rpc('process_gold_transaction', {
+            p_user_id: user.id,
+            p_amount: chestGold,
+            p_transaction_type: 'chest_drop',
+            p_reference_id: quest_id,
+            p_metadata: { source: 'quest_completion' }
+          });
+        const chestResult = chestGoldTx?.[0];
+        newGoldBalance = chestResult ? chestResult.new_balance : newGoldBalance + chestGold;
+        chestDrop = { gold: chestGold };
+      } catch (err) {
+        console.error('Failed to process chest drop gold:', err);
+      }
+    }
+
+    // Momentum meter weekly bonus: grant once per ISO week the first time
+    // active days (real completions + any consumed Momentum Boost) hits
+    // the 4-day goal. Never punitive, only ever adds.
+    let momentumFilled = false;
+    let momentumBonusXP = 0;
+    let finalXP = newXP;
+    let finalLevel = newLevel;
+    const currentWeek = getIsoWeekKey();
+
+    if (profile.momentum_week_claimed !== currentWeek) {
+      try {
+        const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+        const { data: recentQuests } = await supabaseAdmin
+          .from('quests')
+          .select('completed_at')
+          .eq('user_id', user.id)
+          .eq('completed', true)
+          .gte('completed_at', sevenDaysAgo);
+
+        const activeDays = new Set(
+          (recentQuests || []).map((q) => new Date(q.completed_at).toISOString().slice(0, 10))
+        );
+        let activeDayCount = activeDays.size;
+        if (profile.momentum_boost_week === currentWeek) {
+          activeDayCount += 1;
+        }
+
+        if (activeDayCount >= MOMENTUM_GOAL_DAYS) {
+          momentumFilled = true;
+          momentumBonusXP = MOMENTUM_BONUS_XP;
+          finalXP = newXP + momentumBonusXP;
+          finalLevel = Math.floor(finalXP / 100) + 1;
+
+          await supabaseAdmin
+            .from('profiles')
+            .update({
+              xp: finalXP,
+              level: finalLevel,
+              momentum_week_claimed: currentWeek,
+            })
+            .eq('id', user.id);
+        }
+      } catch (err) {
+        console.error('Failed to evaluate momentum bonus:', err);
+      }
+    }
+
     console.log('Quest completed successfully', {
       userId: user.id,
       questId: quest_id,
@@ -321,13 +396,16 @@ export async function POST(request) {
         equipment_bonus_xp: equipmentBonus,
         comeback_bonus: comebackBonus,
         gold: goldReward,
-        new_level: newLevel,
-        level_up: newLevel > profile.level,
+        new_level: finalLevel,
+        level_up: finalLevel > profile.level,
         skill_points_earned: skillPointsEarned,
+        chest_drop: chestDrop,
+        momentum_filled: momentumFilled,
+        momentum_bonus_xp: momentumBonusXP,
       },
       profile: {
-        xp: newXP,
-        level: newLevel,
+        xp: finalXP,
+        level: finalLevel,
         gold: newGoldBalance,
         current_streak: newStreak,
         skill_points: newSkillPoints,
@@ -339,6 +417,7 @@ export async function POST(request) {
         new_story_started: storyUpdates.currentThread && storyUpdates.currentThread !== profile.current_story_thread,
       },
       encounter: encounterResponse,
+      chest_drop: chestDrop,
     });
 
   } catch (error) {

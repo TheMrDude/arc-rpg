@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import EmptyState from './EmptyState';
 
 const MOOD_EMOJIS = {
   1: '😞',
@@ -172,7 +173,7 @@ function JournalEntryCard({ entry, index, onDelete }) {
   );
 }
 
-export default function JournalTimeline({ entries, isLoading, onLoadMore, hasMore, onDelete }) {
+export default function JournalTimeline({ entries, isLoading, onLoadMore, hasMore, onDelete, onNewEntry }) {
   if (isLoading && entries.length === 0) {
     return (
       <div className="space-y-4">
@@ -196,15 +197,13 @@ export default function JournalTimeline({ entries, isLoading, onLoadMore, hasMor
 
   if (entries.length === 0) {
     return (
-      <div className="text-center py-16">
-        <div className="text-7xl mb-4">📖</div>
-        <h3 className="text-2xl font-black text-[#FFD93D] mb-2" style={{ fontFamily: 'VT323, monospace' }}>
-          YOUR JOURNAL AWAITS
-        </h3>
-        <p className="text-[#00D4FF] font-bold">
-          Write your first entry to begin documenting your hero's journey.
-        </p>
-      </div>
+      <EmptyState
+        icon="📖"
+        title="Your journal awaits"
+        description="Blank pages don't write themselves. Log your first entry and start documenting your hero's journey."
+        actionLabel={onNewEntry ? 'Write an Entry' : undefined}
+        onAction={onNewEntry}
+      />
     );
   }
 

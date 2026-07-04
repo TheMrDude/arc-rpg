@@ -1,8 +1,11 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import { useSound } from '@/app/components/SoundProvider';
+import { usePrefersReducedMotion } from '@/lib/hooks/usePrefersReducedMotion';
 import { getUnlockedSkills } from '@/lib/skills';
 import { checkBossEncounter, getCreatureCompanion } from '@/lib/encounters';
 import { getDashboardSections, getNewUnlocks } from '@/lib/dashboardVisibility';
@@ -29,19 +32,25 @@ import WelcomeQuestChain from '@/app/components/WelcomeQuestChain';
 import GoldPurchasePrompt from '@/app/components/GoldPurchasePrompt';
 import SeasonalEvent from '@/app/components/SeasonalEvent';
 import EventStoryModal from '@/app/components/EventStoryModal';
-import StreakProtection from '@/app/components/StreakProtection';
+import MomentumBoost from '@/app/components/MomentumBoost';
+import MomentumMeter from '@/app/components/MomentumMeter';
 import AchievementBadges from '@/app/components/AchievementBadges';
 import UpgradePrompt from '@/app/components/UpgradePrompt';
 import HabitLimitModal from '@/app/components/HabitLimitModal';
 import GlobalFooter from '@/app/components/GlobalFooter';
 import { ErrorBoundary } from '@/app/components/ErrorBoundary';
-import CompactCharacterCard from '@/app/components/CompactCharacterCard';
+import CharacterPanel from '@/app/components/CharacterPanel';
+import ChroniclePanel from '@/app/components/ChroniclePanel';
 import QuestInputRedesigned from '@/app/components/QuestInputRedesigned';
 import FirstTimeEmptyState from '@/app/components/FirstTimeEmptyState';
+import EmptyState from '@/app/components/EmptyState';
 import DiceRoll from '@/app/components/DiceRoll';
 import ActiveEffects from '@/app/components/ActiveEffects';
 import UnlockToast from '@/app/components/UnlockToast';
-import { trackQuestCreated, trackQuestCompleted, trackLevelUp, trackStreakAchieved, trackStoryMilestone, trackGoldPurchaseViewed } from '@/lib/analytics';
+import QuestRewardBurst from '@/app/components/QuestRewardBurst';
+import FloatingReward from '@/app/components/FloatingReward';
+import ChestDropReveal from '@/app/components/ChestDropReveal';
+import { trackQuestCreated, trackQuestCompleted, trackLevelUp, trackStreakAchieved, trackStoryMilestone, trackGoldPurchaseViewed, trackEvent } from '@/lib/analytics';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -63,6 +72,18 @@ export default function DashboardPage() {
   const [completedQuestData, setCompletedQuestData] = useState(null);
   const [showMilestoneCelebration, setShowMilestoneCelebration] = useState(false);
   const [milestoneData, setMilestoneData] = useState(null);
+
+  // Reward juice states
+  const [showRewardBurst, setShowRewardBurst] = useState(false);
+  const [burstOrigin, setBurstOrigin] = useState({ x: null, y: null });
+  const [goldFloat, setGoldFloat] = useState({ show: false, amount: 0 });
+  const [showChestDrop, setShowChestDrop] = useState(false);
+  const [chestDropData, setChestDropData] = useState(null);
+  const [momentumToast, setMomentumToast] = useState(false);
+  const chestDropRef = useRef(null);
+  const { play: playSound, enabled: soundEnabled, setEnabled: setSoundEnabled } = useSound();
+  const prefersReducedMotion = usePrefersReducedMotion();
+  const [equipmentVersion, setEquipmentVersion] = useState(0);
 
   // Login transition states
   const [showLoginTransition, setShowLoginTransition] = useState(true);
@@ -398,8 +419,12 @@ export default function DashboardPage() {
     }
   }
 
-  async function completeQuest(questId, xpValue) {
+  async function completeQuest(questId, xpValue, clickEvent) {
     try {
+      if (clickEvent) {
+        setBurstOrigin({ x: clickEvent.clientX, y: clickEvent.clientY });
+      }
+
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
       if (sessionError || !session || !session.access_token) {
@@ -442,6 +467,26 @@ export default function DashboardPage() {
         questTitle: questToComplete?.transformed_text || 'Quest Complete!'
       });
       setShowQuestCelebration(true);
+
+      // Juice: orb flight to XP bar, floating gold text, completion chime
+      playSound('quest-complete');
+      setShowRewardBurst(true);
+      setGoldFloat({ show: true, amount: rewards.gold });
+      setTimeout(() => setGoldFloat({ show: false, amount: 0 }), 700);
+
+      // Chest drop reveal (mutually exclusive with encounter) shows after
+      // celebration/reflection close, same sequencing as the dice roll below.
+      if (rewards.chest_drop) {
+        setChestDropData(rewards.chest_drop);
+        chestDropRef.current = rewards.chest_drop;
+      }
+
+      // Momentum meter filled this week — small toast + analytics, no modal
+      if (rewards.momentum_filled) {
+        setMomentumToast(true);
+        setTimeout(() => setMomentumToast(false), 2500);
+        trackEvent('momentum_meter_filled', { week: new Date().toISOString() });
+      }
 
       // Track quest completion
       trackQuestCompleted({
@@ -534,11 +579,13 @@ export default function DashboardPage() {
 
     if (showsReflection) {
       setShowReflection(true);
-      // Dice roll will show when reflection closes (see handleReflectionClose)
+      // Dice roll / chest reveal will show when reflection closes (see handleReflectionClose)
     } else {
-      // No reflection — show dice roll now if one is pending
+      // No reflection — show dice roll or chest reveal now if one is pending
       if (encounterRef.current) {
         setTimeout(() => setShowDiceRoll(true), 300);
+      } else if (chestDropRef.current) {
+        setTimeout(() => setShowChestDrop(true), 300);
       }
     }
 
@@ -907,6 +954,13 @@ export default function DashboardPage() {
             )}
           </div>
           <button
+            onClick={() => setSoundEnabled(!soundEnabled)}
+            className="px-2.5 py-1.5 bg-[#0f172a] hover:bg-[#1e293b] text-[#94a3b8] border-2 border-[#1e293b] rounded-lg font-black text-sm transition-all"
+            title={soundEnabled ? 'Mute sound effects' : 'Unmute sound effects'}
+          >
+            {soundEnabled ? '🔊' : '🔇'}
+          </button>
+          <button
             onClick={handleLogout}
             className="px-3 py-1.5 bg-[#FF6B6B] hover:bg-[#EE5A6F] text-white border-2 border-[#0F3460] rounded-lg font-bold uppercase text-xs tracking-wide transition-all"
             title="Logout"
@@ -915,12 +969,20 @@ export default function DashboardPage() {
           </button>
         </div>
 
-        {/* Compact Character Card */}
-        <CompactCharacterCard
+        {/* Character Panel — archetype art, XP ring, level, equipped gear */}
+        <CharacterPanel
           profile={profile}
           creature={creature}
           isPremium={isPremium}
+          equipmentVersion={equipmentVersion}
+          reducedMotion={prefersReducedMotion}
         />
+
+        {/* Chronicle — narrative recap, daily "previously on", weekly chapter card */}
+        <ChroniclePanel profile={profile} userId={user?.id} />
+
+        {/* Momentum meter — anti-streak weekly engagement loop */}
+        <MomentumMeter quests={quests} profile={profile} reducedMotion={prefersReducedMotion} />
 
         {/* Active Effects Bar */}
         <ActiveEffects effects={activeEffects} />
@@ -1017,19 +1079,27 @@ export default function DashboardPage() {
                         {quest.difficulty} | {quest.xp_value} XP
                       </div>
                     </div>
-                    <button
-                      onClick={() => completeQuest(quest.id, quest.xp_value)}
+                    <motion.button
+                      onClick={(e) => completeQuest(quest.id, quest.xp_value, e)}
+                      whileTap={prefersReducedMotion ? {} : { scale: 0.92 }}
+                      transition={{ type: 'spring', stiffness: 500, damping: 15 }}
                       className="ml-4 px-4 py-2 bg-[#48BB78] hover:bg-[#38a169] text-white border-3 border-[#0F3460] rounded-lg font-black uppercase text-sm tracking-wide shadow-[0_3px_0_#0F3460] hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1 transition-all"
                     >
                       Complete
-                    </button>
+                    </motion.button>
                   </div>
                 ))}
                 {activeQuestsList.length === 0 && (
                   isNewUser ? (
                     <FirstTimeEmptyState onTryQuest={scrollToQuestInput} />
                   ) : (
-                    <p className="text-[#00D4FF] text-center py-8 font-bold">No active quests. Add one above!</p>
+                    <EmptyState
+                      icon="🍺"
+                      title="The tavern is quiet"
+                      description="Too quiet. Post a quest on the board and get back to your adventure."
+                      actionLabel="Post a Quest"
+                      onAction={scrollToQuestInput}
+                    />
                   )
                 )}
               </div>
@@ -1104,6 +1174,7 @@ export default function DashboardPage() {
             isPremium={isPremium}
             gold={profile.gold || 0}
             onGoldChange={handleGoldChange}
+            onEquipmentChange={() => setEquipmentVersion((v) => v + 1)}
           />
         )}
 
@@ -1145,6 +1216,7 @@ export default function DashboardPage() {
                 onLoadMore={handleLoadMoreJournals}
                 onDelete={handleJournalDelete}
                 hasMore={journalEntries.length < journalTotal}
+                onNewEntry={() => setShowJournalEntry(true)}
               />
             )}
           </div>
@@ -1215,9 +1287,11 @@ export default function DashboardPage() {
           show={showReflection}
           onClose={() => {
             setShowReflection(false);
-            // Show dice roll AFTER reflection closes
+            // Show dice roll or chest reveal AFTER reflection closes
             if (encounterRef.current) {
               setTimeout(() => setShowDiceRoll(true), 300);
+            } else if (chestDropRef.current) {
+              setTimeout(() => setShowChestDrop(true), 300);
             }
           }}
           questId={completedQuestData.questId}
@@ -1245,6 +1319,51 @@ export default function DashboardPage() {
         encounter={encounterData}
         onClaim={handleDiceClaimReward}
       />
+
+      {/* Chest drop reveal (mutually exclusive with dice roll encounter) */}
+      <ChestDropReveal
+        show={showChestDrop}
+        gold={chestDropData?.gold || 0}
+        reducedMotion={prefersReducedMotion}
+        onClose={() => {
+          setShowChestDrop(false);
+          setChestDropData(null);
+          chestDropRef.current = null;
+          loadUserData();
+        }}
+      />
+
+      {/* XP orb flight from quest card to XP bar */}
+      <QuestRewardBurst
+        show={showRewardBurst}
+        originX={burstOrigin.x}
+        originY={burstOrigin.y}
+        reducedMotion={prefersReducedMotion}
+        onComplete={() => setShowRewardBurst(false)}
+      />
+
+      {/* Floating +gold text near the gold counter */}
+      <FloatingReward
+        show={goldFloat.show}
+        text={`+${goldFloat.amount} Gold`}
+        color="#FFD93D"
+        targetId="gold-counter-target"
+        reducedMotion={prefersReducedMotion}
+      />
+
+      {/* Momentum bonus toast */}
+      <AnimatePresence>
+        {momentumToast && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="fixed bottom-6 left-6 z-50 bg-[#48BB78] text-white px-4 py-3 rounded-lg font-black text-sm shadow-lg"
+          >
+            ✨ Momentum filled! +25 bonus XP
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Event Story Modal */}
       <EventStoryModal
@@ -1286,12 +1405,13 @@ export default function DashboardPage() {
         currentGold={profile?.gold || 0}
       />
 
-      {/* Streak Protection */}
+      {/* Momentum Boost prompt (replaces streak-freeze upsell) */}
       {profile && (
-        <StreakProtection
-          streak={profile.current_streak || 0}
-          lastActivityDate={profile.last_activity_date}
+        <MomentumBoost
+          quests={quests}
+          profile={profile}
           isPremium={isPremium}
+          onBoostUsed={loadUserData}
         />
       )}
 

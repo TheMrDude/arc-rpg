@@ -1,6 +1,7 @@
 import './globals.css'
 import Script from 'next/script'
 import PostHogProvider from './components/PostHogProvider'
+import { SoundProvider } from './components/SoundProvider'
 
 export const metadata = {
   title: 'HabitQuest - ADHD-Friendly Gamified Habit Tracker | No Streaks, No Guilt',
@@ -132,7 +133,9 @@ export default function RootLayout({ children }) {
       </head>
       <body>
         <PostHogProvider>
-          {children}
+          <SoundProvider>
+            {children}
+          </SoundProvider>
         </PostHogProvider>
 
         {/* Service Worker Registration */}

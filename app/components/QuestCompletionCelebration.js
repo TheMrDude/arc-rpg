@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import ShareToSocial from './ShareToSocial';
 
@@ -11,8 +11,6 @@ export default function QuestCompletionCelebration({
   rewards,
   questTitle
 }) {
-  const audioRef = useRef(null);
-
   // Lock body scroll when modal is open
   useEffect(() => {
     if (show) {
@@ -51,15 +49,6 @@ export default function QuestCompletionCelebration({
       };
 
       frame();
-
-      // Play completion sound
-      if (!audioRef.current) {
-        audioRef.current = new Audio('/sounds/quest-complete.mp3');
-        audioRef.current.volume = 0.5;
-      }
-      audioRef.current.play().catch(err => {
-        console.log('Audio play failed:', err);
-      });
 
       // Haptic feedback
       if (navigator.vibrate) {
