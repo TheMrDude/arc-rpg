@@ -1,8 +1,10 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
+import { useSound } from '../SoundProvider';
+import { usePrefersReducedMotion } from '@/lib/hooks/usePrefersReducedMotion';
 
 
 // Unlock data for different levels
@@ -58,69 +60,61 @@ export default function MilestoneCelebration({
 }) {
   const [canClose, setCanClose] = useState(false);
   const [confettiActive, setConfettiActive] = useState(false);
-  const audioRef = useRef(null);
+  const { play } = useSound();
+  const reducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
     if (show) {
-      // Prevent closing for first 1.5 seconds
+      // Prevent closing for first 1.5 seconds — this is meant to feel like
+      // an event, not a toast, so it intentionally holds past the 800ms cap
+      // that applies to the rest of the celebration juice.
       setCanClose(false);
       const timer = setTimeout(() => {
         setCanClose(true);
       }, 1500);
 
-      // Start continuous confetti
-      setConfettiActive(true);
-      const confettiDuration = 3000;
-      const confettiEnd = Date.now() + confettiDuration;
+      if (!reducedMotion) {
+        // Start continuous confetti
+        setConfettiActive(true);
+        const confettiDuration = 3000;
+        const confettiEnd = Date.now() + confettiDuration;
 
-      const colors = type === 'level'
-        ? ['#E8B44C', '#D4943C', '#FFD93D', '#FF6B6B']
-        : type === 'streak'
-        ? ['#FF6B35', '#F7931E', '#FDC830', '#F37335']
-        : ['#8B5CF6', '#A78BFA', '#C4B5FD', '#DDD6FE'];
+        const colors = type === 'level'
+          ? ['#E8B44C', '#D4943C', '#FFD93D', '#FF6B6B']
+          : type === 'streak'
+          ? ['#FF6B35', '#F7931E', '#FDC830', '#F37335']
+          : ['#8B5CF6', '#A78BFA', '#C4B5FD', '#DDD6FE'];
 
-      const frame = () => {
-        confetti({
-          particleCount: 7,
-          angle: 60,
-          spread: 55,
-          origin: { x: 0 },
-          colors: colors
-        });
+        const frame = () => {
+          confetti({
+            particleCount: 7,
+            angle: 60,
+            spread: 55,
+            origin: { x: 0 },
+            colors: colors
+          });
 
-        confetti({
-          particleCount: 7,
-          angle: 120,
-          spread: 55,
-          origin: { x: 1 },
-          colors: colors
-        });
+          confetti({
+            particleCount: 7,
+            angle: 120,
+            spread: 55,
+            origin: { x: 1 },
+            colors: colors
+          });
 
-        if (Date.now() < confettiEnd) {
-          requestAnimationFrame(frame);
-        } else {
-          setConfettiActive(false);
-        }
-      };
+          if (Date.now() < confettiEnd) {
+            requestAnimationFrame(frame);
+          } else {
+            setConfettiActive(false);
+          }
+        };
 
-      frame();
-
-      // Play fanfare sound
-      if (!audioRef.current) {
-        audioRef.current = new Audio('/sounds/level-up.mp3');
-        audioRef.current.volume = 0.6;
+        frame();
       }
-      audioRef.current.play().catch(err => {
-        console.log('Audio play failed:', err);
-      });
 
-      return () => {
-        clearTimeout(timer);
-        if (audioRef.current) {
-          audioRef.current.pause();
-          audioRef.current.currentTime = 0;
-        }
-      };
+      play(type === 'level' ? 'level-up' : 'streak-milestone');
+
+      return () => clearTimeout(timer);
     }
   }, [show, type]);
 
@@ -216,56 +210,70 @@ export default function MilestoneCelebration({
                 }}
               />
 
-              {/* Emoji */}
-              <motion.div
-                initial={{ scale: 0, rotate: -180 }}
-                animate={{
-                  scale: 1,
-                  rotate: 0
-                }}
-                transition={{
-                  type: 'spring',
-                  stiffness: 200,
-                  damping: 12,
-                  delay: 0.2
-                }}
-                className="text-9xl mb-4 relative z-10"
-              >
-                {getEmoji()}
-              </motion.div>
-
-              {/* Title */}
-              <motion.h1
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-                className="text-5xl font-black text-white mb-2 relative z-10"
-                style={{
-                  textShadow: '0 4px 8px rgba(0,0,0,0.3)'
-                }}
-              >
-                {getTitle()}
-              </motion.h1>
-
-              {/* Subtitle */}
-              {type === 'level' && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 }}
-                  className="relative z-10"
-                >
-                  <div className="inline-block bg-white bg-opacity-20 backdrop-blur-sm rounded-full px-6 py-2 border-2 border-white border-opacity-50">
-                    <p className="text-2xl font-bold text-white">
-                      Level {milestone}
-                    </p>
-                  </div>
+              {type === 'level' ? (
+                <>
+                  {/* Huge level numeral — this is the moment, not the emoji */}
+                  <motion.p
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.15 }}
+                    className="text-xl font-black text-white uppercase tracking-widest relative z-10 mb-1"
+                  >
+                    Level Up
+                  </motion.p>
+                  <motion.h1
+                    initial={{ scale: 0.5, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ type: 'spring', stiffness: 220, damping: 14, delay: 0.2 }}
+                    className="text-8xl sm:text-9xl font-black text-white relative z-10 leading-none"
+                    style={{ textShadow: '0 6px 16px rgba(0,0,0,0.4), 0 0 40px rgba(255,217,61,0.6)' }}
+                  >
+                    {milestone}
+                  </motion.h1>
                   {levelTitle && (
-                    <p className="text-xl text-white mt-2 font-semibold">
+                    <motion.p
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.5 }}
+                      className="text-xl text-white mt-3 font-semibold relative z-10"
+                    >
                       {levelTitle}
-                    </p>
+                    </motion.p>
                   )}
-                </motion.div>
+                </>
+              ) : (
+                <>
+                  {/* Emoji */}
+                  <motion.div
+                    initial={{ scale: 0, rotate: -180 }}
+                    animate={{
+                      scale: 1,
+                      rotate: 0
+                    }}
+                    transition={{
+                      type: 'spring',
+                      stiffness: 200,
+                      damping: 12,
+                      delay: 0.2
+                    }}
+                    className="text-9xl mb-4 relative z-10"
+                  >
+                    {getEmoji()}
+                  </motion.div>
+
+                  {/* Title */}
+                  <motion.h1
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="text-5xl font-black text-white mb-2 relative z-10"
+                    style={{
+                      textShadow: '0 4px 8px rgba(0,0,0,0.3)'
+                    }}
+                  >
+                    {getTitle()}
+                  </motion.h1>
+                </>
               )}
 
               {type === 'streak' && (

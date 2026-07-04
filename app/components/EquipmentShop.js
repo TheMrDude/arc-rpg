@@ -3,20 +3,8 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { supabase } from '@/lib/supabase-client';
-
-const RARITY_COLORS = {
-  common: '#9CA3AF',
-  rare: '#00D4FF',
-  epic: '#9333EA',
-  legendary: '#FFD93D',
-};
-
-const RARITY_GLOW = {
-  common: 'rgba(156,163,175,0.3)',
-  rare: 'rgba(0,212,255,0.4)',
-  epic: 'rgba(147,51,234,0.5)',
-  legendary: 'rgba(255,217,61,0.6)',
-};
+import { RARITY_COLORS, RARITY_GLOW } from '@/lib/equipment-constants';
+import EmptyState from './EmptyState';
 
 function EquipmentCard({ item, owned, equipped, gold, onPurchase, onEquip }) {
   const canAfford = gold >= item.gold_price;
@@ -105,7 +93,7 @@ function EquipmentCard({ item, owned, equipped, gold, onPurchase, onEquip }) {
   );
 }
 
-export default function EquipmentShop({ isPremium, gold, onGoldChange }) {
+export default function EquipmentShop({ isPremium, gold, onGoldChange, onEquipmentChange }) {
   const [catalog, setCatalog] = useState([]);
   const [inventory, setInventory] = useState([]);
   const [equipped, setEquipped] = useState({});
@@ -222,6 +210,7 @@ export default function EquipmentShop({ isPremium, gold, onGoldChange }) {
       }
 
       loadEquipment();
+      onEquipmentChange?.();
     } catch (error) {
       console.error('Equip error:', error);
       alert('Failed to equip item');
@@ -297,9 +286,13 @@ export default function EquipmentShop({ isPremium, gold, onGoldChange }) {
       </div>
 
       {filteredCatalog.length === 0 && (
-        <div className="text-center py-16">
-          <p className="text-gray-400">No equipment in this category yet</p>
-        </div>
+        <EmptyState
+          icon="🛠️"
+          title="The blacksmith's shelves are bare"
+          description="Nothing in this category yet. Check back soon, or browse everything else the shop has to offer."
+          actionLabel="Show All Gear"
+          onAction={() => setSelectedType('all')}
+        />
       )}
     </div>
   );
