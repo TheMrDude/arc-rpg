@@ -1,0 +1,175 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 750 1000" preserveAspectRatio="none">
+  <!--
+    World of HabitQuest — stylized fantasy map.
+    Region art is positioned to match the hotspot percentages in
+    lib/world-regions.js (viewBox 750x1000, so 1% x = 7.5u, 1% y = 10u).
+    If a hotspot moves there, move the matching art cluster here.
+  -->
+  <defs>
+    <radialGradient id="sea" cx="75%" cy="85%" r="90%">
+      <stop offset="0%" stop-color="#1b3a52"/>
+      <stop offset="60%" stop-color="#122b40"/>
+      <stop offset="100%" stop-color="#0b1c2c"/>
+    </radialGradient>
+    <radialGradient id="land" cx="35%" cy="30%" r="110%">
+      <stop offset="0%" stop-color="#3a2a14"/>
+      <stop offset="45%" stop-color="#2d1f0e"/>
+      <stop offset="100%" stop-color="#1a1208"/>
+    </radialGradient>
+    <radialGradient id="plainsGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#c8a96e" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#c8a96e" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="emberGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#c45c1a" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#c45c1a" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Sea -->
+  <rect width="750" height="1000" fill="url(#sea)"/>
+
+  <!-- Faint sea waves -->
+  <g stroke="#3b5a74" stroke-width="1.5" fill="none" opacity="0.35">
+    <path d="M600 300 q15 -8 30 0 q15 8 30 0"/>
+    <path d="M640 420 q15 -8 30 0 q15 8 30 0"/>
+    <path d="M660 560 q15 -8 30 0"/>
+    <path d="M650 760 q15 -8 30 0 q15 8 30 0"/>
+    <path d="M560 920 q15 -8 30 0 q15 8 30 0"/>
+    <path d="M430 960 q15 -8 30 0"/>
+  </g>
+
+  <!-- Landmass -->
+  <path
+    d="M0 0 L750 0 L750 110
+       C712 160 698 240 708 330
+       C716 410 668 490 645 555
+       C625 605 645 655 612 700
+       C580 742 522 762 502 820
+       C482 878 424 902 382 938
+       L362 1000 L0 1000 Z"
+    fill="url(#land)" stroke="#c8a96e" stroke-width="2" stroke-opacity="0.45"/>
+
+  <!-- Coast inner line -->
+  <path
+    d="M750 110 C712 160 698 240 708 330 C716 410 668 490 645 555 C625 605 645 655 612 700 C580 742 522 762 502 820 C482 878 424 902 382 938 L362 1000"
+    fill="none" stroke="#c8a96e" stroke-width="5" stroke-opacity="0.12"/>
+
+  <!-- Rivers: from Ashfall Peaks down through the plains to Ember Coast -->
+  <g stroke="#4a7a96" stroke-width="4" fill="none" opacity="0.55" stroke-linecap="round">
+    <path d="M310 240 C330 320 300 380 350 450 C395 512 480 540 560 600"/>
+    <path d="M350 450 C330 520 300 560 250 600" stroke-width="3" opacity="0.4"/>
+  </g>
+
+  <!-- ASHFALL PEAKS (hotspot 30-50% x, 10-28% y → 225-375, 100-280) -->
+  <g fill="#8ba0b4" stroke="#0f0a05" stroke-width="2">
+    <path d="M245 240 L285 150 L325 240 Z"/>
+    <path d="M300 250 L345 140 L392 250 Z"/>
+    <path d="M355 235 L390 170 L428 235 Z" opacity="0.85"/>
+    <path d="M215 250 L245 195 L275 250 Z" opacity="0.8"/>
+  </g>
+  <g fill="#e8eef4">
+    <path d="M285 150 L272 180 L299 180 Z"/>
+    <path d="M345 140 L330 175 L361 175 Z"/>
+  </g>
+  <text x="320" y="290" font-family="Georgia, serif" font-style="italic" font-size="24" fill="#d9b877" text-anchor="middle" opacity="0.9">Ashfall Peaks</text>
+
+  <!-- THORNBACK FOREST (hotspot 20-36% x, 30-50% y → 150-270, 300-500) -->
+  <g fill="#2d5a27" stroke="#0f0a05" stroke-width="1.5">
+    <path d="M170 400 L185 360 L200 400 Z"/><rect x="182" y="398" width="6" height="12"/>
+    <path d="M205 430 L222 385 L239 430 Z"/><rect x="219" y="428" width="6" height="13"/>
+    <path d="M150 455 L165 415 L180 455 Z"/><rect x="162" y="453" width="6" height="12"/>
+    <path d="M235 395 L250 355 L265 395 Z"/><rect x="247" y="393" width="6" height="12"/>
+    <path d="M190 480 L207 438 L224 480 Z"/><rect x="204" y="478" width="6" height="13"/>
+    <path d="M240 465 L254 430 L268 465 Z" opacity="0.85"/><rect x="251" y="463" width="6" height="11"/>
+    <path d="M160 350 L173 318 L186 350 Z" opacity="0.8"/><rect x="170" y="348" width="5" height="10"/>
+  </g>
+  <text x="210" y="520" font-family="Georgia, serif" font-style="italic" font-size="24" fill="#d9b877" text-anchor="middle" opacity="0.9">Thornback Forest</text>
+
+  <!-- AELORIA PLAINS (hotspot 42-60% x, 45-61% y → 315-450, 450-610) -->
+  <ellipse cx="382" cy="530" rx="110" ry="90" fill="url(#plainsGlow)"/>
+  <g stroke="#c8a96e" stroke-width="2" opacity="0.7" stroke-linecap="round">
+    <path d="M340 520 q4 -14 0 -26 M347 520 q6 -12 2 -24 M333 520 q-2 -12 2 -22"/>
+    <path d="M395 555 q4 -14 0 -26 M402 555 q6 -12 2 -24 M388 555 q-2 -12 2 -22"/>
+    <path d="M430 505 q4 -14 0 -26 M437 505 q6 -12 2 -24 M423 505 q-2 -12 2 -22"/>
+    <path d="M360 585 q4 -14 0 -26 M367 585 q6 -12 2 -24"/>
+  </g>
+  <!-- Village -->
+  <g stroke="#0f0a05" stroke-width="1.5">
+    <rect x="368" y="465" width="18" height="14" fill="#a07b46"/>
+    <path d="M364 465 L377 452 L390 465 Z" fill="#7a5a30"/>
+  </g>
+  <text x="382" y="625" font-family="Georgia, serif" font-style="italic" font-size="24" fill="#d9b877" text-anchor="middle" opacity="0.95">Aeloria Plains</text>
+
+  <!-- EMBER COAST (hotspot 68-86% x, 55-69% y → 510-645, 550-690) -->
+  <ellipse cx="580" cy="622" rx="80" ry="70" fill="url(#emberGlow)"/>
+  <g fill="#c45c1a" stroke="#0f0a05" stroke-width="2">
+    <path d="M545 640 L570 585 L595 640 Z"/>
+    <path d="M585 650 L605 605 L625 650 Z" opacity="0.9"/>
+  </g>
+  <!-- Lava glow at volcano mouths -->
+  <g fill="#ff9b45">
+    <circle cx="570" cy="588" r="5"/>
+    <circle cx="605" cy="608" r="4"/>
+  </g>
+  <g stroke="#ff9b45" stroke-width="2" fill="none" opacity="0.6">
+    <path d="M570 585 q-6 -14 2 -24"/>
+    <path d="M605 605 q6 -12 -2 -20"/>
+  </g>
+  <text x="565" y="700" font-family="Georgia, serif" font-style="italic" font-size="24" fill="#d9b877" text-anchor="middle" opacity="0.9">Ember Coast</text>
+
+  <!-- DUSK MARSHES (hotspot 55-75% x, 72-86% y → 412-562, 720-860) -->
+  <g stroke="#4a6741" stroke-width="3" opacity="0.8" stroke-linecap="round">
+    <path d="M430 780 h28 M470 795 h24 M440 812 h30 M485 770 h22 M460 835 h26 M500 815 h20"/>
+  </g>
+  <g stroke="#6b8a5e" stroke-width="2" opacity="0.7" stroke-linecap="round">
+    <path d="M448 775 q0 -14 6 -20 M478 806 q0 -12 5 -18 M508 788 q0 -12 5 -18"/>
+  </g>
+  <!-- Heron -->
+  <path d="M525 760 q6 -10 2 -18 q8 4 6 14 l-2 6 z" fill="#9fb3a5" opacity="0.8"/>
+  <text x="470" y="880" font-family="Georgia, serif" font-style="italic" font-size="24" fill="#d9b877" text-anchor="middle" opacity="0.9">Dusk Marshes</text>
+
+  <!-- SUNKEN CITY (hotspot 72-86% x, 78-90% y → 540-645, 780-900) — in the sea -->
+  <g fill="#2a4a6b" stroke="#0f0a05" stroke-width="1.5">
+    <rect x="565" y="815" width="10" height="38"/>
+    <rect x="583" y="800" width="12" height="53"/>
+    <rect x="603" y="822" width="9" height="31"/>
+    <path d="M562 815 L570 800 L578 815 Z"/>
+    <path d="M580 800 L589 782 L598 800 Z"/>
+    <path d="M600 822 L607 809 L615 822 Z"/>
+  </g>
+  <g stroke="#3b5a74" stroke-width="2" fill="none" opacity="0.7">
+    <path d="M550 855 q15 -8 30 0 q15 8 30 0 q15 -8 30 0"/>
+    <path d="M558 870 q15 -8 30 0 q15 8 30 0"/>
+  </g>
+  <text x="590" y="905" font-family="Georgia, serif" font-style="italic" font-size="22" fill="#8fb0cc" text-anchor="middle" opacity="0.9">The Sunken City</text>
+
+  <!-- DEEPSTONE MINES (hotspot 18-32% x, 62-76% y → 135-240, 620-760) -->
+  <g>
+    <path d="M155 720 L190 655 L225 720 Z" fill="#3a2a1a" stroke="#0f0a05" stroke-width="2"/>
+    <path d="M178 720 L190 692 L202 720 Z" fill="#0f0a05"/>
+    <!-- Crossed picks -->
+    <g stroke="#8a7355" stroke-width="3" stroke-linecap="round">
+      <path d="M235 690 l24 24 M259 690 l-24 24"/>
+    </g>
+  </g>
+  <text x="195" y="755" font-family="Georgia, serif" font-style="italic" font-size="24" fill="#d9b877" text-anchor="middle" opacity="0.9">Deepstone Mines</text>
+
+  <!-- Compass rose -->
+  <g transform="translate(85 925)" opacity="0.75">
+    <circle r="34" fill="none" stroke="#c8a96e" stroke-width="1.5"/>
+    <circle r="26" fill="none" stroke="#c8a96e" stroke-width="0.8" opacity="0.6"/>
+    <path d="M0 -30 L7 0 L0 30 L-7 0 Z" fill="#c8a96e"/>
+    <path d="M-30 0 L0 7 L30 0 L0 -7 Z" fill="#c8a96e" opacity="0.5"/>
+    <text y="-40" font-family="Georgia, serif" font-size="18" fill="#d9b877" text-anchor="middle">N</text>
+  </g>
+
+  <!-- Decorative border -->
+  <rect x="8" y="8" width="734" height="984" fill="none" stroke="#c8a96e" stroke-width="2" stroke-opacity="0.5"/>
+  <rect x="16" y="16" width="718" height="968" fill="none" stroke="#c8a96e" stroke-width="0.8" stroke-opacity="0.35"/>
+
+  <!-- Corner flourishes -->
+  <g stroke="#c8a96e" stroke-width="1.5" fill="none" opacity="0.5">
+    <path d="M8 40 q20 -10 32 -32 M742 40 q-20 -10 -32 -32 M8 960 q20 10 32 32 M742 960 q-20 10 -32 32"/>
+  </g>
+</svg>

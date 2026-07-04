@@ -152,7 +152,7 @@ export default function AdminMonitoring() {
             { id: 'overview', label: 'Overview' },
             { id: 'costs', label: 'API Costs' },
             { id: 'limits', label: 'Rate Limits' },
-            { id: 'founder', label: 'Founder Spots' }
+            { id: 'subscribers', label: 'Subscribers' }
           ].map(tab => (
             <button
               key={tab.id}
@@ -180,7 +180,7 @@ export default function AdminMonitoring() {
             {activeTab === 'overview' && <OverviewTab apiCosts={apiCosts} founderSpots={founderSpots} rateLimits={rateLimits} />}
             {activeTab === 'costs' && <CostsTab data={apiCosts} />}
             {activeTab === 'limits' && <RateLimitsTab data={rateLimits} onClearLimit={clearUserRateLimit} />}
-            {activeTab === 'founder' && <FounderSpotsTab data={founderSpots} />}
+            {activeTab === 'subscribers' && <SubscribersTab data={founderSpots} />}
           </motion.div>
         </AnimatePresence>
 
@@ -210,11 +210,11 @@ function OverviewTab({ apiCosts, founderSpots, rateLimits }) {
         color="purple"
       />
 
-      {/* Founder Spots */}
+      {/* Pro Subscribers */}
       <StatCard
-        title="Founder Spots"
-        value={`${founderSpots?.stats?.remaining || 0} / ${founderSpots?.stats?.totalCapacity || 25}`}
-        subtitle={`${founderSpots?.stats?.percentageSold || 0}% sold`}
+        title="Pro Subscribers"
+        value={`${founderSpots?.premiumUsers?.length || 0}`}
+        subtitle="Active premium accounts"
         color="green"
       />
 
@@ -359,45 +359,12 @@ function RateLimitsTab({ data, onClearLimit }) {
   );
 }
 
-// Founder Spots Tab
-function FounderSpotsTab({ data }) {
-  if (!data) return <p>Loading founder spots...</p>;
+// Subscribers Tab (formerly Founder Spots — the 25-spot lifetime model is retired)
+function SubscribersTab({ data }) {
+  if (!data) return <p>Loading subscribers...</p>;
 
   return (
     <div className="space-y-6">
-      {/* Inventory Status */}
-      <div className="bg-gray-800/50 rounded-lg p-6">
-        <h2 className="text-2xl font-bold mb-4">Inventory Status</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="text-center">
-            <p className="text-3xl font-bold text-purple-400">{data.stats.remaining}</p>
-            <p className="text-sm text-gray-400">Remaining</p>
-          </div>
-          <div className="text-center">
-            <p className="text-3xl font-bold text-green-400">{data.stats.claimed}</p>
-            <p className="text-sm text-gray-400">Claimed</p>
-          </div>
-          <div className="text-center">
-            <p className="text-3xl font-bold text-blue-400">{data.stats.totalCapacity}</p>
-            <p className="text-sm text-gray-400">Total Capacity</p>
-          </div>
-          <div className="text-center">
-            <p className="text-3xl font-bold text-yellow-400">{data.stats.percentageSold}%</p>
-            <p className="text-sm text-gray-400">Sold</p>
-          </div>
-        </div>
-
-        {/* Progress Bar */}
-        <div className="mt-6">
-          <div className="h-4 bg-gray-700 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-purple-500 to-green-500 transition-all duration-500"
-              style={{ width: `${data.stats.percentageSold}%` }}
-            />
-          </div>
-        </div>
-      </div>
-
       {/* Premium Users */}
       <div className="bg-gray-800/50 rounded-lg p-6">
         <h2 className="text-2xl font-bold mb-4">Premium Users ({data.premiumUsers.length})</h2>

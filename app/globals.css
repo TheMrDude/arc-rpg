@@ -32,10 +32,23 @@
   --shadow-glow-primary: 0 0 20px rgba(255,87,51,0.5);
   --shadow-glow-premium: 0 0 20px rgba(124,58,237,0.5);
   --shadow-glow-success: 0 0 20px rgba(16,185,129,0.5);
+
+  /* Typography: readable sans for body copy, mono for game UI */
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-game: 'Courier New', monospace;
 }
 
-* {
-  font-family: 'Courier New', monospace;
+/* Body copy and quest descriptions read in sans; headings, buttons, and
+   game-UI labels keep the mono treatment so the RPG identity stays in
+   the chrome without hurting long-form readability. */
+body {
+  font-family: var(--font-sans);
+}
+
+h1, h2, h3, h4, h5, h6,
+button,
+.font-game {
+  font-family: var(--font-game);
 }
 
 body {

@@ -2,13 +2,18 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { Sword, Shield, Gem, Coins } from 'lucide-react';
 import { supabase } from '@/lib/supabase-client';
 import { RARITY_COLORS, RARITY_GLOW } from '@/lib/equipment-constants';
 import { useCountUp } from '@/lib/hooks/useCountUp';
 
 const SLOT_TYPES = ['weapon', 'armor', 'accessory'];
 const SLOT_LABELS = { weapon: 'Weapon', armor: 'Armor', accessory: 'Accessory' };
-const SLOT_PLACEHOLDER_ICON = { weapon: '⚔️', armor: '🛡️', accessory: '💍' };
+const SLOT_PLACEHOLDER_ICON = {
+  weapon: <Sword size={16} />,
+  armor: <Shield size={16} />,
+  accessory: <Gem size={16} />,
+};
 
 const RING_RADIUS = 34;
 const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
@@ -109,8 +114,8 @@ export default function CharacterPanel({ profile, creature, isPremium, equipment
                 </span>
               )}
             </div>
-            <span id="gold-counter-target" className="text-[#FFD93D] font-black text-sm" title="Gold">
-              💰 {(profile.gold || 0).toLocaleString()}
+            <span id="gold-counter-target" className="text-[#FFD93D] font-black text-sm inline-flex items-center gap-1" title="Gold">
+              <Coins size={14} /> {(profile.gold || 0).toLocaleString()}
             </span>
           </div>
 
@@ -163,8 +168,8 @@ export default function CharacterPanel({ profile, creature, isPremium, equipment
               </div>
             )}
             {profile.skill_points > 0 && (
-              <p className="text-xs text-[#FFD93D] font-black ml-auto">
-                💎 {profile.skill_points} Skill Pt{profile.skill_points > 1 ? 's' : ''}
+              <p className="text-xs text-[#FFD93D] font-black ml-auto inline-flex items-center gap-1">
+                <Gem size={12} /> {profile.skill_points} Skill Pt{profile.skill_points > 1 ? 's' : ''}
               </p>
             )}
           </div>
