@@ -32,7 +32,7 @@ export default function GoldPurchasePrompt({ show, onClose, trigger, currentGold
       urgency: 'Keep the momentum going!',
     },
     quest_streak: {
-      title: 'Amazing Streak!',
+      title: 'Incredible Momentum!',
       emoji: '🔥',
       message: 'Your dedication deserves a reward! Speed up your progress.',
       cta: 'Accelerate Growth',

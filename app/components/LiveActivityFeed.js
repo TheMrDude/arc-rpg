@@ -8,7 +8,7 @@ export default function LiveActivityFeed() {
   const archetypes = ['Warrior', 'Builder', 'Shadow', 'Sage', 'Seeker'];
   const achievements = [
     { text: 'reached Level 25', icon: '⚡', color: '#F59E0B' },
-    { text: 'completed a 30-day streak', icon: '🔥', color: '#FF5733' },
+    { text: 'filled their Momentum meter', icon: '🔥', color: '#FF5733' },
     { text: 'defeated a Boss', icon: '⚔️', color: '#10B981' },
     { text: 'upgraded to Pro', icon: '👑', color: '#7C3AED' },
     { text: 'unlocked a new skill', icon: '💎', color: '#3B82F6' },

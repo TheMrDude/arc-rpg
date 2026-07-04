@@ -52,7 +52,7 @@ export default function SimpleDailyBonus({ profile, onClaim }) {
       <div className="flex items-center gap-3">
         {profile.current_streak > 0 && (
           <span className="text-xs text-[#FF6B6B] font-black">
-            🔥 {profile.current_streak}-day streak
+            🔥 {profile.current_streak} days in a row
           </span>
         )}
       </div>

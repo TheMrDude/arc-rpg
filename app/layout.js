@@ -5,7 +5,7 @@ import { SoundProvider } from './components/SoundProvider'
 
 export const metadata = {
   title: 'HabitQuest - ADHD-Friendly Gamified Habit Tracker | No Streaks, No Guilt',
-  description: 'Most habit apps punish you for missing a day. HabitQuest turns your habits into epic RPG quests — so building consistency actually feels fun. Your habits. Your story. No guilt.',
+  description: 'Most habit apps punish you for missing a day. HabitQuest turns your habits into epic RPG quests, so building consistency actually feels fun. Your habits. Your story. No guilt.',
   keywords: ['habit tracker', 'RPG', 'gamification', 'productivity', 'AI', 'task management', 'habits', 'motivation', 'ADHD', 'neurodivergent', 'no guilt', 'anti-guilt'],
   authors: [{ name: 'HabitQuest' }],
   verification: {
@@ -23,7 +23,7 @@ export const metadata = {
   },
   openGraph: {
     title: 'HabitQuest - Build Habits You Actually Keep',
-    description: 'Most habit apps punish you for missing a day. HabitQuest turns your habits into epic RPG quests — so building consistency actually feels fun.',
+    description: 'Most habit apps punish you for missing a day. HabitQuest turns your habits into epic RPG quests, so building consistency actually feels fun.',
     url: 'https://habitquest.dev',
     siteName: 'HabitQuest',
     images: [
@@ -40,7 +40,7 @@ export const metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'HabitQuest - Build Habits You Actually Keep',
-    description: 'Most habit apps punish you for missing a day. HabitQuest turns your habits into epic RPG quests — so building consistency actually feels fun.',
+    description: 'Most habit apps punish you for missing a day. HabitQuest turns your habits into epic RPG quests, so building consistency actually feels fun.',
     images: ['https://habitquest.dev/og-image.png'],
     creator: '@officialmrdude',
   },

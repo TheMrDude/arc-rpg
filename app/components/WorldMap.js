@@ -299,10 +299,10 @@ export default function WorldMap({ playerData, isDM }) {
           </span>
           <span className="flex items-center gap-1">
             <span className="inline-block w-3 h-3 rounded-sm" style={{ background: 'rgba(0,0,0,0.72)' }} />
-            Locked — click to see unlock condition
+            Locked. Click to see unlock condition
           </span>
           <span className="ml-auto text-gray-600 italic">
-            LVL {playerData?.level || 1} · {playerData?.totalCheckins || 0} check-ins · {playerData?.longestStreak || 0}-day streak
+            LVL {playerData?.level || 1} · {playerData?.totalCheckins || 0} check-ins · best run {playerData?.longestStreak || 0} days
           </span>
         </div>
       </div>

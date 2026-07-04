@@ -152,7 +152,7 @@ STATS THIS WEEK:
 - Journal Entries: ${journalCount}${moodContext}
 - XP Gained: ${totalXP}
 - Current Level: ${profile.level || 1}
-- Current Streak: ${profile.current_streak || 0} days
+- Consecutive Active Days: ${profile.current_streak || 0}
 - Easy: ${questsByDifficulty.easy}, Medium: ${questsByDifficulty.medium}, Hard: ${questsByDifficulty.hard}
 
 Write a 250-300 word fantasy story chapter that:
@@ -163,6 +163,7 @@ Write a 250-300 word fantasy story chapter that:
 5. Ends with a cliffhanger or hint about next week's challenges
 6. Uses ${profile.archetype} thematic style
 7. Maintains epic fantasy tone while being emotionally authentic
+8. Never uses the word "streak" and never shames the hero for missed days; quiet weeks are rest before the next adventure, and consistency is momentum
 
 Close with: "Chapter ${currentChapter} complete. Your journey continues..."
 
@@ -355,7 +356,7 @@ STATS THIS WEEK:
 - Journal Entries: ${journalCount}${moodContext}
 - XP Gained: ${totalXP}
 - Current Level: ${profile.level || 1}
-- Current Streak: ${profile.current_streak || 0} days
+- Consecutive Active Days: ${profile.current_streak || 0}
 - Easy: ${questsByDifficulty.easy}, Medium: ${questsByDifficulty.medium}, Hard: ${questsByDifficulty.hard}
 
 Write a 250-300 word fantasy story chapter that:
@@ -366,6 +367,7 @@ Write a 250-300 word fantasy story chapter that:
 5. Ends with a cliffhanger or hint about next week's challenges
 6. Uses ${profile.archetype} thematic style
 7. Maintains epic fantasy tone while being emotionally authentic
+8. Never uses the word "streak" and never shames the hero for missed days; quiet weeks are rest before the next adventure, and consistency is momentum
 
 Close with: "Chapter ${currentChapter} complete. Your journey continues..."
 

@@ -86,7 +86,7 @@ export default function ShopPage() {
             <div className="text-center">
               <div className="text-5xl mb-3">🎯</div>
               <h3 className="font-black text-[#00D4FF] mb-2" style={{ fontFamily: 'VT323, monospace' }}>
-                DAILY STREAKS
+                DAILY BONUSES
               </h3>
               <p className="text-sm text-gray-300">
                 Complete quests daily to earn bonus gold rewards

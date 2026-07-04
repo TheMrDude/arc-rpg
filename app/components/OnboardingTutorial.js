@@ -31,8 +31,8 @@ export default function OnboardingTutorial({ profile, onComplete, onSkip }) {
       position: "bottom"
     },
     {
-      title: "Build Your Streak",
-      description: "Complete quests daily to build your streak and unlock comeback bonuses. Consistency is the key to victory!",
+      title: "Build Your Momentum",
+      description: "Stay active 4 days a week to fill your Momentum meter. Miss a day? Nothing resets, and comeback bonuses have your back!",
       highlight: "stats",
       position: "top"
     },

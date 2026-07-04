@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 export default function TermsOfService() {
   useEffect(() => {
-    document.title = "Terms of Service \u2014 HabitQuest";
+    document.title = "Terms of Service | HabitQuest";
   }, []);
 
   return (

@@ -77,7 +77,7 @@ export default function NotificationSetup({ userId }) {
       setTimeout(() => {
         if (Notification.permission === 'granted') {
           new Notification('HabitQuest - Your Quests Await!', {
-            body: 'Time to level up! Complete today\'s quests to maintain your streak.',
+            body: 'Time to level up! Complete today\'s quests to keep your momentum going.',
             icon: '/favicon.ico',
             tag: 'daily-reminder',
             requireInteraction: false
@@ -101,7 +101,7 @@ export default function NotificationSetup({ userId }) {
           <div className="flex-1">
             <h3 className="text-white font-bold mb-2">Never Miss Your Quests!</h3>
             <p className="text-white/90 text-sm mb-4">
-              Get daily reminders to maintain your streak and level up faster.
+              Get daily reminders to keep your momentum going and level up faster.
             </p>
             <div className="flex gap-2">
               <button

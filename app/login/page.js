@@ -13,7 +13,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    document.title = "Login \u2014 HabitQuest";
+    document.title = "Login | HabitQuest";
   }, []);
 
   async function handleLogin(e) {

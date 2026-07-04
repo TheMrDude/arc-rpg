@@ -26,7 +26,7 @@ export default function PricingPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    document.title = "HabitQuest Pricing \u2014 Free Plan or Pro from $5/mo";
+    document.title = "HabitQuest Pricing | Free Plan or Pro from $5/mo";
   }, []);
 
   useEffect(() => {
@@ -203,7 +203,7 @@ export default function PricingPage() {
                   href={stripeLink(STRIPE_LINK_PRO_MONTHLY, user?.email, user?.id)}
                   className="block w-full px-6 py-3 bg-[#FF6B35] hover:bg-[#E55A2B] text-white rounded-xl font-black text-lg uppercase tracking-wide transition-all hover:scale-105 text-center"
                 >
-                  Go Pro — $5/mo
+                  Go Pro for $5/mo
                 </a>
                 {!user && !hadTrial && (
                   <button
@@ -258,7 +258,7 @@ export default function PricingPage() {
                 href={stripeLink(STRIPE_LINK_EARLY_BIRD, user?.email, user?.id)}
                 className="block w-full px-6 py-3 bg-[#10B981] hover:bg-[#059669] text-white rounded-xl font-black text-lg uppercase tracking-wide transition-all hover:scale-105 text-center"
               >
-                Get Early Bird — $29/yr
+                Get Early Bird for $29/yr
               </a>
             )}
           </motion.div>
@@ -289,9 +289,9 @@ export default function PricingPage() {
             <div className="bg-green-900/20 border-2 border-green-500/30 rounded-xl p-6">
               <h3 className="text-xl font-black text-green-400 mb-4">HabitQuest</h3>
               <ul className="space-y-2 text-gray-300">
-                <li>• <strong>No streak penalties</strong> — ever</li>
+                <li>• <strong>No streak penalties</strong>, ever</li>
                 <li>• Miss a day? Your story continues</li>
-                <li>• Solo journey — no leaderboards</li>
+                <li>• Solo journey, no leaderboards</li>
                 <li>• Tasks become adventures you want to do</li>
               </ul>
             </div>

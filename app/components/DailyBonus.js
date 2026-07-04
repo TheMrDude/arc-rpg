@@ -117,7 +117,7 @@ export default function DailyBonus({ profile, onClaim }) {
             <div className="text-[#00D4FF] font-black text-2xl" style={{ fontFamily: 'VT323, monospace' }}>
               {currentStreak} Day{currentStreak !== 1 ? 's' : ''}
             </div>
-            <div className="text-xs text-gray-400">Current Streak</div>
+            <div className="text-xs text-gray-400">Days in a Row</div>
           </div>
         </div>
 
@@ -185,7 +185,7 @@ export default function DailyBonus({ profile, onClaim }) {
 
         {currentStreak > 0 && (
           <p className="text-xs text-center text-gray-400 mt-3">
-            💡 Keep your streak alive! Claim your bonus every day for bigger rewards.
+            💡 Claim your bonus each day for bigger rewards. Miss a day? No harm done, the bonuses just start fresh.
           </p>
         )}
       </div>
@@ -248,7 +248,7 @@ export default function DailyBonus({ profile, onClaim }) {
 
                 <div className="bg-[#0F3460] border-2 border-[#00D4FF] border-opacity-50 rounded-lg p-3 mb-4">
                   <div className="text-[#00D4FF] font-bold">
-                    🔥 {rewardData.total_streak} Day Streak!
+                    🔥 {rewardData.total_streak} Day{rewardData.total_streak !== 1 ? 's' : ''} in a Row!
                   </div>
                 </div>
 

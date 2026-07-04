@@ -13,7 +13,7 @@ import { trackEvent } from '@/lib/analytics';
 import Image from 'next/image'
 
 // ─── CONSTANTS ────────────────────────────────────────────────────────
-const PRIMARY_CTA_LABEL = 'Start Free — No Credit Card';
+const PRIMARY_CTA_LABEL = 'Start Free, No Credit Card';
 const SECONDARY_CTA_LABEL = 'Get Pro →';
 const CONTROLLING_IDEA = 'Your habits. Your story. No guilt.';
 const STRIPE_LINK_PRO_MONTHLY = 'https://buy.stripe.com/fZubJ02TX5SngCc6dadZ602';
@@ -104,10 +104,10 @@ export default function LandingPage() {
           "@context": "https://schema.org",
           "@type": "FAQPage",
           "mainEntity": [
-            { "@type": "Question", "name": "What makes this different from every other habit app?", "acceptedAnswer": { "@type": "Answer", "text": "Other apps punish you for missing a day. We don't. No broken streaks, no shame notifications. HabitQuest turns your habits into an RPG adventure — so you actually want to open the app. Your habits. Your story. No guilt." } },
-            { "@type": "Question", "name": "Is this just for gamers?", "acceptedAnswer": { "@type": "Answer", "text": "Not at all. If you've ever wished tasks felt less boring, this is for you. You don't need to know anything about RPGs — the game layer just makes habits feel rewarding instead of draining." } },
+            { "@type": "Question", "name": "What makes this different from every other habit app?", "acceptedAnswer": { "@type": "Answer", "text": "Other apps punish you for missing a day. We don't. No broken streaks, no shame notifications. HabitQuest turns your habits into an RPG adventure, so you actually want to open the app. Your habits. Your story. No guilt." } },
+            { "@type": "Question", "name": "Is this just for gamers?", "acceptedAnswer": { "@type": "Answer", "text": "Not at all. If you've ever wished tasks felt less boring, this is for you. You don't need to know anything about RPGs. The game layer just makes habits feel rewarding instead of draining." } },
             { "@type": "Question", "name": "What if I miss a day?", "acceptedAnswer": { "@type": "Answer", "text": "Nothing bad happens. Seriously. No streak resets, no guilt screens, no \"you failed\" messages. Your character just picks up where you left off. Because building habits shouldn't feel like punishment." } },
-            { "@type": "Question", "name": "What do I get for free?", "acceptedAnswer": { "@type": "Answer", "text": "Track up to 3 habits, choose your archetype, and get AI quest transformation — completely free, forever. Pro unlocks unlimited habits, boss battles, equipment, and the full RPG experience." } },
+            { "@type": "Question", "name": "What do I get for free?", "acceptedAnswer": { "@type": "Answer", "text": "Track up to 3 habits, choose your archetype, and get AI quest transformation, completely free, forever. Pro unlocks unlimited habits, boss battles, equipment, and the full RPG experience." } },
             { "@type": "Question", "name": "Do I need to download anything?", "acceptedAnswer": { "@type": "Answer", "text": "Nope. Works in your browser on any device. You can install it as an app on your phone if you want (it's a PWA), but it's not required." } }
           ]
         }) }}
@@ -619,7 +619,7 @@ export default function LandingPage() {
                 onClick={goToSignup}
                 className="px-10 py-5 bg-[#FF6B35] hover:bg-[#E55A2B] text-white border-3 border-[#0F3460] rounded-xl font-black text-xl uppercase tracking-wide shadow-lg transition-all hover:scale-105"
               >
-                Join the Quest — It&apos;s Free
+                Join the Quest, It&apos;s Free
               </button>
             </div>
           </motion.div>
@@ -792,7 +792,7 @@ export default function LandingPage() {
                 </div>
                 <h3 className="text-xl font-black text-white mb-1">Early Bird</h3>
                 <div className="text-3xl font-black text-[#10B981] mb-1">$29<span className="text-lg text-gray-400">/yr</span></div>
-                <p className="text-gray-500 text-sm mb-4">same as Pro — launch price</p>
+                <p className="text-gray-500 text-sm mb-4">all of Pro at launch price</p>
                 <ul className="space-y-2 text-gray-300 text-sm mb-6 flex-1">
                   <li className="flex items-start gap-2"><span className="text-[#10B981]">✓</span> Everything in Pro</li>
                   <li className="flex items-start gap-2"><span className="text-[#10B981]">✓</span> Save 50% vs monthly</li>
@@ -845,11 +845,11 @@ export default function LandingPage() {
               {[
                 {
                   q: 'What makes this different from every other habit app?',
-                  a: 'Other apps punish you for missing a day. We don\'t. No broken streaks, no shame notifications. HabitQuest turns your habits into an RPG adventure — so you actually want to open the app. Your habits. Your story. No guilt.'
+                  a: 'Other apps punish you for missing a day. We don\'t. No broken streaks, no shame notifications. HabitQuest turns your habits into an RPG adventure, so you actually want to open the app. Your habits. Your story. No guilt.'
                 },
                 {
                   q: 'Is this just for gamers?',
-                  a: 'Not at all. If you\'ve ever wished tasks felt less boring, this is for you. You don\'t need to know anything about RPGs — the game layer just makes habits feel rewarding instead of draining.'
+                  a: 'Not at all. If you\'ve ever wished tasks felt less boring, this is for you. You don\'t need to know anything about RPGs. The game layer just makes habits feel rewarding instead of draining.'
                 },
                 {
                   q: 'What if I miss a day?',
@@ -857,7 +857,7 @@ export default function LandingPage() {
                 },
                 {
                   q: 'What do I get for free?',
-                  a: 'Track up to 3 habits, choose your archetype, and get AI quest transformation — completely free, forever. Pro unlocks unlimited habits, boss battles, equipment, and the full RPG experience.'
+                  a: 'Track up to 3 habits, choose your archetype, and get AI quest transformation, completely free, forever. Pro unlocks unlimited habits, boss battles, equipment, and the full RPG experience.'
                 },
                 {
                   q: 'Do I need to download anything?',
@@ -885,7 +885,7 @@ export default function LandingPage() {
               {CONTROLLING_IDEA}
             </p>
             <p className="text-gray-500">
-              Most habit apps punish you for missing a day. HabitQuest turns your habits into epic RPG quests — so building consistency actually feels fun.
+              Most habit apps punish you for missing a day. HabitQuest turns your habits into epic RPG quests, so building consistency actually feels fun.
             </p>
             <div className="flex justify-center gap-6 text-sm">
               <button onClick={() => router.push('/login')} className="text-[#3B82F6] hover:text-[#2563EB] font-bold">

@@ -14,7 +14,7 @@ function JoinCampaignForm() {
   const [characterName, setCharacterName] = useState('');
 
   useEffect(() => {
-    document.title = 'Join Campaign — HabitQuest';
+    document.title = 'Join Campaign | HabitQuest';
     initPage();
   }, []);
 

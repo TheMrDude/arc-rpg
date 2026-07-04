@@ -13,7 +13,7 @@ export default function WorldMapPage() {
   const [characterName, setCharacterName] = useState('Adventurer');
 
   useEffect(() => {
-    document.title = 'World Map — HabitQuest: The Campaign';
+    document.title = 'World Map | HabitQuest: The Campaign';
     loadData();
   }, []);
 
