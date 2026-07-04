@@ -1,5 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  async redirects() {
+    return [
+      {
+        source: '/blog/how-to-build-habit-stack-that-sticks',
+        destination: '/blog/complete-guide-habit-stacking',
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       {

@@ -638,8 +638,14 @@ export default function LandingPage() {
             <h2 className="text-3xl sm:text-4xl font-black text-center mb-12 text-[#00D4FF]">
               Latest from the Blog
             </h2>
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
               {[
+                {
+                  slug: 'best-habit-tracking-apps-2026',
+                  title: 'Best Habit Tracking Apps in 2026: Habitica vs HabitQuest vs Streaks vs Everyday',
+                  description: 'An honest comparison of the top habit tracking apps in 2026, including which one fits ADHD brains.',
+                  readTime: '8 min read',
+                },
                 {
                   slug: 'breaking-bad-habits',
                   title: 'Breaking Bad Habits: 7 Evidence-Based Strategies That Actually Work',
