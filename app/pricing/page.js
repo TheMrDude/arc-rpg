@@ -9,9 +9,14 @@ const STRIPE_LINK_PRO_MONTHLY = 'https://buy.stripe.com/fZubJ02TX5SngCc6dadZ602'
 const STRIPE_LINK_PRO_YEARLY = 'https://buy.stripe.com/dRm7sK6695Sn85GgROdZ601';
 const STRIPE_LINK_EARLY_BIRD = process.env.NEXT_PUBLIC_STRIPE_EARLY_BIRD_LINK || STRIPE_LINK_PRO_YEARLY;
 
-function stripeLink(baseUrl, email) {
-  if (!email) return baseUrl;
-  return `${baseUrl}?prefilled_email=${encodeURIComponent(email)}`;
+function stripeLink(baseUrl, email, userId) {
+  const params = new URLSearchParams();
+  if (email) params.set('prefilled_email', email);
+  // client_reference_id round-trips onto the Stripe Checkout Session so the
+  // webhook can identify which Supabase user just paid.
+  if (userId) params.set('client_reference_id', userId);
+  const qs = params.toString();
+  return qs ? `${baseUrl}?${qs}` : baseUrl;
 }
 
 export default function PricingPage() {
@@ -195,7 +200,7 @@ export default function PricingPage() {
             ) : (
               <div className="space-y-3">
                 <a
-                  href={stripeLink(STRIPE_LINK_PRO_MONTHLY, user?.email)}
+                  href={stripeLink(STRIPE_LINK_PRO_MONTHLY, user?.email, user?.id)}
                   className="block w-full px-6 py-3 bg-[#FF6B35] hover:bg-[#E55A2B] text-white rounded-xl font-black text-lg uppercase tracking-wide transition-all hover:scale-105 text-center"
                 >
                   Go Pro — $5/mo
@@ -250,7 +255,7 @@ export default function PricingPage() {
               </div>
             ) : (
               <a
-                href={stripeLink(STRIPE_LINK_EARLY_BIRD, user?.email)}
+                href={stripeLink(STRIPE_LINK_EARLY_BIRD, user?.email, user?.id)}
                 className="block w-full px-6 py-3 bg-[#10B981] hover:bg-[#059669] text-white rounded-xl font-black text-lg uppercase tracking-wide transition-all hover:scale-105 text-center"
               >
                 Get Early Bird — $29/yr
