@@ -713,14 +713,14 @@ export default function LandingPage() {
                 <li className="flex items-start gap-3"><span className="text-[#F59E0B]">⚔️</span> Full RPG habit system with XP, boss battles, and quest chains</li>
                 <li className="flex items-start gap-3"><span className="text-[#F59E0B]">🛡️</span> All 5 character archetypes + full progression</li>
                 <li className="flex items-start gap-3"><span className="text-[#F59E0B]">✨</span> AI quest generation for unlimited habits</li>
-                <li className="flex items-start gap-3"><span className="text-[#F59E0B]">⚔️</span> D&amp;D campaign layer &mdash; turn your habits into your character&apos;s downtime actions</li>
+                <li className="flex items-start gap-3"><span className="text-[#F59E0B]">⚔️</span> D&amp;D campaign layer that turns your habits into your character&apos;s downtime actions</li>
                 <li className="flex items-start gap-3"><span className="text-[#F59E0B]">💚</span> No streaks, no guilt mechanics, ever</li>
                 <li className="flex items-start gap-3"><span className="text-[#F59E0B]">🚀</span> All future updates included</li>
               </ul>
             </div>
 
-            {/* Pricing tiers — 4 columns */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            {/* Pricing tiers, matching the live plans on /pricing */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
               {/* Free tier */}
               <div className="bg-[#16213E] border-2 border-[#0F3460] rounded-2xl p-6 text-left flex flex-col">
                 <h3 className="text-xl font-black text-white mb-1">Free</h3>
@@ -761,27 +761,6 @@ export default function LandingPage() {
                   className="w-full px-4 py-3 bg-[#FF6B35] hover:bg-[#E55A2B] text-white rounded-xl font-black text-sm uppercase tracking-wide transition-all hover:scale-105"
                 >
                   Get Pro
-                </button>
-              </div>
-
-              {/* Pro Annual tier */}
-              <div className="bg-[#16213E] border-2 border-[#7C3AED]/60 rounded-2xl p-6 text-left relative flex flex-col">
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#7C3AED] text-white text-xs font-black px-4 py-1 rounded-full uppercase">
-                  Save 35%
-                </div>
-                <h3 className="text-xl font-black text-white mb-1">Pro Annual</h3>
-                <div className="text-3xl font-black text-[#7C3AED] mb-1">$39<span className="text-lg text-gray-400">/yr</span></div>
-                <p className="text-gray-500 text-sm mb-4">$3.25/mo billed annually</p>
-                <ul className="space-y-2 text-gray-300 text-sm mb-6 flex-1">
-                  <li className="flex items-start gap-2"><span className="text-[#7C3AED]">✓</span> Everything in Pro</li>
-                  <li className="flex items-start gap-2"><span className="text-[#7C3AED]">✓</span> 2 months free vs monthly</li>
-                  <li className="flex items-start gap-2"><span className="text-[#7C3AED]">✓</span> Cancel anytime</li>
-                </ul>
-                <button
-                  onClick={() => router.push('/signup?plan=pro_annual')}
-                  className="w-full px-4 py-3 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl font-black text-sm uppercase tracking-wide transition-all hover:scale-105"
-                >
-                  Get Pro Annual
                 </button>
               </div>
 
