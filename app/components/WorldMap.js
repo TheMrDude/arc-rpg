@@ -160,8 +160,8 @@ export default function WorldMap({ playerData, isDM }) {
           className="relative w-full overflow-hidden rounded-xl"
           style={{ aspectRatio: '3/4' }}
         >
-          {/* Parchment placeholder (shown when image hasn't loaded or failed) */}
-          {(imgError || true) && (
+          {/* Parchment placeholder (only if the map asset fails to load) */}
+          {imgError && (
             <div
               className="absolute inset-0"
               style={{
@@ -189,20 +189,12 @@ export default function WorldMap({ playerData, isDM }) {
               </svg>
               {/* Compass rose */}
               <div className="absolute bottom-4 right-4 text-4xl opacity-30">🧭</div>
-              {/* Placeholder label */}
-              {imgError && (
-                <div className="absolute top-2 left-0 right-0 flex justify-center">
-                  <span className="text-xs text-amber-900/60 italic">
-                    Drop world-map.png into /public/ to replace this placeholder
-                  </span>
-                </div>
-              )}
             </div>
           )}
 
-          {/* Actual map image — rendered on top of placeholder */}
+          {/* Map art — SVG drawn to match the hotspot coordinates in lib/world-regions.js */}
           <img
-            src="/world-map.png"
+            src="/world-map.svg"
             alt="World of HabitQuest"
             className="absolute inset-0 w-full h-full object-fill"
             onLoad={() => setImgError(false)}

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Gem, BookOpen, ScrollText, Swords, Shield, Dices, Coins, Flame, Volume2, VolumeX, ClipboardList, RefreshCw, Package, PartyPopper, LogOut } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { useSound } from '@/app/components/SoundProvider';
@@ -34,6 +35,9 @@ import SeasonalEvent from '@/app/components/SeasonalEvent';
 import EventStoryModal from '@/app/components/EventStoryModal';
 import MomentumBoost from '@/app/components/MomentumBoost';
 import MomentumMeter from '@/app/components/MomentumMeter';
+import MapWidget from '@/app/components/MapWidget';
+import BottomNav from '@/app/components/BottomNav';
+import InstallPrompt from '@/app/components/InstallPrompt';
 import AchievementBadges from '@/app/components/AchievementBadges';
 import UpgradePrompt from '@/app/components/UpgradePrompt';
 import HabitLimitModal from '@/app/components/HabitLimitModal';
@@ -882,7 +886,7 @@ export default function DashboardPage() {
       {/* Unlock Toast Notifications */}
       <UnlockToast unlocks={newUnlocks} />
 
-      <div className="min-h-screen bg-gradient-to-br from-[#1A1A2E] via-[#16213e] to-[#0F3460] text-white p-4 sm:p-8">
+      <div className="min-h-screen bg-gradient-to-br from-[#1A1A2E] via-[#16213e] to-[#0F3460] text-white p-4 sm:p-8 pb-24 md:pb-8">
       <div className="max-w-4xl mx-auto">
 
         {/* Top Navigation Bar */}
@@ -904,7 +908,7 @@ export default function DashboardPage() {
                     : 'bg-[#4C1D95] hover:bg-[#5B21B6] text-white border-[#1A1A2E]'
                 }`}
               >
-                💎 Skills {profile?.skill_points > 0 && `(${profile.skill_points})`}
+                <Gem size={13} className="inline -mt-0.5 mr-1" /> Skills {profile?.skill_points > 0 && `(${profile.skill_points})`}
               </button>
             )}
             {sections.journeyNav && isPremium && (
@@ -912,7 +916,7 @@ export default function DashboardPage() {
                 onClick={() => router.push('/journey')}
                 className="px-3 py-1.5 bg-[#9333EA] hover:bg-[#7E22CE] text-white border-2 border-[#0F3460] rounded-lg font-black uppercase text-xs tracking-wide transition-all"
               >
-                📖 Journey
+                <BookOpen size={13} className="inline -mt-0.5 mr-1" /> Journey
               </button>
             )}
             {sections.historyNav && (
@@ -920,7 +924,7 @@ export default function DashboardPage() {
                 onClick={() => router.push('/history')}
                 className="px-3 py-1.5 bg-[#0F3460] hover:bg-[#1a4a7a] text-white border-2 border-[#1A1A2E] rounded-lg font-bold uppercase text-xs tracking-wide transition-all"
               >
-                📜 History
+                <ScrollText size={13} className="inline -mt-0.5 mr-1" /> History
               </button>
             )}
             {profile?.active_campaign_id ? (
@@ -928,28 +932,28 @@ export default function DashboardPage() {
                 onClick={() => router.push(profile.campaign_role === 'dm' ? '/campaign/dm' : '/campaign/player')}
                 className="px-3 py-1.5 bg-[#22d3ee]/20 hover:bg-[#22d3ee]/30 text-[#22d3ee] border-2 border-[#22d3ee]/40 rounded-lg font-black uppercase text-xs tracking-wide transition-all"
               >
-                {profile.campaign_role === 'dm' ? '⚔ My Campaign' : '🛡 My Campaign'}
+                {profile.campaign_role === 'dm' ? <Swords size={13} className="inline -mt-0.5 mr-1" /> : <Shield size={13} className="inline -mt-0.5 mr-1" />} My Campaign
               </button>
             ) : (
               <button
                 onClick={() => router.push('/campaign/setup')}
                 className="px-3 py-1.5 bg-[#0f172a] hover:bg-[#1e293b] text-[#22d3ee] border-2 border-[#22d3ee]/30 rounded-lg font-black uppercase text-xs tracking-wide transition-all"
               >
-                🎲 Join Campaign
+                <Dices size={13} className="inline -mt-0.5 mr-1" /> Join Campaign
               </button>
             )}
             <button
               onClick={() => router.push('/shop')}
               className="px-3 py-1.5 bg-[#FFD93D] hover:bg-[#E6C335] text-[#1A1A2E] border-2 border-[#0F3460] rounded-lg font-black uppercase text-xs tracking-wide transition-all"
             >
-              🪙 Gold Shop
+              <Coins size={13} className="inline -mt-0.5 mr-1" /> Gold Shop
             </button>
             {!isPremium && (
               <button
                 onClick={() => router.push('/pricing')}
                 className="px-3 py-1.5 bg-[#00D4FF] hover:bg-[#00BFFF] text-[#0F3460] border-2 border-[#0F3460] rounded-lg font-black uppercase text-xs tracking-wide transition-all"
               >
-                🔥 Go Pro
+                <Flame size={13} className="inline -mt-0.5 mr-1" /> Go Pro
               </button>
             )}
           </div>
@@ -958,7 +962,7 @@ export default function DashboardPage() {
             className="px-2.5 py-1.5 bg-[#0f172a] hover:bg-[#1e293b] text-[#94a3b8] border-2 border-[#1e293b] rounded-lg font-black text-sm transition-all"
             title={soundEnabled ? 'Mute sound effects' : 'Unmute sound effects'}
           >
-            {soundEnabled ? '🔊' : '🔇'}
+            {soundEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
           </button>
           <button
             onClick={handleLogout}
@@ -970,19 +974,39 @@ export default function DashboardPage() {
         </div>
 
         {/* Character Panel — archetype art, XP ring, level, equipped gear */}
-        <CharacterPanel
-          profile={profile}
-          creature={creature}
-          isPremium={isPremium}
-          equipmentVersion={equipmentVersion}
-          reducedMotion={prefersReducedMotion}
-        />
+        <div id="character-panel">
+          <CharacterPanel
+            profile={profile}
+            creature={creature}
+            isPremium={isPremium}
+            equipmentVersion={equipmentVersion}
+            reducedMotion={prefersReducedMotion}
+          />
+        </div>
 
         {/* Chronicle — narrative recap, daily "previously on", weekly chapter card */}
         <ChroniclePanel profile={profile} userId={user?.id} />
 
         {/* Momentum meter — anti-streak weekly engagement loop */}
         <MomentumMeter quests={quests} profile={profile} reducedMotion={prefersReducedMotion} />
+
+        {/* World map teaser — current region + next unlock curiosity gap */}
+        <MapWidget
+          profile={profile}
+          quests={quests}
+          userId={user?.id}
+          onRegionUnlocked={(region) => {
+            setMilestoneData({
+              milestone: region.name,
+              type: 'achievement',
+              unlocks: [
+                `${region.icon} ${region.name} — ${region.subtitle}`,
+                `New territory: ${region.habitTheme}`,
+              ],
+            });
+            setShowMilestoneCelebration(true);
+          }}
+        />
 
         {/* Active Effects Bar */}
         <ActiveEffects effects={activeEffects} />
@@ -1020,12 +1044,12 @@ export default function DashboardPage() {
           <div className="mb-6">
             <div className="flex flex-wrap gap-2">
               {[
-                { key: 'quests', icon: '📋', label: 'Quests', color: '#FF6B6B' },
-                { key: 'recurring', icon: '🔄', label: 'Recurring', color: '#00D4FF' },
-                { key: 'templates', icon: '📦', label: 'Templates', color: '#FFD93D' },
-                { key: 'equipment', icon: '⚔️', label: 'Equipment', color: '#48BB78' },
-                { key: 'journal', icon: '📖', label: 'Journal', color: '#9333EA' },
-                { key: 'events', icon: '🎉', label: 'Events', color: '#ec4899', badge: eventBadgeCount },
+                { key: 'quests', Icon: ClipboardList, label: 'Quests', color: '#FF6B6B' },
+                { key: 'recurring', Icon: RefreshCw, label: 'Recurring', color: '#00D4FF' },
+                { key: 'templates', Icon: Package, label: 'Templates', color: '#FFD93D' },
+                { key: 'equipment', Icon: Swords, label: 'Equipment', color: '#48BB78' },
+                { key: 'journal', Icon: BookOpen, label: 'Journal', color: '#9333EA' },
+                { key: 'events', Icon: PartyPopper, label: 'Events', color: '#ec4899', badge: eventBadgeCount },
               ].map(tab => (
                 <button
                   key={tab.key}
@@ -1041,7 +1065,7 @@ export default function DashboardPage() {
                       : {}
                   }
                 >
-                  {tab.icon} {tab.label}
+                  <tab.Icon size={13} className="inline -mt-0.5 mr-1" /> {tab.label}
                   {tab.badge > 0 && (
                     <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] font-black rounded-full w-5 h-5 flex items-center justify-center border border-[#0F3460] animate-pulse">
                       {tab.badge}
@@ -1310,6 +1334,7 @@ export default function DashboardPage() {
           }}
           milestone={milestoneData.milestone}
           type={milestoneData.type}
+          unlocks={milestoneData.unlocks}
         />
       )}
 
@@ -1414,6 +1439,27 @@ export default function DashboardPage() {
           onBoostUsed={loadUserData}
         />
       )}
+
+      {/* Mobile bottom tab navigation */}
+      <BottomNav
+        active={activeTab === 'journal' ? 'journal' : activeTab === 'quests' ? 'quests' : undefined}
+        onQuests={() => {
+          if (sections.tabBar) setActiveTab('quests');
+          scrollToQuestInput();
+        }}
+        onMap={() => router.push('/campaign/world')}
+        onCharacter={() => document.getElementById('character-panel')?.scrollIntoView({ behavior: 'smooth' })}
+        onJournal={() => {
+          if (sections.tabBar) {
+            setActiveTab('journal');
+          } else {
+            setShowJournalSection(true);
+          }
+        }}
+      />
+
+      {/* PWA install prompt — only after the 3rd completed quest */}
+      <InstallPrompt questsCompleted={quests.filter((q) => q.completed).length} />
 
       {/* Upgrade Prompt */}
       {profile && upgradePromptTrigger && (
