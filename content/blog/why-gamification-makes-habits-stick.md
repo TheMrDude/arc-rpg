@@ -20,13 +20,13 @@ Most habit-tracking tools rely on guilt, shame, or the fear of breaking a streak
 
 Every habit follows a neurological pattern known as the habit loop: cue, routine, reward. This was first described by researchers at MIT and later popularized by Charles Duhigg in The Power of Habit.
 
-The critical piece most people miss is the reward. Without a satisfying reward at the end of the loop, your brain has no reason to repeat the behavior. Dopamine — the neurotransmitter responsible for motivation and pleasure — is released in anticipation of a reward, not just when you receive one. This anticipation is what drives you to repeat the behavior.
+The critical piece most people miss is the reward. Without a satisfying reward at the end of the loop, your brain has no reason to repeat the behavior. Dopamine, the neurotransmitter responsible for motivation and pleasure, is released in anticipation of a reward, not just when you receive one. This anticipation is what drives you to repeat the behavior.
 
 When a habit tracker simply checks a box, there's minimal dopamine release. Your brain essentially shrugs. But when completing a habit triggers XP gains, character upgrades, or unlocks a new quest? That's a different neurological story entirely.
 
 ## Variable Rewards: The Secret Sauce
 
-Behavioral psychologist B.F. Skinner discovered that variable reward schedules — where rewards come at unpredictable intervals — create the strongest behavioral patterns. This is the same mechanism that makes games so compelling.
+Behavioral psychologist B.F. Skinner discovered that variable reward schedules, where rewards come at unpredictable intervals, create the strongest behavioral patterns. This is the same mechanism that makes games so compelling.
 
 Gamified habit tracking leverages this by introducing elements of surprise: bonus XP days, random loot drops, unexpected character evolutions. Your brain stays engaged because it never knows exactly when the next reward is coming, which keeps dopamine levels elevated and motivation high.
 
@@ -34,11 +34,11 @@ Gamified habit tracking leverages this by introducing elements of surprise: bonu
 
 Researchers Edward Deci and Richard Ryan developed Self-Determination Theory (SDT), which identifies three core psychological needs that drive intrinsic motivation:
 
-Autonomy — the feeling that you're in control of your choices. In HabitQuest, you choose your character, your quests, and your path. Nobody is telling you what habits to build.
+Autonomy: the feeling that you're in control of your choices. In HabitQuest, you choose your character, your quests, and your path. Nobody is telling you what habits to build.
 
-Competence — the feeling that you're getting better at something. Leveling up, gaining XP, and watching your character evolve provides tangible evidence of growth that a simple checkbox never could.
+Competence: the feeling that you're getting better at something. Leveling up, gaining XP, and watching your character evolve provides tangible evidence of growth that a simple checkbox never could.
 
-Relatedness — the feeling of connection to something larger. Quest chains, storylines, and character narratives give your habit journey meaning beyond just "drink more water."
+Relatedness: the feeling of connection to something larger. Quest chains, storylines, and character narratives give your habit journey meaning beyond just "drink more water."
 
 When all three needs are met, motivation shifts from extrinsic (doing it because you should) to intrinsic (doing it because you want to). That's when habits truly stick.
 
@@ -48,7 +48,7 @@ Traditional habit trackers often use negative reinforcement: broken streak warni
 
 In other words, the more an app makes you feel bad for missing a day, the more likely you are to delete the app entirely. Your brain associates the app with negative emotions, and avoidance becomes the path of least resistance.
 
-Gamification flips this entirely. Missing a day in a gamified system doesn't punish you — it simply means you didn't earn today's rewards. The motivation to return comes from wanting the reward, not fearing the punishment. This subtle shift makes an enormous difference in long-term adherence.
+Gamification flips this entirely. Missing a day in a gamified system doesn't punish you. It simply means you didn't earn today's rewards. The motivation to return comes from wanting the reward, not fearing the punishment. This subtle shift makes an enormous difference in long-term adherence.
 
 ## The Research: Gamification and Habit Formation
 
@@ -72,7 +72,7 @@ Zero-punishment design means missing a day never feels like failure. You simply 
 
 ## The Bottom Line
 
-Building lasting habits isn't about willpower. It's about designing systems that align with how your brain actually works. Gamification isn't a gimmick — it's applied behavioral science. And the research consistently shows that when you make habits feel rewarding, people stick with them.
+Building lasting habits isn't about willpower. It's about designing systems that align with how your brain actually works. Gamification isn't a gimmick. It's applied behavioral science. And the research consistently shows that when you make habits feel rewarding, people stick with them.
 
 Your brain is already wired for this. You just need a system that speaks its language.
 

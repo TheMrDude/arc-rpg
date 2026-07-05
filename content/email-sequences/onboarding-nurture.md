@@ -4,14 +4,14 @@ Use these emails with your email provider (Loops, Resend, Postmark, etc.) trigge
 
 ---
 
-## Email 1: Welcome + Starter Kit (Day 0 — Immediate)
+## Email 1: Welcome + Starter Kit (Day 0, Immediate)
 
 **Subject:** Your Habit Transformation Starter Kit is here
 **Preview:** 5 science-backed strategies to build habits that stick
 
 Hey!
 
-Thanks for grabbing the Starter Kit. Here are 5 strategies that actually work — backed by behavioral science, not guilt:
+Thanks for grabbing the Starter Kit. Here are 5 strategies that actually work, backed by behavioral science, not guilt:
 
 **1. Start with identity, not outcomes**
 Don't say "I want to run a marathon." Say "I'm a runner." (James Clear nailed this one.)
@@ -23,14 +23,14 @@ Don't say "I want to run a marathon." Say "I'm a runner." (James Clear nailed th
 "After I pour my coffee, I'll journal for 2 minutes." Habit stacking works because your brain already has the cue built in.
 
 **4. Reward yourself immediately**
-Your brain needs a payoff NOW, not in 6 months. This is why gamification works — XP and progress bars give your brain the dopamine signal it needs to repeat the behavior.
+Your brain needs a payoff NOW, not in 6 months. This is why gamification works: XP and progress bars give your brain the dopamine signal it needs to repeat the behavior.
 
 **5. Remove guilt from the equation**
 Miss a day? So what. The research is clear: guilt makes you avoid the habit entirely. Just pick up where you left off.
 
 That last one is why we built HabitQuest. No streaks. No shame. Just progress.
 
-[Start your adventure — it's free →](https://habitquest.dev/signup)
+[Start your adventure, it's free →](https://habitquest.dev/signup)
 
 — The HabitQuest Team
 
@@ -51,7 +51,7 @@ Your archetype determines your quest style in HabitQuest. Take the quiz to find 
 
 It takes 2 minutes, and the results are surprisingly accurate. Some people have told us it's better than most personality tests they've taken.
 
-(Pro tip: share your result on Twitter — it's fun to see what your friends get.)
+(Pro tip: share your result on Twitter. It's fun to see what your friends get.)
 
 — The HabitQuest Team
 
@@ -68,7 +68,7 @@ A study in the Journal of Personality and Social Psychology found that guilt-bas
 
 In other words: the more an app shames you for missing a day, the more likely you are to delete it.
 
-Your brain doesn't respond to punishment. It responds to rewards. That's not a productivity hack — it's neuroscience.
+Your brain doesn't respond to punishment. It responds to rewards. That's not a productivity hack. It's neuroscience.
 
 We wrote a deep dive on the research:
 [Why Gamification Makes Habits Stick →](https://habitquest.dev/content/blog/why-gamification-makes-habits-stick)
@@ -81,7 +81,7 @@ The key takeaway: variable rewards (like XP, random bonuses, and level-ups) crea
 
 ## Email 4: Try Pro Free for 7 Days (Day 7)
 
-**Subject:** Unlock the full RPG experience — 7 days free
+**Subject:** Unlock the full RPG experience, 7 days free
 **Preview:** Boss battles, equipment, unlimited quests. No credit card needed.
 
 You've been using HabitQuest for a week now. How's it going?
@@ -89,13 +89,13 @@ You've been using HabitQuest for a week now. How's it going?
 If you're enjoying the free tier, here's what you're missing:
 
 - **Unlimited habits** (free tier caps at 3)
-- **Boss battles** — defeat the Procrastination Wyrm
-- **Equipment shop** — boost your XP gains
-- **Quest chains** — multi-step story arcs
-- **Journal & reflections** — transform your experiences into narratives
-- **Weekly digest emails** — your progress, summarized
+- **Boss battles**: defeat the Procrastination Wyrm
+- **Equipment shop**: boost your XP gains
+- **Quest chains**: multi-step story arcs
+- **Journal & reflections**: transform your experiences into narratives
+- **Weekly digest emails**: your progress, summarized
 
-We're offering a **7-day free Pro trial**. No credit card required. If you love it, keep it for $5/mo. If not, you go right back to free — no guilt, obviously.
+We're offering a **7-day free Pro trial**. No credit card required. If you love it, keep it for $5/mo. If not, you go right back to free, no guilt, obviously.
 
 [Start Your 7-Day Pro Trial →](https://habitquest.dev/pricing)
 
@@ -112,7 +112,7 @@ Hey,
 
 Just checking in. Your HabitQuest character is still there, ready to pick up where you left off.
 
-That's the thing about HabitQuest — there are no broken streaks, no "you failed" messages. Whether it's been 1 day or 10 days, your story just continues.
+That's the thing about HabitQuest: there are no broken streaks, no "you failed" messages. Whether it's been 1 day or 10 days, your story just continues.
 
 Here's what other early users are saying:
 
