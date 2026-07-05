@@ -93,15 +93,10 @@ export async function POST(request) {
 
     // Quest is now locked as completed - safe to award rewards
 
-    // Get user profile with equipped items
+    // Get user profile
     const { data: profile } = await supabaseAdmin
       .from('profiles')
-      .select(`
-        *,
-        equipped_weapon_item:equipment_catalog!profiles_equipped_weapon_fkey(*),
-        equipped_armor_item:equipment_catalog!profiles_equipped_armor_fkey(*),
-        equipped_accessory_item:equipment_catalog!profiles_equipped_accessory_fkey(*)
-      `)
+      .select('*')
       .eq('id', user.id)
       .single();
 
@@ -109,16 +104,29 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
     }
 
-    // Calculate XP multiplier from equipped items
+    // Calculate XP multiplier from equipped items.
+    // user_equipment.equipped is the source of truth for equip state
+    // (the shop UI writes it); profiles.equipped_* columns are legacy
+    // and no longer written by any flow.
     let xpMultiplier = 1.0;
-    if (profile.equipped_weapon_item) {
-      xpMultiplier += (parseFloat(profile.equipped_weapon_item.xp_multiplier) - 1.0);
-    }
-    if (profile.equipped_armor_item) {
-      xpMultiplier += (parseFloat(profile.equipped_armor_item.xp_multiplier) - 1.0);
-    }
-    if (profile.equipped_accessory_item) {
-      xpMultiplier += (parseFloat(profile.equipped_accessory_item.xp_multiplier) - 1.0);
+    const { data: equippedGear } = await supabaseAdmin
+      .from('user_equipment')
+      .select('equipment:equipment_catalog(type, xp_multiplier, stat_bonus)')
+      .eq('user_id', user.id)
+      .eq('equipped', true);
+
+    for (const row of equippedGear || []) {
+      const item = row.equipment;
+      if (!item || !['weapon', 'armor', 'accessory'].includes(item.type)) continue;
+      // stat_bonus (JSONB) takes priority: the xp_multiplier column has a
+      // 1.00 default, so it can't distinguish "no bonus" from "unset" for
+      // items seeded with stat_bonus only.
+      const itemMultiplier = parseFloat(
+        item.stat_bonus?.xp_multiplier ?? item.xp_multiplier ?? 1.0
+      );
+      if (!Number.isNaN(itemMultiplier)) {
+        xpMultiplier += itemMultiplier - 1.0;
+      }
     }
 
     // Calculate comeback bonus
