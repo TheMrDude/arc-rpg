@@ -135,6 +135,10 @@ export default function DashboardPage() {
 
   useEffect(() => {
     document.title = "Dashboard — HabitQuest";
+    const tab = new URLSearchParams(window.location.search).get('tab');
+    if (['quests', 'recurring', 'templates', 'equipment', 'journal', 'events'].includes(tab)) {
+      setActiveTab(tab);
+    }
     loadUserData();
   }, []);
 

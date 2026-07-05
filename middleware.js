@@ -43,7 +43,6 @@ export async function middleware(request) {
     '/quiz',
     '/history',
     '/skills',
-    '/equipment',
     '/shop',
     '/payment-success',
     '/admin',

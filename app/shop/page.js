@@ -107,7 +107,7 @@ export default function ShopPage() {
         {/* Navigation */}
         <div className="flex justify-center gap-4 mt-8">
           <button
-            onClick={() => router.push('/equipment')}
+            onClick={() => router.push('/dashboard?tab=equipment')}
             className="px-6 py-3 rounded-lg font-black uppercase border-3 bg-[#00D4FF] border-[#0F3460] text-[#0F3460] hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1 shadow-[0_3px_0_#0F3460] transition-all"
             style={{ fontFamily: 'VT323, monospace' }}
           >
