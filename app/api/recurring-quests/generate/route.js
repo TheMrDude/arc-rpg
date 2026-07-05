@@ -10,11 +10,12 @@ const supabaseAdmin = createClient(
 
 export async function POST(request) {
   try {
-    // Verify cron secret OR admin auth
+    // Vercel Cron sends Authorization: Bearer <CRON_SECRET> when the env var
+    // is set on the project. Fail closed if it is missing or doesn't match.
     const authHeader = request.headers.get('authorization');
     const cronSecret = process.env.CRON_SECRET;
 
-    if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+    if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
