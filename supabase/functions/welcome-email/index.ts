@@ -197,7 +197,7 @@ Deno.serve(async (req: Request) => {
         user_id: userId,
         chain_id: "welcome_quest",
         current_step: 1,
-        status: "active",
+        status: "in_progress",
         started_at: new Date().toISOString(),
       }, { onConflict: "user_id,chain_id" }).then(() => {});
     }

@@ -16,7 +16,7 @@ import { cookies } from 'next/headers';
  * 2. Supabase redirects to this route with code/token_hash
  * 3. Exchange code for session
  * 4. Check if user has completed onboarding (archetype exists)
- * 5. Redirect to /dashboard or /onboarding accordingly
+ * 5. Redirect to /dashboard or /select-archetype accordingly
  */
 
 export async function GET(request: NextRequest) {
@@ -122,17 +122,17 @@ export async function GET(request: NextRequest) {
 
     if (profileError) {
       console.error('Error fetching profile:', profileError);
-      // Profile might not exist yet, redirect to onboarding
+      // Profile might not exist yet, send to the archetype picker
       return NextResponse.redirect(
-        new URL('/onboarding?confirmed=true', request.url)
+        new URL('/select-archetype?confirmed=true', request.url)
       );
     }
 
     // Determine redirect destination based on onboarding status
     if (!profile || !profile.archetype) {
-      console.log('User has no archetype, redirecting to onboarding');
+      console.log('User has no archetype, redirecting to archetype picker');
       return NextResponse.redirect(
-        new URL('/onboarding?confirmed=true', request.url)
+        new URL('/select-archetype?confirmed=true', request.url)
       );
     }
 

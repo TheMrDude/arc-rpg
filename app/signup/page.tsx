@@ -19,12 +19,25 @@ function SignupForm() {
   const [showCelebration, setShowCelebration] = useState(false);
   const [earnedXP, setEarnedXP] = useState(0);
 
+  // Email-confirmation success state (signUp returned a user but no session)
+  const [awaitingConfirmation, setAwaitingConfirmation] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const [resendMessage, setResendMessage] = useState('');
+
   // Check if there's a preview quest when component mounts
   const [hasPreviewQuest, setHasPreviewQuest] = useState(false);
 
   useEffect(() => {
     document.title = "Sign Up Free | HabitQuest";
   }, []);
+
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const timer = setInterval(() => {
+      setResendCooldown((s) => (s > 1 ? s - 1 : 0));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [resendCooldown]);
 
   useEffect(() => {
     const previewQuest = getStoredPreviewQuest();
@@ -46,6 +59,9 @@ function SignupForm() {
       const { data, error: signupError } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
       });
 
       if (signupError) throw signupError;
@@ -64,10 +80,13 @@ function SignupForm() {
           }
         }
 
-        // Check if email confirmation is required
-        if (data.user.identities && data.user.identities.length === 0) {
-          // Email confirmation required - show message
-          router.push('/confirm-email');
+        // No session means email confirmation is pending (also covers the
+        // obfuscated existing-account response where identities is empty).
+        // Show the success state instead of bouncing through /login.
+        if (!data.session) {
+          setAwaitingConfirmation(true);
+          setResendCooldown(60);
+          setLoading(false);
           return;
         }
 
@@ -108,6 +127,101 @@ function SignupForm() {
     setShowCelebration(false);
     router.push('/select-archetype');
   };
+
+  async function handleResendConfirmation() {
+    if (resendCooldown > 0) return;
+    setResendMessage('');
+    try {
+      const { error: resendError } = await supabase.auth.resend({
+        type: 'signup',
+        email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+      if (resendError) throw resendError;
+      setResendMessage('Confirmation scroll re-sent! Check your inbox.');
+      setResendCooldown(60);
+    } catch (resendError: any) {
+      setResendMessage(resendError.message || 'Failed to resend. Try again in a moment.');
+    }
+  }
+
+  const handleStartOver = () => {
+    setAwaitingConfirmation(false);
+    setEmail('');
+    setPassword('');
+    setError('');
+    setResendMessage('');
+    setResendCooldown(0);
+  };
+
+  if (awaitingConfirmation) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#1A1A2E] via-[#16213e] to-[#0F3460] flex items-center justify-center p-4 sm:p-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          className="max-w-md w-full bg-[#1A1A2E] border-3 border-[#10B981] rounded-xl p-6 sm:p-8 text-center shadow-[0_0_25px_rgba(16,185,129,0.4)]"
+        >
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: 'spring', delay: 0.2 }}
+            className="text-6xl mb-4"
+          >
+            📜
+          </motion.div>
+
+          <h1 className="text-2xl sm:text-3xl font-black text-[#10B981] mb-4 uppercase tracking-wide">
+            Quest Accepted!
+          </h1>
+
+          <p className="text-white mb-6 text-sm sm:text-base">
+            We sent a confirmation scroll to{' '}
+            <span className="text-[#00D4FF] font-bold break-all">{email}</span>.
+            Click the link inside to begin your adventure.
+          </p>
+
+          {resendMessage && (
+            <div className={`${
+              resendMessage.includes('re-sent')
+                ? 'bg-green-900/30 border-green-500'
+                : 'bg-red-900/30 border-red-500'
+            } border-3 rounded-lg p-3 mb-4`}>
+              <p className={`${
+                resendMessage.includes('re-sent') ? 'text-green-300' : 'text-red-300'
+              } text-sm font-bold`}>
+                {resendMessage}
+              </p>
+            </div>
+          )}
+
+          <button
+            onClick={handleResendConfirmation}
+            disabled={resendCooldown > 0}
+            className="w-full py-3 bg-[#00D4FF] hover:bg-[#00B8E6] text-white border-3 border-[#0F3460] rounded-lg font-black uppercase tracking-wide transition-all duration-200 shadow-[0_5px_0_#0F3460] hover:shadow-[0_7px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_2px_0_#0F3460] active:translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+          >
+            {resendCooldown > 0
+              ? `Resend available in ${resendCooldown}s`
+              : 'Resend Confirmation Email'}
+          </button>
+
+          <p className="text-[#E2E8F0]/60 text-xs mt-4">
+            Didn&apos;t get it? Check your spam folder.
+          </p>
+
+          <button
+            onClick={handleStartOver}
+            className="text-[#E2E8F0] hover:text-white text-xs mt-4 underline transition-colors duration-200"
+          >
+            Wrong email? Start over
+          </button>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#1A1A2E] via-[#16213e] to-[#0F3460] flex items-center justify-center p-4 sm:p-8">
