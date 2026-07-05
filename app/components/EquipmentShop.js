@@ -40,24 +40,32 @@ function EquipmentCard({ item, owned, equipped, gold, onPurchase, onEquip }) {
 
         <p className="text-xs text-gray-300 mb-3 min-h-[40px]">{item.description}</p>
 
-        {/* Stats */}
-        {item.stat_bonus && Object.keys(item.stat_bonus).length > 0 && (
-          <div className="mb-3 p-2 bg-[#1A1A2E] rounded text-xs space-y-1">
-            {item.stat_bonus.xp_multiplier && (
-              <p className="text-[#00D4FF] font-bold">
-                +{((item.stat_bonus.xp_multiplier - 1) * 100).toFixed(0)}% XP
-              </p>
-            )}
-            {item.stat_bonus.gold_bonus && (
-              <p className="text-[#FFD93D] font-bold">
-                +{((item.stat_bonus.gold_bonus - 1) * 100).toFixed(0)}% Gold
-              </p>
-            )}
-            {item.stat_bonus.streak_protection && (
-              <p className="text-[#48BB78] font-bold">Momentum Protection</p>
-            )}
-          </div>
-        )}
+        {/* Stats. The live catalog stores the XP bonus in the xp_multiplier
+            column (stat_bonus JSONB is null there), so fall back to it —
+            same precedence complete-quest uses when awarding XP. */}
+        {(() => {
+          const xpMult = parseFloat(item.stat_bonus?.xp_multiplier ?? item.xp_multiplier ?? 1.0);
+          const hasXP = !Number.isNaN(xpMult) && xpMult > 1.0;
+          const hasOther = item.stat_bonus?.gold_bonus || item.stat_bonus?.streak_protection;
+          if (!hasXP && !hasOther) return null;
+          return (
+            <div className="mb-3 p-2 bg-[#1A1A2E] rounded text-xs space-y-1">
+              {hasXP && (
+                <p className="text-[#00D4FF] font-bold">
+                  +{((xpMult - 1) * 100).toFixed(0)}% XP
+                </p>
+              )}
+              {item.stat_bonus?.gold_bonus && (
+                <p className="text-[#FFD93D] font-bold">
+                  +{((item.stat_bonus.gold_bonus - 1) * 100).toFixed(0)}% Gold
+                </p>
+              )}
+              {item.stat_bonus?.streak_protection && (
+                <p className="text-[#48BB78] font-bold">Momentum Protection</p>
+              )}
+            </div>
+          );
+        })()}
 
         {/* Price/Actions */}
         {!owned ? (
