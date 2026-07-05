@@ -31,7 +31,7 @@ export const metadata = {
         url: 'https://habitquest.dev/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'HabitQuest - The Anti-Guilt Habit Tracker',
+        alt: 'HabitQuest — Your habits, as a world you conquer.',
       },
     ],
     locale: 'en_US',

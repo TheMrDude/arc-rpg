@@ -456,3 +456,13 @@ button, .card-retro, .xp-badge {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Landing page world-map slow pan (CSS-only, portrait map inside a wide frame) */
+@keyframes worldMapPan {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(0, -36%, 0); }
+}
+.animate-world-map-pan {
+  animation: worldMapPan 45s ease-in-out infinite;
+  will-change: transform;
+}

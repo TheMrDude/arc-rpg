@@ -8,6 +8,7 @@ import QuestInput from './components/QuestInput';
 import QuestPreview from './components/QuestPreview';
 import ExitIntentPopup from './components/ExitIntentPopup';
 import EmailCapture from './components/EmailCapture';
+import { HeroWorldMap, TerritorySection } from './components/LandingWorldMap';
 import { PreviewQuest } from '@/lib/onboarding';
 import { trackEvent } from '@/lib/analytics';
 import Image from 'next/image'
@@ -107,6 +108,7 @@ export default function LandingPage() {
             { "@type": "Question", "name": "What makes this different from every other habit app?", "acceptedAnswer": { "@type": "Answer", "text": "Other apps punish you for missing a day. We don't. No broken streaks, no shame notifications. HabitQuest turns your habits into an RPG adventure, so you actually want to open the app. Your habits. Your story. No guilt." } },
             { "@type": "Question", "name": "Is this just for gamers?", "acceptedAnswer": { "@type": "Answer", "text": "Not at all. If you've ever wished tasks felt less boring, this is for you. You don't need to know anything about RPGs. The game layer just makes habits feel rewarding instead of draining." } },
             { "@type": "Question", "name": "What if I miss a day?", "acceptedAnswer": { "@type": "Answer", "text": "Nothing bad happens. Seriously. No streak resets, no guilt screens, no \"you failed\" messages. Your character just picks up where you left off. Because building habits shouldn't feel like punishment." } },
+            { "@type": "Question", "name": "What's the world map?", "acceptedAnswer": { "@type": "Answer", "text": "Your campaign map is a living world that unlocks as you complete habits. Each real-life habit powers your character's journey, new regions, story chapters, and boss battles open up as you stay consistent. It's your progress, made visible." } },
             { "@type": "Question", "name": "What do I get for free?", "acceptedAnswer": { "@type": "Answer", "text": "Track up to 3 habits, choose your archetype, and get AI quest transformation, completely free, forever. Pro unlocks unlimited habits, boss battles, equipment, and the full RPG experience." } },
             { "@type": "Question", "name": "Do I need to download anything?", "acceptedAnswer": { "@type": "Answer", "text": "Nope. Works in your browser on any device. You can install it as an app on your phone if you want (it's a PWA), but it's not required." } }
           ]
@@ -168,13 +170,14 @@ export default function LandingPage() {
             SB7 Element: Character + Grunt Test
             5-second clarity: What you offer | How it helps | What to do
            ════════════════════════════════════════════════════════════════ */}
-        <section className="py-16 sm:py-24 text-center">
+        <section className="py-10 sm:py-14 text-center lg:text-left">
+          <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-10 lg:gap-14 items-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
             {/* Grunt Test Headline: What it is + how it makes life better */}
-            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black mb-6 leading-tight tracking-tight">
+            <h1 className="text-4xl sm:text-6xl font-black mb-6 leading-tight tracking-tight">
               <span className="text-white">You Don&apos;t Have a Discipline Problem.</span>
               <br />
               <span className="bg-gradient-to-r from-[#FF6B35] to-[#F59E0B] bg-clip-text text-transparent">
@@ -183,7 +186,7 @@ export default function LandingPage() {
             </h1>
 
             {/* Sub-headline: Addresses internal problem */}
-            <p className="text-xl sm:text-2xl mb-4 text-gray-300 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl sm:text-2xl mb-4 text-gray-300 max-w-3xl mx-auto lg:mx-0 leading-relaxed">
               HabitQuest turns your real habits into an RPG.
               <span className="text-[#4ECDC4] font-bold"> No streaks. No guilt. Just daily quests you actually want to complete.</span>
             </p>
@@ -194,7 +197,7 @@ export default function LandingPage() {
             </p>
 
             {/* CTA #2 — Hero center */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-4">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start items-center mb-4">
               <button
                 onClick={goToSignup}
                 className="px-10 py-5 bg-[#FF6B35] hover:bg-[#E55A2B] text-white border-3 border-[#0F3460] rounded-xl font-black text-xl uppercase tracking-wide shadow-lg transition-all hover:scale-105"
@@ -213,13 +216,23 @@ export default function LandingPage() {
             </p>
 
             {/* 30-Day Guarantee */}
-            <div className="mt-8 max-w-xl mx-auto flex items-start gap-3 bg-[#10B981]/10 border border-[#10B981]/30 rounded-xl p-4">
+            <div className="mt-8 max-w-xl mx-auto lg:mx-0 flex items-start gap-3 bg-[#10B981]/10 border border-[#10B981]/30 rounded-xl p-4">
               <span className="text-2xl flex-shrink-0">🛡️</span>
               <p className="text-sm text-gray-300 text-left leading-relaxed">
                 <span className="font-bold text-[#10B981]">30-Day No-Guilt Guarantee:</span> If HabitQuest doesn&apos;t help you build at least one consistent habit in 30 days, email us for a full refund. No forms, no questions, no guilt &mdash; we practice what we preach.
               </p>
             </div>
           </motion.div>
+
+          {/* Hero world map — the visual promise every pin sells */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+          >
+            <HeroWorldMap />
+          </motion.div>
+          </div>
         </section>
 
         {/* ════════════════════════════════════════════════════════════════
@@ -264,6 +277,13 @@ export default function LandingPage() {
             </div>
           </motion.div>
         </section>
+
+        {/* ════════════════════════════════════════════════════════════════
+            SECTION 2.5: YOUR CONSISTENCY BECOMES TERRITORY
+            Landing target for the Pinterest map pins — pays off the
+            "world map" promise with the map, Day 1 vs Day 90, and a CTA.
+           ════════════════════════════════════════════════════════════════ */}
+        <TerritorySection />
 
         {/* ════════════════════════════════════════════════════════════════
             SECTION 3: SOLUTION PREVIEW / VALUE PROP
@@ -386,9 +406,9 @@ export default function LandingPage() {
               },
               {
                 step: 3,
-                emoji: '📈',
-                title: 'Level Up by Doing Them',
-                desc: 'No streaks. No guilt. Just XP, progress, and becoming the hero of your story.',
+                emoji: '🗺️',
+                title: 'Watch Your Map Fill In',
+                desc: 'No streaks. No guilt. Just XP, unlocked territory, and a world that grows every time you show up.',
                 color: 'from-[#10B981] to-[#059669]'
               }
             ].map((item, i) => (
@@ -833,6 +853,10 @@ export default function LandingPage() {
                 {
                   q: 'What if I miss a day?',
                   a: 'Nothing bad happens. Seriously. No streak resets, no guilt screens, no "you failed" messages. Your character just picks up where you left off. Because building habits shouldn\'t feel like punishment.'
+                },
+                {
+                  q: 'What\'s the world map?',
+                  a: 'Your campaign map is a living world that unlocks as you complete habits. Each real-life habit powers your character\'s journey, new regions, story chapters, and boss battles open up as you stay consistent. It\'s your progress, made visible.'
                 },
                 {
                   q: 'What do I get for free?',
