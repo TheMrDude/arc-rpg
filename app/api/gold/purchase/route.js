@@ -71,8 +71,8 @@ export async function POST(request) {
         quantity: 1
       }],
       mode: 'payment',
-      success_url: `${process.env.NEXT_PUBLIC_URL || 'https://habitquest.dev'}/equipment?success=true&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_URL || 'https://habitquest.dev'}/equipment`,
+      success_url: `${process.env.NEXT_PUBLIC_URL || 'https://habitquest.dev'}/dashboard?tab=equipment&success=true&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.NEXT_PUBLIC_URL || 'https://habitquest.dev'}/dashboard?tab=equipment`,
       metadata: {
         user_id: user.id,
         package_type,
