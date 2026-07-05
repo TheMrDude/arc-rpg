@@ -96,7 +96,8 @@ Generate ALL of the following. Output as JSON with these exact keys:
 IMPORTANT: Return ONLY valid JSON. No markdown code fences. No explanation before or after.`;
 
     const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-5',
+      thinking: { type: 'disabled' },
       max_tokens: 4000,
       messages: [{ role: 'user', content: prompt }],
     });

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { advanceWelcomeChain } from '@/lib/quest-chain';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -136,6 +137,9 @@ export async function POST(request) {
       // Reflection was saved, so still return success
     }
 
+    // Welcome Quest chain: first reflection satisfies step 6. Never throws.
+    const welcomeChain = await advanceWelcomeChain(user.id, 'reflection_created');
+
     // Get updated XP
     const { data: profile } = await supabaseAdmin
       .from('profiles')
@@ -148,6 +152,7 @@ export async function POST(request) {
       reflection,
       xpBonus,
       newXP: profile?.xp || 0,
+      welcome_chain: welcomeChain,
       message: 'Reflection saved successfully!'
     });
 

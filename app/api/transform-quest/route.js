@@ -178,7 +178,8 @@ NARRATIVE_IMPACT: Weakens enemy supply lines
 Now transform the task above:`;
 
     const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-5',
+      thinking: { type: 'disabled' },
       max_tokens: isPremium ? 300 : 200,
       messages: [{ role: 'user', content: prompt }],
     });

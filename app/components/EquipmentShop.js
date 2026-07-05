@@ -114,6 +114,22 @@ export default function EquipmentShop({ isPremium, gold, onGoldChange, onEquipme
     }
   }, [isPremium]);
 
+  // Welcome Quest chain step 4: browsing the shop counts as the visit
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) return;
+        fetch('/api/onboarding/shop-visited', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${session.access_token}` },
+        });
+      } catch {
+        // best-effort
+      }
+    })();
+  }, []);
+
   const loadEquipment = async () => {
     try {
       setLoading(true);

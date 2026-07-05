@@ -25,9 +25,11 @@ interface QuestProgress {
 
 interface WelcomeQuestChainProps {
   userId: string;
+  /** Bump to re-fetch progress (e.g. after a quest completion or reflection). */
+  refreshKey?: number;
 }
 
-export default function WelcomeQuestChain({ userId }: WelcomeQuestChainProps) {
+export default function WelcomeQuestChain({ userId, refreshKey = 0 }: WelcomeQuestChainProps) {
   const [progress, setProgress] = useState<QuestProgress | null>(null);
   const [steps, setSteps] = useState<QuestStep[]>([]);
   const [loading, setLoading] = useState(true);
@@ -49,7 +51,16 @@ export default function WelcomeQuestChain({ userId }: WelcomeQuestChainProps) {
           .order('step_number'),
       ]);
 
-      if (progressRes.data) setProgress(progressRes.data);
+      if (progressRes.data) {
+        // Fire the Hero Established celebration exactly once: when we watch
+        // the chain flip from in_progress to completed during this session
+        setProgress((prev) => {
+          if (prev && prev.status !== 'completed' && progressRes.data.status === 'completed') {
+            setShowCelebration(true);
+          }
+          return progressRes.data;
+        });
+      }
       if (stepsRes.data) setSteps(stepsRes.data);
     } catch {
       // Not enrolled or data unavailable
@@ -60,7 +71,7 @@ export default function WelcomeQuestChain({ userId }: WelcomeQuestChainProps) {
 
   useEffect(() => {
     if (userId) loadData();
-  }, [userId, loadData]);
+  }, [userId, loadData, refreshKey]);
 
   if (loading || !progress || !steps.length) return null;
 

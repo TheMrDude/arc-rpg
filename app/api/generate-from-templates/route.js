@@ -114,7 +114,8 @@ Transform this boring task into an epic RPG quest. Keep it to 1-2 sentences. Mak
 Quest:`;
 
           const message = await anthropic.messages.create({
-            model: 'claude-sonnet-4-20250514',
+            model: 'claude-sonnet-5',
+      thinking: { type: 'disabled' },
             max_tokens: 150,
             messages: [{ role: 'user', content: prompt }],
           });

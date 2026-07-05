@@ -9,8 +9,9 @@ export const dynamic = 'force-dynamic';
  * Based on Anthropic pricing: https://www.anthropic.com/pricing
  */
 const COST_PER_1K_TOKENS = {
-  // Claude Sonnet 4.5 (latest)
-  'claude-sonnet-4-20250514': {
+  // Claude Sonnet 5 (current) — $3/$15 per MTok sticker
+  // (intro pricing $2/$10 through 2026-08-31; we use sticker to be conservative)
+  'claude-sonnet-5': {
     input: 0.003,  // $3 per million tokens
     output: 0.015  // $15 per million tokens
   },
@@ -102,7 +103,7 @@ export async function GET(request) {
 
       // Get token estimates
       const tokenEst = ENDPOINT_TOKEN_ESTIMATES[endpoint] || { input: 500, output: 200 };
-      const costs = COST_PER_1K_TOKENS['claude-sonnet-4-20250514'];
+      const costs = COST_PER_1K_TOKENS['claude-sonnet-5'];
 
       // Calculate cost per request
       const costPerRequest = (

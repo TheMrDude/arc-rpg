@@ -99,9 +99,9 @@ function buildWelcomeEmail(archetype: string | null, email: string): { subject: 
         <p style="color:#94A3B8;margin:0 0 12px;font-size:14px;">We've set up a starter quest chain to get you rolling:</p>
         <table style="width:100%;border-collapse:collapse;">
           <tr style="border-bottom:1px solid #334155;"><td style="padding:8px;color:#F59E0B;font-weight:700;font-size:13px;">Day 1</td><td style="padding:8px;color:#E2E8F0;font-size:13px;">Complete your first quest</td><td style="padding:8px;color:#10B981;font-size:13px;text-align:right;">+50 gold</td></tr>
-          <tr style="border-bottom:1px solid #334155;"><td style="padding:8px;color:#F59E0B;font-weight:700;font-size:13px;">Day 3</td><td style="padding:8px;color:#E2E8F0;font-size:13px;">Hit a 3-day streak</td><td style="padding:8px;color:#10B981;font-size:13px;text-align:right;">+100 gold</td></tr>
+          <tr style="border-bottom:1px solid #334155;"><td style="padding:8px;color:#F59E0B;font-weight:700;font-size:13px;">Day 3</td><td style="padding:8px;color:#E2E8F0;font-size:13px;">Be active on 3 different days</td><td style="padding:8px;color:#10B981;font-size:13px;text-align:right;">+100 gold</td></tr>
           <tr style="border-bottom:1px solid #334155;"><td style="padding:8px;color:#F59E0B;font-weight:700;font-size:13px;">Day 5</td><td style="padding:8px;color:#E2E8F0;font-size:13px;">Beat a Hard quest</td><td style="padding:8px;color:#10B981;font-size:13px;text-align:right;">+150 gold</td></tr>
-          <tr><td style="padding:8px;color:#F59E0B;font-weight:700;font-size:13px;">Day 7</td><td style="padding:8px;color:#E2E8F0;font-size:13px;">7-day streak — Hero Established 🏆</td><td style="padding:8px;color:#10B981;font-size:13px;text-align:right;">+250 gold</td></tr>
+          <tr><td style="padding:8px;color:#F59E0B;font-weight:700;font-size:13px;">Day 7</td><td style="padding:8px;color:#E2E8F0;font-size:13px;">Show up 7 days total — Hero Established 🏆</td><td style="padding:8px;color:#10B981;font-size:13px;text-align:right;">+250 gold</td></tr>
         </table>
       </div>
       <div style="text-align:center;margin:32px 0;">

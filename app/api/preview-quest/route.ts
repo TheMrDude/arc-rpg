@@ -54,9 +54,9 @@ export async function POST(request: Request) {
 
     // Call Claude API to transform the task
     const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-5',
+      thinking: { type: 'disabled' },
       max_tokens: 200,
-      temperature: 0.8,
       system: "You are a creative RPG quest writer. Transform mundane tasks into epic quests. Keep it under 40 words. Use vivid language but stay grounded in what the task actually is. Make it feel heroic without being cringe. Return ONLY the transformed quest text, nothing else.",
       messages: [
         {

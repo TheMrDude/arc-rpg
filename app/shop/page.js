@@ -25,6 +25,20 @@ export default function ShopPage() {
       }
       setUser(user);
 
+      // Welcome Quest chain step 4: the dashboard equipment tab is level-gated,
+      // so the always-reachable /shop page counts as the shop visit
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          fetch('/api/onboarding/shop-visited', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${session.access_token}` },
+          });
+        }
+      } catch {
+        // best-effort
+      }
+
       const { data: profileData } = await supabase
         .from('profiles')
         .select('*')

@@ -3,14 +3,14 @@
   "configurations": [
     {
       "name": "Next.js Dev Server",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeExecutable": "/bin/bash",
+      "runtimeArgs": ["-c", "export PATH=/usr/local/bin:$PATH && npm run dev"],
       "port": 3000
     },
     {
       "name": "Jest Test Runner (Watch)",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "test:watch"],
+      "runtimeExecutable": "/bin/bash",
+      "runtimeArgs": ["-c", "export PATH=/usr/local/bin:$PATH && npm run test:watch"],
       "port": 0
     }
   ]

@@ -1,61 +1,63 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+
+// Seeker first: it's the pre-selected default, so it should be the first card seen
+const ARCHETYPES = [
+  {
+    id: 'seeker',
+    name: 'Seeker',
+    image: '/images/archetypes/seeker.png',
+    description: 'Curious explorer. Your quests become adventures into the unknown.',
+  },
+  {
+    id: 'warrior',
+    name: 'Warrior',
+    image: '/images/archetypes/warrior.png',
+    description: 'Bold and direct. Your quests become battles to win.',
+  },
+  {
+    id: 'builder',
+    name: 'Builder',
+    image: '/images/archetypes/builder.png',
+    description: 'Steady creator. Your quests become projects that stack up.',
+  },
+  {
+    id: 'shadow',
+    name: 'Shadow',
+    image: '/images/archetypes/shadow.png',
+    description: 'Sharp strategist. Your quests become precision missions.',
+  },
+  {
+    id: 'sage',
+    name: 'Sage',
+    image: '/images/archetypes/sage.png',
+    description: 'Wise and calm. Your quests become lessons on the path.',
+  },
+];
 
 export default function SelectArchetypePage() {
   const router = useRouter();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [selectedArchetype, setSelectedArchetype] = useState(null);
+  // Seeker pre-selected: the page should never block on an unmade choice
+  const [selectedArchetype, setSelectedArchetype] = useState('seeker');
 
-  const archetypes = [
-    {
-      id: 'warrior',
-      name: 'Warrior',
-      image: '/images/archetypes/warrior.png',
-      description: 'Bold and action-oriented. Transform tasks into heroic battles and conquests.',
-      style: 'Battle through challenges with courage and determination',
-      traits: ['Courage', 'Action', 'Victory'],
-    },
-    {
-      id: 'builder',
-      name: 'Builder',
-      image: '/images/archetypes/builder.png',
-      description: 'Constructive and creative. Turn tasks into building projects and crafting endeavors.',
-      style: 'Engineer solutions and construct your future',
-      traits: ['Creation', 'Engineering', 'Progress'],
-    },
-    {
-      id: 'shadow',
-      name: 'Shadow',
-      image: '/images/archetypes/shadow.png',
-      description: 'Strategic and cunning. Approach tasks as stealth missions and strategic operations.',
-      style: 'Navigate challenges with strategy and precision',
-      traits: ['Strategy', 'Cunning', 'Precision'],
-    },
-    {
-      id: 'sage',
-      name: 'Sage',
-      image: '/images/archetypes/sage.png',
-      description: 'Wise and intellectual. Transform tasks into quests for knowledge and understanding.',
-      style: 'Seek wisdom and enlightenment in every task',
-      traits: ['Wisdom', 'Knowledge', 'Insight'],
-    },
-    {
-      id: 'seeker',
-      name: 'Seeker',
-      image: '/images/archetypes/seeker.png',
-      description: 'Curious and adventurous. Explore tasks as discovery adventures and expeditions.',
-      style: 'Discover new horizons and uncharted territories',
-      traits: ['Curiosity', 'Adventure', 'Discovery'],
-    },
-  ];
+  // "Choose for me" dice roll states
+  const [showDice, setShowDice] = useState(false);
+  const [dicePhase, setDicePhase] = useState('spinning'); // spinning -> landed
+  const [diceNumber, setDiceNumber] = useState('?');
+  const [rolledArchetype, setRolledArchetype] = useState(null);
+  const spinIntervalRef = useRef(null);
 
   useEffect(() => {
     checkUser();
+    return () => {
+      if (spinIntervalRef.current) clearInterval(spinIntervalRef.current);
+    };
   }, []);
 
   async function checkUser() {
@@ -85,8 +87,32 @@ export default function SelectArchetypePage() {
     }
   }
 
-  async function handleSelectArchetype() {
-    if (!selectedArchetype || saving) return;
+  function chooseForMe() {
+    if (showDice) return;
+    setShowDice(true);
+    setDicePhase('spinning');
+    setDiceNumber('?');
+    setRolledArchetype(null);
+
+    // Rapid number cycling during spin (same feel as the D10 encounter dice)
+    spinIntervalRef.current = setInterval(() => {
+      setDiceNumber(Math.floor(Math.random() * 10) + 1);
+    }, 80);
+
+    setTimeout(() => {
+      if (spinIntervalRef.current) clearInterval(spinIntervalRef.current);
+      const roll = Math.floor(Math.random() * 10) + 1;
+      const archetype = ARCHETYPES[(roll - 1) % ARCHETYPES.length];
+      setDiceNumber(roll);
+      setRolledArchetype(archetype);
+      setSelectedArchetype(archetype.id);
+      setDicePhase('landed');
+    }, 1500);
+  }
+
+  async function handleSelectArchetype(archetypeId) {
+    const archetype = archetypeId || selectedArchetype;
+    if (!archetype || saving) return;
 
     setSaving(true);
     try {
@@ -97,7 +123,10 @@ export default function SelectArchetypePage() {
         .upsert(
           {
             id: user.id,
-            archetype: selectedArchetype
+            // email is NOT NULL on profiles; the ON CONFLICT insert tuple is
+            // checked before conflict resolution, so it must always be sent
+            email: user.email,
+            archetype
           },
           {
             onConflict: 'id',
@@ -135,69 +164,63 @@ export default function SelectArchetypePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1A1A2E] via-[#16213e] to-[#0F3460] text-white p-8">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-[#1A1A2E] via-[#16213e] to-[#0F3460] text-white p-4 sm:p-8">
+      <div className="max-w-5xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-5xl font-black mb-4 uppercase tracking-wide text-[#FF6B6B]">Choose Your Archetype</h1>
-          <p className="text-xl text-[#00D4FF] mb-2 font-bold">
-            Your archetype shapes how quests are narrated and influences your story
+        <div className="text-center mb-8">
+          <h1 className="text-4xl sm:text-5xl font-black mb-3 uppercase tracking-wide text-[#FF6B6B]">Choose Your Archetype</h1>
+          <p className="text-lg text-[#E2E8F0] mb-4">
+            Your archetype shapes how the AI narrates your quests. Style only — no stats, no wrong answers.
           </p>
-          <p className="text-[#E2E8F0]">
-            Don't worry - this affects style and flavor, not game mechanics!
-          </p>
+          <div className="inline-block bg-[#FFD93D]/10 border-2 border-[#FFD93D] rounded-lg px-5 py-3">
+            <p className="text-[#FFD93D] font-bold text-sm sm:text-base">
+              ✨ Not sure? Start as Seeker. You can change your archetype anytime in settings.
+            </p>
+          </div>
+        </div>
+
+        {/* Choose for me */}
+        <div className="text-center mb-8">
+          <button
+            onClick={chooseForMe}
+            className="px-6 py-3 bg-[#0F3460] hover:bg-[#1a4a7a] text-[#22d3ee] border-2 border-[#22d3ee]/50 rounded-lg font-black uppercase text-sm tracking-wide transition-all hover:scale-105"
+          >
+            🎲 Choose for me
+          </button>
         </div>
 
         {/* Archetype Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {archetypes.map((archetype) => (
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
+          {ARCHETYPES.map((archetype) => (
             <div
               key={archetype.id}
               onClick={() => setSelectedArchetype(archetype.id)}
-              className={`rounded-lg p-6 cursor-pointer transition-all ${
+              className={`rounded-lg p-5 cursor-pointer transition-all ${
                 selectedArchetype === archetype.id
                   ? 'border-3 border-[#FFD93D] bg-[#1A1A2E] shadow-[0_0_30px_rgba(255,217,61,0.5)] scale-105'
                   : 'border-3 border-[#0F3460] bg-[#1A1A2E] hover:border-[#00D4FF] hover:scale-102'
               }`}
             >
-              {/* Image */}
-              <div className="flex justify-center mb-4">
+              <div className="flex justify-center mb-3">
                 <img
                   src={archetype.image}
                   alt={archetype.name}
-                  className="w-32 h-32 object-contain rounded-lg"
+                  className="w-24 h-24 object-contain rounded-lg"
                 />
               </div>
 
-              {/* Name */}
-              <h3 className="text-2xl font-black text-center mb-3 uppercase tracking-wide text-[#FF6B6B]">{archetype.name}</h3>
+              <h3 className="text-xl font-black text-center mb-2 uppercase tracking-wide text-[#FF6B6B]">
+                {archetype.name}
+                {archetype.id === 'seeker' && (
+                  <span className="block text-[10px] text-[#FFD93D] tracking-widest mt-1">Recommended start</span>
+                )}
+              </h3>
 
-              {/* Description */}
-              <p className="text-[#E2E8F0] text-center mb-4">{archetype.description}</p>
+              <p className="text-[#E2E8F0] text-sm text-center">{archetype.description}</p>
 
-              {/* Style */}
-              <div className="bg-[#0F3460] rounded-lg p-3 mb-4 border-2 border-[#1A1A2E]">
-                <p className="text-sm text-[#FFD93D] italic text-center font-bold">
-                  "{archetype.style}"
-                </p>
-              </div>
-
-              {/* Traits */}
-              <div className="flex justify-center gap-2 flex-wrap">
-                {archetype.traits.map((trait) => (
-                  <span
-                    key={trait}
-                    className="px-3 py-1 bg-[#00D4FF] text-[#1A1A2E] rounded-md text-xs font-black uppercase"
-                  >
-                    {trait}
-                  </span>
-                ))}
-              </div>
-
-              {/* Selected Indicator */}
               {selectedArchetype === archetype.id && (
-                <div className="mt-4 text-center">
-                  <span className="text-[#FFD93D] font-black uppercase tracking-wide">✓ Selected</span>
+                <div className="mt-3 text-center">
+                  <span className="text-[#FFD93D] font-black uppercase tracking-wide text-sm">✓ Selected</span>
                 </div>
               )}
             </div>
@@ -205,20 +228,101 @@ export default function SelectArchetypePage() {
         </div>
 
         {/* Confirm Button */}
-        <div className="text-center">
+        <div className="text-center pb-8">
           <button
-            onClick={handleSelectArchetype}
-            disabled={!selectedArchetype || saving}
-            className={`px-12 py-4 rounded-lg font-black text-xl uppercase tracking-wide transition-all duration-100 ${
-              selectedArchetype
-                ? 'bg-[#FF6B6B] hover:bg-[#EE5A6F] text-white border-3 border-[#0F3460] shadow-[0_5px_0_#0F3460] hover:shadow-[0_7px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_2px_0_#0F3460] active:translate-y-1'
-                : 'bg-[#0F3460] text-[#1A1A2E] border-3 border-[#1A1A2E] cursor-not-allowed opacity-50'
-            }`}
+            onClick={() => handleSelectArchetype()}
+            disabled={saving}
+            className="px-12 py-4 rounded-lg font-black text-xl uppercase tracking-wide transition-all duration-100 bg-[#FF6B6B] hover:bg-[#EE5A6F] text-white border-3 border-[#0F3460] shadow-[0_5px_0_#0F3460] hover:shadow-[0_7px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_2px_0_#0F3460] active:translate-y-1 disabled:opacity-60"
           >
-            {saving ? 'Confirming...' : selectedArchetype ? `Begin as ${archetypes.find(a => a.id === selectedArchetype)?.name}` : 'Select an Archetype'}
+            {saving ? 'Beginning...' : '⚔️ Begin Your Campaign'}
           </button>
+          <p className="text-xs text-[#94a3b8] mt-3">
+            Starting as {ARCHETYPES.find((a) => a.id === selectedArchetype)?.name}
+          </p>
         </div>
       </div>
+
+      {/* Choose-for-me dice roll overlay */}
+      {showDice && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/85">
+          <div className="flex flex-col items-center gap-6 p-8">
+            <h2 className="text-xl font-black uppercase tracking-wide text-[#22d3ee]">
+              🎲 The dice decide your fate...
+            </h2>
+
+            <div
+              className="archetype-d10"
+              style={{
+                animation: dicePhase === 'spinning'
+                  ? 'archetypeDiceRoll 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+                  : 'archetypeDiceBounce 0.3s ease',
+              }}
+            >
+              <span className="text-[2.5rem] font-black text-[#22d3ee]">{diceNumber}</span>
+            </div>
+
+            {dicePhase === 'landed' && rolledArchetype && (
+              <div className="bg-[#1e293b] border-2 border-[#FFD93D] rounded-xl p-6 max-w-[350px] w-[90vw] text-center shadow-[0_0_30px_rgba(255,217,61,0.4)]" style={{ animation: 'archetypeSlideUp 0.4s ease' }}>
+                <img
+                  src={rolledArchetype.image}
+                  alt={rolledArchetype.name}
+                  className="w-20 h-20 object-contain rounded-lg mx-auto mb-3"
+                />
+                <h3 className="text-xl font-black uppercase tracking-wide text-[#FFD93D] mb-2">
+                  {rolledArchetype.name}!
+                </h3>
+                <p className="text-[#94a3b8] text-sm mb-5">{rolledArchetype.description}</p>
+                <div className="flex flex-col gap-2">
+                  <button
+                    onClick={() => handleSelectArchetype(rolledArchetype.id)}
+                    disabled={saving}
+                    className="px-8 py-3 bg-[#FF6B6B] hover:bg-[#EE5A6F] text-white rounded-lg font-black uppercase transition-all hover:scale-105 disabled:opacity-60"
+                  >
+                    {saving ? 'Beginning...' : '⚔️ Begin Your Campaign'}
+                  </button>
+                  <button
+                    onClick={() => setShowDice(false)}
+                    className="text-[#94a3b8] hover:text-white text-sm font-bold transition-colors"
+                  >
+                    Roll rejected — I&apos;ll pick myself
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <style jsx>{`
+            .archetype-d10 {
+              width: 120px;
+              height: 140px;
+              background: linear-gradient(135deg, #1e293b, #334155);
+              clip-path: polygon(50% 0%, 95% 35%, 80% 90%, 20% 90%, 5% 35%);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              border: 3px solid #22d3ee;
+              box-shadow: 0 0 20px rgba(34, 211, 238, 0.3);
+            }
+            @keyframes archetypeDiceRoll {
+              0% { transform: rotateX(0deg) rotateY(0deg) scale(0.5); opacity: 0; }
+              20% { transform: rotateX(360deg) rotateY(180deg) scale(1.2); opacity: 1; }
+              40% { transform: rotateX(720deg) rotateY(360deg) scale(1); }
+              60% { transform: rotateX(1080deg) rotateY(540deg) scale(1.1); }
+              80% { transform: rotateX(1300deg) rotateY(650deg) scale(1); }
+              100% { transform: rotateX(1440deg) rotateY(720deg) scale(1); }
+            }
+            @keyframes archetypeDiceBounce {
+              0% { transform: scale(1.3); }
+              50% { transform: scale(0.95); }
+              100% { transform: scale(1); }
+            }
+            @keyframes archetypeSlideUp {
+              from { opacity: 0; transform: translateY(30px); }
+              to { opacity: 1; transform: translateY(0); }
+            }
+          `}</style>
+        </div>
+      )}
     </div>
   );
 }

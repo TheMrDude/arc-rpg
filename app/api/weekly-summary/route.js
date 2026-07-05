@@ -170,7 +170,8 @@ Close with: "Chapter ${currentChapter} complete. Your journey continues..."
 Write the chapter now:`;
 
       const message = await anthropic.messages.create({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-5',
+      thinking: { type: 'disabled' },
         max_tokens: 500,
         messages: [{ role: 'user', content: prompt }],
       });
@@ -374,7 +375,8 @@ Close with: "Chapter ${currentChapter} complete. Your journey continues..."
 Write the chapter now:`;
 
     const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-5',
+      thinking: { type: 'disabled' },
       max_tokens: 500,
       messages: [{ role: 'user', content: prompt }],
     });

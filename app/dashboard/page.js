@@ -46,6 +46,7 @@ import { ErrorBoundary } from '@/app/components/ErrorBoundary';
 import CharacterPanel from '@/app/components/CharacterPanel';
 import ChroniclePanel from '@/app/components/ChroniclePanel';
 import QuestInputRedesigned from '@/app/components/QuestInputRedesigned';
+import StarterQuestPicker from '@/app/components/StarterQuestPicker';
 import FirstTimeEmptyState from '@/app/components/FirstTimeEmptyState';
 import EmptyState from '@/app/components/EmptyState';
 import DiceRoll from '@/app/components/DiceRoll';
@@ -132,6 +133,10 @@ export default function DashboardPage() {
 
   // Unlock toast states
   const [newUnlocks, setNewUnlocks] = useState([]);
+
+  // Welcome Quest chain refresh (bumped after completions/reflections so the
+  // chain card re-fetches and shows newly advanced steps)
+  const [chainRefresh, setChainRefresh] = useState(0);
 
   useEffect(() => {
     document.title = "Dashboard | HabitQuest";
@@ -242,18 +247,14 @@ export default function DashboardPage() {
 
       // Check if user should see onboarding
       const hasSeenOnboarding = localStorage.getItem(`onboarding_${user.id}`);
-      const demoQuestsCreated = localStorage.getItem(`demo_quests_${user.id}`);
 
       if (!hasSeenOnboarding && questsData && questsData.length === 0) {
         setShowOnboarding(true);
       }
 
-      // Create demo quests for new users
-      if (!demoQuestsCreated && questsData && questsData.length === 0) {
-        setTimeout(() => {
-          createDemoQuests();
-        }, 1000);
-      }
+      // NOTE: demo quests were removed in favor of the StarterQuestPicker —
+      // the first quest should be a deliberate one-tap choice, not three
+      // silently auto-created tasks that hide the first-win fast path.
 
       // Load active effects
       try {
@@ -287,62 +288,11 @@ export default function DashboardPage() {
     setShowOnboarding(false);
   }
 
-  async function createDemoQuests() {
-    if (!user || !profile) return;
-
-    const demoCreated = localStorage.getItem(`demo_quests_${user.id}`);
-    if (demoCreated) return;
-
-    const demoQuests = [
-      { original_text: 'Make your bed', difficulty: 'easy', xp_value: 10 },
-      { original_text: 'Exercise for 30 minutes', difficulty: 'medium', xp_value: 25 },
-      { original_text: 'Complete an important project task', difficulty: 'hard', xp_value: 50 },
-    ];
-
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
-
-      for (const quest of demoQuests) {
-        const response = await fetch('/api/transform-quest', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session.access_token}`
-          },
-          body: JSON.stringify({
-            questText: quest.original_text,
-            archetype: profile.archetype,
-          }),
-        });
-
-        const data = await response.json();
-
-        if (response.ok && data.transformedText) {
-          await supabase
-            .from('quests')
-            .insert({
-              user_id: user.id,
-              original_text: quest.original_text,
-              transformed_text: data.transformedText,
-              difficulty: data.difficulty || quest.difficulty,
-              xp_value: data.xpValue || quest.xp_value,
-              completed: false,
-              story_thread: data.storyThread || null,
-              narrative_impact: data.narrativeImpact || null,
-            });
-        }
-      }
-
-      localStorage.setItem(`demo_quests_${user.id}`, 'created');
-      loadUserData();
-    } catch (error) {
-      console.error('Error creating demo quests:', error);
-    }
-  }
-
-  async function addQuest() {
-    if (!newQuestText.trim()) return;
+  // textOverride lets the StarterQuestPicker create a quest with one tap;
+  // it must be a string check because button onClick passes a click event.
+  async function addQuest(textOverride) {
+    const questText = typeof textOverride === 'string' ? textOverride : newQuestText;
+    if (!questText.trim()) return;
 
     // Check habit limit for free users
     const isPro = profile?.is_premium || profile?.subscription_status === 'active' || profile?.subscription_tier === 'pro';
@@ -371,7 +321,7 @@ export default function DashboardPage() {
           'Authorization': `Bearer ${session.access_token}`
         },
         body: JSON.stringify({
-          questText: newQuestText,
+          questText,
           archetype: profile.archetype,
         }),
       });
@@ -400,7 +350,7 @@ export default function DashboardPage() {
         .from('quests')
         .insert({
           user_id: user.id,
-          original_text: newQuestText,
+          original_text: questText,
           transformed_text: data.transformedText,
           difficulty: aiDifficulty,
           xp_value: aiXp,
@@ -552,6 +502,7 @@ export default function DashboardPage() {
 
       // Reload user data
       await loadUserData();
+      setChainRefresh((v) => v + 1);
 
       // Refresh event badge
       if (profile?.is_premium || profile?.subscription_status === 'active') {
@@ -677,6 +628,7 @@ export default function DashboardPage() {
 
       if (response.ok) {
         loadUserData();
+        setChainRefresh((v) => v + 1);
       }
     } catch (error) {
       console.error('Error saving reflection:', error);
@@ -871,6 +823,8 @@ export default function DashboardPage() {
   const creature = sections.companion ? getCreatureCompanion(quests, profile?.last_quest_date) : null;
   const activeQuestsList = quests.filter(q => !q.completed);
   const isNewUser = (profile?.level || 1) <= 2 && activeQuestsList.length === 0;
+  // First-win fast path: brand-new account, nothing completed, nothing created
+  const showStarterPicker = (profile?.quests_completed || 0) === 0 && quests.length === 0;
 
   return (
     <ErrorBoundary>
@@ -977,6 +931,11 @@ export default function DashboardPage() {
           </button>
         </div>
 
+        {/* First-win fast path — three one-tap starter quests, above the fold */}
+        {showStarterPicker && (
+          <StarterQuestPicker onPick={(text) => addQuest(text)} creating={adding} />
+        )}
+
         {/* Character Panel — archetype art, XP ring, level, equipped gear */}
         <div id="character-panel">
           <CharacterPanel
@@ -1041,7 +1000,7 @@ export default function DashboardPage() {
         )}
 
         {/* Welcome Quest Chain — first thing new users see */}
-        {user && <WelcomeQuestChain userId={user.id} />}
+        {user && <WelcomeQuestChain userId={user.id} refreshKey={chainRefresh} />}
 
         {/* Tab Bar — Only at Level 10+ */}
         {sections.tabBar && (
@@ -1118,7 +1077,7 @@ export default function DashboardPage() {
                   </div>
                 ))}
                 {activeQuestsList.length === 0 && (
-                  isNewUser ? (
+                  showStarterPicker ? null : isNewUser ? (
                     <FirstTimeEmptyState onTryQuest={scrollToQuestInput} />
                   ) : (
                     <EmptyState

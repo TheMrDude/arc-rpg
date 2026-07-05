@@ -4,6 +4,7 @@ import { authenticateRequest } from '@/lib/api-auth';
 import { rollForEncounter, getEncounterRewards } from '@/lib/encounterService';
 import { getIsoWeekKey } from '@/lib/date-utils';
 import { MOMENTUM_GOAL_DAYS } from '@/lib/momentum';
+import { advanceWelcomeChain } from '@/lib/quest-chain';
 
 const MOMENTUM_BONUS_XP = 25;
 
@@ -381,6 +382,18 @@ export async function POST(request) {
       }
     }
 
+    // Welcome Quest chain: quest completions can satisfy steps 1, 2, 3, 5, 7
+    // (and any later step already satisfied by history). Never throws.
+    const welcomeChain = await advanceWelcomeChain(user.id, 'quest_completed');
+    if (welcomeChain?.advanced?.length) {
+      // Chain XP was added after finalXP was computed — reflect it in the response
+      const chainXP = welcomeChain.advanced.reduce((sum, s) => sum + s.reward_xp, 0);
+      const chainGold = welcomeChain.advanced.reduce((sum, s) => sum + s.reward_gold, 0);
+      finalXP += chainXP;
+      finalLevel = Math.floor(finalXP / 100) + 1;
+      newGoldBalance += chainGold;
+    }
+
     console.log('Quest completed successfully', {
       userId: user.id,
       questId: quest_id,
@@ -426,6 +439,7 @@ export async function POST(request) {
       },
       encounter: encounterResponse,
       chest_drop: chestDrop,
+      welcome_chain: welcomeChain,
     });
 
   } catch (error) {

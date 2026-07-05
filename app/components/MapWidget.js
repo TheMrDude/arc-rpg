@@ -82,6 +82,11 @@ export default function MapWidget({ profile, quests, userId, onRegionUnlocked })
           <p className="text-[11px] italic mt-0.5" style={{ color: currentRegion.color }}>
             {currentRegion.subtitle}
           </p>
+          {completedCount === 1 && (
+            <p className="text-[11px] font-bold text-[#48BB78] mt-1.5">
+              ✨ First quest complete. {currentRegion.name} is waking up.
+            </p>
+          )}
         </div>
 
         {/* Next locked region — fog preview */}

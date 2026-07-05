@@ -175,7 +175,8 @@ ${getExampleForArchetype(archetype, isPremium, maxWords)}
 Write ONLY the narrative transformation. No preamble, no "Here's the transformation:" - just the epic narrative itself.`;
 
     const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-5',
+      thinking: { type: 'disabled' },
       max_tokens: isPremium ? 500 : 300,
       messages: [{ role: 'user', content: prompt }],
     });
