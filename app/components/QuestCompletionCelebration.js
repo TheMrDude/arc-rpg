@@ -9,7 +9,8 @@ export default function QuestCompletionCelebration({
   show,
   onClose,
   rewards,
-  questTitle
+  questTitle,
+  storyBeat
 }) {
   // Lock body scroll when modal is open
   useEffect(() => {
@@ -161,6 +162,19 @@ export default function QuestCompletionCelebration({
                   <span className="text-5xl">⚡</span>
                 </div>
               </motion.div>
+
+              {/* Story beat: one flavor line from the server. Renders nothing
+                  if the response did not include one (backwards compatible). */}
+              {storyBeat && (
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.55 }}
+                  className="text-center text-sm italic text-[#94a3b8] mb-4 px-2"
+                >
+                  {storyBeat}
+                </motion.p>
+              )}
 
               {/* Gold Reward */}
               <motion.div
