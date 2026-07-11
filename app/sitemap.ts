@@ -11,7 +11,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.7,
   }));
 
-  const vsPages = ['habitica', 'streaks', 'finch', 'everyday'].map((slug) => ({
+  const vsPages = ['habitica', 'streaks', 'finch', 'everyday', 'fabulous', 'loop', 'habitify'].map((slug) => ({
     url: `${baseUrl}/vs/${slug}`,
     lastModified: new Date(),
     changeFrequency: 'monthly' as const,
