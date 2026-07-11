@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { supabase } from '@/lib/supabase';
 
 const STRIPE_LINK_PRO_MONTHLY = 'https://buy.stripe.com/fZubJ02TX5SngCc6dadZ602';
-const STRIPE_LINK_PRO_YEARLY = 'https://buy.stripe.com/dRm7sK6695Sn85GgROdZ601';
+const STRIPE_LINK_PRO_YEARLY = 'https://buy.stripe.com/14A3cu9il0y3adObxudZ603'; // $29 CAD/yr Early Bird (fixed 2026-07-11: old link was $29/mo, deactivated)
 const STRIPE_LINK_EARLY_BIRD = process.env.NEXT_PUBLIC_STRIPE_EARLY_BIRD_LINK || STRIPE_LINK_PRO_YEARLY;
 
 function stripeLink(baseUrl, email, userId) {
