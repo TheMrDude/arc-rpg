@@ -5,6 +5,7 @@ import { rollForEncounter, getEncounterRewards } from '@/lib/encounterService';
 import { getIsoWeekKey } from '@/lib/date-utils';
 import { MOMENTUM_GOAL_DAYS } from '@/lib/momentum';
 import { advanceWelcomeChain } from '@/lib/quest-chain';
+import { getStoryBeat } from '@/lib/storyBeats';
 
 const MOMENTUM_BONUS_XP = 25;
 
@@ -394,6 +395,53 @@ export async function POST(request) {
       newGoldBalance += chainGold;
     }
 
+    // Achievements: best-effort server-side check. The RPC returns setof text
+    // (the newly unlocked achievement ids); we join them against the
+    // achievements table for display data. Never blocks completion.
+    let newlyUnlockedAchievements = [];
+    try {
+      const { data: unlockedIds, error: achievementError } = await supabaseAdmin
+        .rpc('check_achievements_for_user', { p_user_id: user.id });
+
+      if (achievementError) {
+        console.error('Achievement check failed:', achievementError);
+      } else if (Array.isArray(unlockedIds) && unlockedIds.length > 0) {
+        // setof text usually arrives as ['id', ...] but some client versions
+        // wrap rows as [{ check_achievements_for_user: 'id' }]
+        const ids = unlockedIds
+          .map((row) => (typeof row === 'string' ? row : Object.values(row || {})[0]))
+          .filter(Boolean);
+
+        if (ids.length > 0) {
+          let { data: achievementRows, error: joinError } = await supabaseAdmin
+            .from('achievements')
+            .select('*')
+            .in('id', ids);
+
+          // Fallback: some achievement functions return keys rather than uuids
+          if (joinError || !achievementRows || achievementRows.length === 0) {
+            const { data: byKey } = await supabaseAdmin
+              .from('achievements')
+              .select('*')
+              .in('key', ids);
+            achievementRows = byKey;
+          }
+
+          newlyUnlockedAchievements = (achievementRows || []).map((a) => ({
+            id: a.id,
+            name: a.name || a.title,
+            icon: a.icon,
+            rarity: a.rarity,
+            description: a.description,
+            xp_reward: a.xp_reward || 0,
+          }));
+        }
+      }
+    } catch (err) {
+      // Achievements are best-effort; completion always succeeds regardless
+      console.error('Achievement check threw:', err);
+    }
+
     console.log('Quest completed successfully', {
       userId: user.id,
       questId: quest_id,
@@ -440,6 +488,9 @@ export async function POST(request) {
       encounter: encounterResponse,
       chest_drop: chestDrop,
       welcome_chain: welcomeChain,
+      // One short flavor line, deterministic per quest (no AI call)
+      story_beat: getStoryBeat(profile.archetype, quest_id),
+      newly_unlocked_achievements: newlyUnlockedAchievements,
     });
 
   } catch (error) {
