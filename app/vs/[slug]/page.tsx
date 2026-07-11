@@ -504,12 +504,16 @@ export default async function VsPage({ params }: { params: Promise<{ slug: strin
 
           {/* CTA */}
           <div className="mt-12 bg-gradient-to-r from-amber-500/15 to-amber-500/5 border border-amber-500/40 rounded-xl p-8 text-center">
-            <h2 className="text-2xl font-bold text-white mb-2">Try the no-guilt way for free</h2>
-            <p className="text-gray-300 mb-6">3 habits, full RPG mechanics, no credit card. If a missed day has ever made you delete a habit app, this one was built for you.</p>
+            <h2 className="text-2xl font-bold text-white mb-2">Your first quest takes 2 minutes</h2>
+            <p className="text-gray-300 mb-2">Free forever plan: 3 habits, full RPG mechanics, no credit card, 60-second setup.</p>
+            <p className="text-amber-400/90 font-semibold mb-6">Miss a day? Nothing resets. Ever. That is the whole point.</p>
             <Link href="/signup" className="inline-block bg-amber-500 hover:bg-amber-400 text-gray-900 font-bold px-8 py-3 rounded-lg transition-colors">
               Start Your Quest Free →
             </Link>
-            <p className="text-gray-500 text-xs mt-4">
+            <p className="text-gray-400 text-sm mt-4">
+              When you outgrow free: Pro is $5/mo, or lock in the <Link href="/pricing" className="text-amber-400 hover:underline">$29/yr Early Bird</Link> while launch pricing lasts.
+            </p>
+            <p className="text-gray-500 text-xs mt-3">
               Want the full breakdown of every app? Read the{' '}
               <Link href="/blog/best-habit-tracking-apps-2026" className="text-amber-400 hover:underline">
                 2026 habit app comparison
