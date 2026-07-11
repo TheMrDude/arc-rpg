@@ -1298,6 +1298,7 @@ export default function DashboardPage() {
           milestone={milestoneData.milestone}
           type={milestoneData.type}
           unlocks={milestoneData.unlocks}
+          isPremium={isPremium}
         />
       )}
 
