@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { WORLD_REGIONS, getUnlockStatus, getUnlockProgress } from '@/lib/world-regions';
 
-// ─── REGION PANEL ─────────────────────────────────────────────────────────────
+// ─── REGION PANEL ───────────────────────────────────────────────────────────
 
 function RegionPanel({ region, locked, playerData, onClose }) {
   const progress = locked ? getUnlockProgress(region, playerData) : null;
@@ -106,7 +106,7 @@ function RegionPanel({ region, locked, playerData, onClose }) {
   );
 }
 
-// ─── WORLD MAP ────────────────────────────────────────────────────────────────
+// ─── WORLD MAP ──────────────────────────────────────────────────────────────
 
 export default function WorldMap({ playerData, isDM }) {
   const [selectedRegion, setSelectedRegion] = useState(null);
@@ -118,6 +118,11 @@ export default function WorldMap({ playerData, isDM }) {
     if (isDM && dmView) return false;
     return !getUnlockStatus(region, playerData);
   };
+
+  // Endowed progress: the starting region (unlockKey 'always') is never
+  // fogged, and the NEXT locked region renders with lighter fog and a
+  // visible name + icon, so a brand-new player's map is never fully dark.
+  const nextLockedId = WORLD_REGIONS.find((r) => isRegionLocked(r))?.id || null;
 
   const handleRegionClick = (region) => {
     setSelectedRegion(prev => prev?.id === region.id ? null : region);
@@ -225,22 +230,26 @@ export default function WorldMap({ playerData, isDM }) {
                 onMouseEnter={() => setHoveredRegion(region.id)}
                 onMouseLeave={() => setHoveredRegion(null)}
               >
-                {/* Fog layer */}
+                {/* Fog layer. The next region on the road gets lighter fog
+                    (a partial reveal) so the map always shows where the
+                    story goes next. */}
                 {locked && (
                   <div
                     className="absolute inset-0 flex flex-col items-center justify-center gap-1"
                     style={{
-                      background: 'rgba(0,0,0,0.75)',
+                      background: region.id === nextLockedId ? 'rgba(0,0,0,0.45)' : 'rgba(0,0,0,0.75)',
                       borderRadius: '3px',
-                      backdropFilter: 'blur(1px)',
+                      backdropFilter: region.id === nextLockedId ? 'none' : 'blur(1px)',
                     }}
                   >
-                    <span style={{ fontSize: 'clamp(10px, 1.8vw, 18px)', lineHeight: 1 }}>🔒</span>
+                    <span style={{ fontSize: 'clamp(10px, 1.8vw, 18px)', lineHeight: 1 }}>
+                      {region.id === nextLockedId ? region.icon : '🔒'}
+                    </span>
                     <span
                       className="text-center leading-tight"
                       style={{
                         fontSize: 'clamp(5px, 0.9vw, 9px)',
-                        color: '#6b7280',
+                        color: region.id === nextLockedId ? '#c8a96e' : '#6b7280',
                         maxWidth: '90%',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
