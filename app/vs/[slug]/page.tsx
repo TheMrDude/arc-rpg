@@ -214,6 +214,147 @@ const COMPETITORS: Competitor[] = [
       { q: 'Is HabitQuest free like Everyday’s trial?', a: 'HabitQuest’s free plan is permanent, not a trial: 3 habits, XP and leveling, and archetype selection for as long as you want. Pro is $5/mo or $29/yr Early Bird.' },
     ],
   },
+  {
+    slug: 'fabulous',
+    name: 'Fabulous',
+    title: 'HabitQuest vs Fabulous (2026): Guided Routines or an RPG You Actually Play?',
+    description:
+      'Fabulous vs HabitQuest in 2026: science-backed guided routines versus a momentum-based habit RPG. An honest comparison of coaching, pricing, and ADHD fit.',
+    intro: [
+      "Fabulous is the beautifully designed routine coach: guided Journeys, morning rituals, coaching audio, and behavioral science baked into every screen. It has won Apple design awards and it deserves them.",
+      "HabitQuest comes at the same problem from the opposite direction. Fabulous tells you what a good routine looks like and walks you through it. HabitQuest takes the habits you already chose and makes doing them feel like a game. Which philosophy fits you is the whole comparison.",
+    ],
+    verdictThem:
+      'Pick Fabulous if you want to be coached: prescribed routines, guided programs, audio sessions, and a structured path from "drink water" to a full morning ritual.',
+    verdictUs:
+      'Pick HabitQuest if being told what to do is exactly what your brain rejects. You bring the habits, HabitQuest brings the XP, quests, and a story that makes you want to show up.',
+    table: [
+      { label: 'Core mechanic', them: 'Guided Journeys and prescribed routines', us: 'RPG quests, XP, and momentum' },
+      { label: 'Miss a day', them: 'Journey progress stalls; reminders pile up', us: 'Nothing breaks; your quest continues' },
+      { label: 'Style', them: 'Coach: the app leads, you follow', us: 'Game: you lead, the app rewards' },
+      { label: 'Content', them: 'Coaching audio, meditations, challenges', us: 'Boss battles, equipment, journal, AI quests' },
+      { label: 'Notifications', them: 'Famously heavy by default', us: 'Light touch; the game pulls, it does not nag' },
+      { label: 'Price', them: 'About $40/yr subscription; limited free tier', us: 'Free (3 habits); Pro $5/mo or $29/yr Early Bird' },
+      { label: 'Platform', them: 'iOS and Android apps', us: 'Web app (installable PWA on any device)' },
+    ],
+    theyWin: {
+      heading: 'Where Fabulous honestly beats HabitQuest',
+      points: [
+        'Guidance. If you do not know where to start, Fabulous hands you a researched routine and walks you through building it one habit at a time. HabitQuest assumes you already know what you want to do.',
+        'Content library. Coaching audio, meditations, sleep stories, and themed challenges. HabitQuest has none of that; it is a tracker and a game, not a content platform.',
+        'Production polish. Fabulous is one of the most beautiful apps ever shipped, with native iOS and Android builds.',
+      ],
+    },
+    weWin: {
+      heading: 'Where HabitQuest wins',
+      points: [
+        'Autonomy. A lot of people (ADHD brains especially) bounce off prescribed programs the moment life stops matching the script. HabitQuest never hands you a script; it gamifies whatever your real life actually contains.',
+        'No nag fatigue. Fabulous is notorious for heavy notifications and email. HabitQuest is built to pull you back with an unfinished quest, not push you back with alerts.',
+        'Price. HabitQuest free is permanent and Pro costs less than Fabulous, without locking core tracking behind the paywall.',
+      ],
+    },
+    missADay:
+      'Fabulous treats a missed day as a detour from the program: the Journey waits, the reminders keep arriving, and restarting can feel like admitting the program did not take. HabitQuest has no program to fall behind on. A missed day is a quiet day in your story, and the next quest is exactly where you left it.',
+    faqs: [
+      { q: 'Is Fabulous or HabitQuest better for ADHD?', a: 'It depends on whether structure helps or repels you. Some ADHD users thrive on Fabulous’s guided routines. Many others abandon prescribed programs within weeks. HabitQuest is built for the second group: no script to fall behind on, no punishment for inconsistent weeks, and fast dopamine from XP and quest completion.' },
+      { q: 'Is Fabulous worth $40 a year?', a: 'If you will actually use the coaching content (Journeys, audio sessions, challenges), the subscription buys a lot of material. If you mainly need tracking plus motivation, you are paying for a content library you will not open. HabitQuest Pro costs $29/yr Early Bird and puts the money into game depth instead.' },
+      { q: 'Can HabitQuest build a morning routine like Fabulous?', a: 'Yes, but you assemble it yourself: add your morning habits, and the AI turns them into quests you complete in sequence. Fabulous is better at teaching you which habits belong in a morning routine; HabitQuest is better at making you want to keep doing them.' },
+    ],
+  },
+  {
+    slug: 'loop',
+    name: 'Loop Habit Tracker',
+    title: 'HabitQuest vs Loop Habit Tracker (2026): Free Minimalism or a Game Worth Opening?',
+    description:
+      'Loop Habit Tracker vs HabitQuest in 2026: the beloved free open-source Android tracker versus a gamified habit RPG. Honest comparison of charts, motivation, and fit.',
+    intro: [
+      "Loop Habit Tracker is the app Reddit recommends when someone asks for a habit tracker with no subscription, no account, and no nonsense. It is free, open source, ad-free, and its habit strength score is genuinely smarter than a streak counter.",
+      "I have real respect for Loop. This comparison exists because Loop answers \"how do I track habits?\" perfectly and does not even try to answer \"how do I keep caring?\" That second question is the one HabitQuest is built around.",
+    ],
+    verdictThem:
+      'Pick Loop if you are on Android, you want a completely free and private tracker, and charts alone are enough to keep you coming back. Nothing else in this category respects your wallet more.',
+    verdictUs:
+      'Pick HabitQuest if you have already tried the minimalist tracker and quietly stopped opening it. Data does not motivate everyone; a campaign with quests and bosses might.',
+    table: [
+      { label: 'Core mechanic', them: 'Check-ins with a habit strength score', us: 'RPG quests, XP, and momentum' },
+      { label: 'Miss a day', them: 'Strength dips gradually; no hard reset', us: 'Nothing resets; your progress stays' },
+      { label: 'Motivation layer', them: 'Charts and statistics', us: 'Story, boss battles, loot, world map' },
+      { label: 'Price', them: 'Completely free, open source, no ads', us: 'Free (3 habits); Pro $5/mo or $29/yr Early Bird' },
+      { label: 'Privacy', them: 'Local-only data, no account needed', us: 'Cloud account; data synced across devices' },
+      { label: 'Platform', them: 'Android only', us: 'Web app (PWA), works on any device' },
+      { label: 'AI features', them: 'None', us: 'AI turns boring tasks into quests' },
+    ],
+    theyWin: {
+      heading: 'Where Loop honestly beats HabitQuest',
+      points: [
+        'Price and freedom. Loop is free forever, open source, and has no ads or upsells. You cannot beat that, and I sell a subscription, so I am not going to pretend otherwise.',
+        'Privacy. Loop stores everything locally on your phone with no account. HabitQuest needs an account and a connection.',
+        'Smart scoring. Loop’s exponentially weighted habit strength is honest math: it dips when you slip and recovers when you return, with no dramatic reset.',
+      ],
+    },
+    weWin: {
+      heading: 'Where HabitQuest wins',
+      points: [
+        'A reason to open the app. Loop assumes the data is the motivation. For a lot of us it is not, and the tracker becomes another icon we avoid. HabitQuest gives you a quest line, a boss at low health, a region about to unlock.',
+        'Works everywhere. Loop is Android-only. HabitQuest runs in any browser and installs on iPhone, Android, Mac, or Windows.',
+        'Play. XP, gear with real bonuses, and AI that rewrites "clean the kitchen" into something you want to check off.',
+      ],
+    },
+    missADay:
+      'Loop actually handles misses gracefully: your habit strength dips a little instead of resetting, which is the same philosophy HabitQuest runs on. The difference is what greets you afterward. Loop greets you with a chart that dipped. HabitQuest greets you with a story that kept your seat warm. Both are kind; only one is fun.',
+    faqs: [
+      { q: 'Is Loop Habit Tracker available on iPhone?', a: 'No. Loop is Android-only and the developers have said an iOS version is not planned. If you want Loop’s no-punishment philosophy on an iPhone, HabitQuest runs as an installable web app on any device, including iOS.' },
+      { q: 'Why pay for HabitQuest when Loop is free?', a: 'If charts keep you consistent, do not pay; Loop is excellent and free. HabitQuest is for people who need more than data to stay engaged. The free plan (3 habits, XP, leveling) never expires, so you can find out which type you are without spending anything.' },
+      { q: 'Do Loop and HabitQuest both avoid streak punishment?', a: 'Yes. Loop’s habit strength score softens misses instead of resetting them, and HabitQuest removes visible miss-tracking entirely. Both reject the broken-chain model; they just wrap that philosophy in very different experiences: statistics versus story.' },
+    ],
+  },
+  {
+    slug: 'habitify',
+    name: 'Habitify',
+    title: 'HabitQuest vs Habitify (2026): Clean Dashboard or Quest Log for Your Habits?',
+    description:
+      'Habitify vs HabitQuest in 2026: the minimalist cross-platform habit dashboard versus a momentum-based habit RPG. Honest comparison of features, pricing, and fit.',
+    intro: [
+      "Habitify is what a habit tracker looks like when it is built like a productivity tool: clean dashboard, precise stats, calendar and health integrations, even an API. It syncs across basically everything and takes itself seriously in the best way.",
+      "HabitQuest takes the same job (do not let your habits die) and answers it with a completely different tool: a game. This one comes down to what your brain needs on the days motivation is missing.",
+    ],
+    verdictThem:
+      'Pick Habitify if you want a serious, data-driven tracker with native apps on every platform, deep integrations, and a dashboard that would not look out of place at work.',
+    verdictUs:
+      'Pick HabitQuest if dashboards do not make you feel anything. When the numbers stop pulling you back, a quest line with stakes and loot is a very different kind of gravity.',
+    table: [
+      { label: 'Core mechanic', them: 'Check-ins, stats, and streak tracking', us: 'RPG quests, XP, and momentum' },
+      { label: 'Miss a day', them: 'Streak breaks; stats record the gap', us: 'Nothing breaks; no wall of missed days' },
+      { label: 'Design', them: 'Minimal, professional dashboard', us: 'Dark fantasy RPG with quests and loot' },
+      { label: 'Integrations', them: 'Apple Health, calendars, API, Zapier', us: 'None yet' },
+      { label: 'Platform', them: 'iOS, Android, Mac, web', us: 'Web app (installable PWA on any device)' },
+      { label: 'Price', them: 'Free (3 habits); premium ~$30/yr or $60 lifetime', us: 'Free (3 habits); Pro $5/mo or $29/yr Early Bird' },
+      { label: 'Motivation style', them: 'Numbers, trends, consistency scores', us: 'Story, boss battles, world map' },
+    ],
+    theyWin: {
+      heading: 'Where Habitify honestly beats HabitQuest',
+      points: [
+        'Integrations and automation. Apple Health auto-tracking, calendar sync, a public API, and Zapier support. HabitQuest has none of that today.',
+        'Native apps everywhere. Habitify ships real apps for iOS, Android, and Mac with cross-platform sync. HabitQuest is a web-first PWA.',
+        'Data depth. If you love trends, completion rates, and time-of-day analysis, Habitify’s stats go deeper than anything on my roadmap.',
+      ],
+    },
+    weWin: {
+      heading: 'Where HabitQuest wins',
+      points: [
+        'Emotional pull. Habitify informs you; HabitQuest recruits you. A quest chain in progress is stickier than a consistency percentage for brains that run on story and novelty.',
+        'No streak anxiety. Habitify still centers streaks and records your gaps. HabitQuest deliberately shows no wall of misses, because staring at your failures helps nobody restart.',
+        'AI quests. "Answer three emails" becomes a quest with stakes. Habitify keeps tasks as list items.',
+      ],
+    },
+    missADay:
+      'Habitify handles a miss like an analyst: the streak breaks, the gap is logged, and your completion rate absorbs the hit. Fair, accurate, and for some people quietly demoralizing. HabitQuest handles a miss like a game master: nothing on screen accuses you, and the next quest is simply waiting. Honest data versus honest kindness; pick the one your brain responds to.',
+    faqs: [
+      { q: 'Is Habitify or HabitQuest better value?', a: 'They cost about the same per year (Habitify premium is roughly $30/yr or $60 lifetime; HabitQuest Pro is $29/yr Early Bird or $5/mo), and both free plans include 3 habits. The value question is really which one you will still open in March: dashboards and integrations, or quests and momentum.' },
+      { q: 'Does Habitify punish missed days?', a: 'It does not punish, but it does display: broken streaks and gaps appear in your stats and completion rates. If seeing that record motivates you, Habitify is a fine choice. If it reads like a report card of failure, HabitQuest was built to remove exactly that.' },
+      { q: 'Can HabitQuest replace Habitify’s integrations?', a: 'Not today. If auto-tracking from Apple Health or calendar-based habits are core to your system, Habitify wins on integrations. HabitQuest’s bet is different: most habit apps are not abandoned for lack of integrations, they are abandoned for lack of motivation.' },
+    ],
+  },
 ];
 
 // ─── Static generation ──────────────────────────────────────────────
