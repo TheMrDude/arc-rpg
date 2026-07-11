@@ -4,7 +4,7 @@ import GlobalFooter from '@/app/components/GlobalFooter';
 export const metadata = {
   title: 'HabitQuest vs Other Habit Trackers: Honest Comparisons (2026)',
   description:
-    'Honest, no-spin comparisons of HabitQuest against Habitica, Streaks, Finch, and Everyday. Every page tells you when to pick the other app.',
+    'Honest, no-spin comparisons of HabitQuest against Habitica, Streaks, Finch, Everyday, Fabulous, Loop, and Habitify. Every page tells you when to pick the other app.',
   alternates: { canonical: 'https://habitquest.dev/vs' },
   openGraph: {
     title: 'HabitQuest vs Other Habit Trackers',
@@ -20,6 +20,9 @@ const COMPARISONS = [
   { slug: 'streaks', name: 'Streaks', blurb: 'The chain counter vs the app with no chain to break.' },
   { slug: 'finch', name: 'Finch', blurb: 'Cozy self-care pet vs dark fantasy campaign. Same kindness, different costume.' },
   { slug: 'everyday', name: 'Everyday', blurb: 'The calendar grid vs the quest log.' },
+  { slug: 'fabulous', name: 'Fabulous', blurb: 'Guided routines and coaching vs a game you direct yourself.' },
+  { slug: 'loop', name: 'Loop Habit Tracker', blurb: 'The free open-source favorite vs a reason to actually open the app.' },
+  { slug: 'habitify', name: 'Habitify', blurb: 'The data dashboard vs the quest log. Numbers or story.' },
 ];
 
 export default function VsIndex() {
