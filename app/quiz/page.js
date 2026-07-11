@@ -136,6 +136,17 @@ export default function QuizPage() {
         scores[a] > scores[b] ? a : b
       );
 
+      // Persist the result so the dashboard can personalize first quests after signup
+      try {
+        localStorage.setItem('hq_quiz_result', JSON.stringify({
+          archetype: topArchetype,
+          scores,
+          completedAt: new Date().toISOString()
+        }));
+      } catch (e) {
+        // localStorage unavailable (private mode etc.) - personalization just skips
+      }
+
       setResult(topArchetype);
     }
   };
