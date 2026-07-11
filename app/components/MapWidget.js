@@ -28,7 +28,23 @@ export default function MapWidget({ profile, quests, userId, onRegionUnlocked })
   const currentRegion = unlocked[unlocked.length - 1] || WORLD_REGIONS[0];
   const nextRegion = WORLD_REGIONS.find((r) => !getUnlockStatus(r, playerData)) || null;
   const progress = nextRegion ? getUnlockProgress(nextRegion, playerData) : null;
-  const pct = progress ? Math.round((progress.current / progress.required) * 100) : 100;
+  // Endowed progress: the bar toward the next region never renders empty,
+  // so a brand-new map already looks like a journey underway.
+  const rawPct = progress ? Math.round((progress.current / progress.required) * 100) : 100;
+  const pct = progress ? Math.max(rawPct, 12) : 100;
+
+  // Forward-looking line, e.g. "2 quests until Ember Coast is revealed"
+  let unlockLine = null;
+  if (nextRegion && progress) {
+    const remaining = Math.max(progress.required - progress.current, 1);
+    if (progress.label === 'quests') {
+      unlockLine = `${remaining} ${remaining === 1 ? 'quest' : 'quests'} until ${nextRegion.name} is revealed`;
+    } else if (progress.label === 'level') {
+      unlockLine = `Reach level ${progress.required} and ${nextRegion.name} is revealed`;
+    } else {
+      unlockLine = `${remaining} more ${progress.label} until ${nextRegion.name} is revealed`;
+    }
+  }
 
   // Detect newly unlocked regions vs the last snapshot. Skips the very
   // first render for a user (no snapshot yet) so long-time players don't
@@ -110,7 +126,7 @@ export default function MapWidget({ profile, quests, userId, onRegionUnlocked })
                   />
                 </div>
                 <p className="text-[10px] text-[#94a3b8] mt-1">
-                  {progress.required - progress.current} more {progress.label} to unlock
+                  {unlockLine}
                 </p>
               </div>
             )}
