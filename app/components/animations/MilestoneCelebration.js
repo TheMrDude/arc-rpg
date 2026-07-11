@@ -51,15 +51,34 @@ const LEVEL_UNLOCKS = {
   }
 };
 
+// Pro upsell moments shown to free users at early level-ups.
+// Each ties the pitch to what Pro unlocks next. No guilt, ever.
+const PRO_MOMENTS = {
+  3: {
+    headline: 'Level 3 already? You are on a roll.',
+    copy: 'Pro heroes quest without limits: unlimited habits and boss battles worthy of your momentum.'
+  },
+  5: {
+    headline: 'A true adventurer needs gear.',
+    copy: 'Pro unlocks equipment and epic boss battles. Suit up and see how far this hero goes.'
+  },
+  8: {
+    headline: 'Your saga is getting good.',
+    copy: 'Pro adds quest chains and the hero journal, so every chapter of your story gets written.'
+  }
+};
+
 export default function MilestoneCelebration({
   show,
   onClose,
   milestone,
   type,
-  unlocks: customUnlocks
+  unlocks: customUnlocks,
+  isPremium = false
 }) {
   const [canClose, setCanClose] = useState(false);
   const [confettiActive, setConfettiActive] = useState(false);
+  const [proMomentDismissed, setProMomentDismissed] = useState(false);
   const { play } = useSound();
   const reducedMotion = usePrefersReducedMotion();
 
@@ -158,6 +177,11 @@ export default function MilestoneCelebration({
     [];
 
   const levelTitle = type === 'level' && LEVEL_UNLOCKS[milestone]?.title;
+
+  // Pro moment: only for free users, only at select level-ups
+  const proMoment = type === 'level' && !isPremium && !proMomentDismissed
+    ? PRO_MOMENTS[milestone]
+    : null;
 
   return (
     <AnimatePresence>
@@ -364,6 +388,37 @@ export default function MilestoneCelebration({
                     <div className="text-sm font-semibold text-green-800">
                       Features Unlocked
                     </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Pro Moment (free users, select levels) */}
+              {proMoment && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.95 }}
+                  className="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-2xl p-6 mb-6 border-2 border-amber-300"
+                >
+                  <h3 className="text-xl font-black text-gray-800 mb-2 text-center">
+                    👑 {proMoment.headline}
+                  </h3>
+                  <p className="text-gray-700 text-center mb-4">
+                    {proMoment.copy}
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                    <a
+                      href="/pricing"
+                      className="px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-gray-900 font-black text-center uppercase tracking-wide transition-colors"
+                    >
+                      See What Pro Unlocks
+                    </a>
+                    <button
+                      onClick={() => setProMomentDismissed(true)}
+                      className="px-6 py-3 rounded-xl font-bold text-gray-600 hover:text-gray-800 border-2 border-gray-300 hover:border-gray-400 bg-white transition-colors"
+                    >
+                      Keep questing free
+                    </button>
                   </div>
                 </motion.div>
               )}
