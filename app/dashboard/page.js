@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Gem, BookOpen, ScrollText, Swords, Shield, Dices, Coins, Flame, Volume2, VolumeX, ClipboardList, RefreshCw, Package, PartyPopper, LogOut } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -48,6 +48,9 @@ import CharacterPanel from '@/app/components/CharacterPanel';
 import ChroniclePanel from '@/app/components/ChroniclePanel';
 import QuestInputRedesigned from '@/app/components/QuestInputRedesigned';
 import StarterQuestPicker from '@/app/components/StarterQuestPicker';
+import ComebackMoment from '@/app/components/ComebackMoment';
+import TomorrowQuestHook from '@/app/components/TomorrowQuestHook';
+import AchievementNotification from '@/app/components/AchievementNotification';
 import FirstTimeEmptyState from '@/app/components/FirstTimeEmptyState';
 import EmptyState from '@/app/components/EmptyState';
 import DiceRoll from '@/app/components/DiceRoll';
@@ -78,6 +81,11 @@ export default function DashboardPage() {
   const [completedQuestData, setCompletedQuestData] = useState(null);
   const [showMilestoneCelebration, setShowMilestoneCelebration] = useState(false);
   const [milestoneData, setMilestoneData] = useState(null);
+
+  // Tomorrow-quest hook (suggestion card after a celebration closes) and
+  // newly unlocked achievement toasts (shown one at a time from a queue)
+  const [showTomorrowHook, setShowTomorrowHook] = useState(false);
+  const [achievementQueue, setAchievementQueue] = useState([]);
 
   // Reward juice states
   const [showRewardBurst, setShowRewardBurst] = useState(false);
@@ -431,6 +439,19 @@ export default function DashboardPage() {
       });
       setShowQuestCelebration(true);
 
+      // Newly unlocked achievements (best-effort server check). Mapped to the
+      // AchievementNotification prop shape once, so queue items stay stable.
+      if (Array.isArray(data.newly_unlocked_achievements) && data.newly_unlocked_achievements.length > 0) {
+        const mapped = data.newly_unlocked_achievements.map((a) => ({
+          title: a.name,
+          description: a.description,
+          icon: a.icon,
+          rarity: a.rarity,
+          xp_reward: a.xp_reward || 0,
+        }));
+        setAchievementQueue((q) => [...q, ...mapped]);
+      }
+
       // Juice: orb flight to XP bar, floating gold text, completion chime
       playSound('quest-complete');
       setShowRewardBurst(true);
@@ -559,6 +580,10 @@ export default function DashboardPage() {
   const handleCelebrationClose = () => {
     setShowQuestCelebration(false);
 
+    // Tomorrow-quest hook: the component itself guards once-per-day and
+    // skips if tomorrow is already planned.
+    setShowTomorrowHook(true);
+
     const showsReflection = completedQuestData && Math.random() < 0.5;
 
     if (showsReflection) {
@@ -587,6 +612,12 @@ export default function DashboardPage() {
       }
     }
   };
+
+  // Stable callback so AchievementNotification's auto-dismiss timer is not
+  // reset by unrelated dashboard re-renders.
+  const handleAchievementClose = useCallback(() => {
+    setAchievementQueue((q) => q.slice(1));
+  }, []);
 
   const handleDiceClaimReward = () => {
     setShowDiceRoll(false);
@@ -857,6 +888,16 @@ export default function DashboardPage() {
       {/* Daily Login Reward */}
       {user && <DailyLoginReward userId={user.id} onRewardClaimed={() => loadUserData()} />}
 
+      {/* Comeback moment: warm full-screen return after 3+ quiet days.
+          Guards itself via localStorage 'hq_comeback_ack'. */}
+      {profile && (
+        <ComebackMoment
+          profile={profile}
+          onPick={(text) => addQuest(text)}
+          creating={adding}
+        />
+      )}
+
       {/* Emotional Login Transition */}
       {showLoginTransition && profile && (
         <LoginTransition
@@ -1068,6 +1109,15 @@ export default function DashboardPage() {
         {/* ── QUESTS TAB (or always visible if no tab bar) ── */}
         {(sections.tabBar ? activeTab === 'quests' : true) && (
           <>
+            {/* Tomorrow-quest hook: banner for a planned quest that is due,
+                plus the post-celebration "choose tomorrow's quest" card */}
+            <TomorrowQuestHook
+              showSuggest={showTomorrowHook}
+              archetype={profile?.archetype}
+              onPick={(text) => addQuest(text)}
+              creating={adding}
+            />
+
             {/* Quest Input — THE HERO */}
             <div ref={questInputRef}>
               <QuestInputRedesigned
@@ -1293,8 +1343,15 @@ export default function DashboardPage() {
           onClose={handleCelebrationClose}
           rewards={celebrationData.rewards}
           questTitle={celebrationData.questTitle}
+          storyBeat={celebrationData.storyBeat}
         />
       )}
+
+      {/* Newly unlocked achievements, shown one at a time */}
+      <AchievementNotification
+        achievement={achievementQueue[0] || null}
+        onClose={handleAchievementClose}
+      />
 
       {/* Reflection Prompt */}
       {showReflection && completedQuestData && (
