@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { WORLD_REGIONS, getUnlockStatus, getUnlockProgress } from '@/lib/world-regions';
 import { getDiscoveriesForRegion, isDiscovered, discoveryHint, getDiscoveryCounts } from '@/lib/discoveries';
 import { journeyDistance } from '@/lib/journeys';
+import { generateFrontierRegion, nextFrontierIndex, reachedFrontiers } from '@/lib/frontier';
 import { supabase } from '@/lib/supabase';
 
 // ─── REGION PANEL ───────────────────────────────────────────────────────────
@@ -181,6 +182,94 @@ function RegionPanel({ region, locked, playerData, onClose, onJourneyChange }) {
           </button>
         )
       )}
+    </div>
+  );
+}
+
+// ─── THE ENDLESS FRONTIER ───────────────────────────────────────────────────
+
+function FrontierSection({ playerData, onJourneyChange }) {
+  const [settingCourse, setSettingCourse] = useState(false);
+  const traveled = playerData?.traveled || [];
+  const reached = reachedFrontiers(traveled);
+  const next = generateFrontierRegion(nextFrontierIndex(traveled));
+  const journeyState = playerData?.journeyState || null;
+  const enRoute = journeyState?.destination === next.id;
+
+  const setCourse = async () => {
+    setSettingCourse(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch('/api/journey', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`,
+        },
+        body: JSON.stringify({ destination_id: next.id }),
+      });
+      if (res.ok && onJourneyChange) onJourneyChange();
+    } catch (err) {
+      console.error('Frontier course failed:', err);
+    } finally {
+      setSettingCourse(false);
+    }
+  };
+
+  return (
+    <div
+      className="mt-4 rounded-xl p-5"
+      style={{ background: 'rgba(15,23,42,0.6)', border: '1px solid rgba(167,139,250,0.25)' }}
+    >
+      <div className="flex items-center justify-between gap-2 flex-wrap mb-2">
+        <h3 className="text-sm font-black uppercase tracking-widest" style={{ color: '#a78bfa' }}>
+          🌌 Beyond the Edge
+        </h3>
+        <span className="text-[10px] uppercase tracking-widest text-gray-500">
+          The world never ends
+        </span>
+      </div>
+
+      {reached.length > 0 && (
+        <div className="flex flex-wrap gap-2 mb-3">
+          {reached.map((r) => (
+            <span
+              key={r.id}
+              className="text-[11px] font-bold px-2.5 py-1 rounded-full"
+              style={{ background: `${r.color}22`, border: `1px solid ${r.color}66`, color: r.color }}
+            >
+              {r.icon} {r.name}
+            </span>
+          ))}
+        </div>
+      )}
+
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-black text-white">
+            {next.icon} {next.name}
+          </p>
+          <p className="text-xs italic mt-0.5" style={{ color: next.color }}>{next.subtitle}</p>
+          <p className="text-xs text-gray-400 mt-1">{next.lore}</p>
+        </div>
+        {enRoute ? (
+          <div
+            className="rounded-lg px-3 py-2 text-xs font-black uppercase tracking-wide text-center flex-shrink-0"
+            style={{ background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.4)', color: '#00D4FF' }}
+          >
+            🧭 En route — {journeyState.progress}/{journeyState.distance}
+          </div>
+        ) : (
+          <button
+            onClick={setCourse}
+            disabled={settingCourse}
+            className="rounded-lg px-3 py-2 text-xs font-black uppercase tracking-wide flex-shrink-0 transition-colors"
+            style={{ background: 'rgba(167,139,250,0.12)', border: '1px solid rgba(167,139,250,0.5)', color: '#a78bfa', cursor: settingCourse ? 'wait' : 'pointer' }}
+          >
+            {settingCourse ? 'Charting course…' : `🧭 Set Course — ${next.distance} quests`}
+          </button>
+        )}
+      </div>
     </div>
   );
 }
@@ -393,6 +482,9 @@ export default function WorldMap({ playerData, isDM, onJourneyChange }) {
             LVL {playerData?.level || 1} · {playerData?.totalCheckins || 0} check-ins · 🧭 {getDiscoveryCounts(playerData).found}/{getDiscoveryCounts(playerData).total} discoveries
           </span>
         </div>
+
+        {/* The Endless Frontier — there is always a next horizon */}
+        <FrontierSection playerData={playerData} onJourneyChange={onJourneyChange} />
       </div>
 
       {/* ── REGION PANEL (desktop: right side; mobile: below map) ─────── */}
