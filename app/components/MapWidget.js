@@ -7,6 +7,7 @@ import { Map as MapIcon, Lock } from 'lucide-react';
 import { WORLD_REGIONS, getUnlockStatus, getUnlockProgress } from '@/lib/world-regions';
 import { getDiscoveryCounts } from '@/lib/discoveries';
 import { getJourneyState, traveledRegions } from '@/lib/journeys';
+import { generateFrontierRegion, nextFrontierIndex, isFrontierId, frontierIndex } from '@/lib/frontier';
 
 /**
  * Compact world-map teaser for the dashboard: shows the player's current
@@ -36,13 +37,22 @@ export default function MapWidget({ profile, quests, userId, onRegionUnlocked })
   const currentRegion = unlocked[unlocked.length - 1] || WORLD_REGIONS[0];
   const journeyRegion =
     journeyState && !journeyState.complete
-      ? WORLD_REGIONS.find((r) => r.id === journeyState.destination && !getUnlockStatus(r, playerData)) || null
+      ? (isFrontierId(journeyState.destination)
+          ? generateFrontierRegion(frontierIndex(journeyState.destination))
+          : WORLD_REGIONS.find((r) => r.id === journeyState.destination && !getUnlockStatus(r, playerData)) || null)
       : null;
-  const nextRegion = journeyRegion || WORLD_REGIONS.find((r) => !getUnlockStatus(r, playerData)) || null;
+  // The map never ends: when every authored region is charted, the next
+  // frontier region becomes the horizon. There is no "all charted".
+  const nextRegion =
+    journeyRegion ||
+    WORLD_REGIONS.find((r) => !getUnlockStatus(r, playerData)) ||
+    generateFrontierRegion(nextFrontierIndex(playerData.traveled));
   const progress = journeyRegion
     ? { current: journeyState.progress, required: journeyState.distance, label: 'quests' }
-    : nextRegion
+    : nextRegion && !isFrontierId(nextRegion.id)
     ? getUnlockProgress(nextRegion, playerData)
+    : nextRegion
+    ? { current: 0, required: nextRegion.distance, label: 'quests' }
     : null;
   // Endowed progress: the bar toward the next region never renders empty,
   // so a brand-new map already looks like a journey underway.
@@ -53,6 +63,8 @@ export default function MapWidget({ profile, quests, userId, onRegionUnlocked })
   let unlockLine = null;
   if (journeyRegion) {
     unlockLine = `🧭 En route: ${journeyState.remaining} ${journeyState.remaining === 1 ? 'quest' : 'quests'} until you reach ${journeyRegion.name}`;
+  } else if (nextRegion && isFrontierId(nextRegion.id)) {
+    unlockLine = `Set course on the map: ${nextRegion.distance} quests beyond the edge`;
   } else if (nextRegion && progress) {
     const remaining = Math.max(progress.required - progress.current, 1);
     if (progress.label === 'quests') {
@@ -135,7 +147,7 @@ export default function MapWidget({ profile, quests, userId, onRegionUnlocked })
         {nextRegion ? (
           <div className="flex-1 rounded-lg p-3 border border-[#334155] bg-black/40 relative overflow-hidden">
             <p className="text-[10px] uppercase tracking-widest text-[#64748b] mb-0.5 inline-flex items-center gap-1">
-              <Lock size={9} /> Next region
+              <Lock size={9} /> {isFrontierId(nextRegion.id) ? 'Beyond the edge' : 'Next region'}
             </p>
             <p className="text-sm font-black text-[#94a3b8] leading-tight" style={{ filter: 'blur(0.5px)' }}>
               {nextRegion.name}
