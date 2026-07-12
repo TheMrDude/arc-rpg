@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import WorldMap from '@/app/components/WorldMap';
+import { getJourneyState, traveledRegions } from '@/lib/journeys';
 
 export default function WorldMapPage() {
   const router = useRouter();
@@ -28,7 +29,7 @@ export default function WorldMapPage() {
       // Profile: level, streak, quests_completed, archetype
       const { data: profile } = await supabase
         .from('profiles')
-        .select('level, current_streak, quests_completed, archetype, character_name, active_campaign_id, campaign_role')
+        .select('level, current_streak, longest_streak, quests_completed, archetype, character_name, active_campaign_id, campaign_role, story_progress')
         .eq('id', user.id)
         .single();
 
@@ -55,11 +56,18 @@ export default function WorldMapPage() {
       setIsDM(!!dmCampaign);
       setCharacterName(profile?.character_name || 'Adventurer');
 
+      const profileLike = {
+        quests_completed: completedCount || profile?.quests_completed || 0,
+        story_progress: profile?.story_progress || {},
+      };
+
       setPlayerData({
         totalCheckins: completedCount || profile?.quests_completed || 0,
-        longestStreak: profile?.current_streak || 0,
+        longestStreak: profile?.longest_streak || profile?.current_streak || 0,
         level: profile?.level || 1,
         characterName: profile?.character_name || 'Adventurer',
+        traveled: traveledRegions(profileLike),
+        journeyState: getJourneyState(profileLike),
       });
     } catch (err) {
       console.error('WorldMapPage load error:', err);
@@ -119,7 +127,7 @@ export default function WorldMapPage() {
           </p>
         </div>
 
-        <WorldMap playerData={playerData} isDM={isDM} />
+        <WorldMap playerData={playerData} isDM={isDM} onJourneyChange={loadData} />
       </div>
     </div>
   );
