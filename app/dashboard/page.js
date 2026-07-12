@@ -35,6 +35,7 @@ import SeasonalEvent from '@/app/components/SeasonalEvent';
 import EventStoryModal from '@/app/components/EventStoryModal';
 import MomentumBoost from '@/app/components/MomentumBoost';
 import MomentumMeter from '@/app/components/MomentumMeter';
+import WeeklyBossCard from '@/app/components/WeeklyBossCard';
 import MapWidget from '@/app/components/MapWidget';
 import BottomNav from '@/app/components/BottomNav';
 import InstallPrompt from '@/app/components/InstallPrompt';
@@ -418,11 +419,15 @@ export default function DashboardPage() {
         originalText: questToComplete?.original_text || ''
       });
 
-      // Show celebration modal with rewards
+      // Show celebration modal with rewards. If the server has no story
+      // beat, a boss hit line can stand in — never both stacked.
       const rewards = data.rewards;
+      const bossHitLine =
+        data.boss?.just_hit && !data.boss?.just_defeated ? data.boss.hit_line : null;
       setCelebrationData({
         rewards,
-        questTitle: questToComplete?.transformed_text || 'Quest Complete!'
+        questTitle: questToComplete?.transformed_text || 'Quest Complete!',
+        storyBeat: data.story_beat || bossHitLine || null
       });
       setShowQuestCelebration(true);
 
@@ -462,6 +467,26 @@ export default function DashboardPage() {
           type: 'level'
         });
         trackLevelUp(rewards.new_level, data.profile.xp);
+      }
+
+      // Weekly boss defeated: queue a milestone celebration that shows
+      // after the quest celebration closes (same flow as region unlocks)
+      if (data.boss?.just_defeated) {
+        setMilestoneData({
+          milestone: data.boss.boss_name,
+          type: 'achievement',
+          unlocks: [
+            `${data.boss.boss_icon} ${data.boss.defeat_line}`,
+            `💰 +${data.boss.reward?.gold || 0} gold`,
+            ...(data.boss.reward?.equipment
+              ? [`${data.boss.reward.equipment.emoji} ${data.boss.reward.equipment.name} added to your armory`]
+              : []),
+            ...(data.boss.reward?.bonus_gold
+              ? [`💰 +${data.boss.reward.bonus_gold} bonus gold`]
+              : []),
+          ],
+        });
+        trackEvent('weekly_boss_defeated', { boss: data.boss.boss_name });
       }
 
       // Track story milestones
@@ -1052,6 +1077,9 @@ export default function DashboardPage() {
                 setQuestText={setNewQuestText}
               />
             </div>
+
+            {/* Weekly Boss Battle — every completed quest deals 1 damage */}
+            {user && <WeeklyBossCard refreshKey={chainRefresh} />}
 
             {/* Active Quests */}
             <div className="bg-[#1A1A2E] border-3 border-[#FF6B6B] rounded-lg p-6 mb-6 shadow-[0_0_20px_rgba(255,107,107,0.3)]">
