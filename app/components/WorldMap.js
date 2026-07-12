@@ -3,11 +3,37 @@
 import { useState } from 'react';
 import { WORLD_REGIONS, getUnlockStatus, getUnlockProgress } from '@/lib/world-regions';
 import { getDiscoveriesForRegion, isDiscovered, discoveryHint, getDiscoveryCounts } from '@/lib/discoveries';
+import { journeyDistance } from '@/lib/journeys';
+import { supabase } from '@/lib/supabase';
 
 // ─── REGION PANEL ───────────────────────────────────────────────────────────
 
-function RegionPanel({ region, locked, playerData, onClose }) {
+function RegionPanel({ region, locked, playerData, onClose, onJourneyChange }) {
+  const [settingCourse, setSettingCourse] = useState(false);
   const progress = locked ? getUnlockProgress(region, playerData) : null;
+  const journeyState = playerData?.journeyState || null;
+  const isDestination = journeyState?.destination === region.id;
+  const distance = journeyDistance(region.id);
+
+  const setCourse = async () => {
+    setSettingCourse(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch('/api/journey', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`,
+        },
+        body: JSON.stringify({ destination_id: region.id }),
+      });
+      if (res.ok && onJourneyChange) onJourneyChange();
+    } catch (err) {
+      console.error('Set course failed:', err);
+    } finally {
+      setSettingCourse(false);
+    }
+  };
   const pct = progress ? Math.round((progress.current / progress.required) * 100) : 0;
 
   return (
@@ -134,13 +160,34 @@ function RegionPanel({ region, locked, playerData, onClose }) {
           </div>
         </div>
       )}
+
+      {/* Journey: choose this region as your heading */}
+      {locked && distance && (
+        isDestination ? (
+          <div
+            className="rounded-lg px-3 py-2 text-xs font-black uppercase tracking-wide text-center"
+            style={{ background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.4)', color: '#00D4FF' }}
+          >
+            🧭 En route — {journeyState.progress}/{journeyState.distance} quests traveled
+          </div>
+        ) : (
+          <button
+            onClick={setCourse}
+            disabled={settingCourse}
+            className="rounded-lg px-3 py-2 text-xs font-black uppercase tracking-wide transition-colors"
+            style={{ background: 'rgba(244,197,83,0.12)', border: '1px solid rgba(244,197,83,0.45)', color: '#f4c553', cursor: settingCourse ? 'wait' : 'pointer' }}
+          >
+            {settingCourse ? 'Charting course…' : `🧭 Set Course — ${distance} quests of travel`}
+          </button>
+        )
+      )}
     </div>
   );
 }
 
 // ─── WORLD MAP ──────────────────────────────────────────────────────────────
 
-export default function WorldMap({ playerData, isDM }) {
+export default function WorldMap({ playerData, isDM, onJourneyChange }) {
   const [selectedRegion, setSelectedRegion] = useState(null);
   const [hoveredRegion, setHoveredRegion] = useState(null);
   const [dmView, setDmView] = useState(false);
@@ -358,6 +405,7 @@ export default function WorldMap({ playerData, isDM }) {
             region={selectedRegion}
             locked={isRegionLocked(selectedRegion)}
             playerData={playerData}
+            onJourneyChange={onJourneyChange}
             onClose={() => setSelectedRegion(null)}
           />
         ) : (
