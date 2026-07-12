@@ -8,7 +8,8 @@ import { supabase } from '@/lib/supabase';
 import { useSound } from '@/app/components/SoundProvider';
 import { usePrefersReducedMotion } from '@/lib/hooks/usePrefersReducedMotion';
 import { getUnlockedSkills } from '@/lib/skills';
-import { checkBossEncounter, getCreatureCompanion } from '@/lib/encounters';
+import { checkBossEncounter } from '@/lib/encounters';
+import { getCompanion } from '@/lib/companions';
 import { getDashboardSections, getNewUnlocks } from '@/lib/dashboardVisibility';
 import OnboardingTutorial from '@/app/components/OnboardingTutorial';
 import NotificationSetup from '@/app/components/NotificationSetup';
@@ -36,6 +37,7 @@ import EventStoryModal from '@/app/components/EventStoryModal';
 import MomentumBoost from '@/app/components/MomentumBoost';
 import MomentumMeter from '@/app/components/MomentumMeter';
 import WeeklyBossCard from '@/app/components/WeeklyBossCard';
+import CompanionCard from '@/app/components/CompanionCard';
 import MapWidget from '@/app/components/MapWidget';
 import BottomNav from '@/app/components/BottomNav';
 import InstallPrompt from '@/app/components/InstallPrompt';
@@ -876,7 +878,7 @@ export default function DashboardPage() {
   const sections = getDashboardSections(profile);
   const unlockedSkills = profile ? getUnlockedSkills(profile.archetype, profile.level) : [];
   const bossEncounter = checkBossEncounter(quests);
-  const creature = sections.companion ? getCreatureCompanion(quests, profile?.last_quest_date) : null;
+  const creature = sections.companion ? getCompanion(profile, quests) : null;
   const activeQuestsList = quests.filter(q => !q.completed);
   const isNewUser = (profile?.level || 1) <= 2 && activeQuestsList.length === 0;
   // First-win fast path: brand-new account, nothing completed, nothing created
@@ -1012,6 +1014,9 @@ export default function DashboardPage() {
             reducedMotion={prefersReducedMotion}
           />
         </div>
+
+        {/* Living Companion — grows with total quests, never guilts */}
+        {creature && <CompanionCard companion={creature} reducedMotion={prefersReducedMotion} />}
 
         {/* Chronicle — narrative recap, daily "previously on", weekly chapter card */}
         <ChroniclePanel profile={profile} userId={user?.id} />
