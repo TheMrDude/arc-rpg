@@ -38,6 +38,7 @@ import MomentumBoost from '@/app/components/MomentumBoost';
 import MomentumMeter from '@/app/components/MomentumMeter';
 import WeeklyBossCard from '@/app/components/WeeklyBossCard';
 import CompanionCard from '@/app/components/CompanionCard';
+import CrossroadsCard from '@/app/components/CrossroadsCard';
 import MapWidget from '@/app/components/MapWidget';
 import BottomNav from '@/app/components/BottomNav';
 import InstallPrompt from '@/app/components/InstallPrompt';
@@ -1135,6 +1136,9 @@ export default function DashboardPage() {
 
             {/* Weekly Boss Battle — every completed quest deals 1 damage */}
             {user && <WeeklyBossCard refreshKey={chainRefresh} />}
+
+            {/* Crossroads — every 5th quest, a d20 story choice */}
+            {user && <CrossroadsCard profile={profile} userId={user.id} onResolved={loadUserData} />}
 
             {/* Active Quests */}
             <div className="bg-[#1A1A2E] border-3 border-[#FF6B6B] rounded-lg p-6 mb-6 shadow-[0_0_20px_rgba(255,107,107,0.3)]">
