@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Map as MapIcon, Lock } from 'lucide-react';
 import { WORLD_REGIONS, getUnlockStatus, getUnlockProgress } from '@/lib/world-regions';
+import { getDiscoveryCounts } from '@/lib/discoveries';
 
 /**
  * Compact world-map teaser for the dashboard: shows the player's current
@@ -103,6 +104,14 @@ export default function MapWidget({ profile, quests, userId, onRegionUnlocked })
               ✨ First quest complete. {currentRegion.name} is waking up.
             </p>
           )}
+          {(() => {
+            const { found, total } = getDiscoveryCounts(playerData);
+            return (
+              <p className="text-[10px] text-[#94a3b8] mt-1.5">
+                🧭 {found}/{total} discoveries found
+              </p>
+            );
+          })()}
         </div>
 
         {/* Next locked region — fog preview */}
