@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { authenticateRequest } from '@/lib/api-auth';
+import { authenticateRequest, checkPremiumStatus } from '@/lib/api-auth';
+import { getOrCreateWeeklyBoss, getBossById, randomHitLine } from '@/lib/bosses';
 import { rollForEncounter, getEncounterRewards } from '@/lib/encounterService';
 import { getIsoWeekKey } from '@/lib/date-utils';
 import { MOMENTUM_GOAL_DAYS } from '@/lib/momentum';
@@ -442,6 +443,162 @@ export async function POST(request) {
       console.error('Achievement check threw:', err);
     }
 
+    // Weekly boss battle: every completed quest deals 1 damage. Best-effort
+    // (try/catch, never blocks completion). Defeat pays out gold (and, for
+    // Pro, a random unowned equipment drop). An unbeaten boss only ever
+    // retreats at week's end — never damage to the player, never a loss.
+    let bossResponse = null;
+    try {
+      const bossRow = await getOrCreateWeeklyBoss(
+        supabaseAdmin,
+        user.id,
+        finalLevel,
+        currentWeek
+      );
+
+      if (bossRow) {
+        const bossDef = getBossById(bossRow.boss_id);
+        bossResponse = {
+          boss_name: bossRow.boss_name,
+          boss_icon: bossRow.boss_icon,
+          max_hp: bossRow.max_hp,
+          damage_dealt: bossRow.damage_dealt,
+          status: bossRow.status,
+          just_hit: false,
+          just_defeated: false,
+          hit_line: null,
+          defeat_line: bossDef?.defeatLine || null,
+          reward: bossRow.reward || null,
+        };
+
+        if (bossRow.status === 'active' && bossRow.damage_dealt < bossRow.max_hp) {
+          const newDamage = Math.min(bossRow.damage_dealt + 1, bossRow.max_hp);
+          const isKillingBlow = newDamage >= bossRow.max_hp;
+
+          // Claim the hit atomically: the status guard means a concurrent
+          // completion can't double-count the killing blow or its rewards.
+          const update = isKillingBlow
+            ? { damage_dealt: newDamage, status: 'defeated', defeated_at: new Date().toISOString() }
+            : { damage_dealt: newDamage };
+
+          const { data: updatedBoss } = await supabaseAdmin
+            .from('weekly_boss_battles')
+            .update(update)
+            .eq('id', bossRow.id)
+            .eq('status', 'active')
+            .eq('damage_dealt', bossRow.damage_dealt)
+            .select()
+            .single();
+
+          if (updatedBoss) {
+            bossResponse.damage_dealt = updatedBoss.damage_dealt;
+            bossResponse.status = updatedBoss.status;
+            bossResponse.just_hit = true;
+
+            if (isKillingBlow) {
+              bossResponse.just_defeated = true;
+
+              // Rewards: base gold scales with boss HP
+              const reward = {
+                gold: 100 + 25 * (bossRow.max_hp - 5),
+                equipment: null,
+                bonus_gold: 0,
+              };
+
+              // Pro bonus: one random unowned equipment drop, or 150 bonus
+              // gold if the armory is already complete
+              try {
+                const { isPremium } = await checkPremiumStatus(user.id);
+                if (isPremium) {
+                  const [{ data: catalog }, { data: owned }] = await Promise.all([
+                    supabaseAdmin
+                      .from('equipment_catalog')
+                      .select('id, name, emoji, rarity')
+                      .eq('is_active', true),
+                    supabaseAdmin
+                      .from('user_equipment')
+                      .select('equipment_id')
+                      .eq('user_id', user.id),
+                  ]);
+
+                  const ownedIds = new Set((owned || []).map((r) => r.equipment_id));
+                  const unowned = (catalog || []).filter((item) => !ownedIds.has(item.id));
+
+                  if (unowned.length > 0) {
+                    const drop = unowned[Math.floor(Math.random() * unowned.length)];
+                    const { error: dropError } = await supabaseAdmin
+                      .from('user_equipment')
+                      .insert({
+                        user_id: user.id,
+                        equipment_id: drop.id,
+                        equipped: false,
+                        acquired_at: new Date().toISOString(),
+                      });
+                    if (!dropError) {
+                      reward.equipment = {
+                        id: drop.id,
+                        name: drop.name,
+                        emoji: drop.emoji,
+                        rarity: drop.rarity,
+                      };
+                    } else {
+                      console.error('Boss equipment drop failed:', dropError);
+                      reward.bonus_gold = 150;
+                    }
+                  } else {
+                    reward.bonus_gold = 150;
+                  }
+                }
+              } catch (proErr) {
+                console.error('Boss Pro reward check failed:', proErr);
+              }
+
+              // Award the gold (base + any bonus) atomically
+              const bossGold = reward.gold + reward.bonus_gold;
+              try {
+                const { data: bossGoldTx, error: bossGoldError } = await supabaseAdmin
+                  .rpc('process_gold_transaction', {
+                    p_user_id: user.id,
+                    p_amount: bossGold,
+                    p_transaction_type: 'boss_reward',
+                    p_reference_id: bossRow.id,
+                    p_metadata: {
+                      boss_id: bossRow.boss_id,
+                      boss_name: bossRow.boss_name,
+                      week_key: currentWeek,
+                    },
+                  });
+                if (bossGoldError) {
+                  console.error('Boss gold award failed:', bossGoldError);
+                  newGoldBalance += bossGold;
+                } else {
+                  const bossGoldResult = bossGoldTx?.[0];
+                  newGoldBalance = bossGoldResult?.new_balance ?? newGoldBalance + bossGold;
+                }
+              } catch (goldErr) {
+                console.error('Boss gold award threw:', goldErr);
+                newGoldBalance += bossGold;
+              }
+
+              // Persist the reward summary on the battle row
+              await supabaseAdmin
+                .from('weekly_boss_battles')
+                .update({ reward })
+                .eq('id', bossRow.id);
+
+              bossResponse.reward = reward;
+            } else {
+              bossResponse.hit_line = randomHitLine(bossRow.boss_id);
+            }
+          }
+        }
+      }
+    } catch (bossErr) {
+      // Boss battles are best-effort; completion always succeeds regardless
+      console.error('Weekly boss damage failed:', bossErr);
+      bossResponse = null;
+    }
+
     console.log('Quest completed successfully', {
       userId: user.id,
       questId: quest_id,
@@ -491,6 +648,8 @@ export async function POST(request) {
       // One short flavor line, deterministic per quest (no AI call)
       story_beat: getStoryBeat(profile.archetype, quest_id),
       newly_unlocked_achievements: newlyUnlockedAchievements,
+      // Weekly boss battle state (null if the boss step failed; best-effort)
+      boss: bossResponse,
     });
 
   } catch (error) {
