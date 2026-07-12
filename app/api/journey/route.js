@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { authenticateRequest } from '@/lib/api-auth';
 import { WORLD_REGIONS, getUnlockStatus } from '@/lib/world-regions';
 import { journeyDistance, getJourneyState } from '@/lib/journeys';
+import { isFrontierId, frontierIndex, generateFrontierRegion, nextFrontierIndex } from '@/lib/frontier';
 
 export const dynamic = 'force-dynamic';
 
@@ -63,8 +64,19 @@ export async function POST(request) {
       return NextResponse.json({ success: true, journey: null, regions_traveled: newTraveled });
     }
 
-    // Validate destination
-    const region = WORLD_REGIONS.find((r) => r.id === destination_id);
+    // Validate destination (authored region or the next frontier in line)
+    let region = WORLD_REGIONS.find((r) => r.id === destination_id) || null;
+    if (!region && isFrontierId(destination_id)) {
+      const idx = frontierIndex(destination_id);
+      // Frontier is sequential: you can only set course for the next one
+      if (idx !== nextFrontierIndex(newTraveled)) {
+        return NextResponse.json(
+          { error: 'Invalid destination', message: 'The frontier opens one horizon at a time.' },
+          { status: 400 }
+        );
+      }
+      region = generateFrontierRegion(idx);
+    }
     const distance = journeyDistance(destination_id);
     if (!region || !distance) {
       return NextResponse.json({ error: 'Invalid destination' }, { status: 400 });
@@ -76,7 +88,7 @@ export async function POST(request) {
       level: profile.level || 1,
       traveled: newTraveled,
     };
-    if (getUnlockStatus(region, playerData)) {
+    if (!isFrontierId(destination_id) && getUnlockStatus(region, playerData)) {
       return NextResponse.json(
         { error: 'Already unlocked', message: `${region.name} is already yours to roam.` },
         { status: 400 }
