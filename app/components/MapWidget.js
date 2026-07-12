@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { Map as MapIcon, Lock } from 'lucide-react';
 import { WORLD_REGIONS, getUnlockStatus, getUnlockProgress } from '@/lib/world-regions';
 import { getDiscoveryCounts } from '@/lib/discoveries';
+import { getJourneyState, traveledRegions } from '@/lib/journeys';
 
 /**
  * Compact world-map teaser for the dashboard: shows the player's current
@@ -23,12 +24,26 @@ export default function MapWidget({ profile, quests, userId, onRegionUnlocked })
     totalCheckins: completedCount || profile?.quests_completed || 0,
     longestStreak: profile?.longest_streak || profile?.current_streak || 0,
     level: profile?.level || 1,
+    traveled: traveledRegions(profile),
   };
+
+  // Journey: if a course is set toward a still-locked region, the widget
+  // shows travel progress toward the chosen destination instead of the
+  // default next-region teaser. Direction is the player's now.
+  const journeyState = getJourneyState(profile);
 
   const unlocked = WORLD_REGIONS.filter((r) => getUnlockStatus(r, playerData));
   const currentRegion = unlocked[unlocked.length - 1] || WORLD_REGIONS[0];
-  const nextRegion = WORLD_REGIONS.find((r) => !getUnlockStatus(r, playerData)) || null;
-  const progress = nextRegion ? getUnlockProgress(nextRegion, playerData) : null;
+  const journeyRegion =
+    journeyState && !journeyState.complete
+      ? WORLD_REGIONS.find((r) => r.id === journeyState.destination && !getUnlockStatus(r, playerData)) || null
+      : null;
+  const nextRegion = journeyRegion || WORLD_REGIONS.find((r) => !getUnlockStatus(r, playerData)) || null;
+  const progress = journeyRegion
+    ? { current: journeyState.progress, required: journeyState.distance, label: 'quests' }
+    : nextRegion
+    ? getUnlockProgress(nextRegion, playerData)
+    : null;
   // Endowed progress: the bar toward the next region never renders empty,
   // so a brand-new map already looks like a journey underway.
   const rawPct = progress ? Math.round((progress.current / progress.required) * 100) : 100;
@@ -36,7 +51,9 @@ export default function MapWidget({ profile, quests, userId, onRegionUnlocked })
 
   // Forward-looking line, e.g. "2 quests until Ember Coast is revealed"
   let unlockLine = null;
-  if (nextRegion && progress) {
+  if (journeyRegion) {
+    unlockLine = `🧭 En route: ${journeyState.remaining} ${journeyState.remaining === 1 ? 'quest' : 'quests'} until you reach ${journeyRegion.name}`;
+  } else if (nextRegion && progress) {
     const remaining = Math.max(progress.required - progress.current, 1);
     if (progress.label === 'quests') {
       unlockLine = `${remaining} ${remaining === 1 ? 'quest' : 'quests'} until ${nextRegion.name} is revealed`;
