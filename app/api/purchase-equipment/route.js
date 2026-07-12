@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { checkPremiumStatus } from '@/lib/api-auth';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -44,7 +45,9 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Invalid equipment ID' }, { status: 400 });
     }
 
-    // SECURITY: Check if user is premium (equipment is premium feature)
+    // SECURITY: Check if user is premium (equipment is premium feature).
+    // Uses checkPremiumStatus so is_premium founder/comped accounts pass,
+    // same definition of Pro as the dashboard and momentum boost.
     const { data: profile } = await supabaseAdmin
       .from('profiles')
       .select('subscription_status, level, gold')
@@ -55,7 +58,8 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
     }
 
-    if (profile.subscription_status !== 'active') {
+    const { isPremium } = await checkPremiumStatus(user.id);
+    if (!isPremium) {
       return NextResponse.json({
         error: 'Premium feature',
         message: 'Equipment shop requires premium subscription'
