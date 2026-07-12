@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import { useSound } from '../SoundProvider';
 import { usePrefersReducedMotion } from '@/lib/hooks/usePrefersReducedMotion';
+import ShareToSocial from '../ShareToSocial';
 
 
 // Unlock data for different levels
@@ -452,15 +453,27 @@ export default function MilestoneCelebration({
 
                 {/* Share Achievement */}
                 {canClose && (
-                  <motion.button
+                  <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 1.2 }}
-                    whileHover={{ scale: 1.02 }}
-                    className="w-full py-3 px-6 rounded-xl font-bold text-purple-600 border-2 border-purple-300 bg-purple-50 hover:bg-purple-100 transition-colors"
                   >
-                    📢 Share Achievement
-                  </motion.button>
+                    <ShareToSocial
+                      content={{
+                        title:
+                          type === 'level'
+                            ? `Just hit Level ${milestone}${levelTitle ? ` (${levelTitle})` : ''} in HabitQuest! ⚡`
+                            : type === 'streak'
+                            ? `${milestone} active days in HabitQuest! 🔥`
+                            : `Achievement unlocked in HabitQuest: ${milestone}! 🏆`,
+                        description: 'Turning real life into an RPG, one quest at a time. No streaks, no guilt.',
+                        hashtags: ['HabitQuest', 'LevelUp', 'Gamification', 'Productivity'],
+                      }}
+                      title="📢 Share Achievement"
+                      compact={true}
+                      showLabels={true}
+                    />
+                  </motion.div>
                 )}
               </div>
 
