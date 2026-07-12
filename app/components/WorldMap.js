@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { WORLD_REGIONS, getUnlockStatus, getUnlockProgress } from '@/lib/world-regions';
+import { getDiscoveriesForRegion, isDiscovered, discoveryHint, getDiscoveryCounts } from '@/lib/discoveries';
 
 // ─── REGION PANEL ───────────────────────────────────────────────────────────
 
@@ -81,6 +82,37 @@ function RegionPanel({ region, locked, playerData, onClose }) {
           <span className="text-gray-300 text-xs">{region.unlockCondition}</span>
         </div>
       </div>
+
+      {/* Discoveries: hidden landmarks that reveal with quest progress */}
+      {!locked && (
+        <div>
+          <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Discoveries</p>
+          <div className="space-y-2">
+            {getDiscoveriesForRegion(region.id).map((d) => {
+              const found = isDiscovered(d, playerData);
+              return found ? (
+                <div key={d.id} className="flex items-start gap-2">
+                  <span className="text-base leading-none mt-0.5">{d.icon}</span>
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-white leading-tight">{d.name}</p>
+                    <p className="text-[11px] text-gray-400 italic leading-snug">{d.lore}</p>
+                  </div>
+                </div>
+              ) : (
+                <div key={d.id} className="flex items-start gap-2 opacity-70">
+                  <span className="text-base leading-none mt-0.5">❓</span>
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-gray-500 leading-tight">Undiscovered</p>
+                    <p className="text-[11px] text-gray-500 italic leading-snug">
+                      {discoveryHint(d, playerData)}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Progress bar for locked regions */}
       {locked && progress && (
@@ -311,7 +343,7 @@ export default function WorldMap({ playerData, isDM }) {
             Locked. Click to see unlock condition
           </span>
           <span className="ml-auto text-gray-600 italic">
-            LVL {playerData?.level || 1} · {playerData?.totalCheckins || 0} check-ins · best run {playerData?.longestStreak || 0} days
+            LVL {playerData?.level || 1} · {playerData?.totalCheckins || 0} check-ins · 🧭 {getDiscoveryCounts(playerData).found}/{getDiscoveryCounts(playerData).total} discoveries
           </span>
         </div>
       </div>
