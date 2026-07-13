@@ -55,8 +55,15 @@ export async function POST(request) {
       );
     }
 
-    // Scenario is deterministic per user+milestone; validate the choice
-    const scenario = pickScenario(user.id, milestone);
+    // Prefer the AI-generated scenario locked in by /generate for this
+    // milestone; fall back to the deterministic hand-authored pool. The
+    // resolver is the dice authority either way — it only reads the
+    // scenario, never trusts the client for outcome text.
+    const pending = storyProgress.pending_crossroads;
+    const scenario =
+      pending && pending.milestone === milestone && pending.scenario
+        ? pending.scenario
+        : pickScenario(user.id, milestone);
     const choice = scenario.choices.find((c) => c.id === choice_id);
     if (!choice) {
       return NextResponse.json({ error: 'Invalid choice' }, { status: 400 });
@@ -73,6 +80,7 @@ export async function POST(request) {
     const newStoryProgress = {
       ...storyProgress,
       crossroads_claimed: milestone,
+      pending_crossroads: null, // consumed — clear the locked scenario
       recent_events: [
         `🎲 [d20: ${roll}] ${scenario.title}: ${outcomeLine}`,
         ...(storyProgress.recent_events || []),
