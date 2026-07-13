@@ -9,8 +9,43 @@ export default function ChroniclePanel({ profile, userId }) {
   const [dailyDismissed, setDailyDismissed] = useState(true);
   const [weeklyCard, setWeeklyCard] = useState(null);
   const [weeklyDismissed, setWeeklyDismissed] = useState(true);
+  const [saga, setSaga] = useState(null);
 
-  const recentEvent = profile?.story_progress?.recent_events?.[0] || null;
+  const events = profile?.story_progress?.recent_events || [];
+  const recentEvent = events[0] || null;
+
+  // The DM's "story so far" — AI narration of recent deeds, cached per day
+  // per device so it costs at most one generation a day. Falls back to the
+  // raw recent-event line while it loads or if there isn't enough history.
+  useEffect(() => {
+    if (!userId || events.length < 2) return;
+    const sig = `${events.length}_${(events[0] || '').slice(0, 24)}`;
+    const key = `chronicle_saga_${userId}_${getDayKey()}_${sig}`;
+    const cached = localStorage.getItem(key);
+    if (cached) {
+      setSaga(cached);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) return;
+        const res = await fetch('/api/chronicle', {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        });
+        const data = await res.json();
+        if (!cancelled && res.ok && data.text) {
+          setSaga(data.text);
+          localStorage.setItem(key, data.text);
+        }
+      } catch (err) {
+        // Non-critical: the raw recent-event line stays as the fallback.
+      }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId, events.length, recentEvent]);
 
   // "Previously, on your quest..." — once per calendar day
   useEffect(() => {
@@ -55,11 +90,12 @@ export default function ChroniclePanel({ profile, userId }) {
 
   return (
     <div className="mb-6 space-y-3">
-      {/* Ambient chronicle line — always visible when there's history */}
+      {/* Ambient chronicle line — the DM's story so far (AI), or the raw
+          most-recent deed as a fallback while it loads. */}
       {recentEvent && (
         <div className="bg-[#0F3460]/60 border-2 border-[#00D4FF]/30 rounded-lg px-4 py-3 flex items-start gap-3">
           <span className="text-xl">📖</span>
-          <p className="text-sm text-[#E2E8F0] italic">{recentEvent}</p>
+          <p className="text-sm text-[#E2E8F0] italic">{saga || recentEvent}</p>
         </div>
       )}
 
