@@ -1,5 +1,24 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  webpack: (config, { webpack }) => {
+    // The wagmi/viem wallet stack (used only by the optional /badges claim
+    // flow) pulls in Coinbase's baseAccount connector, which statically
+    // references optional payment packages (@x402/*) and node-only libs we
+    // never use — we only use the `injected` connector. Ignore them so the
+    // build doesn't fail resolving deps that will never run.
+    config.plugins.push(
+      new webpack.IgnorePlugin({ resourceRegExp: /^@x402\// }),
+    );
+    config.externals = config.externals || [];
+    config.externals.push('pino-pretty', 'lokijs', 'encoding');
+    // Optional React-Native storage referenced by @metamask/sdk (unused; we
+    // only use the injected connector).
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@react-native-async-storage/async-storage': false,
+    };
+    return config;
+  },
   async redirects() {
     return [
       {
