@@ -223,6 +223,24 @@ export default function PrivacyPolicy() {
           </section>
 
           <section className="mb-8">
+            <h2 className="text-2xl font-bold mb-4">First-Party Analytics</h2>
+            <p className="text-gray-300 mb-4">
+              To understand how our landing page and product are working, we use our own
+              first-party analytics stored on our own servers &mdash; no third-party analytics
+              companies, no advertising networks, and no cross-site or ad tracking. We record a
+              small number of anonymous events (such as viewing the landing page, scrolling
+              through it, trying the quest demo, signing up, and creating your first habit) tied
+              to a temporary, randomly generated session ID that lives only for your current
+              browser session and is never linked to your identity. We do not store your IP
+              address for analytics, we do not fingerprint your device, and we never record the
+              actual text you type into the demo. If your browser sends a &ldquo;Do Not
+              Track&rdquo; signal, we skip this analytics entirely. These numbers are only ever
+              looked at in aggregate to improve the product (and, in the spirit of building in
+              public, sometimes shared as overall totals).
+            </p>
+          </section>
+
+          <section className="mb-8">
             <h2 className="text-2xl font-bold mb-4">Data Retention</h2>
             <p className="text-gray-300 mb-4">
               We retain your data:

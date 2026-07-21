@@ -1,5 +1,6 @@
 import './globals.css'
 import Script from 'next/script'
+import { Analytics } from '@vercel/analytics/next'
 import PostHogProvider from './components/PostHogProvider'
 import { SoundProvider } from './components/SoundProvider'
 
@@ -137,6 +138,10 @@ export default function RootLayout({ children }) {
             {children}
           </SoundProvider>
         </PostHogProvider>
+
+        {/* Tier 1 — Vercel Web Analytics (cookieless pageviews/referrers/top pages).
+            Requires Web Analytics to be enabled for the project in the Vercel dashboard. */}
+        <Analytics />
 
         {/* Service Worker Registration */}
         <Script id="register-sw" strategy="afterInteractive">

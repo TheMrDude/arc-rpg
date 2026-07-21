@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { PreviewQuest, storePreviewQuest } from '@/lib/onboarding';
 import { trackEvent } from '@/lib/analytics';
+import { track } from '@/lib/track';
 
 interface QuestPreviewProps {
   quest: PreviewQuest | null;
@@ -20,6 +21,8 @@ export default function QuestPreview({ quest, onClose }: QuestPreviewProps) {
         xp: quest.xp,
         difficulty: quest.difficulty
       });
+      // First-party funnel: demo result viewed.
+      track('demo_transform_result_viewed');
     }
   }, [quest]);
 

@@ -63,6 +63,7 @@ import QuestRewardBurst from '@/app/components/QuestRewardBurst';
 import FloatingReward from '@/app/components/FloatingReward';
 import ChestDropReveal from '@/app/components/ChestDropReveal';
 import { trackQuestCreated, trackQuestCompleted, trackLevelUp, trackStreakAchieved, trackStoryMilestone, trackGoldPurchaseViewed, trackEvent } from '@/lib/analytics';
+import { track } from '@/lib/track';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -306,6 +307,9 @@ export default function DashboardPage() {
     const questText = typeof textOverride === 'string' ? textOverride : newQuestText;
     if (!questText.trim()) return;
 
+    // First-party funnel: is this the user's very first habit? (no PII)
+    const isFirstHabit = quests.length === 0;
+
     // Check habit limit for free users
     const isPro = profile?.is_premium || profile?.subscription_status === 'active' || profile?.subscription_tier === 'pro';
     if (!isPro && quests.filter(q => !q.completed).length >= 3) {
@@ -379,6 +383,9 @@ export default function DashboardPage() {
       }
 
       trackQuestCreated(aiDifficulty, profile.archetype);
+      if (isFirstHabit) {
+        track('first_habit_created');
+      }
       setNewQuestText('');
       loadUserData();
     } catch (error) {
@@ -394,6 +401,9 @@ export default function DashboardPage() {
       if (clickEvent) {
         setBurstOrigin({ x: clickEvent.clientX, y: clickEvent.clientY });
       }
+
+      // First-party funnel: is this the user's first-ever completion? (no PII)
+      const isFirstCompletion = quests.filter((q) => q.completed).length === 0;
 
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
@@ -483,6 +493,11 @@ export default function DashboardPage() {
         level: rewards.new_level,
         story_thread: questToComplete?.story_thread,
       });
+
+      // First-party funnel: first-ever quest completion (activation). No PII.
+      if (isFirstCompletion) {
+        track('first_quest_completed');
+      }
 
       // Check for level up milestone
       if (rewards.level_up) {

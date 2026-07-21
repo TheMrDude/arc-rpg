@@ -9,8 +9,10 @@ import QuestPreview from './components/QuestPreview';
 import ExitIntentPopup from './components/ExitIntentPopup';
 import EmailCapture from './components/EmailCapture';
 import { HeroWorldMap, TerritorySection } from './components/LandingWorldMap';
+import ScrollDepthTracker from './components/ScrollDepthTracker';
 import { PreviewQuest } from '@/lib/onboarding';
 import { trackEvent } from '@/lib/analytics';
+import { track } from '@/lib/track';
 import Image from 'next/image'
 
 // ─── CONSTANTS ────────────────────────────────────────────────────────
@@ -37,6 +39,8 @@ export default function LandingPage() {
 
   useEffect(() => {
     trackEvent('landing_page_view', {});
+    // First-party funnel: landing view (anonymous, no PII).
+    track('landing_view');
     // Try to get logged-in user email for Stripe prefill
     import('@/lib/supabase').then(({ supabase }) => {
       supabase.auth.getUser().then(({ data }) => {
@@ -48,6 +52,9 @@ export default function LandingPage() {
   const handleTransform = async (task: string) => {
     setLoading(true);
     setError(null);
+
+    // First-party funnel: demo submitted. Length only — never the habit text.
+    track('demo_transform_submitted', { input_length: task.length });
 
     try {
       const res = await fetch('/api/preview-quest', {
@@ -99,6 +106,8 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#0F172A] text-white overflow-hidden">
+      {/* First-party scroll-depth funnel tracking (fires scroll_50 / scroll_90 once per visit) */}
+      <ScrollDepthTracker />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify({
