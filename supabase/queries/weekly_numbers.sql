@@ -17,8 +17,10 @@
 --   signup_conversion_rate_pct       % of landing sessions that signed up
 --   demo_signup_rate_pct             signup rate among sessions that ran demo
 --   no_demo_signup_rate_pct          signup rate among sessions that did NOT
---   activation_first_habit_rate_pct  first_habit_created / signup_completed
---   activation_first_quest_rate_pct  first_quest_completed / signup_completed
+--   first_habit_created_count        weekly count of first-habit activations
+--   first_quest_completed_count      weekly count of first-quest activations
+--                                    (counts, not rates: avoids cross-week
+--                                     cohort misattribution)
 -- ============================================================================
 
 -- Default: the trailing 7 days including today (week_start = current_date - 6).

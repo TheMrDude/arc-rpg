@@ -254,13 +254,18 @@ BEGIN
            ROUND(100.0 * s.nodemo_signup_cur  / NULLIF(s.nodemo_cur, 0), 1),
            ROUND(100.0 * s.nodemo_signup_prev / NULLIF(s.nodemo_prev, 0), 1) FROM s
     UNION ALL
-    SELECT 'activation_first_habit_rate_pct',
-           ROUND(100.0 * a.habits_cur  / NULLIF(a.signups_cur, 0), 1),
-           ROUND(100.0 * a.habits_prev / NULLIF(a.signups_prev, 0), 1) FROM a
+    -- Activation is reported as raw event counts (not a rate). A same-week
+    -- numerator/denominator ratio misattributes users who sign up one week and
+    -- activate later (and can read >100%); a true per-user cohort join is
+    -- unreliable because signup_completed often has no user_id while email
+    -- confirmation is pending. Counts are honest and unambiguous.
+    SELECT 'first_habit_created_count',
+           a.habits_cur::numeric,
+           a.habits_prev::numeric FROM a
     UNION ALL
-    SELECT 'activation_first_quest_rate_pct',
-           ROUND(100.0 * a.quests_cur  / NULLIF(a.signups_cur, 0), 1),
-           ROUND(100.0 * a.quests_prev / NULLIF(a.signups_prev, 0), 1) FROM a
+    SELECT 'first_quest_completed_count',
+           a.quests_cur::numeric,
+           a.quests_prev::numeric FROM a
   )
   SELECT
     m.metric,
@@ -277,16 +282,18 @@ BEGIN
     'signup_conversion_rate_pct',
     'demo_signup_rate_pct',
     'no_demo_signup_rate_pct',
-    'activation_first_habit_rate_pct',
-    'activation_first_quest_rate_pct'
+    'first_habit_created_count',
+    'first_quest_completed_count'
   ], m.metric);
 END;
 $$;
 
--- Read path for the weekly numbers is aggregate-only (no PII), so it is safe to
--- expose to authenticated (founder/admin) as well as the service role.
-REVOKE ALL ON FUNCTION get_weekly_numbers(DATE) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION get_weekly_numbers(DATE) TO authenticated, service_role;
+-- Restricted to the service role only. In Supabase the `authenticated` role is
+-- EVERY signed-in user, so granting it here would let any account read global
+-- landing/signup/activation totals with the public anon key. The founder runs
+-- this from the SQL editor / weekly pipeline (service role), not as an app user.
+REVOKE ALL ON FUNCTION get_weekly_numbers(DATE) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION get_weekly_numbers(DATE) TO service_role;
 
 COMMENT ON FUNCTION get_weekly_numbers(DATE) IS
   'Trailing-7-day funnel metrics with week-over-week deltas. Aggregate-only, no PII. Paste output into the weekly Substack numbers post.';

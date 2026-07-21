@@ -70,8 +70,13 @@ function SignupForm() {
       if (signupError) throw signupError;
 
       if (data.user) {
-        // First-party funnel: signup completed (account created). No PII.
-        track('signup_completed');
+        // First-party funnel: only a genuinely NEW account counts as a completed
+        // signup. Supabase returns data.user even for the obfuscated "email
+        // already exists" response, but with an empty identities array — excluding
+        // that keeps repeat attempts from inflating signup/conversion metrics.
+        if ((data.user.identities?.length ?? 0) > 0) {
+          track('signup_completed');
+        }
 
         // Apply referral code if provided
         if (referralCode.trim()) {
