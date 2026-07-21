@@ -10,6 +10,7 @@ import ExitIntentPopup from './components/ExitIntentPopup';
 import EmailCapture from './components/EmailCapture';
 import { HeroWorldMap, TerritorySection } from './components/LandingWorldMap';
 import ScrollDepthTracker from './components/ScrollDepthTracker';
+import TestimonialsSection from './components/TestimonialsSection';
 import { PreviewQuest } from '@/lib/onboarding';
 import { trackEvent } from '@/lib/analytics';
 import { track } from '@/lib/track';
@@ -597,61 +598,19 @@ export default function LandingPage() {
             Transformation stories, not feature lists.
            ════════════════════════════════════════════════════════════════ */}
         <section className="py-16">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="max-w-5xl mx-auto"
-          >
-            <h2 className="text-3xl sm:text-4xl font-black text-center mb-12 text-white">
-              What Questers Are Saying
-            </h2>
+          {/* Real, consented user quotes (or honest "we're early" empty state).
+              No invented reviews — ever. */}
+          <TestimonialsSection />
 
-            <div className="grid md:grid-cols-3 gap-6">
-              {[
-                {
-                  quote: "I used to shame-spiral every time I missed a gym day. HabitQuest doesn\u2019t care. It just gives me a new quest. I\u2019ve worked out more in the last 2 months than all of last year.",
-                  name: 'Sarah M.',
-                  meta: 'LVL 28, Warrior Archetype'
-                },
-                {
-                  quote: "I\u2019ve tried every productivity app. They all made me feel behind. HabitQuest is the first one where missing a day doesn\u2019t spiral into quitting for a month. I\u2019ve shipped more in 60 days than the whole year before.",
-                  name: 'Marcus T.',
-                  meta: 'LVL 31, Builder Archetype'
-                },
-                {
-                  quote: "My therapist told me to build a morning routine. Every other app made the anxiety worse when I slipped up. HabitQuest just... doesn\u2019t punish you. That changes everything for people like me.",
-                  name: 'Jordan K.',
-                  meta: 'LVL 22, Seeker Archetype'
-                }
-              ].map((t, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
-                  className="bg-[#16213E]/60 border-2 border-[#00D4FF]/20 rounded-xl p-6"
-                >
-                  <p className="text-gray-300 leading-relaxed mb-4 italic">&ldquo;{t.quote}&rdquo;</p>
-                  <div>
-                    <p className="font-bold text-white">{t.name}</p>
-                    <p className="text-sm text-[#F59E0B]">{t.meta}</p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-
-            {/* CTA #4 — After testimonials */}
-            <div className="text-center mt-12">
-              <button
-                onClick={goToSignup}
-                className="px-10 py-5 bg-[#FF6B35] hover:bg-[#E55A2B] text-white border-3 border-[#0F3460] rounded-xl font-black text-xl uppercase tracking-wide shadow-lg transition-all hover:scale-105"
-              >
-                Join the Quest, It&apos;s Free
-              </button>
-            </div>
-          </motion.div>
+          {/* CTA #4 — After testimonials */}
+          <div className="text-center mt-12 max-w-5xl mx-auto">
+            <button
+              onClick={goToSignup}
+              className="px-10 py-5 bg-[#FF6B35] hover:bg-[#E55A2B] text-white border-3 border-[#0F3460] rounded-xl font-black text-xl uppercase tracking-wide shadow-lg transition-all hover:scale-105"
+            >
+              Join the Quest, It&apos;s Free
+            </button>
+          </div>
         </section>
 
         {/* ════════════════════════════════════════════════════════════════

@@ -64,6 +64,8 @@ import FloatingReward from '@/app/components/FloatingReward';
 import ChestDropReveal from '@/app/components/ChestDropReveal';
 import { trackQuestCreated, trackQuestCompleted, trackLevelUp, trackStreakAchieved, trackStoryMilestone, trackGoldPurchaseViewed, trackEvent } from '@/lib/analytics';
 import { track } from '@/lib/track';
+import TestimonialPrompt from '@/app/components/TestimonialPrompt';
+import { testimonialsCaptureEnabled } from '@/lib/testimonials';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -137,6 +139,12 @@ export default function DashboardPage() {
   const [showDiceRoll, setShowDiceRoll] = useState(false);
   const [encounterData, setEncounterData] = useState(null);
   const encounterRef = useRef(null); // ref to avoid stale closures
+
+  // Milestone testimonial prompt (feature-flagged). pendingTestimonialRef holds
+  // a milestone detected during quest completion so it can be surfaced AFTER the
+  // celebration closes (a moment of earned pride, shown once).
+  const [testimonialPrompt, setTestimonialPrompt] = useState(null);
+  const pendingTestimonialRef = useRef(null);
   const [activeEffects, setActiveEffects] = useState([]);
 
   // Event story states
@@ -499,6 +507,19 @@ export default function DashboardPage() {
         track('first_quest_completed');
       }
 
+      // Milestone testimonial triggers — queued here, surfaced after the
+      // celebration closes (see handleCelebrationClose). Boss win takes
+      // precedence if it coincides with a count milestone.
+      const newLifetimeCount = (profile?.quests_completed || 0) + 1;
+      if (newLifetimeCount === 100) {
+        pendingTestimonialRef.current = 'quests_100';
+      } else if (newLifetimeCount === 30) {
+        pendingTestimonialRef.current = 'quests_30';
+      }
+      if (data.boss?.just_defeated) {
+        pendingTestimonialRef.current = 'first_boss_win';
+      }
+
       // Check for level up milestone
       if (rewards.level_up) {
         setMilestoneData({
@@ -595,6 +616,31 @@ export default function DashboardPage() {
     }
   }
 
+  // Asks the server whether to show the testimonial prompt for this milestone
+  // (feature flag + once-per-milestone + 7-day global cooldown all enforced
+  // server-side). Fails silent — brand law is no nagging.
+  async function maybePromptTestimonial(milestone) {
+    if (!testimonialsCaptureEnabled()) return;
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) return;
+      const res = await fetch('/api/testimonials/prompt-check', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ milestone }),
+      });
+      const data = await res.json();
+      if (data?.show) {
+        setTestimonialPrompt({ milestone, suggestion: data.suggestion || {} });
+      }
+    } catch {
+      /* silent */
+    }
+  }
+
   const handleCelebrationClose = () => {
     setShowQuestCelebration(false);
 
@@ -628,6 +674,14 @@ export default function DashboardPage() {
           trackGoldPurchaseViewed();
         }, 6000);
       }
+    }
+
+    // Surface the milestone testimonial prompt (if any) once the celebration
+    // has cleared — a moment of earned pride, shown at most once.
+    if (pendingTestimonialRef.current) {
+      const milestone = pendingTestimonialRef.current;
+      pendingTestimonialRef.current = null;
+      setTimeout(() => maybePromptTestimonial(milestone), 1200);
     }
   };
 
@@ -969,6 +1023,12 @@ export default function DashboardPage() {
                 <ScrollText size={13} className="inline -mt-0.5 mr-1" /> History
               </button>
             )}
+            <button
+              onClick={() => router.push('/settings')}
+              className="px-3 py-1.5 bg-[#0F3460] hover:bg-[#1a4a7a] text-white border-2 border-[#1A1A2E] rounded-lg font-bold uppercase text-xs tracking-wide transition-all"
+            >
+              Settings
+            </button>
             {profile?.active_campaign_id ? (
               <button
                 onClick={() => router.push(profile.campaign_role === 'dm' ? '/campaign/dm' : '/campaign/player')}
@@ -1055,6 +1115,8 @@ export default function DashboardPage() {
               ],
             });
             setShowMilestoneCelebration(true);
+            // First map region unlocked — offer a reflection after the reveal.
+            setTimeout(() => maybePromptTestimonial('first_region_unlock'), 1500);
           }}
         />
 
@@ -1549,6 +1611,15 @@ export default function DashboardPage() {
         onUpgrade={() => { setShowHabitLimitModal(false); router.push('/pricing'); }}
         currentHabits={quests.filter(q => !q.completed).length}
       />
+
+      {/* Milestone testimonial prompt (feature-flagged) */}
+      {testimonialPrompt && (
+        <TestimonialPrompt
+          milestone={testimonialPrompt.milestone}
+          suggestion={testimonialPrompt.suggestion}
+          onClose={() => setTestimonialPrompt(null)}
+        />
+      )}
 
       {/* Footer */}
       <GlobalFooter />
