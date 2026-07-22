@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase';
 import { getStoredPreviewQuest, clearStoredPreviewQuest, handleFirstQuestCompletion } from '@/lib/onboarding';
 import { applyReferralCode } from '@/lib/referrals';
 import FirstQuestCelebration from '@/app/components/FirstQuestCelebration';
+import { track } from '@/lib/track';
 
 function SignupForm() {
   const router = useRouter();
@@ -29,6 +30,8 @@ function SignupForm() {
 
   useEffect(() => {
     document.title = "Sign Up Free | HabitQuest";
+    // First-party funnel: signup flow reached.
+    track('signup_started');
   }, []);
 
   useEffect(() => {
@@ -67,6 +70,14 @@ function SignupForm() {
       if (signupError) throw signupError;
 
       if (data.user) {
+        // First-party funnel: only a genuinely NEW account counts as a completed
+        // signup. Supabase returns data.user even for the obfuscated "email
+        // already exists" response, but with an empty identities array — excluding
+        // that keeps repeat attempts from inflating signup/conversion metrics.
+        if ((data.user.identities?.length ?? 0) > 0) {
+          track('signup_completed');
+        }
+
         // Apply referral code if provided
         if (referralCode.trim()) {
           const referralResult = await applyReferralCode(
