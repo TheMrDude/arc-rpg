@@ -36,6 +36,18 @@ export const HABITQUEST_BADGES_ABI: Abi = [
     ],
     outputs: [{ name: '', type: 'uint256' }],
   },
+  {
+    // Public mapping getter: hasClaimed[wallet][badgeId] -> bool.
+    // Used server-side to confirm a mint actually happened on-chain.
+    type: 'function',
+    name: 'hasClaimed',
+    stateMutability: 'view',
+    inputs: [
+      { name: '', type: 'address' },
+      { name: '', type: 'uint256' },
+    ],
+    outputs: [{ name: '', type: 'bool' }],
+  },
 ];
 
 export type SignedVoucher = {

@@ -150,6 +150,25 @@ Deno.serve(async (req: Request) => {
   if (userErr || !userData?.user) return json({ error: "Unauthorized" }, 401);
   const userId = userData.user.id;
 
+  // Per-user rate limit BEFORE any eligibility work (M2). This throttles
+  // ineligible and first-time requests too — the per-badge guard below only
+  // fires once a claims row exists. Best-effort: fail open if the limiter RPC
+  // is unavailable so a limiter outage can't lock out legitimate users.
+  try {
+    const { data: rl } = await admin.rpc("check_rate_limit", {
+      p_user_id: userId,
+      p_endpoint: "sign_badge_voucher",
+      p_limit: 30,
+      p_window_minutes: 1,
+    });
+    const allowed = Array.isArray(rl) ? rl[0]?.allowed : rl?.allowed;
+    if (allowed === false) {
+      return json({ error: "Too many requests, please slow down", code: "rate_limited" }, 429);
+    }
+  } catch (_e) {
+    // fail open
+  }
+
   // 2. Validate input.
   let body: { badge_id?: unknown; wallet_address?: unknown };
   try {

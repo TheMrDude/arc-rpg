@@ -35,8 +35,10 @@ export async function GET() {
       { quotes: data || [] },
       {
         headers: {
-          // Edge cache up to 24h; serve stale while revalidating.
-          'Cache-Control': 'public, s-maxage=86400, stale-while-revalidate=3600',
+          // SECURITY (M3): short edge cache so a revoked/withdrawn-consent quote
+          // drops out of the public feed within minutes, not ~24h. The DB view
+          // already filters revoked rows; this bounds the cache exposure window.
+          'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=60',
         },
       }
     );
