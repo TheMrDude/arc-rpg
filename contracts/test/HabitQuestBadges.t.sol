@@ -140,6 +140,22 @@ contract HabitQuestBadgesTest is Test {
         badges.safeTransferFrom(user1, user2, tokenId);
     }
 
+    function test_RevertWhen_ApproveCalled() public {
+        HabitQuestBadges.MintVoucher memory v = _voucher(user1, BADGE_FIRST_LIGHT, 1, block.timestamp + 1 hours);
+        vm.prank(user1);
+        uint256 tokenId = badges.claimBadge(v, _sign(signerPk, v));
+
+        vm.prank(user1);
+        vm.expectRevert(HabitQuestBadges.Soulbound.selector);
+        badges.approve(user2, tokenId);
+    }
+
+    function test_RevertWhen_SetApprovalForAllCalled() public {
+        vm.prank(user1);
+        vm.expectRevert(HabitQuestBadges.Soulbound.selector);
+        badges.setApprovalForAll(user2, true);
+    }
+
     function test_OwnerCanBurnTheirBadge() public {
         HabitQuestBadges.MintVoucher memory v = _voucher(user1, BADGE_FIRST_LIGHT, 1, block.timestamp + 1 hours);
         vm.prank(user1);

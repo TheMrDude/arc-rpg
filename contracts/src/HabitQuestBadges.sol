@@ -121,7 +121,11 @@ contract HabitQuestBadges is ERC721, EIP712, Ownable {
         uint256 tokenId = _nextTokenId++;
         tokenBadgeId[tokenId] = voucher.badgeId;
 
-        _safeMint(voucher.to, tokenId);
+        // _mint (not _safeMint): the token is soulbound and can never move, so
+        // the ERC721Receiver callback buys no safety — it only risks bricking
+        // claims for contract wallets that don't implement onERC721Received.
+        // Using _mint also leaves claimBadge with zero external calls.
+        _mint(voucher.to, tokenId);
         emit BadgeClaimed(voucher.to, voucher.badgeId, tokenId);
         return tokenId;
     }
@@ -164,6 +168,20 @@ contract HabitQuestBadges is ERC721, EIP712, Ownable {
     /// @notice The EIP-712 domain separator, exposed for off-chain signers/tests.
     function domainSeparator() external view returns (bytes32) {
         return _domainSeparatorV4();
+    }
+
+    /**
+     * @dev Approvals are meaningless on a non-transferable token and only
+     *      create a phishing footgun (a live approval that can never be used).
+     *      Disable both approval entry points so the token surface is
+     *      consistently soulbound.
+     */
+    function approve(address, uint256) public pure override {
+        revert Soulbound();
+    }
+
+    function setApprovalForAll(address, bool) public pure override {
+        revert Soulbound();
     }
 
     /**
