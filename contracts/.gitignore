@@ -1,0 +1,13 @@
+# Foundry
+out/
+cache/
+broadcast/
+
+# Dependencies installed via `forge install`
+lib/
+
+# npm deps used only for local solc compile-verification (see README)
+node_modules/
+
+# Env
+.env

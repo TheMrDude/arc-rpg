@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Gem, BookOpen, ScrollText, Swords, Shield, Dices, Coins, Flame, Volume2, VolumeX, ClipboardList, RefreshCw, Package, PartyPopper, LogOut } from 'lucide-react';
+import { Gem, BookOpen, ScrollText, Swords, Shield, Dices, Coins, Flame, Volume2, VolumeX, ClipboardList, RefreshCw, Package, PartyPopper, LogOut, Award } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { useSound } from '@/app/components/SoundProvider';
@@ -1021,6 +1021,15 @@ export default function DashboardPage() {
                 className="px-3 py-1.5 bg-[#0F3460] hover:bg-[#1a4a7a] text-white border-2 border-[#1A1A2E] rounded-lg font-bold uppercase text-xs tracking-wide transition-all"
               >
                 <ScrollText size={13} className="inline -mt-0.5 mr-1" /> History
+              </button>
+            )}
+            {/* Legendary Badges — quiet entry point, only shown when the flag is on */}
+            {process.env.NEXT_PUBLIC_BADGES_ENABLED === 'true' && (
+              <button
+                onClick={() => router.push('/badges')}
+                className="px-3 py-1.5 bg-[#0f172a] hover:bg-[#1e293b] text-[#FFD93D] border-2 border-[#FFD93D]/30 rounded-lg font-black uppercase text-xs tracking-wide transition-all"
+              >
+                <Award size={13} className="inline -mt-0.5 mr-1" /> Badges
               </button>
             )}
             <button

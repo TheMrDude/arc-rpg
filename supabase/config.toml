@@ -6,3 +6,8 @@ verify_jwt = false
 
 [functions.send-welcome-email]
 verify_jwt = false
+
+# Auth is verified manually inside the function (Bearer token -> getUser),
+# so the platform JWT gate is left off, matching the other functions here.
+[functions.sign-badge-voucher]
+verify_jwt = false
