@@ -235,8 +235,9 @@ export default function LandingPage() {
             <button onClick={() => router.push('/blog')} className="hidden sm:inline-block px-3 py-2 text-navy/70 hover:text-navy font-bold text-sm rounded-full transition-colors">Blog</button>
             <button onClick={() => router.push('/pricing')} className="px-3 py-2 text-navy/70 hover:text-navy font-bold text-sm rounded-full transition-colors">Pricing</button>
             <button onClick={() => router.push('/login')} className="px-3 py-2 text-navy/70 hover:text-navy font-bold text-sm rounded-full transition-colors">Login</button>
-            <button onClick={goToSignup} className="kq-btn kq-btn-gold text-sm px-4 py-2 min-h-0">
-              {PRIMARY_CTA_LABEL}
+            <button onClick={goToSignup} className="kq-btn kq-btn-gold text-xs sm:text-sm px-3 sm:px-4 py-2 min-h-0 whitespace-nowrap">
+              <span className="sm:hidden">Start</span>
+              <span className="hidden sm:inline">{PRIMARY_CTA_LABEL}</span>
             </button>
           </div>
         </div>
