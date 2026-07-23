@@ -9,6 +9,7 @@ import QuestPreview from './components/QuestPreview';
 import ExitIntentPopup from './components/ExitIntentPopup';
 import EmailCapture from './components/EmailCapture';
 import ScrollDepthTracker from './components/ScrollDepthTracker';
+import CollectionBand from './components/CollectionBand';
 import { PreviewQuest } from '@/lib/onboarding';
 import { trackEvent } from '@/lib/analytics';
 import { track } from '@/lib/track';
@@ -456,6 +457,9 @@ export default function LandingPage() {
             <span aria-hidden="true">💚</span> Miss a day? Your pet waits happily.
           </p>
         </section>
+
+        {/* ════════════════ COLLECTION TEASE (47 characters) ════════════════ */}
+        <CollectionBand onStart={goToSignup} />
 
         {/* ════════════════ BOSS BATTLE (P6.1) ════════════════ */}
         <section className="py-14 kq-reveal">
