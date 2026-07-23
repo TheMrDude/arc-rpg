@@ -64,6 +64,14 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
+        {/* Kid-first display + body fonts (Baloo 2 / Nunito) — used by the landing redesign */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Nunito:wght@400;500;600;700;800;900&display=swap"
+        />
+
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#FF6B6B" />
         <meta name="mobile-web-app-capable" content="yes" />
