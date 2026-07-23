@@ -8,15 +8,20 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // ─── Kid-first design system (HabitQuest) ───
+        // ─── Kid-first design system (HabitQuest landing redesign) ───
+        // NOTE: emerald / purple / stone are built-in Tailwind color SCALES
+        // used elsewhere in the app (emerald-500, purple-600, stone-*).
+        // Define them as { DEFAULT } so Tailwind DEEP-MERGES — the numbered
+        // shades keep working everywhere; we only ADD the flat brand color
+        // (bg-emerald / text-purple) for the landing page.
         'hero-blue': '#4F7DF3',
-        emerald: '#2ECC71',
+        emerald: { DEFAULT: '#2ECC71' },
         gold: '#FFC83D',
-        purple: '#8B6CFF',
+        purple: { DEFAULT: '#8B6CFF' },
         coral: '#FF7B6B',
         aqua: '#57D7F5',
         cream: '#FFF9F1', // page background — replaces white
-        stone: '#ECE7DD',
+        stone: { DEFAULT: '#ECE7DD' },
         navy: '#243B5A', // dark sections — replaces black
         ink: '#2b2b3a',
       },
@@ -36,5 +41,8 @@ module.exports = {
       },
     },
   },
-  plugins: [require('@tailwindcss/typography')],
+  // Kept as [] to match the app's prior effective config (the original file
+  // had a duplicate module.exports whose last block set plugins: []). Not
+  // re-enabling typography here avoids changing blog/prose pages.
+  plugins: [],
 }
