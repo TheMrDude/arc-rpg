@@ -466,3 +466,220 @@ button, .card-retro, .xp-badge {
   animation: worldMapPan 45s ease-in-out infinite;
   will-change: transform;
 }
+
+/* ══════════════════════════════════════════════════════════════════════
+   KID-FIRST DESIGN SYSTEM  (scoped to `.kidquest` — the landing redesign)
+   Nintendo × Duolingo × Pokémon. Cream page, navy dark sections, candy
+   buttons, chunky rounded cards. Deliberately scoped so the dark app
+   (dashboard/login/etc.) that also loads globals.css is never affected.
+   ══════════════════════════════════════════════════════════════════════ */
+.kidquest {
+  --kq-hero-blue: #4F7DF3;
+  --kq-emerald: #2ECC71;
+  --kq-gold: #FFC83D;
+  --kq-purple: #8B6CFF;
+  --kq-coral: #FF7B6B;
+  --kq-aqua: #57D7F5;
+  --kq-cream: #FFF9F1;
+  --kq-stone: #ECE7DD;
+  --kq-navy: #243B5A;
+  --kq-ink: #2b2b3a;
+  --kq-radius: 24px;
+
+  background: var(--kq-cream);
+  color: var(--kq-ink);
+  font-family: 'Nunito', system-ui, sans-serif;
+  font-weight: 600;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Headings + candy chrome use the chunky rounded display face. */
+.kidquest h1,
+.kidquest h2,
+.kidquest h3,
+.kidquest h4,
+.kidquest .kq-display {
+  font-family: 'Baloo 2', system-ui, sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.05;
+  text-shadow: none; /* override the app's mono heading shadow */
+  text-transform: none;
+}
+
+/* Dark bands read navy, never black. */
+.kidquest .kq-navy {
+  background: var(--kq-navy);
+  color: var(--kq-cream);
+}
+.kidquest .kq-navy h1,
+.kidquest .kq-navy h2,
+.kidquest .kq-navy h3,
+.kidquest .kq-navy h4 {
+  color: var(--kq-cream);
+}
+
+/* ── Candy buttons: pill-shaped with a pressable bottom shadow ── */
+.kidquest .kq-btn {
+  font-family: 'Baloo 2', system-ui, sans-serif;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  padding: 0.9rem 1.8rem;
+  font-size: 1.05rem;
+  border: none;
+  cursor: pointer;
+  text-transform: none;
+  letter-spacing: 0;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.2s ease;
+  min-height: 52px;
+  text-shadow: none;
+}
+.kidquest .kq-btn-gold {
+  background: var(--kq-gold);
+  color: #5a4300;
+  box-shadow: 0 6px 0 #E0A81F, 0 12px 22px rgba(255, 200, 61, 0.4);
+}
+.kidquest .kq-btn-gold:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 0 #E0A81F, 0 16px 28px rgba(255, 200, 61, 0.5);
+}
+.kidquest .kq-btn-gold:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 #E0A81F, 0 4px 10px rgba(255, 200, 61, 0.3);
+}
+.kidquest .kq-btn-blue {
+  background: var(--kq-hero-blue);
+  color: #fff;
+  box-shadow: 0 6px 0 #3358c4, 0 12px 22px rgba(79, 125, 243, 0.35);
+}
+.kidquest .kq-btn-blue:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 0 #3358c4, 0 16px 28px rgba(79, 125, 243, 0.45);
+}
+.kidquest .kq-btn-blue:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 #3358c4, 0 4px 10px rgba(79, 125, 243, 0.3);
+}
+.kidquest .kq-btn-emerald {
+  background: var(--kq-emerald);
+  color: #fff;
+  box-shadow: 0 6px 0 #21a259, 0 12px 22px rgba(46, 204, 113, 0.35);
+}
+.kidquest .kq-btn-emerald:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 0 #21a259, 0 16px 28px rgba(46, 204, 113, 0.45);
+}
+.kidquest .kq-btn-emerald:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 #21a259, 0 4px 10px rgba(46, 204, 113, 0.3);
+}
+/* Ghost / secondary — outlined pill */
+.kidquest .kq-btn-ghost {
+  background: transparent;
+  color: var(--kq-hero-blue);
+  box-shadow: inset 0 0 0 3px var(--kq-hero-blue);
+}
+.kidquest .kq-btn-ghost:hover {
+  transform: translateY(-2px);
+  background: rgba(79, 125, 243, 0.08);
+}
+.kidquest .kq-btn-ghost:active {
+  transform: translateY(2px);
+}
+.kidquest .kq-navy .kq-btn-ghost {
+  color: var(--kq-cream);
+  box-shadow: inset 0 0 0 3px rgba(255, 249, 241, 0.6);
+}
+
+/* ── Cards: chunky rounded, soft shadow, lift on hover ── */
+.kidquest .kq-card {
+  background: #fff;
+  border-radius: var(--kq-radius);
+  box-shadow: 0 10px 30px rgba(36, 59, 90, 0.12);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.kidquest .kq-card-hover:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 45px rgba(36, 59, 90, 0.2);
+}
+
+/* Chips / pills */
+.kidquest .kq-chip {
+  font-family: 'Baloo 2', system-ui, sans-serif;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem;
+}
+
+/* ══ Audience toggle: mostly CSS, driven by [data-audience] on root ══ */
+.kidquest[data-audience='kids'] .parent-only { display: none !important; }
+.kidquest[data-audience='parents'] .kid-only { display: none !important; }
+
+/* ══ Animations (all disabled under prefers-reduced-motion below) ══ */
+@keyframes kqDrift {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(40px); }
+}
+@keyframes kqHop {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+@keyframes kqTwinkle {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+@keyframes kqFloat {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-16px) rotate(2deg); }
+}
+@keyframes kqBob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+@keyframes kqXpFill {
+  from { width: 0; }
+  to { width: 72%; }
+}
+.kidquest .kq-drift { animation: kqDrift 9s ease-in-out infinite alternate; }
+.kidquest .kq-drift-slow { animation: kqDrift 16s ease-in-out infinite alternate; }
+.kidquest .kq-hop { animation: kqHop 2.4s ease-in-out infinite; }
+.kidquest .kq-twinkle { animation: kqTwinkle 2.6s ease-in-out infinite; }
+.kidquest .kq-float { animation: kqFloat 5s ease-in-out infinite; }
+.kidquest .kq-bob { animation: kqBob 2.8s ease-in-out infinite; }
+.kidquest .kq-xp-fill { animation: kqXpFill 2.2s ease-out forwards; }
+
+/* ══ Scroll reveal (IntersectionObserver toggles .kq-in) ══ */
+.kidquest .kq-reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.kidquest .kq-reveal.kq-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kidquest .kq-drift,
+  .kidquest .kq-drift-slow,
+  .kidquest .kq-hop,
+  .kidquest .kq-twinkle,
+  .kidquest .kq-float,
+  .kidquest .kq-bob,
+  .kidquest .kq-xp-fill {
+    animation: none !important;
+  }
+  .kidquest .kq-xp-fill { width: 72%; }
+  .kidquest .kq-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
