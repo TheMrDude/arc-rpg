@@ -507,6 +507,16 @@ button, .card-retro, .xp-badge {
   text-transform: none;
 }
 
+/* The app applies Courier mono to all buttons globally; inside the kid theme,
+   buttons + form controls read as friendly Nunito (candy buttons re-assert
+   Baloo via .kq-btn, which wins on specificity). */
+.kidquest button,
+.kidquest input,
+.kidquest textarea,
+.kidquest select {
+  font-family: 'Nunito', system-ui, sans-serif;
+}
+
 /* Dark bands read navy, never black. */
 .kidquest .kq-navy {
   background: var(--kq-navy);
@@ -616,6 +626,33 @@ button, .card-retro, .xp-badge {
   gap: 0.4rem;
   border-radius: 999px;
   padding: 0.4rem 0.9rem;
+}
+
+/* Form controls (used across converted app pages) */
+.kidquest .kq-label {
+  display: block;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  color: var(--kq-navy);
+  margin-bottom: 0.4rem;
+  font-size: 0.85rem;
+}
+.kidquest .kq-input {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border-radius: 16px;
+  background: #fff;
+  border: 2px solid var(--kq-stone);
+  color: var(--kq-ink);
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.kidquest .kq-input::placeholder { color: color-mix(in srgb, var(--kq-ink) 40%, transparent); }
+.kidquest .kq-input:focus {
+  outline: none;
+  border-color: var(--kq-hero-blue);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--kq-hero-blue) 20%, transparent);
 }
 
 /* ══ Audience toggle: mostly CSS, driven by [data-audience] on root ══ */
