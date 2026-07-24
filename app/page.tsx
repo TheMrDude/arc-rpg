@@ -216,7 +216,7 @@ export default function LandingPage() {
             '@type': 'FAQPage',
             mainEntity: [
               { '@type': 'Question', name: 'What makes this different from every other habit app?', acceptedAnswer: { '@type': 'Answer', text: 'Other apps punish you for missing a day. We don\'t. No broken streaks, no shame notifications. HabitQuest turns real habits into an RPG adventure kids actually want to open. Miss a day? Your adventure just waits for you.' } },
-              { '@type': 'Question', name: 'What age is HabitQuest for?', acceptedAnswer: { '@type': 'Answer', text: 'It\'s designed for kids roughly 4–14. The game world is bright and friendly enough for little ones and deep enough (worlds, pets, boss battles) that older kids and teens still find it fun.' } },
+              { '@type': 'Question', name: 'What age is HabitQuest for?', acceptedAnswer: { '@type': 'Answer', text: 'Ages 4 and up. The game world is bright and friendly enough for little ones and deep enough (worlds, pets, boss battles) that big kids, teens, and grown-ups keep playing too.' } },
               { '@type': 'Question', name: 'What if my kid misses a day?', acceptedAnswer: { '@type': 'Answer', text: 'Nothing bad happens. No streak resets, no guilt screens, no "you failed" messages. Their hero just picks up where they left off. Building habits should feel encouraging, not like punishment.' } },
               { '@type': 'Question', name: 'Is it safe and ad-free?', acceptedAnswer: { '@type': 'Answer', text: 'Yes. HabitQuest is ad-free and built to be a calm, safe place for kids to build routines and independence.' } },
               { '@type': 'Question', name: 'What do I get for free?', acceptedAnswer: { '@type': 'Answer', text: 'Track up to 3 habits, pick your hero, and turn habits into quests — free forever. Pro unlocks unlimited quests, boss battles, pets, gear, and every world.' } },
@@ -252,7 +252,7 @@ export default function LandingPage() {
             {/* Left — copy */}
             <div className="text-center lg:text-left">
               <span className="kq-chip bg-[#8B6CFF]/15 text-purple mb-5 text-sm">
-                <span aria-hidden="true">✨</span> For heroes ages 4&ndash;14
+                <span aria-hidden="true">✨</span> For heroes ages 4 and up
               </span>
 
               {/* Kid headline */}
@@ -671,7 +671,7 @@ export default function LandingPage() {
           <div className="space-y-4">
             {[
               { q: 'What makes this different from other habit apps?', a: 'Other apps punish you for missing a day. We don’t. No broken streaks, no shame. HabitQuest turns real habits into an RPG adventure kids actually want to open.' },
-              { q: 'What age is it for?', a: 'Built for roughly ages 4–14 — bright and friendly for littles, deep enough (worlds, pets, boss battles) that older kids still love it.' },
+              { q: 'What age is it for?', a: 'Ages 4 and up — bright and friendly for littles, deep enough (worlds, pets, boss battles) that big kids, teens, and grown-ups keep playing too.' },
               { q: 'What if my kid misses a day?', a: 'Nothing bad happens. No streak resets, no guilt screens. Their hero just picks up where they left off.' },
               { q: 'Is it safe and ad-free?', a: 'Yes — ad-free, private, and designed to be a calm, safe place to build routines.' },
               { q: 'What do I get for free?', a: 'Track up to 3 habits, pick your hero, and turn habits into quests — free forever. Pro unlocks unlimited quests, boss battles, pets, gear, and every world.' },
