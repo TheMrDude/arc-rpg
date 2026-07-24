@@ -96,12 +96,12 @@ export default function UpgradePrompt({ trigger, profile }) {
   const prompt = prompts[trigger];
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4 animate-fade-in">
-      <div className="card-retro-primary max-w-2xl w-full p-8 animate-slide-in-up relative">
+    <div className="fixed inset-0 bg-navy/60 flex items-center justify-center z-50 p-4 animate-fade-in">
+      <div className="kq-card max-w-2xl w-full p-8 animate-slide-in-up relative">
         {/* Close button */}
         <button
           onClick={handleDismiss}
-          className="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl font-bold"
+          className="absolute top-4 right-4 text-navy/40 hover:text-navy text-2xl font-bold"
         >
           ×
         </button>
@@ -109,72 +109,72 @@ export default function UpgradePrompt({ trigger, profile }) {
         {/* Header */}
         <div className="text-center mb-6">
           <div className="text-5xl mb-3">🚀</div>
-          <h2 className="text-3xl sm:text-4xl font-black mb-2 bg-gradient-to-r from-[#FF5733] to-[#7C3AED] bg-clip-text text-transparent">
+          <h2 className="kq-display text-3xl sm:text-4xl font-black mb-2 bg-gradient-to-r from-coral to-purple bg-clip-text text-transparent">
             {prompt.title}
           </h2>
-          <p className="text-xl text-[#F59E0B] font-bold">{prompt.subtitle}</p>
+          <p className="text-xl text-gold font-bold">{prompt.subtitle}</p>
         </div>
 
         {/* Message */}
-        <p className="text-lg text-gray-300 text-center mb-6">
+        <p className="text-lg text-navy/70 text-center mb-6">
           {prompt.message}
         </p>
 
         {/* Benefits */}
-        <div className="bg-[#0F172A] rounded-lg p-6 mb-6">
-          <h3 className="text-xl font-black mb-4 text-center text-[#10B981]">
-            UNLOCK WITH PRO:
+        <div className="bg-cream rounded-candy p-6 mb-6 border-2 border-stone">
+          <h3 className="kq-display text-xl font-black mb-4 text-center text-emerald">
+            Unlock with Pro
           </h3>
           <div className="space-y-3">
             {prompt.benefits.map((benefit, index) => (
               <div key={index} className="flex items-start gap-3">
-                <span className="text-[#10B981] text-xl font-black flex-shrink-0">✓</span>
-                <span className="text-gray-300">{benefit}</span>
+                <span className="text-emerald text-xl font-black flex-shrink-0">✓</span>
+                <span className="text-navy/80">{benefit}</span>
               </div>
             ))}
           </div>
         </div>
 
         {/* Pricing */}
-        <div className="text-center mb-6 p-4 bg-gradient-to-r from-[#7C3AED]/20 to-[#FF5733]/20 rounded-lg border border-[#FF5733]">
+        <div className="text-center mb-6 p-4 bg-gradient-to-r from-purple/10 to-coral/10 rounded-candy border-2 border-coral/40">
           <div className="flex items-baseline justify-center gap-2 mb-2">
-            <span className="text-5xl font-black text-[#FF5733]">$5<span className="text-xl text-gray-400">/mo</span></span>
-            <span className="text-gray-400 text-lg"></span>
+            <span className="text-5xl font-black text-coral">$5<span className="text-xl text-navy/50">/mo</span></span>
+            <span className="text-navy/50 text-lg"></span>
           </div>
-          <div className="text-[#10B981] font-bold mb-1">PRO ACCESS</div>
-          <div className="text-sm text-gray-400">or $29/yr, cancel anytime</div>
+          <div className="text-emerald font-bold mb-1">Pro Access</div>
+          <div className="text-sm text-navy/50">or $29/yr, cancel anytime</div>
         </div>
 
         {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row gap-4">
           <button
             onClick={handleDismiss}
-            className="flex-1 btn-retro bg-gray-600 hover:bg-gray-500 border-gray-700 text-white py-3"
+            className="flex-1 kq-btn kq-btn-ghost py-3"
           >
             Maybe Later
           </button>
           <button
             onClick={handleUpgrade}
-            className="flex-1 btn-retro btn-primary py-3 text-lg animate-pulse"
+            className="flex-1 kq-btn kq-btn-gold py-3 text-lg animate-pulse"
           >
             {prompt.cta}
           </button>
         </div>
 
         {/* Trust signals */}
-        <div className="mt-6 pt-6 border-t border-gray-700">
+        <div className="mt-6 pt-6 border-t border-stone">
           <div className="grid grid-cols-3 gap-4 text-center text-sm">
             <div>
-              <div className="font-bold text-[#10B981]">🔒</div>
-              <div className="text-gray-400">Secure via Stripe</div>
+              <div className="font-bold text-emerald">🔒</div>
+              <div className="text-navy/50">Secure via Stripe</div>
             </div>
             <div>
-              <div className="font-bold text-[#10B981]">💚</div>
-              <div className="text-gray-400">No Guilt, Ever</div>
+              <div className="font-bold text-emerald">💚</div>
+              <div className="text-navy/50">No Guilt, Ever</div>
             </div>
             <div>
-              <div className="font-bold text-[#10B981]">♾️</div>
-              <div className="text-gray-400">Cancel Anytime</div>
+              <div className="font-bold text-emerald">♾️</div>
+              <div className="text-navy/50">Cancel Anytime</div>
             </div>
           </div>
         </div>

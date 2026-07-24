@@ -137,29 +137,29 @@ export default function TomorrowQuestHook({ showSuggest, archetype, onPick, crea
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            className="bg-[#1A1A2E] border-2 border-[#FFD93D] rounded-xl p-4 mb-4 shadow-[0_0_15px_rgba(255,217,61,0.25)]"
+            className="kq-card border-2 border-gold p-4 mb-4"
           >
             <div className="flex flex-col sm:flex-row sm:items-center gap-3">
               <div className="flex-1 min-w-0">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-[#FFD93D] mb-0.5">
+                <p className="text-[10px] font-bold text-gold mb-0.5">
                   📜 A quest awaits
                 </p>
-                <p className="text-sm text-[#E2E8F0]">
+                <p className="text-sm text-navy/70">
                   Yesterday you chose today&apos;s quest:{' '}
-                  <span className="font-black text-white">{pending.text}</span>
+                  <span className="font-black text-navy">{pending.text}</span>
                 </p>
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
                 <button
                   onClick={beginPending}
                   disabled={creating || beginning}
-                  className="px-4 py-2 bg-[#48BB78] hover:bg-[#38a169] text-white border-2 border-[#0F3460] rounded-lg font-black uppercase text-xs tracking-wide shadow-[0_3px_0_#0F3460] hover:-translate-y-0.5 active:translate-y-0.5 transition-all disabled:opacity-60 disabled:cursor-wait"
+                  className="kq-btn kq-btn-emerald text-xs disabled:opacity-60 disabled:cursor-wait"
                 >
-                  {beginning || creating ? 'Forging...' : 'Begin'}
+                  {beginning || creating ? 'Starting...' : 'Begin'}
                 </button>
                 <button
                   onClick={dismissPending}
-                  className="px-2 py-2 text-xs font-bold text-[#94a3b8] hover:text-white transition-colors"
+                  className="px-2 py-2 text-xs font-bold text-navy/50 hover:text-navy transition-colors"
                 >
                   Not today
                 </button>
@@ -176,27 +176,27 @@ export default function TomorrowQuestHook({ showSuggest, archetype, onPick, crea
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 8 }}
-            className="bg-[#1A1A2E] border-2 border-[#00D4FF]/60 rounded-xl p-4 mb-4"
+            className="kq-card border-2 border-aqua/60 p-4 mb-4"
           >
             {savedText ? (
-              <p className="text-sm text-[#48BB78] font-bold text-center py-1">
+              <p className="text-sm text-emerald font-bold text-center py-1">
                 ✨ Locked in for tomorrow: {savedText}. It will be waiting for you.
               </p>
             ) : (
               <>
                 <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-sm font-black uppercase tracking-wide text-[#00D4FF]">
+                  <h4 className="text-sm font-black text-hero-blue kq-display">
                     🌙 Choose tomorrow&apos;s quest
                   </h4>
                   <button
                     onClick={() => setSuggestOpen(false)}
-                    className="text-[#94a3b8] hover:text-white text-sm leading-none"
+                    className="text-navy/40 hover:text-navy text-sm leading-none"
                     aria-label="Close"
                   >
                     ✕
                   </button>
                 </div>
-                <p className="text-xs text-[#94a3b8] mb-3">
+                <p className="text-xs text-navy/60 mb-3">
                   Tomorrow starts easier when the first move is already picked.
                 </p>
                 <div className="grid sm:grid-cols-3 gap-2 mb-3">
@@ -204,7 +204,7 @@ export default function TomorrowQuestHook({ showSuggest, archetype, onPick, crea
                     <button
                       key={text}
                       onClick={() => saveTomorrow(text)}
-                      className="p-2.5 rounded-lg border-2 border-[#0F3460] bg-[#0F3460] hover:border-[#00D4FF] text-left text-xs font-bold text-white leading-snug transition-all"
+                      className="p-2.5 rounded-candy border-2 border-stone bg-cream hover:border-hero-blue text-left text-xs font-bold text-navy leading-snug transition-all"
                     >
                       {text}
                     </button>
@@ -223,12 +223,12 @@ export default function TomorrowQuestHook({ showSuggest, archetype, onPick, crea
                     onChange={(e) => setCustomText(e.target.value)}
                     placeholder="Or write your own..."
                     maxLength={120}
-                    className="flex-1 min-w-0 px-3 py-2 rounded-lg bg-[#0F3460] border-2 border-[#1A1A2E] focus:border-[#00D4FF] text-white text-xs placeholder-[#64748b] outline-none transition-colors"
+                    className="kq-input flex-1 min-w-0 text-xs"
                   />
                   <button
                     type="submit"
                     disabled={!customText.trim()}
-                    className="px-3 py-2 bg-[#00D4FF] hover:bg-[#00BBE6] text-[#0F3460] rounded-lg font-black uppercase text-xs tracking-wide transition-all disabled:opacity-40"
+                    className="kq-btn kq-btn-blue text-xs disabled:opacity-40"
                   >
                     Set
                   </button>

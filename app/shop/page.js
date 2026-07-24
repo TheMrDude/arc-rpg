@@ -55,25 +55,25 @@ export default function ShopPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0F3460] flex items-center justify-center">
-        <div className="text-[#00D4FF] text-2xl font-black" style={{ fontFamily: 'VT323, monospace' }}>
-          ⏳ LOADING...
+      <div className="kidquest min-h-screen bg-cream flex items-center justify-center">
+        <div className="text-hero-blue text-2xl font-bold kq-display">
+          ⏳ Loading...
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0F3460] text-white p-4 md:p-8">
+    <div className="kidquest min-h-screen bg-cream text-navy p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Current Gold Display */}
-        <div className="bg-[#1A1A2E] border-3 border-[#00D4FF] rounded-lg p-6 mb-8">
+        <div className="kq-card p-6 mb-8">
           <div className="flex items-center justify-center gap-3">
             <span className="text-4xl">🪙</span>
             <div className="text-center">
-              <p className="text-sm text-[#00D4FF] font-bold">CURRENT BALANCE</p>
-              <p className="text-4xl font-black text-[#FFD93D]" style={{ fontFamily: 'VT323, monospace' }}>
-                {profile?.gold || 0} GOLD
+              <p className="text-sm text-hero-blue font-bold">Current Balance</p>
+              <p className="text-4xl font-bold text-gold kq-display">
+                {profile?.gold || 0} Gold
               </p>
             </div>
           </div>
@@ -83,35 +83,35 @@ export default function ShopPage() {
         <GoldShop onClose={() => router.push('/dashboard')} />
 
         {/* How to Earn Gold (Free) */}
-        <div className="mt-8 bg-[#1A1A2E] border-2 border-[#00D4FF] border-opacity-30 rounded-lg p-6">
-          <h2 className="text-3xl font-black text-[#FFD93D] mb-4 text-center" style={{ fontFamily: 'VT323, monospace' }}>
-            💎 EARN GOLD FOR FREE
+        <div className="mt-8 kq-card p-6">
+          <h2 className="text-3xl font-bold text-gold mb-4 text-center kq-display">
+            💎 Earn Gold for Free
           </h2>
           <div className="grid md:grid-cols-3 gap-6">
             <div className="text-center">
               <div className="text-5xl mb-3">⚔️</div>
-              <h3 className="font-black text-[#00D4FF] mb-2" style={{ fontFamily: 'VT323, monospace' }}>
-                COMPLETE QUESTS
+              <h3 className="font-bold text-hero-blue mb-2 kq-display">
+                Complete Quests
               </h3>
-              <p className="text-sm text-gray-300">
+              <p className="text-sm text-navy/60">
                 Easy: 10g • Medium: 25g • Hard: 50g per quest
               </p>
             </div>
             <div className="text-center">
               <div className="text-5xl mb-3">🎯</div>
-              <h3 className="font-black text-[#00D4FF] mb-2" style={{ fontFamily: 'VT323, monospace' }}>
-                DAILY BONUSES
+              <h3 className="font-bold text-hero-blue mb-2 kq-display">
+                Daily Bonuses
               </h3>
-              <p className="text-sm text-gray-300">
+              <p className="text-sm text-navy/60">
                 Complete quests daily to earn bonus gold rewards
               </p>
             </div>
             <div className="text-center">
               <div className="text-5xl mb-3">🏆</div>
-              <h3 className="font-black text-[#00D4FF] mb-2" style={{ fontFamily: 'VT323, monospace' }}>
-                LEVEL UP
+              <h3 className="font-bold text-hero-blue mb-2 kq-display">
+                Level Up
               </h3>
-              <p className="text-sm text-gray-300">
+              <p className="text-sm text-navy/60">
                 Unlock bigger quests with better gold rewards
               </p>
             </div>
@@ -122,17 +122,15 @@ export default function ShopPage() {
         <div className="flex justify-center gap-4 mt-8">
           <button
             onClick={() => router.push('/dashboard?tab=equipment')}
-            className="px-6 py-3 rounded-lg font-black uppercase border-3 bg-[#00D4FF] border-[#0F3460] text-[#0F3460] hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1 shadow-[0_3px_0_#0F3460] transition-all"
-            style={{ fontFamily: 'VT323, monospace' }}
+            className="kq-btn kq-btn-blue"
           >
-            ⚔️ EQUIPMENT SHOP
+            ⚔️ Equipment Shop
           </button>
           <button
             onClick={() => router.push('/dashboard')}
-            className="px-6 py-3 rounded-lg font-black uppercase border-3 bg-[#FF6B6B] border-[#8B0000] text-white hover:shadow-[0_5px_0_#8B0000] hover:-translate-y-0.5 active:shadow-[0_1px_0_#8B0000] active:translate-y-1 shadow-[0_3px_0_#8B0000] transition-all"
-            style={{ fontFamily: 'VT323, monospace' }}
+            className="kq-btn kq-btn-ghost"
           >
-            ⬅️ DASHBOARD
+            ⬅️ Dashboard
           </button>
         </div>
       <GlobalFooter />

@@ -39,12 +39,8 @@ function RegionPanel({ region, locked, playerData, onClose, onJourneyChange }) {
 
   return (
     <div
-      className="flex flex-col gap-4 p-5 rounded-xl"
-      style={{
-        background: '#0f172a',
-        border: '1px solid rgba(244,197,83,0.25)',
-        minWidth: 0,
-      }}
+      className="flex flex-col gap-4 p-5 kq-card"
+      style={{ minWidth: 0 }}
     >
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
@@ -52,22 +48,21 @@ function RegionPanel({ region, locked, playerData, onClose, onJourneyChange }) {
           <div className="flex items-center gap-2 mb-1">
             <span className="text-2xl">{region.icon}</span>
             <span
-              className="text-xs font-black uppercase tracking-widest px-2 py-0.5 rounded"
+              className="kq-chip text-xs font-bold px-2 py-0.5"
               style={{
-                background: locked ? 'rgba(239,68,68,0.15)' : 'rgba(34,197,94,0.15)',
-                color: locked ? '#f87171' : '#4ade80',
-                border: `1px solid ${locked ? 'rgba(239,68,68,0.3)' : 'rgba(34,197,94,0.3)'}`,
+                background: locked ? 'rgba(255,123,107,0.15)' : 'rgba(46,196,140,0.15)',
+                color: locked ? '#FF7B6B' : '#2ec48c',
               }}
             >
               {locked ? '🔒 Locked' : '✓ Unlocked'}
             </span>
           </div>
-          <h3 className="text-lg font-black text-white leading-tight">{region.name}</h3>
+          <h3 className="text-lg kq-display text-navy leading-tight">{region.name}</h3>
           <p className="text-xs italic" style={{ color: region.color }}>{region.subtitle}</p>
         </div>
         <button
           onClick={onClose}
-          className="text-gray-500 hover:text-white transition-colors text-lg leading-none flex-shrink-0 mt-1"
+          className="text-navy/40 hover:text-navy transition-colors text-lg leading-none flex-shrink-0 mt-1"
           aria-label="Close"
         >
           ✕
@@ -79,41 +74,41 @@ function RegionPanel({ region, locked, playerData, onClose, onJourneyChange }) {
         {locked ? (
           <div className="relative">
             <p
-              className="text-sm text-gray-300 leading-relaxed italic"
+              className="text-sm text-navy/60 leading-relaxed italic"
               style={{ filter: 'blur(4px)', userSelect: 'none' }}
             >
               {region.lore}
             </p>
             <div
-              className="absolute inset-0 flex items-center justify-center rounded"
-              style={{ background: 'rgba(15,23,42,0.6)' }}
+              className="absolute inset-0 flex items-center justify-center rounded-candy"
+              style={{ background: 'rgba(255,255,255,0.75)' }}
             >
-              <p className="text-xs text-gray-400 text-center px-2">
+              <p className="text-xs text-navy/60 text-center px-2">
                 Complete your quest to reveal the lore of this region.
               </p>
             </div>
           </div>
         ) : (
-          <p className="text-sm text-gray-300 leading-relaxed italic">{region.lore}</p>
+          <p className="text-sm text-navy/70 leading-relaxed italic">{region.lore}</p>
         )}
       </div>
 
       {/* Meta */}
       <div className="space-y-2 text-sm">
         <div className="flex items-center gap-2">
-          <span className="text-gray-500 text-xs uppercase tracking-wide">Theme</span>
-          <span className="text-gray-300">{region.habitTheme}</span>
+          <span className="text-navy/50 text-xs">Theme</span>
+          <span className="text-navy/70">{region.habitTheme}</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-gray-500 text-xs uppercase tracking-wide">Unlock</span>
-          <span className="text-gray-300 text-xs">{region.unlockCondition}</span>
+          <span className="text-navy/50 text-xs">Unlock</span>
+          <span className="text-navy/70 text-xs">{region.unlockCondition}</span>
         </div>
       </div>
 
       {/* Discoveries: hidden landmarks that reveal with quest progress */}
       {!locked && (
         <div>
-          <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Discoveries</p>
+          <p className="text-xs text-navy/50 mb-2">Discoveries</p>
           <div className="space-y-2">
             {getDiscoveriesForRegion(region.id).map((d) => {
               const found = isDiscovered(d, playerData);
@@ -121,16 +116,16 @@ function RegionPanel({ region, locked, playerData, onClose, onJourneyChange }) {
                 <div key={d.id} className="flex items-start gap-2">
                   <span className="text-base leading-none mt-0.5">{d.icon}</span>
                   <div className="min-w-0">
-                    <p className="text-xs font-bold text-white leading-tight">{d.name}</p>
-                    <p className="text-[11px] text-gray-400 italic leading-snug">{d.lore}</p>
+                    <p className="text-xs font-bold text-navy leading-tight">{d.name}</p>
+                    <p className="text-[11px] text-navy/50 italic leading-snug">{d.lore}</p>
                   </div>
                 </div>
               ) : (
                 <div key={d.id} className="flex items-start gap-2 opacity-70">
                   <span className="text-base leading-none mt-0.5">❓</span>
                   <div className="min-w-0">
-                    <p className="text-xs font-bold text-gray-500 leading-tight">Undiscovered</p>
-                    <p className="text-[11px] text-gray-500 italic leading-snug">
+                    <p className="text-xs font-bold text-navy/50 leading-tight">Undiscovered</p>
+                    <p className="text-[11px] text-navy/40 italic leading-snug">
                       {discoveryHint(d, playerData)}
                     </p>
                   </div>
@@ -145,17 +140,17 @@ function RegionPanel({ region, locked, playerData, onClose, onJourneyChange }) {
       {locked && progress && (
         <div>
           <div className="flex justify-between items-center mb-1">
-            <span className="text-xs text-gray-500">Progress</span>
-            <span className="text-xs" style={{ color: '#f4c553' }}>
+            <span className="text-xs text-navy/50">Progress</span>
+            <span className="text-xs font-bold text-gold" style={{ color: '#E8A800' }}>
               {progress.current} / {progress.required} {progress.label}
             </span>
           </div>
-          <div className="w-full rounded-full h-1.5" style={{ background: 'rgba(255,255,255,0.1)' }}>
+          <div className="w-full rounded-full h-1.5 bg-stone">
             <div
               className="h-1.5 rounded-full transition-all"
               style={{
                 width: `${pct}%`,
-                background: 'linear-gradient(to right, #f4c553, #f43f5e)',
+                background: 'linear-gradient(to right, #FFC83D, #FF7B6B)',
               }}
             />
           </div>
@@ -165,18 +160,15 @@ function RegionPanel({ region, locked, playerData, onClose, onJourneyChange }) {
       {/* Journey: choose this region as your heading */}
       {locked && distance && (
         isDestination ? (
-          <div
-            className="rounded-lg px-3 py-2 text-xs font-black uppercase tracking-wide text-center"
-            style={{ background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.4)', color: '#00D4FF' }}
-          >
+          <div className="kq-chip px-3 py-2 text-xs font-bold text-center bg-hero-blue/12 text-hero-blue">
             🧭 En route — {journeyState.progress}/{journeyState.distance} quests traveled
           </div>
         ) : (
           <button
             onClick={setCourse}
             disabled={settingCourse}
-            className="rounded-lg px-3 py-2 text-xs font-black uppercase tracking-wide transition-colors"
-            style={{ background: 'rgba(244,197,83,0.12)', border: '1px solid rgba(244,197,83,0.45)', color: '#f4c553', cursor: settingCourse ? 'wait' : 'pointer' }}
+            className="kq-btn kq-btn-gold text-xs"
+            style={{ cursor: settingCourse ? 'wait' : 'pointer' }}
           >
             {settingCourse ? 'Charting course…' : `🧭 Set Course — ${distance} quests of travel`}
           </button>
@@ -217,15 +209,12 @@ function FrontierSection({ playerData, onJourneyChange }) {
   };
 
   return (
-    <div
-      className="mt-4 rounded-xl p-5"
-      style={{ background: 'rgba(15,23,42,0.6)', border: '1px solid rgba(167,139,250,0.25)' }}
-    >
+    <div className="mt-4 kq-card p-5">
       <div className="flex items-center justify-between gap-2 flex-wrap mb-2">
-        <h3 className="text-sm font-black uppercase tracking-widest" style={{ color: '#a78bfa' }}>
+        <h3 className="text-sm kq-display text-purple">
           🌌 Beyond the Edge
         </h3>
-        <span className="text-[10px] uppercase tracking-widest text-gray-500">
+        <span className="text-[10px] text-navy/40">
           The world never ends
         </span>
       </div>
@@ -235,8 +224,8 @@ function FrontierSection({ playerData, onJourneyChange }) {
           {reached.map((r) => (
             <span
               key={r.id}
-              className="text-[11px] font-bold px-2.5 py-1 rounded-full"
-              style={{ background: `${r.color}22`, border: `1px solid ${r.color}66`, color: r.color }}
+              className="kq-chip text-[11px] font-bold px-2.5 py-1"
+              style={{ background: `${r.color}22`, color: r.color }}
             >
               {r.icon} {r.name}
             </span>
@@ -246,25 +235,22 @@ function FrontierSection({ playerData, onJourneyChange }) {
 
       <div className="flex flex-col sm:flex-row sm:items-center gap-3">
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-black text-white">
+          <p className="text-sm font-bold text-navy">
             {next.icon} {next.name}
           </p>
           <p className="text-xs italic mt-0.5" style={{ color: next.color }}>{next.subtitle}</p>
-          <p className="text-xs text-gray-400 mt-1">{next.lore}</p>
+          <p className="text-xs text-navy/50 mt-1">{next.lore}</p>
         </div>
         {enRoute ? (
-          <div
-            className="rounded-lg px-3 py-2 text-xs font-black uppercase tracking-wide text-center flex-shrink-0"
-            style={{ background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.4)', color: '#00D4FF' }}
-          >
+          <div className="kq-chip px-3 py-2 text-xs font-bold text-center flex-shrink-0 bg-hero-blue/12 text-hero-blue">
             🧭 En route — {journeyState.progress}/{journeyState.distance}
           </div>
         ) : (
           <button
             onClick={setCourse}
             disabled={settingCourse}
-            className="rounded-lg px-3 py-2 text-xs font-black uppercase tracking-wide flex-shrink-0 transition-colors"
-            style={{ background: 'rgba(167,139,250,0.12)', border: '1px solid rgba(167,139,250,0.5)', color: '#a78bfa', cursor: settingCourse ? 'wait' : 'pointer' }}
+            className="kq-btn kq-btn-ghost text-xs flex-shrink-0"
+            style={{ cursor: settingCourse ? 'wait' : 'pointer' }}
           >
             {settingCourse ? 'Charting course…' : `🧭 Set Course — ${next.distance} quests`}
           </button>
@@ -307,20 +293,12 @@ export default function WorldMap({ playerData, isDM, onJourneyChange }) {
           <div className="flex items-center justify-between mb-3">
             <button
               onClick={() => setDmView(v => !v)}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-wide transition-all"
-              style={{
-                background: dmView ? 'rgba(244,197,83,0.2)' : 'rgba(255,255,255,0.05)',
-                border: dmView ? '1px solid rgba(244,197,83,0.5)' : '1px solid rgba(255,255,255,0.1)',
-                color: dmView ? '#f4c553' : '#9ca3af',
-              }}
+              className={`kq-btn text-xs ${dmView ? 'kq-btn-gold' : 'kq-btn-ghost'}`}
             >
               👁 {dmView ? 'DM View ON' : 'DM View OFF'}
             </button>
             {dmView && (
-              <span
-                className="text-xs font-black uppercase tracking-widest px-2 py-1 rounded"
-                style={{ background: 'rgba(244,197,83,0.15)', color: '#f4c553', border: '1px solid rgba(244,197,83,0.3)' }}
-              >
+              <span className="kq-chip text-xs font-bold px-2 py-1 bg-gold/15 text-navy">
                 DM ONLY
               </span>
             )}
@@ -436,16 +414,16 @@ export default function WorldMap({ playerData, isDM, onJourneyChange }) {
                     style={{
                       borderRadius: '3px',
                       border: selected
-                        ? '2px solid #f4c553'
+                        ? '2px solid #FFC83D'
                         : hovered
-                        ? '1px solid rgba(244,197,83,0.6)'
+                        ? '1px solid rgba(255,200,61,0.6)'
                         : '1px solid transparent',
                       background: selected
-                        ? 'rgba(244,197,83,0.18)'
+                        ? 'rgba(255,200,61,0.18)'
                         : hovered
-                        ? 'rgba(244,197,83,0.08)'
+                        ? 'rgba(255,200,61,0.08)'
                         : 'transparent',
-                      boxShadow: selected ? '0 0 12px rgba(244,197,83,0.3)' : 'none',
+                      boxShadow: selected ? '0 0 12px rgba(255,200,61,0.3)' : 'none',
                     }}
                   />
                 )}
@@ -456,8 +434,8 @@ export default function WorldMap({ playerData, isDM, onJourneyChange }) {
                     className="absolute -top-6 left-1/2 -translate-x-1/2 whitespace-nowrap px-2 py-0.5 rounded text-white z-20 pointer-events-none"
                     style={{
                       fontSize: 'clamp(7px, 1vw, 11px)',
-                      background: 'rgba(15,23,42,0.9)',
-                      border: '1px solid rgba(244,197,83,0.3)',
+                      background: 'rgba(36,59,90,0.92)',
+                      border: '1px solid rgba(255,200,61,0.4)',
                     }}
                   >
                     {region.icon} {region.name}
@@ -469,16 +447,16 @@ export default function WorldMap({ playerData, isDM, onJourneyChange }) {
         </div>
 
         {/* Legend */}
-        <div className="flex flex-wrap items-center gap-3 mt-3 text-xs text-gray-500">
+        <div className="flex flex-wrap items-center gap-3 mt-3 text-xs text-navy/50">
           <span className="flex items-center gap-1">
-            <span className="inline-block w-3 h-3 rounded-sm" style={{ background: 'rgba(244,197,83,0.3)', border: '1px solid #f4c553' }} />
+            <span className="inline-block w-3 h-3 rounded-sm" style={{ background: 'rgba(255,200,61,0.3)', border: '1px solid #FFC83D' }} />
             Unlocked region
           </span>
           <span className="flex items-center gap-1">
-            <span className="inline-block w-3 h-3 rounded-sm" style={{ background: 'rgba(0,0,0,0.72)' }} />
+            <span className="inline-block w-3 h-3 rounded-sm" style={{ background: 'rgba(36,59,90,0.55)' }} />
             Locked. Click to see unlock condition
           </span>
-          <span className="ml-auto text-gray-600 italic">
+          <span className="ml-auto text-navy/40 italic">
             LVL {playerData?.level || 1} · {playerData?.totalCheckins || 0} check-ins · 🧭 {getDiscoveryCounts(playerData).found}/{getDiscoveryCounts(playerData).total} discoveries
           </span>
         </div>
@@ -501,18 +479,12 @@ export default function WorldMap({ playerData, isDM, onJourneyChange }) {
             onClose={() => setSelectedRegion(null)}
           />
         ) : (
-          <div
-            className="rounded-xl p-5 text-center"
-            style={{
-              background: 'rgba(15,23,42,0.6)',
-              border: '1px solid rgba(244,197,83,0.1)',
-            }}
-          >
+          <div className="kq-card p-5 text-center">
             <div className="text-3xl mb-2">🗺️</div>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-navy/60">
               Click any region on the map to explore it.
             </p>
-            <p className="text-xs text-gray-600 mt-2">
+            <p className="text-xs text-navy/40 mt-2">
               Unlock new territories by building your habits.
             </p>
           </div>

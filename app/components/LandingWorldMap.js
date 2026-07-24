@@ -27,9 +27,9 @@ function RegionMarker({ region, revealed }) {
           width: 'clamp(20px, 3.5vw, 30px)',
           height: 'clamp(20px, 3.5vw, 30px)',
           fontSize: 'clamp(10px, 1.8vw, 15px)',
-          background: revealed ? 'rgba(244,197,83,0.18)' : 'rgba(2,6,23,0.6)',
-          border: revealed ? '1px solid rgba(244,197,83,0.7)' : '1px solid rgba(148,163,184,0.3)',
-          boxShadow: revealed ? '0 0 12px rgba(244,197,83,0.45)' : 'none',
+          background: revealed ? 'rgba(255,200,61,0.22)' : 'rgba(36,59,90,0.12)',
+          border: revealed ? '1px solid rgba(255,200,61,0.8)' : '1px solid rgba(36,59,90,0.25)',
+          boxShadow: revealed ? '0 0 12px rgba(255,200,61,0.35)' : 'none',
         }}
       >
         {revealed ? region.icon : '🔒'}
@@ -45,12 +45,10 @@ export function HeroWorldMap() {
   return (
     <div className="relative mx-auto w-full max-w-[340px] sm:max-w-[380px]">
       <div
-        className="relative w-full overflow-hidden rounded-2xl rotate-2"
+        className="relative w-full overflow-hidden rounded-candy rotate-2 shadow-candy-lg"
         style={{
           aspectRatio: '3/4',
-          border: '1px solid rgba(34,211,238,0.45)',
-          boxShadow:
-            '0 0 50px rgba(34,211,238,0.22), 0 0 120px rgba(244,197,83,0.08), 0 25px 50px -12px rgba(0,0,0,0.7)',
+          border: '3px solid white',
         }}
       >
         <Image
@@ -70,11 +68,11 @@ export function HeroWorldMap() {
           className="absolute inset-0 pointer-events-none"
           style={{
             background:
-              'radial-gradient(ellipse at 50% 45%, transparent 55%, rgba(2,6,23,0.35) 100%)',
+              'radial-gradient(ellipse at 50% 45%, transparent 55%, rgba(36,59,90,0.2) 100%)',
           }}
         />
       </div>
-      <p className="mt-4 text-center text-sm italic text-gray-400">
+      <p className="mt-4 text-center text-sm italic text-navy/60">
         Your habits, as a world you conquer.
       </p>
     </div>
@@ -87,11 +85,10 @@ export function HeroWorldMap() {
 function PanningWorldMap() {
   return (
     <div
-      className="relative w-full overflow-hidden rounded-2xl"
+      className="relative w-full overflow-hidden rounded-candy shadow-candy-lg"
       style={{
         aspectRatio: '16/9',
-        border: '1px solid rgba(34,211,238,0.35)',
-        boxShadow: '0 0 60px rgba(34,211,238,0.15), 0 20px 40px -12px rgba(0,0,0,0.6)',
+        border: '3px solid white',
       }}
     >
       <div className="absolute inset-x-0 top-0 animate-world-map-pan" style={{ aspectRatio: '3/4' }}>
@@ -111,7 +108,7 @@ function PanningWorldMap() {
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            'linear-gradient(to bottom, rgba(2,6,23,0.35) 0%, transparent 20%, transparent 80%, rgba(2,6,23,0.45) 100%)',
+            'linear-gradient(to bottom, rgba(36,59,90,0.2) 0%, transparent 20%, transparent 80%, rgba(36,59,90,0.25) 100%)',
         }}
       />
     </div>
@@ -126,13 +123,10 @@ function DayPanel({ label, labelColor, fogged, sublabel }) {
   return (
     <div className="flex flex-col">
       <div
-        className="relative w-full overflow-hidden rounded-xl"
+        className="relative w-full overflow-hidden rounded-candy shadow-candy"
         style={{
           aspectRatio: '3/4',
-          border: `1px solid ${fogged ? 'rgba(148,163,184,0.25)' : 'rgba(244,197,83,0.5)'}`,
-          boxShadow: fogged
-            ? '0 10px 30px -10px rgba(0,0,0,0.6)'
-            : '0 0 40px rgba(244,197,83,0.18), 0 10px 30px -10px rgba(0,0,0,0.6)',
+          border: `2px solid ${fogged ? '#ECE7DD' : '#FFC83D'}`,
         }}
       >
         <Image
@@ -149,7 +143,7 @@ function DayPanel({ label, labelColor, fogged, sublabel }) {
             <div
               className="absolute inset-0 pointer-events-none"
               style={{
-                background: `radial-gradient(circle at ${start.hotspot.x + start.hotspot.w / 2}% ${start.hotspot.y + start.hotspot.h / 2}%, rgba(2,6,23,0) 0%, rgba(2,6,23,0) 10%, rgba(2,6,23,0.7) 20%, rgba(2,6,23,0.95) 32%)`,
+                background: `radial-gradient(circle at ${start.hotspot.x + start.hotspot.w / 2}% ${start.hotspot.y + start.hotspot.h / 2}%, rgba(36,59,90,0) 0%, rgba(36,59,90,0) 10%, rgba(36,59,90,0.65) 20%, rgba(36,59,90,0.9) 32%)`,
               }}
             />
             <RegionMarker region={start} revealed />
@@ -160,17 +154,15 @@ function DayPanel({ label, labelColor, fogged, sublabel }) {
           ))
         )}
         <span
-          className="absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest"
+          className="absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-bold kq-navy"
           style={{
-            background: 'rgba(2,6,23,0.85)',
-            border: `1px solid ${labelColor}`,
             color: labelColor,
           }}
         >
           {label}
         </span>
       </div>
-      <p className="mt-3 text-center text-sm text-gray-400">{sublabel}</p>
+      <p className="mt-3 text-center text-sm text-navy/60">{sublabel}</p>
     </div>
   );
 }
@@ -186,12 +178,12 @@ export function TerritorySection() {
         viewport={{ once: true }}
         className="max-w-4xl mx-auto"
       >
-        <h2 className="text-3xl sm:text-5xl font-black text-center mb-6">
-          <span className="bg-gradient-to-r from-[#22d3ee] to-[#f4c553] bg-clip-text text-transparent">
+        <h2 className="kq-display text-3xl sm:text-5xl text-center mb-6">
+          <span className="bg-gradient-to-r from-hero-blue to-gold bg-clip-text text-transparent">
             Every habit you complete unlocks territory.
           </span>
         </h2>
-        <p className="text-lg sm:text-xl text-gray-300 leading-relaxed text-center max-w-3xl mx-auto mb-10">
+        <p className="text-lg sm:text-xl text-navy/70 leading-relaxed text-center max-w-3xl mx-auto mb-10">
           HabitQuest isn&apos;t a checklist. It&apos;s a campaign. Complete your real-life habits
           and your character pushes deeper into the world map, unlocking regions, story beats,
           and boss battles. Miss a day? The map waits for you. No territory lost, no guilt,
@@ -204,28 +196,28 @@ export function TerritorySection() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-3xl mx-auto mt-12">
           <DayPanel
             label="Day 1"
-            labelColor="#f43f5e"
+            labelColor="#FF7B6B"
             fogged
             sublabel="One region unlocked. The rest waits in the fog."
           />
           <DayPanel
             label="Day 90"
-            labelColor="#f4c553"
+            labelColor="#FFC83D"
             sublabel="Every region revealed. Every boss on notice."
           />
         </div>
-        <p className="text-center text-lg sm:text-xl font-bold text-[#f4c553] mt-6">
+        <p className="text-center text-lg sm:text-xl font-bold text-gold mt-6">
           This is what 90 days of showing up looks like.
         </p>
 
         <div className="text-center mt-10">
           <Link
             href="/signup"
-            className="inline-block px-10 py-5 bg-[#FF6B35] hover:bg-[#E55A2B] text-white border-3 border-[#0F3460] rounded-xl font-black text-xl uppercase tracking-wide shadow-lg transition-all hover:scale-105"
+            className="kq-btn kq-btn-gold inline-block px-10 py-5 text-xl transition-all hover:scale-105"
           >
             🗺️ Start Your Campaign Free
           </Link>
-          <p className="mt-3 text-gray-400 text-sm">Free forever. No credit card required.</p>
+          <p className="mt-3 text-navy/50 text-sm">Free forever. No credit card required.</p>
         </div>
       </motion.div>
     </section>
