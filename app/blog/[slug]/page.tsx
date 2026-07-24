@@ -9,24 +9,43 @@ export async function generateStaticParams() {
   return slugs.map((slug) => ({ slug }));
 }
 
+const SITE_URL = 'https://habitquest.dev';
+const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`;
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   try {
     const post = await getPostBySlug(slug);
+    const url = `${SITE_URL}/blog/${slug}`;
+    // Per-post image if the frontmatter carries one, else the sitewide OG
+    // image (1200x630). Pinterest/social use this as the share preview, so it
+    // must never be empty.
+    const ogImage = post.image
+      ? (post.image.startsWith('http') ? post.image : `${SITE_URL}${post.image}`)
+      : DEFAULT_OG_IMAGE;
     return {
       title: `${post.title} | HabitQuest Blog`,
       description: post.description,
+      keywords: post.keywords,
+      alternates: { canonical: url },
       openGraph: {
         title: post.title,
         description: post.description,
-        url: `https://habitquest.dev/blog/${slug}`,
+        url,
         siteName: 'HabitQuest',
         type: 'article',
         publishedTime: post.date,
+        modifiedTime: post.dateModified,
         authors: [post.author],
         tags: post.tags,
+        images: [{ url: ogImage, width: 1200, height: 630, alt: post.title }],
       },
-      twitter: { card: 'summary_large_image', title: post.title, description: post.description },
+      twitter: {
+        card: 'summary_large_image',
+        title: post.title,
+        description: post.description,
+        images: [ogImage],
+      },
     };
   } catch {
     return { title: 'Post Not Found | HabitQuest Blog' };
@@ -47,16 +66,26 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
     notFound();
   }
 
+  const postUrl = `https://habitquest.dev/blog/${slug}`;
+  const ogImage = post.image
+    ? (post.image.startsWith('http') ? post.image : `https://habitquest.dev${post.image}`)
+    : 'https://habitquest.dev/og-image.png';
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Article",
     headline: post.title,
-    datePublished: post.date,
-    dateModified: post.date,
-    author: { "@type": "Person", name: "Dan", url: "https://habitquest.dev" },
-    publisher: { "@type": "Organization", name: "HabitQuest", url: "https://habitquest.dev" },
     description: post.description || post.title,
-    mainEntityOfPage: `https://habitquest.dev/blog/${slug}`,
+    image: ogImage,
+    datePublished: post.date,
+    dateModified: post.dateModified,
+    author: { "@type": "Organization", name: post.author, url: "https://habitquest.dev" },
+    publisher: {
+      "@type": "Organization",
+      name: "HabitQuest",
+      url: "https://habitquest.dev",
+      logo: { "@type": "ImageObject", url: "https://habitquest.dev/icons/icon-192x192.png" },
+    },
+    mainEntityOfPage: { "@type": "WebPage", "@id": postUrl },
   };
 
   return (
