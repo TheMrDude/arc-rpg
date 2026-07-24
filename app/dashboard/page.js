@@ -52,6 +52,7 @@ import ChroniclePanel from '@/app/components/ChroniclePanel';
 import QuestInputRedesigned from '@/app/components/QuestInputRedesigned';
 import StarterQuestPicker from '@/app/components/StarterQuestPicker';
 import ComebackMoment from '@/app/components/ComebackMoment';
+import { WoundedStreakBanner, StreakResetCard, SecondWindCelebration } from '@/app/components/SecondWindUI';
 import TomorrowQuestHook from '@/app/components/TomorrowQuestHook';
 import AchievementNotification from '@/app/components/AchievementNotification';
 import FirstTimeEmptyState from '@/app/components/FirstTimeEmptyState';
@@ -155,6 +156,11 @@ export default function DashboardPage() {
   // Unlock toast states
   const [newUnlocks, setNewUnlocks] = useState([]);
 
+  // Second Wind streak state (HEALTHY / WOUNDED / RESET) + reignition modal
+  const [streakState, setStreakState] = useState(null);
+  const [showSecondWind, setShowSecondWind] = useState(false);
+  const [secondWindData, setSecondWindData] = useState(null);
+
   // Welcome Quest chain refresh (bumped after completions/reflections so the
   // chain card re-fetches and shows newly advanced steps)
   const [chainRefresh, setChainRefresh] = useState(0);
@@ -189,6 +195,13 @@ export default function DashboardPage() {
     }
   }, [user]);
 
+  // Load Second Wind streak state (and backfill the user's timezone)
+  useEffect(() => {
+    if (user) {
+      loadStreakState();
+    }
+  }, [user]);
+
   // Check for new unlocks when profile changes
   useEffect(() => {
     if (profile && user) {
@@ -211,6 +224,29 @@ export default function DashboardPage() {
     } catch (err) {
       // Table may not exist yet
       setActiveEffects([]);
+    }
+  }
+
+  // Fetch the live streak state and report the browser's timezone so day
+  // boundaries use the user's local calendar (spec §2).
+  async function loadStreakState() {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) return;
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const res = await fetch('/api/streak/state', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ timezone }),
+      });
+      if (res.ok) {
+        setStreakState(await res.json());
+      }
+    } catch (err) {
+      // Non-critical; the dashboard renders fine without the streak banner.
     }
   }
 
@@ -459,6 +495,18 @@ export default function DashboardPage() {
         storyBeat: data.story_beat || bossHitLine || null
       });
       setShowQuestCelebration(true);
+
+      // Second Wind: a recovering completion gets its own reignition moment,
+      // distinct from the normal completion celebration.
+      if (rewards.second_wind) {
+        setSecondWindData({
+          multiplier: rewards.second_wind_multiplier,
+          streak: data.profile?.current_streak,
+        });
+        setShowSecondWind(true);
+      }
+      // Refresh the streak banner/state after any completion.
+      loadStreakState();
 
       // Newly unlocked achievements (best-effort server check). Mapped to the
       // AchievementNotification prop shape once, so queue items stay stable.
@@ -985,6 +1033,24 @@ export default function DashboardPage() {
       <div className="min-h-screen bg-gradient-to-br from-[#1A1A2E] via-[#16213e] to-[#0F3460] text-white p-4 sm:p-8 pb-24 md:pb-8">
       <div className="max-w-4xl mx-auto">
 
+        {/* Second Wind streak banners (kid-first candy UI). WOUNDED shows a
+            live recovery countdown; RESET is forward-looking only. */}
+        {streakState?.state === 'wounded' && (
+          <div className="mb-4">
+            <WoundedStreakBanner
+              habitName={quests.find((q) => !q.completed)?.transformed_text || 'a quest'}
+              windowExpiresAt={streakState.window_expires_at}
+              timeRemainingMs={streakState.time_remaining_ms}
+              onAct={() => setActiveTab('quests')}
+            />
+          </div>
+        )}
+        {streakState?.state === 'reset' && (
+          <div className="mb-4">
+            <StreakResetCard longestStreak={streakState.longest_streak || 0} />
+          </div>
+        )}
+
         {/* Top Navigation Bar */}
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2 flex-wrap">
@@ -1439,6 +1505,15 @@ export default function DashboardPage() {
           rewards={celebrationData.rewards}
           questTitle={celebrationData.questTitle}
           storyBeat={celebrationData.storyBeat}
+        />
+      )}
+
+      {/* Second Wind reignition (distinct from the normal completion modal) */}
+      {showSecondWind && secondWindData && (
+        <SecondWindCelebration
+          multiplier={secondWindData.multiplier}
+          streak={secondWindData.streak}
+          onClose={() => setShowSecondWind(false)}
         />
       )}
 

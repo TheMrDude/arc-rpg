@@ -7,6 +7,7 @@ import { getIsoWeekKey } from '@/lib/date-utils';
 import { MOMENTUM_GOAL_DAYS } from '@/lib/momentum';
 import { advanceWelcomeChain } from '@/lib/quest-chain';
 import { getStoryBeat } from '@/lib/storyBeats';
+import { applyCompletion } from '@/lib/secondWind';
 
 const MOMENTUM_BONUS_XP = 25;
 
@@ -132,9 +133,13 @@ export async function POST(request) {
       }
     }
 
-    // Calculate comeback bonus
-    const comebackBonus = checkComebackBonus(profile.last_quest_date);
-    const bonusXP = comebackBonus ? 20 : 0;
+    // Second Wind streak resolution. Replaces the legacy flat +20 comeback
+    // bonus: the timezone-aware state machine (lib/secondWind.js) resolves
+    // the HEALTHY/WOUNDED/RESET transition and returns the XP multiplier
+    // (1.5x on a recovering completion). It feeds the existing XP path below
+    // and never touches the leveling curve.
+    const now = new Date();
+    const secondWind = applyCompletion(profile, now);
 
     // Check for active effects (bonus_xp, double_xp from encounters)
     let effectBonusXP = 0;
@@ -161,15 +166,18 @@ export async function POST(request) {
       // active_effects table may not exist yet — ignore
     }
 
-    // Calculate total XP with equipment bonuses + active effects
-    const baseXP = quest.xp_value + bonusXP + effectBonusXP;
-    const totalXP = Math.floor(baseXP * xpMultiplier * effectMultiplier);
-    const equipmentBonus = totalXP - baseXP;
+    // Calculate total XP: base + active effects, scaled by equipment/effect
+    // multipliers, then the Second Wind multiplier (1.5x only on a recovery).
+    const baseXP = quest.xp_value + effectBonusXP;
+    const multipliedXP = Math.floor(baseXP * xpMultiplier * effectMultiplier);
+    const totalXP = Math.floor(multipliedXP * secondWind.multiplier);
+    const equipmentBonus = multipliedXP - baseXP;
+    const secondWindBonusXP = totalXP - multipliedXP;
 
-    // Calculate new level and streak
+    // Calculate new level (curve unchanged: floor(xp/100)+1) and streak
     const newXP = profile.xp + totalXP;
     const newLevel = Math.floor(newXP / 100) + 1;
-    const newStreak = calculateStreak(profile.last_quest_date, profile.current_streak);
+    const newStreak = secondWind.newStreak;
 
     // Calculate skill points: Award 1 skill point every 5 levels
     const oldLevel = profile.level;
@@ -191,14 +199,34 @@ export async function POST(request) {
         xp: newXP,
         level: newLevel,
         current_streak: newStreak,
-        longest_streak: Math.max(newStreak, profile.longest_streak || 0),
-        last_quest_date: new Date().toISOString(),
+        longest_streak: secondWind.longestStreak,
+        streak_state: secondWind.newState,
+        // A completion resolves any open recovery window.
+        streak_window_expires_at: null,
+        second_wind_last_used_at: secondWind.secondWindUsedAt,
+        second_wind_count: secondWind.secondWindCount,
+        last_quest_date: now.toISOString(),
         current_story_thread: storyUpdates.currentThread,
         story_progress: storyUpdates.storyProgress,
         skill_points: newSkillPoints,
         total_skill_points_earned: newTotalSkillPoints,
       })
       .eq('id', user.id);
+
+    // Log the Second Wind recovery (best-effort) so the count is auditable
+    // and the future "Phoenix" badge can query recovery history.
+    if (secondWind.secondWindTriggered) {
+      try {
+        await supabaseAdmin.from('second_wind_events').insert({
+          user_id: user.id,
+          streak_preserved: newStreak,
+          quest_id: quest_id,
+        });
+      } catch (err) {
+        // Event log is non-critical; completion always succeeds regardless.
+        console.error('Failed to log Second Wind event:', err);
+      }
+    }
 
     // Award gold using atomic transaction
     const { data: goldTransaction, error: goldError } = await supabaseAdmin
@@ -620,7 +648,11 @@ export async function POST(request) {
         xp: totalXP,
         base_xp: baseXP,
         equipment_bonus_xp: equipmentBonus,
-        comeback_bonus: comebackBonus,
+        // Second Wind: a recovering completion earns the configurable
+        // multiplier; the client renders a distinct reignition celebration.
+        second_wind: secondWind.secondWindTriggered,
+        second_wind_multiplier: secondWind.secondWindTriggered ? secondWind.multiplier : 1,
+        second_wind_bonus_xp: secondWindBonusXP,
         gold: goldReward,
         new_level: finalLevel,
         level_up: finalLevel > profile.level,
@@ -634,6 +666,8 @@ export async function POST(request) {
         level: finalLevel,
         gold: newGoldBalance,
         current_streak: newStreak,
+        longest_streak: secondWind.longestStreak,
+        streak_state: secondWind.newState,
         skill_points: newSkillPoints,
       },
       story: {
@@ -759,30 +793,4 @@ async function updateStoryProgress(profile, quest) {
     currentThread: newCurrentThread,
     storyProgress: storyProgress
   };
-}
-
-// Helper: Check if user gets comeback bonus
-function checkComebackBonus(lastQuestDate) {
-  if (!lastQuestDate) return false;
-
-  const last = new Date(lastQuestDate);
-  const now = new Date();
-  const daysSince = Math.floor((now - last) / (1000 * 60 * 60 * 24));
-
-  return daysSince >= 7; // 1+ weeks since last quest
-}
-
-// Helper: Calculate streak
-function calculateStreak(lastQuestDate, currentStreak) {
-  if (!lastQuestDate) return 1;
-
-  const last = new Date(lastQuestDate);
-  const now = new Date();
-  const daysSince = Math.floor((now - last) / (1000 * 60 * 60 * 24));
-
-  if (daysSince === 0 || daysSince === 1) {
-    return (currentStreak || 0) + 1;
-  }
-
-  return 1; // Streak broken
 }
