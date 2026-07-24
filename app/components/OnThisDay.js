@@ -56,11 +56,11 @@ export default function OnThisDay() {
 
   if (isLoading) {
     return (
-      <div className="bg-gradient-to-br from-[#0F3460] to-[#1A1A2E] border-2 border-[#FFD93D] border-opacity-40 rounded-lg p-6 animate-pulse">
-        <div className="h-6 bg-[#FFD93D] bg-opacity-20 rounded w-1/3 mb-4"></div>
+      <div className="kq-card border-2 border-gold/40 p-6 animate-pulse">
+        <div className="h-6 bg-gold/20 rounded-full w-1/3 mb-4"></div>
         <div className="space-y-3">
-          <div className="h-4 bg-[#FFD93D] bg-opacity-20 rounded"></div>
-          <div className="h-4 bg-[#FFD93D] bg-opacity-20 rounded w-5/6"></div>
+          <div className="h-4 bg-gold/20 rounded-full"></div>
+          <div className="h-4 bg-gold/20 rounded-full w-5/6"></div>
         </div>
       </div>
     );
@@ -84,15 +84,15 @@ export default function OnThisDay() {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-gradient-to-br from-[#0F3460] to-[#1A1A2E] border-2 border-[#FFD93D] border-opacity-50 rounded-lg p-6 shadow-[0_0_25px_rgba(255,217,61,0.15)]"
+      className="kq-card border-2 border-gold/40 p-6"
     >
       <div className="flex items-center gap-3 mb-4">
         <span className="text-4xl">🕰️</span>
         <div>
-          <h3 className="text-xl font-black text-[#FFD93D]" style={{ fontFamily: 'VT323, monospace' }}>
-            ON THIS DAY
+          <h3 className="kq-display text-xl text-navy">
+            On This Day
           </h3>
-          <p className="text-xs text-[#00D4FF] font-bold">{formattedDate}</p>
+          <p className="text-xs text-hero-blue font-bold">{formattedDate}</p>
         </div>
       </div>
 
@@ -103,12 +103,12 @@ export default function OnThisDay() {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.1 }}
-            className="bg-[#1A1A2E] bg-opacity-60 backdrop-blur-sm rounded-lg p-4 border border-[#FFD93D] border-opacity-30"
+            className="bg-cream rounded-candy p-4 border border-gold/30"
           >
             <div className="flex items-start justify-between mb-2">
               <div className="flex items-center gap-2">
                 <span className="text-2xl">⏳</span>
-                <p className="text-sm font-black text-[#FFD93D]">
+                <p className="text-sm font-black text-gold">
                   {entry.years_ago} {entry.years_ago === 1 ? 'year' : 'years'} ago
                 </p>
               </div>
@@ -123,16 +123,16 @@ export default function OnThisDay() {
               <div>
                 <div className="flex items-center gap-1 mb-2">
                   <span className="text-sm">✨</span>
-                  <p className="text-xs font-bold text-[#FF6B6B] uppercase">Your Epic Tale</p>
+                  <p className="text-xs font-bold text-coral">Your Epic Tale</p>
                 </div>
-                <p className="text-white text-sm leading-relaxed italic">
+                <p className="text-navy text-sm leading-relaxed italic">
                   {entry.transformed_narrative.length > 250
                     ? entry.transformed_narrative.substring(0, 250) + '...'
                     : entry.transformed_narrative}
                 </p>
               </div>
             ) : (
-              <p className="text-gray-300 text-sm leading-relaxed">
+              <p className="text-navy/60 text-sm leading-relaxed">
                 {entry.entry_text.length > 200
                   ? entry.entry_text.substring(0, 200) + '...'
                   : entry.entry_text}
@@ -142,9 +142,9 @@ export default function OnThisDay() {
         ))}
       </div>
 
-      <div className="mt-4 pt-4 border-t border-[#FFD93D] border-opacity-30">
-        <p className="text-xs text-[#00D4FF] italic text-center">
-          "The hero's journey is marked not by destinations, but by reflections along the path."
+      <div className="mt-4 pt-4 border-t border-gold/30">
+        <p className="text-xs text-hero-blue italic text-center">
+          "Every reflection is part of your story."
         </p>
       </div>
     </motion.div>

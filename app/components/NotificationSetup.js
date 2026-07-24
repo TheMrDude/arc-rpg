@@ -95,24 +95,24 @@ export default function NotificationSetup({ userId }) {
 
   return (
     <div className="fixed bottom-8 right-8 z-50 max-w-sm animate-slide-up">
-      <div className="bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl shadow-2xl p-6 border-2 border-yellow-400">
+      <div className="kq-card p-6 border-2 border-gold">
         <div className="flex items-start gap-4">
           <div className="text-4xl">🔔</div>
           <div className="flex-1">
-            <h3 className="text-white font-bold mb-2">Never Miss Your Quests!</h3>
-            <p className="text-white/90 text-sm mb-4">
-              Get daily reminders to keep your momentum going and level up faster.
+            <h3 className="kq-display text-navy font-bold mb-2">Never Miss Your Quests!</h3>
+            <p className="text-navy/70 text-sm mb-4">
+              Get friendly daily reminders to keep your momentum going and level up faster.
             </p>
             <div className="flex gap-2">
               <button
                 onClick={handleEnableNotifications}
-                className="flex-1 px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-black rounded-lg font-semibold text-sm transition"
+                className="kq-btn kq-btn-gold flex-1 text-sm"
               >
                 Enable Reminders
               </button>
               <button
                 onClick={handleDismiss}
-                className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg text-sm transition"
+                className="kq-btn kq-btn-ghost text-sm"
               >
                 Maybe Later
               </button>

@@ -80,7 +80,7 @@ export default function ComebackMoment({ profile, onPick, creating }) {
         >
           {/* Backdrop */}
           <motion.div
-            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+            className="absolute inset-0 bg-navy/60 backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -89,7 +89,7 @@ export default function ComebackMoment({ profile, onPick, creating }) {
 
           {/* Card */}
           <motion.div
-            className="relative bg-gradient-to-br from-[#1A1A2E] via-[#16213e] to-[#0F3460] rounded-3xl border-4 border-[#00D4FF] shadow-[0_0_40px_rgba(0,212,255,0.35)] max-w-md w-full p-8 text-center"
+            className="relative kq-card border-2 border-stone max-w-md w-full p-8 text-center"
             initial={{ scale: 0.85, opacity: 0, y: 30 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -104,33 +104,33 @@ export default function ComebackMoment({ profile, onPick, creating }) {
               🌅
             </motion.div>
 
-            <p className="text-xs font-bold uppercase tracking-widest text-[#94a3b8] mb-2">
+            <p className="text-xs font-bold text-navy/50 mb-2">
               It has been a minute.
             </p>
 
-            <h2 className="text-3xl font-black uppercase tracking-wide text-[#FFD93D] mb-3">
+            <h2 className="kq-display text-3xl font-black text-hero-blue mb-3">
               The {archetypeName} Returns.
             </h2>
 
-            <p className="text-[#E2E8F0] mb-6">
+            <p className="text-navy/70 mb-6">
               Your XP held. Your map held. The campaign continues.
             </p>
 
             {/* Proof nothing was lost */}
             <div className="grid grid-cols-2 gap-3 mb-6">
-              <div className="bg-[#0F3460] border-2 border-[#1A1A2E] rounded-xl p-3">
-                <div className="text-2xl font-black text-[#00D4FF]">
+              <div className="bg-cream border-2 border-stone rounded-2xl p-3">
+                <div className="text-2xl font-black text-hero-blue">
                   {profile.level || 1}
                 </div>
-                <div className="text-[10px] font-bold uppercase tracking-widest text-[#94a3b8]">
+                <div className="text-[10px] font-bold text-navy/50">
                   Level, intact
                 </div>
               </div>
-              <div className="bg-[#0F3460] border-2 border-[#1A1A2E] rounded-xl p-3">
-                <div className="text-2xl font-black text-[#FFD93D]">
+              <div className="bg-cream border-2 border-stone rounded-2xl p-3">
+                <div className="text-2xl font-black text-gold">
                   {(profile.xp || 0).toLocaleString()}
                 </div>
-                <div className="text-[10px] font-bold uppercase tracking-widest text-[#94a3b8]">
+                <div className="text-[10px] font-bold text-navy/50">
                   XP, all yours
                 </div>
               </div>
@@ -141,14 +141,14 @@ export default function ComebackMoment({ profile, onPick, creating }) {
               onClick={handleRestart}
               disabled={creating}
               whileTap={creating ? {} : { scale: 0.96 }}
-              className="w-full py-4 px-6 mb-3 rounded-2xl bg-gradient-to-r from-[#48BB78] to-[#38A169] text-white font-black text-lg uppercase tracking-wide border-3 border-[#0F3460] shadow-[0_5px_0_#0F3460] hover:shadow-[0_7px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_2px_0_#0F3460] active:translate-y-1 transition-all disabled:opacity-60 disabled:cursor-wait"
+              className="kq-btn kq-btn-emerald w-full mb-3 disabled:opacity-60 disabled:cursor-wait"
             >
               {creating ? 'Forging your quest...' : '💧 Restart Easy: Drink a Glass of Water'}
             </motion.button>
 
             <button
               onClick={handleDismiss}
-              className="w-full py-2 text-sm font-bold text-[#94a3b8] hover:text-white transition-colors"
+              className="w-full py-2 text-sm font-bold text-navy/50 hover:text-navy transition-colors"
             >
               Just look around
             </button>

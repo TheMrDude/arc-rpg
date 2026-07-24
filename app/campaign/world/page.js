@@ -78,8 +78,8 @@ export default function WorldMapPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0f172a] flex items-center justify-center">
-        <div className="text-[#f4c553] text-lg font-black animate-pulse uppercase tracking-widest">
+      <div className="kidquest min-h-screen bg-cream flex items-center justify-center">
+        <div className="text-gold text-lg font-black animate-pulse">
           Unrolling the map…
         </div>
       </div>
@@ -87,31 +87,28 @@ export default function WorldMapPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0f172a] text-white">
+    <div className="kidquest min-h-screen bg-cream text-navy">
       {/* Top nav bar */}
-      <div className="bg-[#1e293b] border-b border-gray-700/50 px-4 sm:px-6 py-3">
+      <div className="bg-white border-b border-stone px-4 sm:px-6 py-3">
         <div className="max-w-6xl mx-auto flex items-center gap-3 flex-wrap">
           <button
             onClick={() => router.back()}
-            className="text-gray-500 hover:text-gray-300 text-sm transition-colors"
+            className="text-navy/50 hover:text-navy text-sm transition-colors"
           >
             ←
           </button>
-          <div className="h-4 w-px bg-gray-700" />
-          <span className="font-black text-white text-sm">World Map</span>
+          <div className="h-4 w-px bg-stone" />
+          <span className="font-black text-navy text-sm">World Map</span>
           {isDM && (
             <>
-              <div className="h-4 w-px bg-gray-700" />
-              <span
-                className="text-xs font-black uppercase tracking-widest px-2 py-0.5 rounded"
-                style={{ background: 'rgba(244,197,83,0.1)', color: '#f4c553', border: '1px solid rgba(244,197,83,0.2)' }}
-              >
+              <div className="h-4 w-px bg-stone" />
+              <span className="kq-chip text-xs font-black" style={{ background: 'rgba(255,200,61,0.15)', color: '#B8860B' }}>
                 DM
               </span>
             </>
           )}
           <div className="ml-auto">
-            <span className="text-gray-500 text-xs">{characterName}</span>
+            <span className="text-navy/50 text-xs">{characterName}</span>
           </div>
         </div>
       </div>
@@ -119,10 +116,10 @@ export default function WorldMapPage() {
       {/* Page body */}
       <div className="max-w-6xl mx-auto px-4 py-6">
         <div className="mb-5">
-          <h1 className="text-2xl sm:text-3xl font-black" style={{ color: '#f4c553' }}>
+          <h1 className="kq-display text-2xl sm:text-3xl font-black text-navy">
             🌍 World of HabitQuest
           </h1>
-          <p className="text-gray-400 text-sm mt-1">
+          <p className="text-navy/60 text-sm mt-1">
             Your journey, mapped across the realm. Build habits to unlock new territories.
           </p>
         </div>

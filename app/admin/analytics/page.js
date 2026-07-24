@@ -77,9 +77,9 @@ export default function AdminAnalyticsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0F3460] flex items-center justify-center">
-        <div className="text-[#00D4FF] text-2xl font-black" style={{ fontFamily: 'VT323, monospace' }}>
-          ⏳ LOADING ANALYTICS...
+      <div className="kidquest min-h-screen bg-cream flex items-center justify-center">
+        <div className="text-hero-blue text-2xl font-black kq-display">
+          ⏳ Loading analytics...
         </div>
       </div>
     );
@@ -88,20 +88,19 @@ export default function AdminAnalyticsPage() {
   const summary = analyticsData?.summary || {};
 
   return (
-    <div className="min-h-screen bg-[#0F3460] text-white p-8">
+    <div className="kidquest min-h-screen bg-cream text-navy p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-4xl font-black text-[#FFD93D]" style={{ fontFamily: 'VT323, monospace' }}>
-              📊 ADMIN ANALYTICS
+            <h1 className="text-4xl font-black text-navy kq-display">
+              📊 Admin Analytics
             </h1>
             <button
               onClick={() => router.push('/dashboard')}
-              className="px-4 py-2 bg-[#FF6B6B] border-3 border-[#8B0000] rounded-lg font-black text-white hover:shadow-[0_5px_0_#8B0000] hover:-translate-y-0.5 transition-all"
-              style={{ fontFamily: 'VT323, monospace' }}
+              className="kq-btn kq-btn-ghost"
             >
-              ← BACK
+              ← Back
             </button>
           </div>
 
@@ -111,10 +110,10 @@ export default function AdminAnalyticsPage() {
               <button
                 key={d}
                 onClick={() => setDays(d)}
-                className={`px-4 py-2 rounded-lg font-bold border-2 transition-all ${
+                className={`px-4 py-2 rounded-full font-bold border-2 transition-all ${
                   days === d
-                    ? 'bg-[#00D4FF] text-[#0F3460] border-[#00D4FF]'
-                    : 'bg-[#1A1A2E] text-[#00D4FF] border-[#00D4FF] border-opacity-30 hover:border-opacity-100'
+                    ? 'bg-hero-blue text-white border-hero-blue'
+                    : 'bg-white text-hero-blue border-stone hover:border-hero-blue'
                 }`}
               >
                 {d} Days
@@ -129,52 +128,52 @@ export default function AdminAnalyticsPage() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-[#1A1A2E] border-3 border-[#FFD93D] rounded-lg p-6"
+              className="kq-card p-6"
             >
               <div className="text-5xl mb-2">💰</div>
-              <div className="text-3xl font-black text-[#FFD93D]" style={{ fontFamily: 'VT323, monospace' }}>
+              <div className="text-3xl font-black text-gold kq-display">
                 ${summary.total_revenue_usd || 0}
               </div>
-              <div className="text-sm text-gray-400">Total Revenue</div>
+              <div className="text-sm text-navy/60">Total Revenue</div>
             </motion.div>
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="bg-[#1A1A2E] border-3 border-[#00D4FF] rounded-lg p-6"
+              className="kq-card p-6"
             >
               <div className="text-5xl mb-2">👥</div>
-              <div className="text-3xl font-black text-[#00D4FF]" style={{ fontFamily: 'VT323, monospace' }}>
+              <div className="text-3xl font-black text-hero-blue kq-display">
                 {summary.avg_daily_active_users || 0}
               </div>
-              <div className="text-sm text-gray-400">Avg Daily Active Users</div>
+              <div className="text-sm text-navy/60">Avg Daily Active Users</div>
             </motion.div>
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="bg-[#1A1A2E] border-3 border-[#FF6B6B] rounded-lg p-6"
+              className="kq-card p-6"
             >
               <div className="text-5xl mb-2">🪙</div>
-              <div className="text-3xl font-black text-[#FF6B6B]" style={{ fontFamily: 'VT323, monospace' }}>
+              <div className="text-3xl font-black text-coral kq-display">
                 {summary.total_gold_purchases || 0}
               </div>
-              <div className="text-sm text-gray-400">Gold Purchases</div>
+              <div className="text-sm text-navy/60">Gold Purchases</div>
             </motion.div>
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="bg-[#1A1A2E] border-3 border-[#00FF00] rounded-lg p-6"
+              className="kq-card p-6"
             >
               <div className="text-5xl mb-2">📈</div>
-              <div className="text-3xl font-black text-[#00FF00]" style={{ fontFamily: 'VT323, monospace' }}>
+              <div className="text-3xl font-black text-emerald kq-display">
                 {summary.avg_conversion_rate || 0}%
               </div>
-              <div className="text-sm text-gray-400">Avg Conversion Rate</div>
+              <div className="text-sm text-navy/60">Avg Conversion Rate</div>
             </motion.div>
           </div>
         )}
@@ -185,13 +184,13 @@ export default function AdminAnalyticsPage() {
             <button
               key={metric}
               onClick={() => setSelectedMetric(metric)}
-              className={`px-4 py-2 rounded-lg font-bold whitespace-nowrap border-2 transition-all ${
+              className={`px-4 py-2 rounded-full font-bold whitespace-nowrap border-2 transition-all ${
                 selectedMetric === metric
-                  ? 'bg-[#FFD93D] text-[#0F3460] border-[#FFD93D]'
-                  : 'bg-[#1A1A2E] text-[#FFD93D] border-[#FFD93D] border-opacity-30 hover:border-opacity-100'
+                  ? 'bg-gold text-navy border-gold'
+                  : 'bg-white text-navy/60 border-stone hover:border-gold'
               }`}
             >
-              {metric.replace('_', ' ').toUpperCase()}
+              {metric.replace('_', ' ')}
             </button>
           ))}
         </div>
@@ -201,16 +200,16 @@ export default function AdminAnalyticsPage() {
           <div className="space-y-6">
             {/* Revenue Detail */}
             {analyticsData.package_breakdown && (
-              <div className="bg-[#1A1A2E] border-3 border-[#00D4FF] rounded-lg p-6">
-                <h2 className="text-2xl font-black text-[#FFD93D] mb-4" style={{ fontFamily: 'VT323, monospace' }}>
-                  💰 REVENUE BY PACKAGE
+              <div className="kq-card p-6">
+                <h2 className="text-2xl font-black text-navy mb-4 kq-display">
+                  💰 Revenue by Package
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   {Object.entries(analyticsData.package_breakdown).map(([pkg, stats]) => (
-                    <div key={pkg} className="bg-[#0F3460] border-2 border-[#00D4FF] border-opacity-50 rounded-lg p-4">
-                      <div className="text-xl font-bold text-[#00D4FF] mb-2">{pkg.toUpperCase()}</div>
-                      <div className="text-2xl font-black text-[#FFD93D]">${stats.revenue.toFixed(2)}</div>
-                      <div className="text-sm text-gray-400">{stats.count} purchases</div>
+                    <div key={pkg} className="bg-cream border-2 border-stone rounded-candy p-4">
+                      <div className="text-xl font-bold text-hero-blue mb-2">{pkg.toUpperCase()}</div>
+                      <div className="text-2xl font-black text-gold">${stats.revenue.toFixed(2)}</div>
+                      <div className="text-sm text-navy/60">{stats.count} purchases</div>
                     </div>
                   ))}
                 </div>
@@ -219,40 +218,40 @@ export default function AdminAnalyticsPage() {
 
             {/* Story Metrics */}
             {analyticsData.story_metrics && (
-              <div className="bg-[#1A1A2E] border-3 border-[#00D4FF] rounded-lg p-6">
-                <h2 className="text-2xl font-black text-[#FFD93D] mb-4" style={{ fontFamily: 'VT323, monospace' }}>
-                  📖 STORY ENGAGEMENT
+              <div className="kq-card p-6">
+                <h2 className="text-2xl font-black text-navy mb-4 kq-display">
+                  📖 Story Engagement
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                  <div className="bg-[#0F3460] border-2 border-[#00D4FF] border-opacity-50 rounded-lg p-4 text-center">
-                    <div className="text-3xl font-black text-[#00D4FF]">
+                  <div className="bg-cream border-2 border-stone rounded-candy p-4 text-center">
+                    <div className="text-3xl font-black text-hero-blue">
                       {analyticsData.story_metrics.total_users_in_stories}
                     </div>
-                    <div className="text-sm text-gray-400">Users in Stories</div>
+                    <div className="text-sm text-navy/60">Users in Stories</div>
                   </div>
-                  <div className="bg-[#0F3460] border-2 border-[#FFD93D] border-opacity-50 rounded-lg p-4 text-center">
-                    <div className="text-3xl font-black text-[#FFD93D]">
+                  <div className="bg-cream border-2 border-stone rounded-candy p-4 text-center">
+                    <div className="text-3xl font-black text-gold">
                       {analyticsData.story_metrics.avg_story_completion}%
                     </div>
-                    <div className="text-sm text-gray-400">Avg Completion</div>
+                    <div className="text-sm text-navy/60">Avg Completion</div>
                   </div>
-                  <div className="bg-[#0F3460] border-2 border-[#FF6B6B] border-opacity-50 rounded-lg p-4 text-center">
-                    <div className="text-3xl font-black text-[#FF6B6B]">
+                  <div className="bg-cream border-2 border-stone rounded-candy p-4 text-center">
+                    <div className="text-3xl font-black text-coral">
                       {Object.keys(analyticsData.story_metrics.active_stories || {}).length}
                     </div>
-                    <div className="text-sm text-gray-400">Active Stories</div>
+                    <div className="text-sm text-navy/60">Active Stories</div>
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <h3 className="text-lg font-bold text-[#00D4FF] mb-3">ACTIVE STORY THREADS</h3>
+                  <h3 className="text-lg font-bold text-navy mb-3">Active Story Threads</h3>
                   {Object.entries(analyticsData.story_metrics.active_stories || {}).map(([thread, stats]) => (
-                    <div key={thread} className="bg-[#0F3460] border-2 border-[#00D4FF] border-opacity-30 rounded-lg p-3 flex items-center justify-between">
+                    <div key={thread} className="bg-cream border-2 border-stone rounded-candy p-3 flex items-center justify-between">
                       <div>
-                        <div className="font-bold text-white">{thread}</div>
-                        <div className="text-sm text-gray-400">{stats.users} users</div>
+                        <div className="font-bold text-navy">{thread}</div>
+                        <div className="text-sm text-navy/60">{stats.users} users</div>
                       </div>
-                      <div className="text-[#FFD93D] font-black">{stats.avg_completion}%</div>
+                      <div className="text-gold font-black">{stats.avg_completion}%</div>
                     </div>
                   ))}
                 </div>
@@ -261,25 +260,25 @@ export default function AdminAnalyticsPage() {
 
             {/* Top Users */}
             {analyticsData.top_users && (
-              <div className="bg-[#1A1A2E] border-3 border-[#00D4FF] rounded-lg p-6">
-                <h2 className="text-2xl font-black text-[#FFD93D] mb-4" style={{ fontFamily: 'VT323, monospace' }}>
-                  🏆 TOP USERS BY ENGAGEMENT
+              <div className="kq-card p-6">
+                <h2 className="text-2xl font-black text-navy mb-4 kq-display">
+                  🏆 Top Users by Engagement
                 </h2>
                 <div className="space-y-2">
                   {analyticsData.top_users.slice(0, 20).map((user, index) => (
-                    <div key={user.user_id} className="bg-[#0F3460] border-2 border-[#00D4FF] border-opacity-30 rounded-lg p-3 flex items-center justify-between">
+                    <div key={user.user_id} className="bg-cream border-2 border-stone rounded-candy p-3 flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <span className="text-2xl font-black text-[#FFD93D]">#{index + 1}</span>
+                        <span className="text-2xl font-black text-gold">#{index + 1}</span>
                         <div>
-                          <div className="text-sm text-gray-400">{user.user_id.substring(0, 8)}...</div>
-                          <div className="text-xs text-gray-500">
+                          <div className="text-sm text-navy/60">{user.user_id.substring(0, 8)}...</div>
+                          <div className="text-xs text-navy/50">
                             {user.quests_completed} quests • {user.gold_purchases} purchases
                           </div>
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="text-[#00D4FF] font-bold">{user.story_milestones} milestones</div>
-                        <div className="text-xs text-gray-400">{user.level_ups} level ups</div>
+                        <div className="text-hero-blue font-bold">{user.story_milestones} milestones</div>
+                        <div className="text-xs text-navy/60">{user.level_ups} level ups</div>
                       </div>
                     </div>
                   ))}
@@ -290,7 +289,7 @@ export default function AdminAnalyticsPage() {
         )}
 
         {!analyticsData && (
-          <div className="text-center text-gray-400 mt-12">
+          <div className="text-center text-navy/60 mt-12">
             Loading analytics data...
           </div>
         )}

@@ -19,7 +19,7 @@ export default function ChestDropReveal({ show, gold, onClose, reducedMotion }) 
           particleCount: 40,
           spread: 60,
           origin: { y: 0.6 },
-          colors: ['#FFD93D', '#E8B44C', '#00D4FF'],
+          colors: ['#FFC83D', '#FF7B6B', '#57D7F5'],
         });
       }
     }
@@ -40,12 +40,12 @@ export default function ChestDropReveal({ show, gold, onClose, reducedMotion }) 
           exit={{ opacity: 0 }}
         >
           <motion.div
-            className="absolute inset-0 bg-black bg-opacity-70 backdrop-blur-sm"
+            className="absolute inset-0 bg-navy/60 backdrop-blur-sm"
             onClick={onClose}
           />
 
           <motion.div
-            className="relative bg-gradient-to-br from-[#1A1A2E] to-[#0F3460] rounded-2xl p-8 max-w-xs w-full border-4 border-[#FFD93D] text-center shadow-[0_0_30px_rgba(255,217,61,0.5)]"
+            className="relative kq-card rounded-candy p-8 max-w-xs w-full border-2 border-gold text-center shadow-candy-lg"
             initial={{ scale: 0.7, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.7, opacity: 0 }}
@@ -59,13 +59,13 @@ export default function ChestDropReveal({ show, gold, onClose, reducedMotion }) 
             >
               🎁
             </motion.div>
-            <h3 className="text-xl font-black text-[#FFD93D] uppercase tracking-wide mb-1">
+            <h3 className="kq-display text-xl text-navy mb-1">
               You found a chest!
             </h3>
-            <p className="text-2xl font-black text-white mb-6">+{gold} Gold</p>
+            <p className="text-2xl font-black text-emerald mb-6">+{gold} Gold</p>
             <button
               onClick={onClose}
-              className="w-full py-3 px-6 rounded-xl bg-[#48BB78] hover:bg-[#38A169] text-white font-black uppercase tracking-wide border-3 border-[#0F3460] shadow-[0_4px_0_#0F3460] hover:-translate-y-0.5 active:translate-y-1 transition-all"
+              className="kq-btn kq-btn-emerald w-full"
             >
               Nice
             </button>

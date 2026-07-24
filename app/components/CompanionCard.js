@@ -32,7 +32,7 @@ export default function CompanionCard({ companion, reducedMotion = false }) {
   const progressPercent = maxStage ? 100 : Math.max(8, Math.round((into / span) * 100));
 
   return (
-    <div className="bg-[#1A1A2E] border-3 border-[#6BCB77] rounded-lg p-5 mb-6 shadow-[0_0_20px_rgba(107,203,119,0.25)]">
+    <div className="kq-card border-2 border-emerald/30 p-5 mb-6">
       <div className="flex items-center gap-4">
         <motion.span
           className="text-5xl select-none"
@@ -51,33 +51,33 @@ export default function CompanionCard({ companion, reducedMotion = false }) {
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2 flex-wrap">
-            <h3 className="text-lg font-black uppercase tracking-wide text-[#6BCB77]">
+            <h3 className="kq-display text-lg font-bold text-emerald">
               {name}
             </h3>
-            <span className="text-[10px] font-black uppercase tracking-wider text-[#94a3b8] bg-[#0F3460] border-2 border-[#1A1A2E] rounded-full px-2.5 py-1">
+            <span className="kq-chip text-[10px] font-bold text-navy/60 bg-cream border border-stone">
               Companion
             </span>
           </div>
 
-          <p className="text-sm text-[#E2E8F0] mt-1">{mood}</p>
+          <p className="text-sm text-navy/70 mt-1">{mood}</p>
 
           {maxStage ? (
-            <p className="text-xs text-[#FFD93D] font-bold mt-2">
+            <p className="text-xs text-gold font-bold mt-2">
               🌟 Fully evolved. {questsCompleted} quests together and counting.
             </p>
           ) : (
             <div className="mt-2">
-              <div className="h-2.5 bg-[#0F3460] rounded-full border border-[#1A1A2E] overflow-hidden">
+              <div className="h-2.5 bg-cream rounded-full border border-stone overflow-hidden">
                 <motion.div
-                  className="h-full rounded-full bg-gradient-to-r from-[#6BCB77] to-[#00D4FF]"
+                  className="h-full rounded-full bg-gradient-to-r from-emerald to-aqua"
                   initial={false}
                   animate={{ width: `${progressPercent}%` }}
                   transition={{ type: 'spring', stiffness: 120, damping: 20 }}
                 />
               </div>
-              <p className="text-xs text-[#94a3b8] mt-1">
+              <p className="text-xs text-navy/60 mt-1">
                 {nextEvolveIn} quest{nextEvolveIn === 1 ? '' : 's'} until they become{' '}
-                <span className="text-[#6BCB77] font-bold">{nextStageTitle}</span>
+                <span className="text-emerald font-bold">{nextStageTitle}</span>
               </p>
             </div>
           )}

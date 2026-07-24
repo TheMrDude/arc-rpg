@@ -137,7 +137,7 @@ export default function ShareToSocial({
     return (
       <div className={`flex items-center gap-2 flex-wrap ${className}`}>
         {showLabels && (
-          <span className="text-xs text-gray-400 font-bold uppercase">Share:</span>
+          <span className="text-xs text-navy/60 font-bold">Share:</span>
         )}
         <div className="flex gap-2">
           {socialPlatforms.map((platform) => (
@@ -156,7 +156,7 @@ export default function ShareToSocial({
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             onClick={handleCopy}
-            className="w-8 h-8 rounded-full bg-gray-600 hover:bg-gray-500 text-white flex items-center justify-center transition-all shadow-lg"
+            className="w-8 h-8 rounded-full bg-navy/70 hover:bg-navy text-white flex items-center justify-center transition-all shadow-candy"
             title={copied ? 'Copied!' : 'Copy link'}
           >
             {copied ? (
@@ -186,8 +186,8 @@ export default function ShareToSocial({
 
   // Full version
   return (
-    <div className={`bg-gradient-to-br from-[#1A1A2E] to-[#16213E] border-2 border-[#00D4FF] rounded-xl p-6 ${className}`}>
-      <h3 className="text-xl font-black uppercase text-[#FFD93D] mb-4 flex items-center gap-2">
+    <div className={`kq-card border-2 border-stone p-6 ${className}`}>
+      <h3 className="kq-display text-xl text-navy mb-4 flex items-center gap-2">
         📢 {title}
       </h3>
 
@@ -198,7 +198,7 @@ export default function ShareToSocial({
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={platform.action}
-            className={`${platform.color} text-white px-4 py-3 rounded-lg font-bold transition-all shadow-lg flex items-center justify-center gap-2`}
+            className={`${platform.color} text-white px-4 py-3 rounded-candy font-bold transition-all shadow-candy flex items-center justify-center gap-2`}
           >
             {platform.icon}
             <span className="text-sm">{platform.name}</span>
@@ -208,7 +208,7 @@ export default function ShareToSocial({
 
       <button
         onClick={handleCopy}
-        className="w-full bg-gray-700 hover:bg-gray-600 text-white px-4 py-3 rounded-lg font-bold transition-all flex items-center justify-center gap-2"
+        className="kq-btn kq-btn-ghost w-full px-4 py-3 flex items-center justify-center gap-2"
       >
         {copied ? (
           <>
@@ -263,15 +263,15 @@ function MobileShareModal({
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.9, opacity: 0, y: 20 }}
         onClick={(e) => e.stopPropagation()}
-        className="bg-gradient-to-br from-[#1A1A2E] to-[#16213E] border-4 border-[#00D4FF] rounded-2xl p-6 max-w-md w-full"
+        className="kq-card border-2 border-stone p-6 max-w-md w-full"
       >
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-2xl font-black uppercase text-[#FFD93D]">
+          <h3 className="kq-display text-2xl text-navy">
             {instructions.title}
           </h3>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white text-2xl"
+            className="text-navy/50 hover:text-navy text-2xl"
           >
             ×
           </button>
@@ -279,7 +279,7 @@ function MobileShareModal({
 
         <div className="space-y-3 mb-6">
           {instructions.steps.map((step, i) => (
-            <div key={i} className="text-gray-300 text-sm">
+            <div key={i} className="text-navy/70 text-sm">
               {step}
             </div>
           ))}
@@ -288,7 +288,7 @@ function MobileShareModal({
         {instructions.appUrl && (
           <a
             href={instructions.appUrl}
-            className="block w-full bg-gradient-to-r from-[#7C3AED] to-[#FF5733] text-white px-4 py-3 rounded-lg font-black uppercase text-center transition-all hover:opacity-90"
+            className="kq-btn kq-btn-gold block w-full px-4 py-3 text-center"
           >
             Open {platform === 'instagram' ? 'Instagram' : 'TikTok'} App
           </a>

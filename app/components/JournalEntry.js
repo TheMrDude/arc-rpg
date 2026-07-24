@@ -122,7 +122,7 @@ export default function JournalEntry({ show, onClose, onSubmit, archetype }) {
         particleCount: 50,
         spread: 70,
         origin: { y: 0.6 },
-        colors: ['#FF6B6B', '#00D4FF', '#FFD93D', '#E8B44C']
+        colors: ['#FF7B6B', '#57D7F5', '#FFC83D', '#4F7DF3']
       });
 
       setTimeout(() => {
@@ -146,12 +146,12 @@ export default function JournalEntry({ show, onClose, onSubmit, archetype }) {
         exit={{ opacity: 0 }}
       >
         <motion.div
-          className="absolute inset-0 bg-[#0F3460] bg-opacity-90 backdrop-blur-sm"
+          className="absolute inset-0 bg-navy bg-opacity-60 backdrop-blur-sm"
           onClick={onClose}
         />
 
         <motion.div
-          className="relative bg-[#1A1A2E] rounded-2xl shadow-[0_0_40px_rgba(0,212,255,0.3)] max-w-3xl w-full overflow-hidden border-3 border-[#00D4FF]"
+          className="relative kq-card max-w-3xl w-full overflow-hidden"
           initial={{ scale: 0.9, opacity: 0, y: 20 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -159,19 +159,19 @@ export default function JournalEntry({ show, onClose, onSubmit, archetype }) {
           {showSuccess ? (
             <div className="p-16 text-center">
               <div className="text-9xl mb-6">📖</div>
-              <h3 className="text-4xl font-black text-[#FFD93D] mb-4" style={{ fontFamily: 'VT323, monospace' }}>
-                MEMORY SAVED!
+              <h3 className="kq-display text-4xl font-black text-navy mb-4">
+                Memory Saved!
               </h3>
-              <p className="text-[#00D4FF] text-xl font-bold">Your journey continues...</p>
+              <p className="text-hero-blue text-xl font-bold">Your journey continues...</p>
             </div>
           ) : (
             <>
-              <div className="bg-gradient-to-r from-[#0F3460] to-[#1A1A2E] p-6 text-center border-b-3 border-[#00D4FF]">
+              <div className="kq-navy p-6 text-center">
                 <div className="text-6xl mb-3">📜</div>
-                <h2 className="text-3xl font-black text-[#FFD93D] mb-2" style={{ fontFamily: 'VT323, monospace' }}>
-                  HERO'S JOURNAL
+                <h2 className="kq-display text-3xl font-black text-gold mb-2">
+                  Hero's Journal
                 </h2>
-                <p className="text-[#00D4FF] font-bold text-sm">
+                <p className="text-cream/90 font-bold text-sm">
                   Write about your day, your struggles, your victories...
                 </p>
               </div>
@@ -179,7 +179,7 @@ export default function JournalEntry({ show, onClose, onSubmit, archetype }) {
               <div className="p-6 max-h-[70vh] overflow-y-auto">
                 {/* Mood Selector */}
                 <div className="mb-6">
-                  <p className="text-lg font-bold text-white mb-3 text-center">
+                  <p className="text-lg font-bold text-navy mb-3 text-center">
                     How do you feel today?
                   </p>
                   <div className="flex justify-center gap-3 mb-2">
@@ -188,10 +188,10 @@ export default function JournalEntry({ show, onClose, onSubmit, archetype }) {
                         key={option.value}
                         onClick={() => setMood(option.value)}
                         className={
-                          'p-3 rounded-lg border-3 transition-all hover:scale-110 ' +
+                          'p-3 rounded-2xl border-2 transition-all hover:scale-110 ' +
                           (mood === option.value
-                            ? 'bg-[#00D4FF] bg-opacity-20 border-[#00D4FF] scale-110 shadow-[0_0_15px_rgba(0,212,255,0.5)]'
-                            : 'bg-[#0F3460] border-[#0F3460] hover:border-[#00D4FF]')
+                            ? 'bg-hero-blue/10 border-hero-blue scale-110 shadow-candy'
+                            : 'bg-cream border-stone hover:border-hero-blue')
                         }
                       >
                         <span className="text-4xl">{option.emoji}</span>
@@ -199,7 +199,7 @@ export default function JournalEntry({ show, onClose, onSubmit, archetype }) {
                     ))}
                   </div>
                   {mood && (
-                    <p className="text-center text-sm font-bold text-[#FFD93D]">
+                    <p className="text-center text-sm font-bold text-gold">
                       {MOOD_OPTIONS.find(o => o.value === mood)?.label}
                     </p>
                   )}
@@ -216,24 +216,23 @@ export default function JournalEntry({ show, onClose, onSubmit, archetype }) {
                     placeholder="Write about your day, your struggles, your victories... The AI will weave it into your hero's journey."
                     maxLength={maxChars}
                     rows={12}
-                    className="w-full p-5 rounded-lg bg-[#0F3460] border-2 border-[#00D4FF] border-opacity-30 focus:border-[#00D4FF] focus:border-opacity-100 focus:outline-none focus:shadow-[0_0_20px_rgba(0,212,255,0.3)] resize-none text-white text-base leading-relaxed"
-                    style={{ fontFamily: 'system-ui, sans-serif' }}
+                    className="kq-input w-full resize-none text-base leading-relaxed"
                   />
                   <div className="flex justify-between items-center mt-2">
                     <p
                       className={
                         'text-sm font-bold ' +
                         (charCount < minChars
-                          ? 'text-gray-400'
+                          ? 'text-navy/50'
                           : charCount > maxChars - 100
-                          ? 'text-[#FF6B6B]'
-                          : 'text-[#00D4FF]')
+                          ? 'text-coral'
+                          : 'text-hero-blue')
                       }
                     >
                       {charCount}/{maxChars} characters
                       {charCount < minChars && ` (${minChars - charCount} more needed)`}
                     </p>
-                    {error && <p className="text-sm text-[#FF6B6B] font-bold">{error}</p>}
+                    {error && <p className="text-sm text-coral font-bold">{error}</p>}
                   </div>
                 </div>
 
@@ -242,13 +241,13 @@ export default function JournalEntry({ show, onClose, onSubmit, archetype }) {
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
-                    className="mb-4 p-5 bg-gradient-to-br from-[#0F3460] to-[#1A1A2E] rounded-lg border-2 border-[#FFD93D] shadow-[0_0_20px_rgba(255,217,61,0.2)]"
+                    className="mb-4 p-5 bg-gold/10 rounded-candy border-2 border-gold"
                   >
                     <div className="flex items-center gap-2 mb-3">
                       <span className="text-2xl">✨</span>
-                      <h3 className="text-xl font-black text-[#FFD93D]">EPIC TRANSFORMATION</h3>
+                      <h3 className="kq-display text-xl font-black text-navy">Epic Transformation</h3>
                     </div>
-                    <p className="text-white text-base leading-relaxed italic">
+                    <p className="text-navy text-base leading-relaxed italic">
                       {transformedNarrative}
                     </p>
                   </motion.div>
@@ -260,10 +259,10 @@ export default function JournalEntry({ show, onClose, onSubmit, archetype }) {
                     onClick={handleTransformToEpic}
                     disabled={isSubmitting || isTransforming || !isValidLength}
                     className={
-                      'w-full py-4 px-6 rounded-lg font-black text-lg uppercase border-3 transition-all ' +
+                      'kq-btn w-full text-lg disabled:opacity-50 disabled:cursor-not-allowed ' +
                       (isSubmitting || isTransforming || !isValidLength
-                        ? 'bg-gray-600 border-gray-700 text-gray-400 cursor-not-allowed'
-                        : 'bg-[#FF6B6B] border-[#0F3460] text-white hover:shadow-[0_7px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1 shadow-[0_5px_0_#0F3460]')
+                        ? 'kq-btn-ghost'
+                        : 'kq-btn-gold')
                     }
                   >
                     {isTransforming ? '⏳ Transforming to Epic...' : '✨ Transform to Epic'}
@@ -273,10 +272,10 @@ export default function JournalEntry({ show, onClose, onSubmit, archetype }) {
                     onClick={handleSavePrivate}
                     disabled={isSubmitting || isTransforming || !isValidLength}
                     className={
-                      'w-full py-4 px-6 rounded-lg font-black text-lg uppercase border-3 transition-all ' +
+                      'kq-btn w-full text-lg disabled:opacity-50 disabled:cursor-not-allowed ' +
                       (isSubmitting || isTransforming || !isValidLength
-                        ? 'bg-gray-600 border-gray-700 text-gray-400 cursor-not-allowed'
-                        : 'bg-[#00D4FF] border-[#0F3460] text-[#0F3460] hover:shadow-[0_7px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1 shadow-[0_5px_0_#0F3460]')
+                        ? 'kq-btn-ghost'
+                        : 'kq-btn-blue')
                     }
                   >
                     {isSubmitting ? '⏳ Saving...' : '💾 Save as Private Memory'}
@@ -285,7 +284,7 @@ export default function JournalEntry({ show, onClose, onSubmit, archetype }) {
                   <button
                     onClick={onClose}
                     disabled={isSubmitting || isTransforming}
-                    className="w-full py-3 px-6 rounded-lg bg-transparent border-2 border-gray-500 hover:border-gray-400 text-gray-400 hover:text-gray-300 font-bold transition-colors disabled:opacity-50"
+                    className="kq-btn kq-btn-ghost w-full disabled:opacity-50"
                   >
                     Cancel
                   </button>

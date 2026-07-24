@@ -5,16 +5,16 @@ import { motion } from 'framer-motion';
 // Stats Bar Loading Skeleton
 export function StatsBarSkeleton() {
   return (
-    <div className="bg-gradient-to-r from-[#7C3AED] to-[#FF5733] py-3 px-4 text-center">
+    <div className="bg-gradient-to-r from-purple to-coral py-3 px-4 text-center">
       <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-center gap-2 sm:gap-4">
         <div className="flex items-center gap-2">
-          <div className="w-6 h-6 bg-white/20 rounded animate-pulse" />
-          <div className="w-32 h-4 bg-white/20 rounded animate-pulse" />
+          <div className="w-6 h-6 bg-white/30 rounded animate-pulse" />
+          <div className="w-32 h-4 bg-white/30 rounded animate-pulse" />
         </div>
-        <span className="text-white/50">•</span>
-        <div className="w-40 h-4 bg-white/20 rounded animate-pulse" />
-        <span className="text-white/50">•</span>
-        <div className="w-48 h-4 bg-white/20 rounded animate-pulse" />
+        <span className="text-white/60">•</span>
+        <div className="w-40 h-4 bg-white/30 rounded animate-pulse" />
+        <span className="text-white/60">•</span>
+        <div className="w-48 h-4 bg-white/30 rounded animate-pulse" />
       </div>
     </div>
   );
@@ -26,17 +26,17 @@ export function QuestPreviewSkeleton() {
     <div className="w-full max-w-3xl mx-auto space-y-4">
       {/* Input skeleton */}
       <div className="relative">
-        <div className="w-full h-16 bg-[#16213E]/50 border-3 border-[#00D4FF]/30 rounded-xl animate-pulse" />
+        <div className="w-full h-16 bg-white border-2 border-stone rounded-candy animate-pulse" />
       </div>
 
       {/* Button skeleton */}
-      <div className="w-full h-16 bg-gray-600/50 rounded-xl animate-pulse" />
+      <div className="w-full h-16 bg-navy/10 rounded-candy animate-pulse" />
 
       {/* Hint skeleton */}
       <div className="flex justify-center gap-4">
-        <div className="w-24 h-4 bg-gray-500/30 rounded animate-pulse" />
-        <div className="w-24 h-4 bg-gray-500/30 rounded animate-pulse" />
-        <div className="w-32 h-4 bg-gray-500/30 rounded animate-pulse" />
+        <div className="w-24 h-4 bg-navy/10 rounded animate-pulse" />
+        <div className="w-24 h-4 bg-navy/10 rounded animate-pulse" />
+        <div className="w-32 h-4 bg-navy/10 rounded animate-pulse" />
       </div>
     </div>
   );
@@ -45,10 +45,10 @@ export function QuestPreviewSkeleton() {
 // Archetype Card Skeleton
 export function ArchetypeCardSkeleton() {
   return (
-    <div className="bg-[#16213E] border-3 border-[#00D4FF]/30 rounded-xl p-4 animate-pulse">
-      <div className="relative w-full aspect-square mb-3 rounded-lg overflow-hidden bg-[#0F3460]" />
-      <div className="h-6 bg-[#0F3460] rounded mb-2" />
-      <div className="h-4 bg-[#0F3460]/50 rounded w-3/4 mx-auto" />
+    <div className="bg-white border-2 border-stone shadow-candy rounded-candy p-4 animate-pulse">
+      <div className="relative w-full aspect-square mb-3 rounded-lg overflow-hidden bg-navy/10" />
+      <div className="h-6 bg-navy/10 rounded mb-2" />
+      <div className="h-4 bg-navy/10 rounded w-3/4 mx-auto" />
     </div>
   );
 }
@@ -59,16 +59,16 @@ export function CardSkeleton() {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="bg-[#16213E] border-2 border-[#00D4FF]/30 rounded-xl p-6 animate-pulse"
+      className="bg-white border-2 border-stone shadow-candy rounded-candy p-6 animate-pulse"
     >
       <div className="flex items-center justify-between mb-4">
-        <div className="h-6 bg-[#0F3460] rounded w-32" />
-        <div className="h-6 bg-[#0F3460] rounded w-16" />
+        <div className="h-6 bg-navy/10 rounded w-32" />
+        <div className="h-6 bg-navy/10 rounded w-16" />
       </div>
       <div className="space-y-3">
-        <div className="h-4 bg-[#0F3460] rounded w-full" />
-        <div className="h-4 bg-[#0F3460] rounded w-5/6" />
-        <div className="h-4 bg-[#0F3460] rounded w-4/6" />
+        <div className="h-4 bg-navy/10 rounded w-full" />
+        <div className="h-4 bg-navy/10 rounded w-5/6" />
+        <div className="h-4 bg-navy/10 rounded w-4/6" />
       </div>
     </motion.div>
   );
@@ -86,7 +86,7 @@ export function Spinner({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
     <motion.div
       animate={{ rotate: 360 }}
       transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-      className={`${sizeClasses[size]} border-4 border-[#00D4FF] border-t-transparent rounded-full`}
+      className={`${sizeClasses[size]} border-4 border-hero-blue border-t-transparent rounded-full`}
     />
   );
 }
@@ -104,7 +104,7 @@ export function PulseDots() {
             repeat: Infinity,
             delay: i * 0.2
           }}
-          className="w-2 h-2 bg-[#00D4FF] rounded-full"
+          className="w-2 h-2 bg-hero-blue rounded-full"
         />
       ))}
     </div>
@@ -114,7 +114,7 @@ export function PulseDots() {
 // Shimmer Effect (for images loading)
 export function ShimmerEffect({ className = '' }: { className?: string }) {
   return (
-    <div className={`relative overflow-hidden bg-[#0F3460] ${className}`}>
+    <div className={`relative overflow-hidden bg-navy/10 ${className}`}>
       <motion.div
         animate={{
           x: ['-100%', '100%']
@@ -124,7 +124,7 @@ export function ShimmerEffect({ className = '' }: { className?: string }) {
           repeat: Infinity,
           ease: 'linear'
         }}
-        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
+        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent"
       />
     </div>
   );

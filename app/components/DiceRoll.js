@@ -65,10 +65,10 @@ export default function DiceRoll({ encounter, onClaim, show }) {
         {/* Header text — waiting phase */}
         {phase === 'waiting' && (
           <div className="text-center mb-2" style={{ animation: 'fadeIn 0.3s ease' }}>
-            <h2 className="text-xl font-black uppercase tracking-wide text-[#22d3ee] mb-2">
-              ⚔️ Random Encounter!
+            <h2 className="kq-display text-xl text-gold mb-2">
+              ✨ Random Encounter!
             </h2>
-            <p className="text-[#94a3b8] text-sm">Something stirs in the shadows...</p>
+            <p className="text-cream/70 text-sm">Something fun is waiting for you...</p>
           </div>
         )}
 
@@ -79,10 +79,10 @@ export default function DiceRoll({ encounter, onClaim, show }) {
             className="dice-d10"
             style={{
               cursor: phase === 'waiting' ? 'pointer' : 'default',
-              borderColor: (phase === 'landed' || phase === 'reveal') ? rarity.border : '#22d3ee',
+              borderColor: (phase === 'landed' || phase === 'reveal') ? rarity.border : '#FFC83D',
               boxShadow: (phase === 'landed' || phase === 'reveal')
                 ? `0 0 ${isLegendary ? '50' : '40'}px ${rarity.glow}`
-                : '0 0 20px rgba(34, 211, 238, 0.3)',
+                : '0 0 20px rgba(255, 200, 61, 0.35)',
               animation: phase === 'waiting' ? 'dicePulse 1.5s ease-in-out infinite' :
                          phase === 'spinning' ? 'diceRoll 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)' :
                          phase === 'landed' ? 'diceBounce 0.3s ease' :
@@ -90,8 +90,8 @@ export default function DiceRoll({ encounter, onClaim, show }) {
             }}
           >
             <span
-              className="text-[2.5rem] font-black"
-              style={{ color: (phase === 'landed' || phase === 'reveal') ? rarity.text : '#22d3ee' }}
+              className="kq-display text-[2.5rem]"
+              style={{ color: (phase === 'landed' || phase === 'reveal') ? rarity.text : '#FFC83D' }}
             >
               {displayNumber}
             </span>
@@ -103,7 +103,7 @@ export default function DiceRoll({ encounter, onClaim, show }) {
               {[...Array(12)].map((_, i) => (
                 <div
                   key={i}
-                  className="absolute w-2 h-2 rounded-full bg-yellow-400"
+                  className="absolute w-2 h-2 rounded-full bg-gold"
                   style={{
                     left: '50%',
                     top: '50%',
@@ -120,16 +120,16 @@ export default function DiceRoll({ encounter, onClaim, show }) {
         {/* Tap to roll label — waiting phase */}
         {phase === 'waiting' && (
           <p
-            className="text-[#22d3ee] text-sm font-black uppercase tracking-[3px]"
+            className="text-gold text-sm font-bold"
             style={{ animation: 'dicePulse 1.5s ease-in-out infinite' }}
           >
-            TAP TO ROLL
+            Tap to roll!
           </p>
         )}
 
         {/* Encounter name — landed phase */}
         {phase === 'landed' && (
-          <p className="text-xl font-black uppercase tracking-wide text-white" style={{ animation: 'fadeIn 0.3s ease' }}>
+          <p className="kq-display text-xl text-cream" style={{ animation: 'fadeIn 0.3s ease' }}>
             {encounter.icon} {encounter.name}
           </p>
         )}
@@ -137,7 +137,7 @@ export default function DiceRoll({ encounter, onClaim, show }) {
         {/* Encounter Card — reveal phase */}
         {phase === 'reveal' && (
           <div
-            className="bg-[#1e293b] rounded-xl p-6 max-w-[350px] w-[90vw] text-center"
+            className="kq-card p-6 max-w-[350px] w-[90vw] text-center"
             style={{
               borderWidth: '2px',
               borderStyle: 'solid',
@@ -147,26 +147,19 @@ export default function DiceRoll({ encounter, onClaim, show }) {
             }}
           >
             <div className="text-5xl mb-3">{encounter.icon}</div>
-            <h3 className="text-xl font-black uppercase tracking-wide mb-2" style={{ color: rarity.text }}>
+            <h3 className="kq-display text-xl mb-2" style={{ color: rarity.text }}>
               {encounter.name}
             </h3>
             <div className="w-16 h-0.5 mx-auto mb-3" style={{ backgroundColor: rarity.border }} />
-            <p className="text-[#94a3b8] italic mb-4 text-[0.95rem]">&ldquo;{encounter.description}&rdquo;</p>
-            <p className="text-sm font-bold text-[#22d3ee] mb-4">Reward: {rewardText}</p>
+            <p className="text-navy/60 italic mb-4 text-[0.95rem]">&ldquo;{encounter.description}&rdquo;</p>
+            <p className="text-sm font-bold text-hero-blue mb-4">Reward: {rewardText}</p>
             <button
               onClick={onClaim}
-              className="px-8 py-3 rounded-lg font-black text-base cursor-pointer transition-all hover:scale-105"
-              style={{
-                background: 'linear-gradient(135deg, #22d3ee, #06b6d4)',
-                color: '#0f172a',
-                border: 'none',
-              }}
-              onMouseEnter={(e) => e.target.style.boxShadow = '0 0 20px rgba(34, 211, 238, 0.5)'}
-              onMouseLeave={(e) => e.target.style.boxShadow = 'none'}
+              className="kq-btn kq-btn-gold px-8 py-3 text-base"
             >
-              ✨ CLAIM REWARD
+              ✨ Claim Reward
             </button>
-            <p className="text-xs mt-3 uppercase tracking-[2px]" style={{ color: rarity.text }}>
+            <p className="text-xs mt-3 font-semibold" style={{ color: rarity.text }}>
               — {encounter.rarity} Encounter —
             </p>
           </div>
@@ -177,7 +170,7 @@ export default function DiceRoll({ encounter, onClaim, show }) {
         .dice-d10 {
           width: 120px;
           height: 140px;
-          background: linear-gradient(135deg, #1e293b, #334155);
+          background: linear-gradient(135deg, #243B5A, #4F7DF3);
           clip-path: polygon(50% 0%, 95% 35%, 80% 90%, 20% 90%, 5% 35%);
           display: flex;
           align-items: center;

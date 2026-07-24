@@ -102,14 +102,14 @@ export default function MapWidget({ profile, quests, userId, onRegionUnlocked })
   if (!profile) return null;
 
   return (
-    <div className="bg-[#1A1A2E] border-2 border-[#c8a96e]/40 rounded-lg p-4 mb-6">
+    <div className="kq-card p-4 mb-6">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-black uppercase tracking-wide text-[#c8a96e] inline-flex items-center gap-1.5">
+        <h3 className="text-sm font-bold text-navy inline-flex items-center gap-1.5">
           <MapIcon size={14} /> World Map
         </h3>
         <button
           onClick={() => router.push('/campaign/world')}
-          className="text-xs font-black uppercase text-[#00D4FF] hover:text-white transition-colors"
+          className="text-xs font-bold text-hero-blue hover:text-navy transition-colors"
         >
           Explore →
         </button>
@@ -118,25 +118,25 @@ export default function MapWidget({ profile, quests, userId, onRegionUnlocked })
       <div className="flex gap-3">
         {/* Current region */}
         <div
-          className="flex-1 rounded-lg p-3 border"
+          className="flex-1 rounded-candy p-3 border-2"
           style={{ borderColor: `${currentRegion.color}66`, background: `${currentRegion.color}1a` }}
         >
-          <p className="text-[10px] uppercase tracking-widest text-[#94a3b8] mb-0.5">You are in</p>
-          <p className="text-sm font-black text-white leading-tight">
+          <p className="text-[10px] text-navy/50 mb-0.5">You are in</p>
+          <p className="text-sm font-bold text-navy leading-tight">
             {currentRegion.icon} {currentRegion.name}
           </p>
           <p className="text-[11px] italic mt-0.5" style={{ color: currentRegion.color }}>
             {currentRegion.subtitle}
           </p>
           {completedCount === 1 && (
-            <p className="text-[11px] font-bold text-[#48BB78] mt-1.5">
+            <p className="text-[11px] font-bold text-emerald mt-1.5">
               ✨ First quest complete. {currentRegion.name} is waking up.
             </p>
           )}
           {(() => {
             const { found, total } = getDiscoveryCounts(playerData);
             return (
-              <p className="text-[10px] text-[#94a3b8] mt-1.5">
+              <p className="text-[10px] text-navy/50 mt-1.5">
                 🧭 {found}/{total} discoveries found
               </p>
             );
@@ -145,33 +145,33 @@ export default function MapWidget({ profile, quests, userId, onRegionUnlocked })
 
         {/* Next locked region — fog preview */}
         {nextRegion ? (
-          <div className="flex-1 rounded-lg p-3 border border-[#334155] bg-black/40 relative overflow-hidden">
-            <p className="text-[10px] uppercase tracking-widest text-[#64748b] mb-0.5 inline-flex items-center gap-1">
+          <div className="flex-1 rounded-candy p-3 border-2 border-stone bg-cream relative overflow-hidden">
+            <p className="text-[10px] text-navy/50 mb-0.5 inline-flex items-center gap-1">
               <Lock size={9} /> {isFrontierId(nextRegion.id) ? 'Beyond the edge' : 'Next region'}
             </p>
-            <p className="text-sm font-black text-[#94a3b8] leading-tight" style={{ filter: 'blur(0.5px)' }}>
+            <p className="text-sm font-bold text-navy/60 leading-tight" style={{ filter: 'blur(0.5px)' }}>
               {nextRegion.name}
             </p>
             {progress && (
               <div className="mt-2">
-                <div className="h-1.5 bg-[#0F3460] rounded-full overflow-hidden">
+                <div className="h-1.5 bg-stone rounded-full overflow-hidden">
                   <motion.div
                     className="h-full rounded-full"
-                    style={{ background: 'linear-gradient(90deg, #c8a96e, #f43f5e)' }}
+                    style={{ background: 'linear-gradient(90deg, #FFC83D, #FF7B6B)' }}
                     initial={false}
                     animate={{ width: `${pct}%` }}
                     transition={{ duration: 0.6, ease: 'easeOut' }}
                   />
                 </div>
-                <p className="text-[10px] text-[#94a3b8] mt-1">
+                <p className="text-[10px] text-navy/50 mt-1">
                   {unlockLine}
                 </p>
               </div>
             )}
           </div>
         ) : (
-          <div className="flex-1 rounded-lg p-3 border border-[#48BB78]/40 bg-[#48BB78]/10 flex items-center justify-center">
-            <p className="text-xs font-black text-[#48BB78] uppercase text-center">
+          <div className="flex-1 rounded-candy p-3 border-2 border-emerald/40 bg-emerald/10 flex items-center justify-center">
+            <p className="text-xs font-bold text-emerald text-center">
               All regions charted
             </p>
           </div>

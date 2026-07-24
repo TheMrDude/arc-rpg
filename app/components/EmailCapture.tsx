@@ -86,7 +86,7 @@ export default function EmailCapture({
 
   const containerClass = inline
     ? ''
-    : 'bg-gradient-to-br from-[#1A1A2E] to-[#16213E] border-3 border-[#00D4FF] rounded-xl p-6 shadow-lg';
+    : 'kq-card p-6';
 
   return (
     <div className={containerClass}>
@@ -100,11 +100,11 @@ export default function EmailCapture({
             className="text-center"
           >
             <div className="text-6xl mb-4">✨</div>
-            <h3 className="text-2xl font-black text-[#10B981] mb-2">
+            <h3 className="kq-display text-2xl font-black text-emerald mb-2">
               You're On The List!
             </h3>
-            <p className="text-gray-300">
-              We'll notify you about new features and epic updates.
+            <p className="text-navy/60">
+              We'll notify you about new features and fun updates.
             </p>
           </motion.div>
         ) : (
@@ -115,12 +115,12 @@ export default function EmailCapture({
             exit={{ opacity: 0 }}
           >
             {/* Title */}
-            <h3 className="text-xl sm:text-2xl font-black text-[#00D4FF] mb-2">
+            <h3 className="kq-display text-xl sm:text-2xl font-black text-hero-blue mb-2">
               {title}
             </h3>
 
             {/* Description */}
-            <p className="text-sm sm:text-base text-gray-300 mb-4">
+            <p className="text-sm sm:text-base text-navy/60 mb-4">
               {description}
             </p>
 
@@ -132,7 +132,7 @@ export default function EmailCapture({
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder={placeholder}
                 disabled={loading}
-                className="flex-1 px-4 py-3 bg-[#0F3460] text-white placeholder-gray-400 border-2 border-[#00D4FF] rounded-lg focus:outline-none focus:border-[#FF6B4A] focus:ring-2 focus:ring-[#FF6B4A]/20 transition-all disabled:opacity-50"
+                className="kq-input flex-1 disabled:opacity-50"
                 style={{ fontSize: '16px' }} // Prevent iOS zoom
               />
 
@@ -141,10 +141,8 @@ export default function EmailCapture({
                 disabled={loading || !email}
                 whileHover={!loading && email ? { scale: 1.02 } : {}}
                 whileTap={!loading && email ? { scale: 0.98 } : {}}
-                className={`px-6 py-3 rounded-lg font-black uppercase tracking-wide transition-all ${
-                  loading || !email
-                    ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                    : 'bg-[#FF6B4A] hover:bg-[#FF5733] text-white shadow-lg'
+                className={`kq-btn kq-btn-gold px-6 py-3 transition-all ${
+                  loading || !email ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
               >
                 {loading ? (
@@ -178,14 +176,14 @@ export default function EmailCapture({
               <motion.p
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-sm text-[#E74C3C] mt-3"
+                className="text-sm text-coral mt-3"
               >
                 {errorMessage}
               </motion.p>
             )}
 
             {/* Privacy note */}
-            <p className="text-xs text-gray-500 mt-3">
+            <p className="text-xs text-navy/50 mt-3">
               No spam, ever. Unsubscribe anytime. We respect your privacy.
             </p>
           </motion.div>

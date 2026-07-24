@@ -46,15 +46,15 @@ function JournalEntryCard({ entry, index, onDelete }) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
-      className="bg-[#1A1A2E] border-2 border-[#00D4FF] border-opacity-30 rounded-lg p-5 hover:border-opacity-100 transition-all hover:shadow-[0_0_15px_rgba(0,212,255,0.2)]"
+      className="kq-card kq-card-hover p-5"
     >
       {/* Header with date, mood, and delete button */}
       <div className="flex items-start justify-between mb-3">
         <div>
-          <h3 className="text-lg font-black text-[#FFD93D]" style={{ fontFamily: 'VT323, monospace' }}>
+          <h3 className="text-lg font-bold text-navy kq-display">
             {formattedDate}
           </h3>
-          <p className="text-xs text-[#00D4FF] font-bold">{formattedTime}</p>
+          <p className="text-xs text-hero-blue font-bold">{formattedTime}</p>
         </div>
         <div className="flex items-center gap-3">
           {entry.mood && (
@@ -64,7 +64,7 @@ function JournalEntryCard({ entry, index, onDelete }) {
           )}
           <button
             onClick={() => setShowDeleteConfirm(true)}
-            className="text-[#FF6B6B] hover:text-red-400 transition-colors p-1"
+            className="text-coral hover:text-coral/70 transition-colors p-1"
             title="Delete entry"
             disabled={isDeleting}
           >
@@ -80,15 +80,15 @@ function JournalEntryCard({ entry, index, onDelete }) {
         <div className="mb-3">
           <div className="flex items-center gap-2 mb-2">
             <span className="text-lg">✨</span>
-            <h4 className="text-sm font-bold text-[#FF6B6B] uppercase">Epic Tale</h4>
+            <h4 className="text-sm font-bold text-coral">Epic Tale</h4>
           </div>
-          <p className="text-white text-sm leading-relaxed italic">
+          <p className="text-navy text-sm leading-relaxed italic">
             {entry.transformed_narrative}
           </p>
         </div>
       ) : (
         <div className="mb-3">
-          <p className="text-white text-sm leading-relaxed">
+          <p className="text-navy text-sm leading-relaxed">
             {entry.entry_text.length > 200 && !isExpanded
               ? entry.entry_text.substring(0, 200) + '...'
               : entry.entry_text}
@@ -100,7 +100,7 @@ function JournalEntryCard({ entry, index, onDelete }) {
       {entry.transformed_narrative && (
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="text-xs text-[#00D4FF] hover:text-[#FFD93D] font-bold transition-colors"
+          className="text-xs text-hero-blue hover:text-gold font-bold transition-colors"
         >
           {isExpanded ? '▲ Hide Original Entry' : '▼ Show Original Entry'}
         </button>
@@ -113,10 +113,10 @@ function JournalEntryCard({ entry, index, onDelete }) {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="mt-3 pt-3 border-t border-[#00D4FF] border-opacity-30"
+            className="mt-3 pt-3 border-t border-stone"
           >
-            <h4 className="text-xs font-bold text-gray-400 uppercase mb-2">Original Entry</h4>
-            <p className="text-gray-300 text-sm leading-relaxed">{entry.entry_text}</p>
+            <h4 className="text-xs font-bold text-navy/50 mb-2">Original Entry</h4>
+            <p className="text-navy/70 text-sm leading-relaxed">{entry.entry_text}</p>
           </motion.div>
         )}
       </AnimatePresence>
@@ -135,13 +135,13 @@ function JournalEntryCard({ entry, index, onDelete }) {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-[#1A1A2E] border-3 border-[#FF6B6B] rounded-lg p-6 max-w-md w-full"
+              className="kq-card border-2 border-coral p-6 max-w-md w-full"
               onClick={(e) => e.stopPropagation()}
             >
-              <h3 className="text-2xl font-black text-[#FF6B6B] mb-4" style={{ fontFamily: 'VT323, monospace' }}>
-                DELETE ENTRY?
+              <h3 className="text-2xl font-bold text-coral mb-4 kq-display">
+                Delete this entry?
               </h3>
-              <p className="text-white mb-6">
+              <p className="text-navy mb-6">
                 Are you sure you want to delete this journal entry? This action cannot be undone.
               </p>
               <div className="flex gap-3">
@@ -149,20 +149,20 @@ function JournalEntryCard({ entry, index, onDelete }) {
                   onClick={handleDelete}
                   disabled={isDeleting}
                   className={
-                    'flex-1 py-2 px-4 rounded-lg font-bold uppercase border-2 transition-all ' +
+                    'kq-btn flex-1 ' +
                     (isDeleting
-                      ? 'bg-gray-600 border-gray-700 text-gray-400 cursor-not-allowed'
-                      : 'bg-[#FF6B6B] border-red-700 text-white hover:bg-red-600')
+                      ? 'bg-navy/20 text-navy/50 cursor-not-allowed'
+                      : 'bg-coral text-white hover:bg-coral/90')
                   }
                 >
-                  {isDeleting ? 'DELETING...' : 'DELETE'}
+                  {isDeleting ? 'Deleting…' : 'Delete'}
                 </button>
                 <button
                   onClick={() => setShowDeleteConfirm(false)}
                   disabled={isDeleting}
-                  className="flex-1 py-2 px-4 rounded-lg font-bold uppercase border-2 bg-[#00D4FF] border-[#0F3460] text-[#0F3460] hover:bg-[#00BFFF] transition-all"
+                  className="kq-btn kq-btn-ghost flex-1"
                 >
-                  CANCEL
+                  Cancel
                 </button>
               </div>
             </motion.div>
@@ -180,14 +180,14 @@ export default function JournalTimeline({ entries, isLoading, onLoadMore, hasMor
         {[1, 2, 3].map((i) => (
           <div
             key={i}
-            className="bg-[#1A1A2E] border-2 border-[#00D4FF] border-opacity-30 rounded-lg p-5 animate-pulse"
+            className="kq-card p-5 animate-pulse"
           >
-            <div className="h-4 bg-[#00D4FF] bg-opacity-20 rounded w-1/4 mb-2"></div>
-            <div className="h-3 bg-[#00D4FF] bg-opacity-20 rounded w-1/6 mb-4"></div>
+            <div className="h-4 bg-hero-blue/15 rounded w-1/4 mb-2"></div>
+            <div className="h-3 bg-hero-blue/15 rounded w-1/6 mb-4"></div>
             <div className="space-y-2">
-              <div className="h-3 bg-[#00D4FF] bg-opacity-20 rounded"></div>
-              <div className="h-3 bg-[#00D4FF] bg-opacity-20 rounded w-5/6"></div>
-              <div className="h-3 bg-[#00D4FF] bg-opacity-20 rounded w-4/6"></div>
+              <div className="h-3 bg-hero-blue/15 rounded"></div>
+              <div className="h-3 bg-hero-blue/15 rounded w-5/6"></div>
+              <div className="h-3 bg-hero-blue/15 rounded w-4/6"></div>
             </div>
           </div>
         ))}
@@ -219,13 +219,13 @@ export default function JournalTimeline({ entries, isLoading, onLoadMore, hasMor
             onClick={onLoadMore}
             disabled={isLoading}
             className={
-              'py-3 px-8 rounded-lg font-black uppercase border-3 transition-all ' +
+              'kq-btn ' +
               (isLoading
-                ? 'bg-gray-600 border-gray-700 text-gray-400 cursor-not-allowed'
-                : 'bg-[#00D4FF] border-[#0F3460] text-[#0F3460] hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1 shadow-[0_3px_0_#0F3460]')
+                ? 'bg-navy/20 text-navy/50 cursor-not-allowed'
+                : 'kq-btn-blue')
             }
           >
-            {isLoading ? 'Loading...' : 'Load More Entries'}
+            {isLoading ? 'Loading…' : 'Load More Entries'}
           </button>
         </div>
       )}

@@ -118,41 +118,41 @@ export default function AchievementBadges({ profile, quests }) {
       {/* Badge Unlock Celebration */}
       {showBadgeUnlock && (
         <div className="fixed top-6 right-6 z-50 animate-slide-in-up">
-          <div className="card-retro-success p-6 shadow-2xl max-w-sm">
+          <div className="kq-card p-6 shadow-candy-lg max-w-sm border-2 border-emerald">
             <div className="text-center">
               <div className="text-6xl mb-3 animate-bounce">{showBadgeUnlock.icon}</div>
-              <div className="text-2xl font-black text-[#10B981] mb-2">
-                BADGE UNLOCKED!
+              <div className="kq-display text-2xl text-emerald mb-2">
+                Badge unlocked!
               </div>
-              <div className="text-xl font-bold mb-2">{showBadgeUnlock.name}</div>
-              <div className="text-sm text-gray-300">{showBadgeUnlock.description}</div>
+              <div className="text-xl font-bold text-navy mb-2">{showBadgeUnlock.name}</div>
+              <div className="text-sm text-navy/60">{showBadgeUnlock.description}</div>
             </div>
           </div>
         </div>
       )}
 
       {/* Badge Display — earned only */}
-      <div className="card-retro border-[#F59E0B] p-6 mb-8">
+      <div className="kq-card border-2 border-gold p-6 mb-8">
         <div className="flex items-center gap-3 mb-4">
           <span className="text-3xl">🏆</span>
-          <h3 className="text-xl font-black uppercase text-[#F59E0B]">Achievements</h3>
+          <h3 className="kq-display text-xl text-gold">Achievements</h3>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {earnedBadges.map((badge) => (
             <div
               key={badge.id}
-              className="bg-[#0F172A] rounded-lg p-4 text-center border-2 border-[#F59E0B] transform hover:scale-105 cursor-pointer transition-all"
+              className="bg-cream rounded-candy p-4 text-center border-2 border-gold transform hover:scale-105 cursor-pointer transition-all"
               title={badge.description}
             >
               <div className="text-4xl mb-2">{badge.icon}</div>
-              <div className="text-sm font-black text-white">{badge.name}</div>
+              <div className="text-sm font-bold text-navy">{badge.name}</div>
             </div>
           ))}
         </div>
 
-        <div className="mt-4 pt-4 border-t border-gray-700 text-center">
-          <p className="text-sm text-gray-400">
+        <div className="mt-4 pt-4 border-t border-stone text-center">
+          <p className="text-sm text-navy/60">
             {earnedBadges.length} badge{earnedBadges.length !== 1 ? 's' : ''} earned. Keep questing to unlock more!
           </p>
         </div>

@@ -50,53 +50,53 @@ export default function MomentumBoost({ quests, profile, isPremium, onBoostUsed 
 
   return (
     <div className="fixed bottom-6 right-6 max-w-sm z-50 animate-slide-in-up">
-      <div className="card-retro border-[#48BB78] p-6 shadow-2xl">
+      <div className="kq-card border-2 border-emerald p-6">
         <div className="flex items-start gap-4">
           <div className="text-5xl">🌊</div>
           <div className="flex-1">
-            <h3 className="text-xl font-black text-[#48BB78] mb-2">
+            <h3 className="kq-display text-xl text-emerald mb-2">
               Behind on Momentum this week?
             </h3>
 
             {isPremium ? (
               <>
-                <p className="text-gray-300 mb-4">
+                <p className="text-navy/60 mb-4">
                   Use your weekly Momentum Boost to count today, no quest needed.
                 </p>
                 <div className="flex gap-2">
                   <button
                     onClick={() => setDismissed(true)}
-                    className="flex-1 btn-retro bg-gray-600 hover:bg-gray-500 border-gray-700 text-white py-2 text-sm"
+                    className="flex-1 kq-btn kq-btn-ghost py-2 text-sm"
                   >
                     Not Now
                   </button>
                   <button
                     onClick={handleUseBoost}
                     disabled={using}
-                    className="flex-1 btn-retro btn-success py-2 text-sm disabled:opacity-50"
+                    className="flex-1 kq-btn kq-btn-emerald py-2 text-sm disabled:opacity-50"
                   >
                     {using ? 'Using...' : 'Use Boost'}
                   </button>
                 </div>
               </>
             ) : (
-              <div className="bg-[#0F172A] border-2 border-[#7C3AED] rounded-lg p-4">
+              <div className="bg-cream border-2 border-purple rounded-candy p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-2xl">🌊</span>
-                  <div className="font-black text-[#7C3AED]">PREMIUM: MOMENTUM BOOST</div>
+                  <div className="kq-display text-purple">Premium: Momentum Boost</div>
                 </div>
-                <p className="text-sm text-gray-300 mb-3">
+                <p className="text-sm text-navy/60 mb-3">
                   Pro members get 1 Momentum Boost per week. Cover a busy day without losing progress.
                 </p>
                 <button
                   onClick={() => window.location.href = '/pricing'}
-                  className="w-full btn-retro btn-secondary text-sm py-2 mb-2"
+                  className="w-full kq-btn kq-btn-blue text-sm py-2 mb-2"
                 >
                   Upgrade for Momentum Boost
                 </button>
                 <button
                   onClick={() => setDismissed(true)}
-                  className="w-full text-gray-400 hover:text-white text-xs font-bold uppercase"
+                  className="w-full text-navy/50 hover:text-navy text-xs font-bold"
                 >
                   Dismiss
                 </button>

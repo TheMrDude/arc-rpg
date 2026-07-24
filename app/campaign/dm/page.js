@@ -31,12 +31,12 @@ function ChibiAvatar({ id, size = 48, className = '' }) {
 }
 
 const STATUS_CONFIG = {
-  alive: { label: 'Alive', color: '#4ade80' },
-  dead: { label: 'Dead', color: '#6b7280' },
-  enemy: { label: 'Enemy', color: '#f43f5e' },
-  ally: { label: 'Ally', color: '#22d3ee' },
-  unknown: { label: 'Unknown', color: '#94a3b8' },
-  neutral: { label: 'Neutral', color: '#f4c553' },
+  alive: { label: 'Alive', color: '#3BB273' },
+  dead: { label: 'Dead', color: '#94A3B8' },
+  enemy: { label: 'Enemy', color: '#FF7B6B' },
+  ally: { label: 'Ally', color: '#57D7F5' },
+  unknown: { label: 'Unknown', color: '#94A3B8' },
+  neutral: { label: 'Neutral', color: '#FFC83D' },
 };
 
 function toRoman(num) {
@@ -311,8 +311,8 @@ export default function DMDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0f172a] flex items-center justify-center">
-        <div className="text-[#22d3ee] text-xl font-bold animate-pulse">Loading Campaign HQ...</div>
+      <div className="kidquest min-h-screen bg-cream flex items-center justify-center">
+        <div className="text-hero-blue text-xl font-bold animate-pulse kq-display">Loading Campaign HQ...</div>
       </div>
     );
   }
@@ -320,45 +320,45 @@ export default function DMDashboard() {
   const inviteUrl = `https://habitquest.dev/campaign/join?code=${campaign?.invite_code}`;
 
   return (
-    <div className="min-h-screen bg-[#0f172a] text-white">
+    <div className="kidquest min-h-screen bg-cream text-navy">
 
       {/* TOP BAR */}
-      <div className="bg-[#1e293b] border-b border-gray-700/50 px-4 sm:px-6 py-3">
+      <div className="bg-white border-b border-stone px-4 sm:px-6 py-3">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3 flex-wrap">
-            <button onClick={() => router.push('/dashboard')} className="text-gray-500 hover:text-gray-300 text-sm">← Dashboard</button>
-            <div className="h-4 w-px bg-gray-700" />
+            <button onClick={() => router.push('/dashboard')} className="text-navy/50 hover:text-navy text-sm">← Dashboard</button>
+            <div className="h-4 w-px bg-stone" />
             <div>
-              <span className="font-black text-white text-sm">{campaign?.name}</span>
-              <span className="text-gray-500 text-xs ml-2">{campaign?.world_name}</span>
+              <span className="font-black text-navy text-sm kq-display">{campaign?.name}</span>
+              <span className="text-navy/50 text-xs ml-2">{campaign?.world_name}</span>
             </div>
-            <div className="h-4 w-px bg-gray-700" />
-            <span className="text-[#f4c553] text-xs font-black uppercase">Session {campaign?.current_session || 0}</span>
-            <div className="h-4 w-px bg-gray-700" />
+            <div className="h-4 w-px bg-stone" />
+            <span className="text-gold text-xs font-black uppercase">Session {campaign?.current_session || 0}</span>
+            <div className="h-4 w-px bg-stone" />
             <button
               onClick={() => router.push('/campaign/world')}
-              className="text-gray-400 hover:text-[#f4c553] text-xs font-bold transition-colors"
+              className="text-navy/50 hover:text-gold text-xs font-bold transition-colors"
             >
               🗺️ World Map
             </button>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-gray-500 text-xs font-mono">{campaign?.invite_code}</span>
+            <span className="text-navy/50 text-xs font-mono">{campaign?.invite_code}</span>
             <button
               onClick={copyInviteCode}
-              className="px-2 py-1 bg-[#22d3ee]/10 hover:bg-[#22d3ee]/20 border border-[#22d3ee]/30 text-[#22d3ee] text-xs font-bold rounded transition-colors"
+              className="px-2 py-1 bg-hero-blue/10 hover:bg-hero-blue/20 border border-hero-blue/30 text-hero-blue text-xs font-bold rounded-full transition-colors"
             >
               {copiedCode ? '✓ Copied' : 'Copy Code'}
             </button>
             <button
               onClick={copyInviteLink}
-              className="px-2 py-1 bg-gray-700/40 hover:bg-gray-700 text-gray-400 text-xs font-bold rounded transition-colors"
+              className="px-2 py-1 bg-stone/50 hover:bg-stone text-navy/60 text-xs font-bold rounded-full transition-colors"
             >
               Copy Link
             </button>
             <button
               onClick={() => setModal('settings')}
-              className="px-2 py-1 text-gray-500 hover:text-gray-300 text-sm rounded transition-colors"
+              className="px-2 py-1 text-navy/50 hover:text-navy text-sm rounded-full transition-colors"
               title="Campaign settings"
             >
               ⚙
@@ -372,16 +372,16 @@ export default function DMDashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr_280px] gap-4 lg:gap-6">
 
           {/* ===== LEFT: PARTY ROSTER ===== */}
-          <div className="bg-[#1e293b] border border-gray-700/50 rounded-xl p-4 h-fit">
+          <div className="kq-card p-4 h-fit">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xs font-black uppercase tracking-widest text-[#22d3ee]">
+              <h2 className="text-xs font-black uppercase tracking-widest text-hero-blue">
                 Party
               </h2>
-              <span className="text-gray-500 text-xs">{party.length}/6</span>
+              <span className="text-navy/50 text-xs">{party.length}/6</span>
             </div>
 
             {party.length === 0 ? (
-              <p className="text-gray-600 text-xs text-center py-4">No party members yet.</p>
+              <p className="text-navy/40 text-xs text-center py-4">No party members yet.</p>
             ) : (
               <div className="space-y-3">
                 {party.map(member => {
@@ -390,28 +390,28 @@ export default function DMDashboard() {
                   const xpPct = ((member.profile?.xp || 0) % 100);
                   return (
                     <div key={member.user_id} className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg overflow-hidden border border-gray-600 flex-shrink-0">
+                      <div className="w-10 h-10 rounded-lg overflow-hidden border border-stone flex-shrink-0">
                         <img
                           src={`/images/archetypes/${arch}.png`}
                           alt={arch}
                           className="w-full h-full object-cover"
-                          onError={e => { e.currentTarget.style.background = '#1e293b'; }}
+                          onError={e => { e.currentTarget.style.background = '#ECE7DD'; }}
                         />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5">
-                          <span className="text-white text-sm font-bold truncate">{member.character_name}</span>
+                          <span className="text-navy text-sm font-bold truncate">{member.character_name}</span>
                           {member.active_this_week
-                            ? <span className="text-green-400 text-xs flex-shrink-0" title="Active this week">✓</span>
-                            : <span className="text-red-400/60 text-xs flex-shrink-0" title="No activity">✗</span>
+                            ? <span className="text-emerald text-xs flex-shrink-0" title="Active this week">✓</span>
+                            : <span className="text-coral/60 text-xs flex-shrink-0" title="No activity">✗</span>
                           }
                         </div>
                         <div className="flex items-center gap-1.5">
-                          <span className="text-gray-500 text-xs capitalize">{arch}</span>
-                          <span className="text-[#22d3ee] text-xs">Lv.{lv}</span>
+                          <span className="text-navy/50 text-xs capitalize">{arch}</span>
+                          <span className="text-hero-blue text-xs">Lv.{lv}</span>
                         </div>
-                        <div className="mt-1 h-1 bg-gray-700 rounded-full overflow-hidden">
-                          <div className="h-full rounded-full bg-[#22d3ee]/60" style={{ width: `${xpPct}%` }} />
+                        <div className="mt-1 h-1 bg-stone rounded-full overflow-hidden">
+                          <div className="h-full rounded-full bg-hero-blue/60" style={{ width: `${xpPct}%` }} />
                         </div>
                       </div>
                     </div>
@@ -422,7 +422,7 @@ export default function DMDashboard() {
 
             <button
               onClick={copyInviteLink}
-              className="mt-4 w-full py-2 border border-dashed border-gray-600 hover:border-[#22d3ee]/50 text-gray-500 hover:text-[#22d3ee] text-xs font-bold rounded-lg transition-colors"
+              className="mt-4 w-full py-2 border border-dashed border-stone hover:border-hero-blue/50 text-navy/50 hover:text-hero-blue text-xs font-bold rounded-candy transition-colors"
             >
               + Invite Player
             </button>
@@ -432,23 +432,23 @@ export default function DMDashboard() {
           <div className="space-y-4">
 
             {/* Weekly Activity Feed */}
-            <div className="bg-[#1e293b] border border-gray-700/50 rounded-xl p-4">
+            <div className="kq-card p-4">
               <div className="flex items-center justify-between mb-3">
-                <h2 className="text-xs font-black uppercase tracking-widest text-[#f4c553]">
+                <h2 className="text-xs font-black uppercase tracking-widest text-gold">
                   Weekly Activity
                 </h2>
-                <span className="text-gray-600 text-xs">Last 7 days</span>
+                <span className="text-navy/40 text-xs">Last 7 days</span>
               </div>
 
               {party.length === 0 ? (
-                <p className="text-gray-600 text-xs py-2">Invite your party to see their activity.</p>
+                <p className="text-navy/40 text-xs py-2">Invite your party to see their activity.</p>
               ) : (
                 <div className="space-y-2">
                   {party.map(member => (
                     <div key={member.user_id} className="text-sm">
-                      <span className="text-[#f43f5e] font-bold">{member.character_name}</span>
+                      <span className="text-coral font-bold">{member.character_name}</span>
                       {member.recent_quests.length > 0 ? (
-                        <span className="text-gray-400">
+                        <span className="text-navy/60">
                           {': '}
                           {member.recent_quests.map((q, i) => (
                             <span key={i}>
@@ -458,7 +458,7 @@ export default function DMDashboard() {
                           ))}
                         </span>
                       ) : (
-                        <span className="text-gray-600">: No activity logged this week</span>
+                        <span className="text-navy/40">: No activity logged this week</span>
                       )}
                     </div>
                   ))}
@@ -467,21 +467,21 @@ export default function DMDashboard() {
 
               <button
                 onClick={generateIntro}
-                className="mt-4 px-4 py-2 bg-[#f4c553] hover:bg-[#eab308] text-[#0f172a] font-black text-xs uppercase tracking-wide rounded-lg transition-colors"
+                className="mt-4 kq-btn kq-btn-gold text-xs uppercase tracking-wide"
               >
                 Generate Session Intro →
               </button>
             </div>
 
             {/* NPC Library */}
-            <div className="bg-[#1e293b] border border-gray-700/50 rounded-xl p-4">
+            <div className="kq-card p-4">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xs font-black uppercase tracking-widest text-[#a78bfa]">
+                <h2 className="text-xs font-black uppercase tracking-widest text-purple">
                   NPC Library
                 </h2>
                 <button
                   onClick={openAddNpc}
-                  className="px-3 py-1 bg-[#a78bfa]/10 hover:bg-[#a78bfa]/20 border border-[#a78bfa]/30 text-[#a78bfa] text-xs font-bold rounded-lg transition-colors"
+                  className="px-3 py-1 bg-purple/10 hover:bg-purple/20 border border-purple/30 text-purple text-xs font-bold rounded-full transition-colors"
                 >
                   + Add NPC
                 </button>
@@ -489,8 +489,8 @@ export default function DMDashboard() {
 
               {npcs.length === 0 ? (
                 <div className="text-center py-6">
-                  <p className="text-gray-600 text-sm mb-1">No NPCs yet.</p>
-                  <p className="text-gray-700 text-xs">Add characters your party will encounter.</p>
+                  <p className="text-navy/40 text-sm mb-1">No NPCs yet.</p>
+                  <p className="text-navy/30 text-xs">Add characters your party will encounter.</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -500,10 +500,10 @@ export default function DMDashboard() {
                       <button
                         key={npc.id}
                         onClick={() => { setSelectedNpc(npc); setModal('npc-detail'); }}
-                        className="bg-[#0f172a] border border-gray-700/50 hover:border-[#a78bfa]/50 rounded-lg p-3 text-left transition-all"
+                        className="bg-cream border-2 border-stone hover:border-purple/50 rounded-candy p-3 text-left transition-all"
                       >
                         <ChibiAvatar id={npc.chibi_character_id || 1} size={40} className="mb-2" />
-                        <div className="text-white text-xs font-bold truncate">{npc.name}</div>
+                        <div className="text-navy text-xs font-bold truncate">{npc.name}</div>
                         <div className="flex items-center gap-1 mt-1">
                           <span
                             className="inline-block w-1.5 h-1.5 rounded-full flex-shrink-0"
@@ -512,7 +512,7 @@ export default function DMDashboard() {
                           <span className="text-xs" style={{ color: statusCfg.color }}>{statusCfg.label}</span>
                         </div>
                         {npc.current_location && (
-                          <div className="text-gray-600 text-xs mt-0.5 truncate">{npc.current_location}</div>
+                          <div className="text-navy/40 text-xs mt-0.5 truncate">{npc.current_location}</div>
                         )}
                       </button>
                     );
@@ -526,27 +526,27 @@ export default function DMDashboard() {
           <div className="space-y-4">
 
             {/* AI Tools */}
-            <div className="bg-[#1e293b] border border-gray-700/50 rounded-xl p-4">
-              <h2 className="text-xs font-black uppercase tracking-widest text-[#f43f5e] mb-3">
+            <div className="kq-card p-4">
+              <h2 className="text-xs font-black uppercase tracking-widest text-coral mb-3">
                 AI Tools
               </h2>
               <div className="space-y-2">
                 <button
                   onClick={generatePlotHook}
-                  className="w-full py-2.5 bg-[#f43f5e]/10 hover:bg-[#f43f5e]/20 border border-[#f43f5e]/30 text-[#f43f5e] font-bold text-xs rounded-lg transition-colors text-left px-3"
+                  className="w-full py-2.5 bg-coral/10 hover:bg-coral/20 border border-coral/30 text-coral font-bold text-xs rounded-candy transition-colors text-left px-3"
                 >
                   🎯 Generate Plot Hook
                 </button>
                 <button
                   onClick={() => { setRecapForm({ title: '', dm_notes: '' }); setAiResult(''); setModal('session-recap'); }}
-                  className="w-full py-2.5 bg-[#a78bfa]/10 hover:bg-[#a78bfa]/20 border border-[#a78bfa]/30 text-[#a78bfa] font-bold text-xs rounded-lg transition-colors text-left px-3"
+                  className="w-full py-2.5 bg-purple/10 hover:bg-purple/20 border border-purple/30 text-purple font-bold text-xs rounded-candy transition-colors text-left px-3"
                 >
                   📜 Write Session Recap
                 </button>
                 <button
                   onClick={() => { setDialogueForm({ npc_id: npcs[0]?.id || '', scenario: '' }); setAiResult(''); setModal('npc-dialogue'); }}
                   disabled={npcs.length === 0}
-                  className="w-full py-2.5 bg-[#22d3ee]/10 hover:bg-[#22d3ee]/20 border border-[#22d3ee]/30 text-[#22d3ee] font-bold text-xs rounded-lg transition-colors text-left px-3 disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="w-full py-2.5 bg-hero-blue/10 hover:bg-hero-blue/20 border border-hero-blue/30 text-hero-blue font-bold text-xs rounded-candy transition-colors text-left px-3 disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   💬 NPC Dialogue
                 </button>
@@ -554,28 +554,28 @@ export default function DMDashboard() {
             </div>
 
             {/* Session Log */}
-            <div className="bg-[#1e293b] border border-gray-700/50 rounded-xl p-4">
-              <h2 className="text-xs font-black uppercase tracking-widest text-[#22d3ee] mb-3">
+            <div className="kq-card p-4">
+              <h2 className="text-xs font-black uppercase tracking-widest text-hero-blue mb-3">
                 Session Log
               </h2>
               {sessionLogs.length === 0 ? (
-                <p className="text-gray-600 text-xs py-2">No sessions recorded yet. Use "Write Session Recap" to add one.</p>
+                <p className="text-navy/40 text-xs py-2">No sessions recorded yet. Use "Write Session Recap" to add one.</p>
               ) : (
                 <div className="space-y-2">
                   {sessionLogs.map(log => (
-                    <div key={log.id} className="border border-gray-700/50 rounded-lg overflow-hidden">
+                    <div key={log.id} className="border border-stone rounded-candy overflow-hidden">
                       <button
                         onClick={() => setExpandedSession(expandedSession === log.id ? null : log.id)}
-                        className="w-full flex items-center justify-between p-3 hover:bg-[#0f172a]/40 transition-colors text-left"
+                        className="w-full flex items-center justify-between p-3 hover:bg-cream transition-colors text-left"
                       >
                         <div>
-                          <span className="text-[#22d3ee] font-black text-xs">Session {toRoman(log.session_number)}</span>
-                          <p className="text-gray-300 text-xs mt-0.5">{log.title}</p>
+                          <span className="text-hero-blue font-black text-xs">Session {toRoman(log.session_number)}</span>
+                          <p className="text-navy/70 text-xs mt-0.5">{log.title}</p>
                         </div>
-                        <span className="text-gray-600 text-xs ml-2">{expandedSession === log.id ? '▲' : '▼'}</span>
+                        <span className="text-navy/40 text-xs ml-2">{expandedSession === log.id ? '▲' : '▼'}</span>
                       </button>
                       {expandedSession === log.id && log.ai_narrative && (
-                        <div className="px-3 pb-3 text-gray-400 text-xs leading-relaxed border-t border-gray-700/50 pt-2 max-h-48 overflow-y-auto">
+                        <div className="px-3 pb-3 text-navy/60 text-xs leading-relaxed border-t border-stone pt-2 max-h-48 overflow-y-auto">
                           {log.ai_narrative}
                         </div>
                       )}
@@ -591,9 +591,9 @@ export default function DMDashboard() {
 
       {/* ===== MODALS ===== */}
       {modal && (
-        <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4" onClick={closeModal}>
+        <div className="fixed inset-0 bg-navy/60 z-50 flex items-center justify-center p-4" onClick={closeModal}>
           <div
-            className="bg-[#1e293b] border border-gray-600 rounded-xl w-full max-h-[90vh] overflow-y-auto"
+            className="kq-card w-full max-h-[90vh] overflow-y-auto"
             style={{ maxWidth: modal === 'add-npc' || modal === 'edit-npc' ? 600 : 560 }}
             onClick={e => e.stopPropagation()}
           >
@@ -602,29 +602,29 @@ export default function DMDashboard() {
             {(modal === 'gen-intro' || modal === 'plot-hook') && (
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-black text-white uppercase tracking-wide text-sm">
+                  <h3 className="font-black text-navy text-sm kq-display">
                     {modal === 'gen-intro' ? '🎲 Session Opening' : '🎯 Plot Hook'}
                   </h3>
-                  <button onClick={closeModal} className="text-gray-500 hover:text-white">✕</button>
+                  <button onClick={closeModal} className="text-navy/40 hover:text-navy">✕</button>
                 </div>
                 {aiLoading ? (
                   <div className="py-10 text-center">
-                    <div className="text-[#22d3ee] animate-pulse font-bold">Weaving the narrative...</div>
+                    <div className="text-hero-blue animate-pulse font-bold">Weaving the narrative...</div>
                   </div>
                 ) : aiResult ? (
                   <>
-                    <div className="bg-[#0f172a] rounded-lg p-4 text-gray-200 text-sm leading-relaxed whitespace-pre-wrap mb-4">
+                    <div className="bg-cream border border-stone rounded-candy p-4 text-navy/80 text-sm leading-relaxed whitespace-pre-wrap mb-4">
                       {aiResult}
                     </div>
                     <button
                       onClick={copyAiResult}
-                      className="px-4 py-2 bg-[#22d3ee]/10 hover:bg-[#22d3ee]/20 border border-[#22d3ee]/30 text-[#22d3ee] font-bold text-sm rounded-lg transition-colors"
+                      className="px-4 py-2 bg-hero-blue/10 hover:bg-hero-blue/20 border border-hero-blue/30 text-hero-blue font-bold text-sm rounded-candy transition-colors"
                     >
                       {aiCopied ? '✓ Copied!' : 'Copy to Clipboard'}
                     </button>
                   </>
                 ) : (
-                  <div className="py-6 text-center text-gray-500 text-sm">No result yet.</div>
+                  <div className="py-6 text-center text-navy/40 text-sm">No result yet.</div>
                 )}
               </div>
             )}
@@ -633,49 +633,49 @@ export default function DMDashboard() {
             {modal === 'session-recap' && (
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-black text-white uppercase tracking-wide text-sm">📜 Write Session Recap</h3>
-                  <button onClick={closeModal} className="text-gray-500 hover:text-white">✕</button>
+                  <h3 className="font-black text-navy text-sm kq-display">📜 Write Session Recap</h3>
+                  <button onClick={closeModal} className="text-navy/40 hover:text-navy">✕</button>
                 </div>
                 {!aiResult ? (
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-1">Session Title</label>
+                      <label className="kq-label">Session Title</label>
                       <input
                         type="text"
                         value={recapForm.title}
                         onChange={e => setRecapForm(f => ({ ...f, title: e.target.value }))}
                         placeholder="The Battle of Stone Bridge"
-                        className="w-full bg-[#0f172a] border border-gray-600 focus:border-[#a78bfa] rounded-lg px-3 py-2 text-white placeholder-gray-600 outline-none text-sm"
+                        className="kq-input"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-1">DM Notes (bullet points) *</label>
+                      <label className="kq-label">DM Notes (bullet points) *</label>
                       <textarea
                         value={recapForm.dm_notes}
                         onChange={e => setRecapForm(f => ({ ...f, dm_notes: e.target.value }))}
                         placeholder="- Party arrived at the city gates&#10;- Aldric challenged the guard captain&#10;- Found the hidden passage..."
                         rows={6}
-                        className="w-full bg-[#0f172a] border border-gray-600 focus:border-[#a78bfa] rounded-lg px-3 py-2 text-white placeholder-gray-600 outline-none text-sm resize-none"
+                        className="kq-input resize-none"
                       />
                     </div>
                     <button
                       onClick={generateRecap}
                       disabled={aiLoading || !recapForm.dm_notes.trim()}
-                      className="w-full py-2.5 bg-[#a78bfa] hover:bg-[#9333ea] text-white font-black uppercase tracking-wide text-sm rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full kq-btn kq-btn-blue text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {aiLoading ? 'Writing chronicle...' : 'Generate Chronicle'}
                     </button>
                   </div>
                 ) : (
                   <>
-                    <div className="bg-[#0f172a] rounded-lg p-4 text-gray-200 text-sm leading-relaxed whitespace-pre-wrap mb-4 max-h-72 overflow-y-auto">
+                    <div className="bg-cream border border-stone rounded-candy p-4 text-navy/80 text-sm leading-relaxed whitespace-pre-wrap mb-4 max-h-72 overflow-y-auto">
                       {aiResult}
                     </div>
                     <div className="flex gap-2">
-                      <button onClick={copyAiResult} className="px-4 py-2 bg-[#22d3ee]/10 hover:bg-[#22d3ee]/20 border border-[#22d3ee]/30 text-[#22d3ee] font-bold text-sm rounded-lg transition-colors">
+                      <button onClick={copyAiResult} className="px-4 py-2 bg-hero-blue/10 hover:bg-hero-blue/20 border border-hero-blue/30 text-hero-blue font-bold text-sm rounded-candy transition-colors">
                         {aiCopied ? '✓ Copied!' : 'Copy'}
                       </button>
-                      <button onClick={() => { setAiResult(''); setRecapForm({ title: '', dm_notes: '' }); }} className="px-4 py-2 border border-gray-600 text-gray-400 hover:text-white font-bold text-sm rounded-lg transition-colors">
+                      <button onClick={() => { setAiResult(''); setRecapForm({ title: '', dm_notes: '' }); }} className="kq-btn kq-btn-ghost text-sm">
                         New Recap
                       </button>
                     </div>
@@ -688,50 +688,50 @@ export default function DMDashboard() {
             {modal === 'npc-dialogue' && (
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-black text-white uppercase tracking-wide text-sm">💬 NPC Dialogue</h3>
-                  <button onClick={closeModal} className="text-gray-500 hover:text-white">✕</button>
+                  <h3 className="font-black text-navy text-sm kq-display">💬 NPC Dialogue</h3>
+                  <button onClick={closeModal} className="text-navy/40 hover:text-navy">✕</button>
                 </div>
                 {!aiResult ? (
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-1">Select NPC *</label>
+                      <label className="kq-label">Select NPC *</label>
                       <select
                         value={dialogueForm.npc_id}
                         onChange={e => setDialogueForm(f => ({ ...f, npc_id: e.target.value }))}
-                        className="w-full bg-[#0f172a] border border-gray-600 focus:border-[#22d3ee] rounded-lg px-3 py-2 text-white outline-none text-sm"
+                        className="kq-input"
                       >
                         <option value="">Select NPC...</option>
                         {npcs.map(n => <option key={n.id} value={n.id}>{n.name}</option>)}
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-1">Scenario *</label>
+                      <label className="kq-label">Scenario *</label>
                       <textarea
                         value={dialogueForm.scenario}
                         onChange={e => setDialogueForm(f => ({ ...f, scenario: e.target.value }))}
                         placeholder="The party confronts the NPC about the stolen artifact..."
                         rows={3}
-                        className="w-full bg-[#0f172a] border border-gray-600 focus:border-[#22d3ee] rounded-lg px-3 py-2 text-white placeholder-gray-600 outline-none text-sm resize-none"
+                        className="kq-input resize-none"
                       />
                     </div>
                     <button
                       onClick={generateDialogue}
                       disabled={aiLoading || !dialogueForm.npc_id || !dialogueForm.scenario.trim()}
-                      className="w-full py-2.5 bg-[#22d3ee] hover:bg-[#06b6d4] text-[#0f172a] font-black uppercase tracking-wide text-sm rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full kq-btn kq-btn-blue text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {aiLoading ? 'Voicing...' : 'Generate Dialogue'}
                     </button>
                   </div>
                 ) : (
                   <>
-                    <div className="bg-[#0f172a] rounded-lg p-4 text-gray-200 text-sm leading-relaxed whitespace-pre-wrap mb-4 font-mono">
+                    <div className="bg-cream border border-stone rounded-candy p-4 text-navy/80 text-sm leading-relaxed whitespace-pre-wrap mb-4 font-mono">
                       {aiResult}
                     </div>
                     <div className="flex gap-2">
-                      <button onClick={copyAiResult} className="px-4 py-2 bg-[#22d3ee]/10 hover:bg-[#22d3ee]/20 border border-[#22d3ee]/30 text-[#22d3ee] font-bold text-sm rounded-lg transition-colors">
+                      <button onClick={copyAiResult} className="px-4 py-2 bg-hero-blue/10 hover:bg-hero-blue/20 border border-hero-blue/30 text-hero-blue font-bold text-sm rounded-candy transition-colors">
                         {aiCopied ? '✓ Copied!' : 'Copy'}
                       </button>
-                      <button onClick={() => setAiResult('')} className="px-4 py-2 border border-gray-600 text-gray-400 hover:text-white font-bold text-sm rounded-lg transition-colors">
+                      <button onClick={() => setAiResult('')} className="kq-btn kq-btn-ghost text-sm">
                         Try Again
                       </button>
                     </div>
@@ -747,19 +747,19 @@ export default function DMDashboard() {
                   <div className="flex items-center gap-3">
                     <ChibiAvatar id={selectedNpc.chibi_character_id || 1} size={48} />
                     <div>
-                      <h3 className="font-black text-white text-lg">{selectedNpc.name}</h3>
-                      {selectedNpc.archetype && <p className="text-gray-400 text-xs capitalize">{selectedNpc.archetype}</p>}
+                      <h3 className="font-black text-navy text-lg kq-display">{selectedNpc.name}</h3>
+                      {selectedNpc.archetype && <p className="text-navy/50 text-xs capitalize">{selectedNpc.archetype}</p>}
                     </div>
                   </div>
-                  <button onClick={closeModal} className="text-gray-500 hover:text-white">✕</button>
+                  <button onClick={closeModal} className="text-navy/40 hover:text-navy">✕</button>
                 </div>
 
                 <div className="space-y-3 text-sm">
                   {selectedNpc.status && (
                     <div className="flex items-center gap-2">
-                      <span className="text-gray-500 text-xs w-28 flex-shrink-0">Status</span>
+                      <span className="text-navy/50 text-xs w-28 flex-shrink-0">Status</span>
                       <span
-                        className="font-bold capitalize px-2 py-0.5 rounded text-xs"
+                        className="font-bold capitalize px-2 py-0.5 rounded-full text-xs"
                         style={{
                           color: STATUS_CONFIG[selectedNpc.status]?.color,
                           backgroundColor: STATUS_CONFIG[selectedNpc.status]?.color + '22',
@@ -771,32 +771,32 @@ export default function DMDashboard() {
                   )}
                   {selectedNpc.current_location && (
                     <div className="flex gap-2">
-                      <span className="text-gray-500 text-xs w-28 flex-shrink-0">Location</span>
-                      <span className="text-gray-300">{selectedNpc.current_location}</span>
+                      <span className="text-navy/50 text-xs w-28 flex-shrink-0">Location</span>
+                      <span className="text-navy/70">{selectedNpc.current_location}</span>
                     </div>
                   )}
                   {selectedNpc.relationship_to_party && (
                     <div className="flex gap-2">
-                      <span className="text-gray-500 text-xs w-28 flex-shrink-0">Relationship</span>
-                      <span className="text-gray-300">{selectedNpc.relationship_to_party}</span>
+                      <span className="text-navy/50 text-xs w-28 flex-shrink-0">Relationship</span>
+                      <span className="text-navy/70">{selectedNpc.relationship_to_party}</span>
                     </div>
                   )}
                   {selectedNpc.personality && (
                     <div>
-                      <p className="text-gray-500 text-xs mb-1 uppercase tracking-widest">Personality</p>
-                      <p className="text-gray-300 bg-[#0f172a] rounded-lg p-3">{selectedNpc.personality}</p>
+                      <p className="text-navy/50 text-xs mb-1 uppercase tracking-widest">Personality</p>
+                      <p className="text-navy/70 bg-cream border border-stone rounded-candy p-3">{selectedNpc.personality}</p>
                     </div>
                   )}
                   {selectedNpc.backstory && (
                     <div>
-                      <p className="text-gray-500 text-xs mb-1 uppercase tracking-widest">Backstory</p>
-                      <p className="text-gray-300 bg-[#0f172a] rounded-lg p-3">{selectedNpc.backstory}</p>
+                      <p className="text-navy/50 text-xs mb-1 uppercase tracking-widest">Backstory</p>
+                      <p className="text-navy/70 bg-cream border border-stone rounded-candy p-3">{selectedNpc.backstory}</p>
                     </div>
                   )}
                   {selectedNpc.notes && (
                     <div>
-                      <p className="text-gray-500 text-xs mb-1 uppercase tracking-widest">Notes</p>
-                      <p className="text-gray-300 bg-[#0f172a] rounded-lg p-3">{selectedNpc.notes}</p>
+                      <p className="text-navy/50 text-xs mb-1 uppercase tracking-widest">Notes</p>
+                      <p className="text-navy/70 bg-cream border border-stone rounded-candy p-3">{selectedNpc.notes}</p>
                     </div>
                   )}
                 </div>
@@ -804,7 +804,7 @@ export default function DMDashboard() {
                 <div className="flex gap-2 mt-5">
                   <button
                     onClick={() => openEditNpc(selectedNpc)}
-                    className="px-4 py-2 bg-[#a78bfa]/10 hover:bg-[#a78bfa]/20 border border-[#a78bfa]/30 text-[#a78bfa] font-bold text-sm rounded-lg transition-colors"
+                    className="px-4 py-2 bg-purple/10 hover:bg-purple/20 border border-purple/30 text-purple font-bold text-sm rounded-candy transition-colors"
                   >
                     Edit NPC
                   </button>
@@ -814,7 +814,7 @@ export default function DMDashboard() {
                       setAiResult('');
                       setModal('npc-dialogue');
                     }}
-                    className="px-4 py-2 bg-[#22d3ee]/10 hover:bg-[#22d3ee]/20 border border-[#22d3ee]/30 text-[#22d3ee] font-bold text-sm rounded-lg transition-colors"
+                    className="px-4 py-2 bg-hero-blue/10 hover:bg-hero-blue/20 border border-hero-blue/30 text-hero-blue font-bold text-sm rounded-candy transition-colors"
                   >
                     Generate Dialogue
                   </button>
@@ -826,42 +826,42 @@ export default function DMDashboard() {
             {(modal === 'add-npc' || modal === 'edit-npc') && (
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-black text-white uppercase tracking-wide text-sm">
+                  <h3 className="font-black text-navy text-sm kq-display">
                     {modal === 'edit-npc' ? 'Edit NPC' : '+ Add NPC'}
                   </h3>
-                  <button onClick={closeModal} className="text-gray-500 hover:text-white">✕</button>
+                  <button onClick={closeModal} className="text-navy/40 hover:text-navy">✕</button>
                 </div>
                 <form onSubmit={saveNpc} className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-1">Name *</label>
+                      <label className="kq-label">Name *</label>
                       <input
                         type="text"
                         value={npcForm.name}
                         onChange={e => setNpcForm(f => ({ ...f, name: e.target.value }))}
                         required
                         placeholder="Morgath the Wanderer"
-                        className="w-full bg-[#0f172a] border border-gray-600 focus:border-[#a78bfa] rounded-lg px-3 py-2 text-white placeholder-gray-600 outline-none text-sm"
+                        className="kq-input"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-1">Archetype</label>
+                      <label className="kq-label">Archetype</label>
                       <input
                         type="text"
                         value={npcForm.archetype}
                         onChange={e => setNpcForm(f => ({ ...f, archetype: e.target.value }))}
                         placeholder="Merchant, Guard, Villain..."
-                        className="w-full bg-[#0f172a] border border-gray-600 focus:border-[#a78bfa] rounded-lg px-3 py-2 text-white placeholder-gray-600 outline-none text-sm"
+                        className="kq-input"
                       />
                     </div>
                   </div>
 
                   {/* Chibi picker */}
                   <div>
-                    <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-2">
+                    <label className="kq-label">
                       Design #{npcForm.chibi_character_id}
                     </label>
-                    <div className="flex flex-wrap gap-1.5 max-h-28 overflow-y-auto bg-[#0f172a] rounded-lg p-2">
+                    <div className="flex flex-wrap gap-1.5 max-h-28 overflow-y-auto bg-cream border border-stone rounded-candy p-2">
                       {Array.from({ length: 47 }, (_, i) => i + 1).map(id => (
                         <button
                           key={id}
@@ -881,11 +881,11 @@ export default function DMDashboard() {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-1">Status</label>
+                      <label className="kq-label">Status</label>
                       <select
                         value={npcForm.status}
                         onChange={e => setNpcForm(f => ({ ...f, status: e.target.value }))}
-                        className="w-full bg-[#0f172a] border border-gray-600 focus:border-[#a78bfa] rounded-lg px-3 py-2 text-white outline-none text-sm"
+                        className="kq-input"
                       >
                         {Object.entries(STATUS_CONFIG).map(([k, v]) => (
                           <option key={k} value={k}>{v.label}</option>
@@ -893,71 +893,71 @@ export default function DMDashboard() {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-1">Location</label>
+                      <label className="kq-label">Location</label>
                       <input
                         type="text"
                         value={npcForm.current_location}
                         onChange={e => setNpcForm(f => ({ ...f, current_location: e.target.value }))}
                         placeholder="The Docks"
-                        className="w-full bg-[#0f172a] border border-gray-600 focus:border-[#a78bfa] rounded-lg px-3 py-2 text-white placeholder-gray-600 outline-none text-sm"
+                        className="kq-input"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-1">Relationship to Party</label>
+                    <label className="kq-label">Relationship to Party</label>
                     <input
                       type="text"
                       value={npcForm.relationship_to_party}
                       onChange={e => setNpcForm(f => ({ ...f, relationship_to_party: e.target.value }))}
                       placeholder="Suspicious ally, wants something from them"
-                      className="w-full bg-[#0f172a] border border-gray-600 focus:border-[#a78bfa] rounded-lg px-3 py-2 text-white placeholder-gray-600 outline-none text-sm"
+                      className="kq-input"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-1">Personality</label>
+                    <label className="kq-label">Personality</label>
                     <textarea
                       value={npcForm.personality}
                       onChange={e => setNpcForm(f => ({ ...f, personality: e.target.value }))}
                       rows={2}
                       placeholder="Cautious, speaks in riddles, deeply loyal to old oaths"
-                      className="w-full bg-[#0f172a] border border-gray-600 focus:border-[#a78bfa] rounded-lg px-3 py-2 text-white placeholder-gray-600 outline-none text-sm resize-none"
+                      className="kq-input resize-none"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-1">Backstory</label>
+                    <label className="kq-label">Backstory</label>
                     <textarea
                       value={npcForm.backstory}
                       onChange={e => setNpcForm(f => ({ ...f, backstory: e.target.value }))}
                       rows={2}
                       placeholder="Former royal guard, exiled after..."
-                      className="w-full bg-[#0f172a] border border-gray-600 focus:border-[#a78bfa] rounded-lg px-3 py-2 text-white placeholder-gray-600 outline-none text-sm resize-none"
+                      className="kq-input resize-none"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-1">AI Voice Description</label>
+                    <label className="kq-label">AI Voice Description</label>
                     <input
                       type="text"
                       value={npcForm.ai_voice_description}
                       onChange={e => setNpcForm(f => ({ ...f, ai_voice_description: e.target.value }))}
                       placeholder="Gravelly voice, uses old-fashioned speech, often sighs"
-                      className="w-full bg-[#0f172a] border border-gray-600 focus:border-[#a78bfa] rounded-lg px-3 py-2 text-white placeholder-gray-600 outline-none text-sm"
+                      className="kq-input"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-1">Notes</label>
+                    <label className="kq-label">Notes</label>
                     <textarea
                       value={npcForm.notes}
                       onChange={e => setNpcForm(f => ({ ...f, notes: e.target.value }))}
                       rows={2}
                       placeholder="Knows location of the artifact. Will betray party if threatened."
-                      className="w-full bg-[#0f172a] border border-gray-600 focus:border-[#a78bfa] rounded-lg px-3 py-2 text-white placeholder-gray-600 outline-none text-sm resize-none"
+                      className="kq-input resize-none"
                     />
                   </div>
                   <button
                     type="submit"
                     disabled={npcSaving || !npcForm.name.trim()}
-                    className="w-full py-2.5 bg-[#a78bfa] hover:bg-[#9333ea] text-white font-black uppercase tracking-wide text-sm rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full kq-btn kq-btn-emerald text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {npcSaving ? 'Saving...' : modal === 'edit-npc' ? 'Save Changes' : 'Add NPC'}
                   </button>
@@ -969,32 +969,32 @@ export default function DMDashboard() {
             {modal === 'settings' && (
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-black text-white uppercase tracking-wide text-sm">⚙ Campaign Settings</h3>
-                  <button onClick={closeModal} className="text-gray-500 hover:text-white">✕</button>
+                  <h3 className="font-black text-navy text-sm kq-display">⚙ Campaign Settings</h3>
+                  <button onClick={closeModal} className="text-navy/40 hover:text-navy">✕</button>
                 </div>
                 <div className="space-y-4">
-                  <div className="bg-[#0f172a] rounded-lg p-4">
-                    <p className="text-gray-400 text-xs uppercase tracking-widest mb-2">Campaign</p>
-                    <p className="text-white font-black">{campaign?.name}</p>
-                    <p className="text-gray-500 text-sm">{campaign?.world_name}</p>
-                    {campaign?.description && <p className="text-gray-400 text-sm mt-2">{campaign.description}</p>}
+                  <div className="bg-cream border border-stone rounded-candy p-4">
+                    <p className="text-navy/50 text-xs uppercase tracking-widest mb-2">Campaign</p>
+                    <p className="text-navy font-black">{campaign?.name}</p>
+                    <p className="text-navy/50 text-sm">{campaign?.world_name}</p>
+                    {campaign?.description && <p className="text-navy/60 text-sm mt-2">{campaign.description}</p>}
                   </div>
-                  <div className="bg-[#0f172a] rounded-lg p-4">
-                    <p className="text-gray-400 text-xs uppercase tracking-widest mb-2">Invite Link</p>
-                    <p className="text-[#22d3ee] font-mono text-sm break-all">{inviteUrl}</p>
+                  <div className="bg-cream border border-stone rounded-candy p-4">
+                    <p className="text-navy/50 text-xs uppercase tracking-widest mb-2">Invite Link</p>
+                    <p className="text-hero-blue font-mono text-sm break-all">{inviteUrl}</p>
                     <button
                       onClick={() => { copyInviteLink(); }}
-                      className="mt-2 px-3 py-1.5 bg-[#22d3ee]/10 hover:bg-[#22d3ee]/20 border border-[#22d3ee]/30 text-[#22d3ee] font-bold text-xs rounded-lg transition-colors"
+                      className="mt-2 px-3 py-1.5 bg-hero-blue/10 hover:bg-hero-blue/20 border border-hero-blue/30 text-hero-blue font-bold text-xs rounded-candy transition-colors"
                     >
                       {copiedCode ? '✓ Copied!' : 'Copy Invite Link'}
                     </button>
                   </div>
-                  <div className="bg-[#0f172a] rounded-lg p-4">
-                    <p className="text-gray-400 text-xs uppercase tracking-widest mb-2">Invite Code</p>
-                    <p className="text-[#f4c553] font-black font-mono text-2xl tracking-widest">{campaign?.invite_code}</p>
+                  <div className="bg-cream border border-stone rounded-candy p-4">
+                    <p className="text-navy/50 text-xs uppercase tracking-widest mb-2">Invite Code</p>
+                    <p className="text-gold font-black font-mono text-2xl tracking-widest">{campaign?.invite_code}</p>
                   </div>
                 </div>
-                <button onClick={closeModal} className="mt-4 w-full py-2 border border-gray-600 text-gray-400 hover:text-white font-bold text-sm rounded-lg transition-colors">
+                <button onClick={closeModal} className="mt-4 w-full kq-btn kq-btn-ghost text-sm">
                   Close
                 </button>
               </div>

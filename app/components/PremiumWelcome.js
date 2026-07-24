@@ -9,25 +9,25 @@ const FEATURE_SLIDES = [
     icon: '🔄',
     title: 'Recurring Quests',
     description: 'Create habits that repeat automatically - daily, weekly, or custom intervals. Build consistency without manual effort.',
-    color: '#00D4FF',
+    color: '#4F7DF3',
   },
   {
     icon: '🎭',
     title: 'Switch Archetypes',
     description: 'Transform your hero anytime. Experiment with different playstyles as your journey evolves.',
-    color: '#FF6B6B',
+    color: '#FF7B6B',
   },
   {
     icon: '📚',
     title: 'Quest Templates',
     description: 'Access 15+ professionally designed quest packs. Clone entire routines with one click.',
-    color: '#FFD93D',
+    color: '#FFC83D',
   },
   {
     icon: '⚔️',
     title: 'Equipment & Companions',
     description: 'Collect legendary gear and companions. Boost your XP, keep your momentum, and customize your hero.',
-    color: '#48BB78',
+    color: '#3DBE7C',
   },
 ];
 
@@ -54,7 +54,7 @@ export default function PremiumWelcome({ show, onClose }) {
           ...defaults,
           particleCount,
           origin: { x: Math.random(), y: Math.random() - 0.2 },
-          colors: ['#FFD93D', '#FF6B6B', '#00D4FF', '#48BB78'],
+          colors: ['#FFC83D', '#FF7B6B', '#4F7DF3', '#3DBE7C'],
         });
       }, 250);
 
@@ -87,11 +87,11 @@ export default function PremiumWelcome({ show, onClose }) {
         exit={{ opacity: 0 }}
       >
         {/* Backdrop */}
-        <div className="absolute inset-0 bg-black bg-opacity-80 backdrop-blur-md" />
+        <div className="absolute inset-0 bg-navy/70 backdrop-blur-md" />
 
         {/* Welcome Modal */}
         <motion.div
-          className="relative bg-gradient-to-br from-[#1A1A2E] via-[#16213e] to-[#0F3460] rounded-3xl shadow-2xl max-w-2xl w-full overflow-hidden border-4 border-[#FFD93D]"
+          className="relative kq-card max-w-2xl w-full overflow-hidden"
           initial={{ scale: 0.8, opacity: 0, y: 50 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.8, opacity: 0, y: 50 }}
@@ -123,7 +123,7 @@ export default function PremiumWelcome({ show, onClose }) {
           </div>
 
           {/* Header */}
-          <div className="relative bg-gradient-to-r from-[#FFD93D] to-[#FF6B6B] p-8 text-center border-b-4 border-[#0F3460]">
+          <div className="relative bg-gradient-to-r from-gold to-coral p-8 text-center">
             <motion.div
               className="text-7xl mb-4"
               animate={{
@@ -137,13 +137,10 @@ export default function PremiumWelcome({ show, onClose }) {
             >
               ⚡
             </motion.div>
-            <h1
-              className="text-5xl font-black text-[#0F3460] mb-2 uppercase tracking-wide"
-              style={{ fontFamily: 'VT323, monospace' }}
-            >
+            <h1 className="kq-display text-5xl text-navy mb-2">
               Welcome, Pro Member!
             </h1>
-            <p className="text-[#1A1A2E] font-bold text-lg">
+            <p className="text-navy/80 font-bold text-lg">
               You've unlocked the full HabitQuest experience
             </p>
           </div>
@@ -174,16 +171,13 @@ export default function PremiumWelcome({ show, onClose }) {
                 </motion.div>
 
                 <h2
-                  className="text-4xl font-black mb-4 uppercase tracking-wide"
-                  style={{
-                    color: currentFeature.color,
-                    fontFamily: 'VT323, monospace',
-                  }}
+                  className="kq-display text-4xl mb-4"
+                  style={{ color: currentFeature.color }}
                 >
                   {currentFeature.title}
                 </h2>
 
-                <p className="text-white text-xl leading-relaxed max-w-lg mx-auto">
+                <p className="text-navy/80 text-xl leading-relaxed max-w-lg mx-auto">
                   {currentFeature.description}
                 </p>
               </motion.div>
@@ -198,8 +192,8 @@ export default function PremiumWelcome({ show, onClose }) {
                   className={
                     'h-3 rounded-full transition-all ' +
                     (index === currentSlide
-                      ? 'w-12 bg-[#FFD93D]'
-                      : 'w-3 bg-gray-500 hover:bg-gray-400')
+                      ? 'w-12 bg-gold'
+                      : 'w-3 bg-navy/20 hover:bg-navy/30')
                   }
                 />
               ))}
@@ -207,21 +201,21 @@ export default function PremiumWelcome({ show, onClose }) {
           </div>
 
           {/* Footer Buttons */}
-          <div className="relative p-6 bg-[#0F3460] border-t-3 border-[#1A1A2E] flex justify-between items-center">
+          <div className="relative p-6 border-t-2 border-stone flex justify-between items-center">
             <button
               onClick={handleSkip}
-              className="px-6 py-3 text-gray-300 hover:text-white font-bold transition-colors"
+              className="kq-btn kq-btn-ghost"
             >
               Skip Tour
             </button>
 
-            <div className="text-sm text-gray-400 font-bold">
+            <div className="text-sm text-navy/50 font-bold">
               {currentSlide + 1} / {FEATURE_SLIDES.length}
             </div>
 
             <button
               onClick={handleNext}
-              className="px-8 py-4 bg-[#FFD93D] hover:bg-[#E6C335] text-[#1A1A2E] border-3 border-[#0F3460] rounded-lg font-black uppercase tracking-wide shadow-[0_5px_0_#1A1A2E] hover:shadow-[0_7px_0_#1A1A2E] hover:-translate-y-0.5 active:shadow-[0_2px_0_#1A1A2E] active:translate-y-1 transition-all"
+              className="kq-btn kq-btn-gold"
             >
               {currentSlide < FEATURE_SLIDES.length - 1 ? 'Next' : "Let's Go!"}
             </button>

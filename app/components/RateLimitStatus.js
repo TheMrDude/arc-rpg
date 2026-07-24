@@ -63,9 +63,9 @@ export default function RateLimitStatus({ userId, isPremium, onUpgradeClick }) {
   const journalPercentage = (limits.journalTransforms.current / limits.journalTransforms.limit) * 100;
 
   const getStatusColor = (percentage) => {
-    if (percentage >= 90) return '#FF6B6B'; // Red - almost at limit
-    if (percentage >= 70) return '#FFD93D'; // Yellow - getting close
-    return '#48BB78'; // Green - plenty left
+    if (percentage >= 90) return '#FF7B6B'; // Coral - almost at limit
+    if (percentage >= 70) return '#FFC83D'; // Gold - getting close
+    return '#4CAF7D'; // Emerald - plenty left
   };
 
   const formatResetTime = (resetAt) => {
@@ -94,13 +94,13 @@ export default function RateLimitStatus({ userId, isPremium, onUpgradeClick }) {
   const showWarning = !isPremium && (questRemaining <= 5 || journalRemaining <= 1);
 
   return (
-    <div className="bg-[#1A1A2E] border-3 border-[#00D4FF] rounded-lg p-4 mb-6">
+    <div className="kq-card p-4 mb-6">
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-3">
           <span className="text-2xl">⚡</span>
           <div>
-            <h3 className="font-black uppercase text-[#00D4FF] text-sm">AI Usage</h3>
-            <p className="text-xs text-gray-400">
+            <h3 className="font-bold text-hero-blue text-sm kq-display">AI Usage</h3>
+            <p className="text-xs text-navy/60">
               {isPremium ? 'Premium - High Limits' : 'Free Tier - Daily Limits'}
             </p>
           </div>
@@ -108,7 +108,7 @@ export default function RateLimitStatus({ userId, isPremium, onUpgradeClick }) {
 
         <button
           onClick={() => setExpanded(!expanded)}
-          className="px-3 py-1 bg-[#0F3460] hover:bg-[#1a4a7a] text-white rounded border-2 border-[#1A1A2E] text-sm font-bold transition-all"
+          className="kq-btn kq-btn-ghost px-3 py-1 text-sm"
         >
           {expanded ? '▲ Hide' : '▼ Details'}
         </button>
@@ -127,14 +127,14 @@ export default function RateLimitStatus({ userId, isPremium, onUpgradeClick }) {
               {/* Quest Transforms */}
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-bold text-gray-300">Quest Transforms</span>
-                  <span className="text-sm font-black text-[#00D4FF]">
+                  <span className="text-sm font-bold text-navy/70">Quest Transforms</span>
+                  <span className="text-sm font-bold text-hero-blue">
                     {questRemaining} / {limits.questTransforms.limit} left
                   </span>
                 </div>
 
                 {/* Progress Bar */}
-                <div className="w-full h-3 bg-[#0F3460] rounded-full overflow-hidden border-2 border-[#1A1A2E]">
+                <div className="w-full h-3 bg-cream rounded-full overflow-hidden border-2 border-stone">
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${questPercentage}%` }}
@@ -144,7 +144,7 @@ export default function RateLimitStatus({ userId, isPremium, onUpgradeClick }) {
                   />
                 </div>
 
-                <p className="text-xs text-gray-400 mt-1">
+                <p className="text-xs text-navy/50 mt-1">
                   {formatResetTime(limits.questTransforms.resetAt)}
                 </p>
               </div>
@@ -152,14 +152,14 @@ export default function RateLimitStatus({ userId, isPremium, onUpgradeClick }) {
               {/* Journal Transforms */}
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-bold text-gray-300">Journal Transforms</span>
-                  <span className="text-sm font-black text-[#FFD93D]">
+                  <span className="text-sm font-bold text-navy/70">Journal Transforms</span>
+                  <span className="text-sm font-bold text-gold">
                     {journalRemaining} / {limits.journalTransforms.limit} left
                   </span>
                 </div>
 
                 {/* Progress Bar */}
-                <div className="w-full h-3 bg-[#0F3460] rounded-full overflow-hidden border-2 border-[#1A1A2E]">
+                <div className="w-full h-3 bg-cream rounded-full overflow-hidden border-2 border-stone">
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${journalPercentage}%` }}
@@ -169,7 +169,7 @@ export default function RateLimitStatus({ userId, isPremium, onUpgradeClick }) {
                   />
                 </div>
 
-                <p className="text-xs text-gray-400 mt-1">
+                <p className="text-xs text-navy/50 mt-1">
                   {formatResetTime(limits.journalTransforms.resetAt)}
                 </p>
               </div>
@@ -179,22 +179,22 @@ export default function RateLimitStatus({ userId, isPremium, onUpgradeClick }) {
                 <motion.div
                   initial={{ scale: 0.9, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  className="bg-[#FFD93D] bg-opacity-20 border-2 border-[#FFD93D] rounded-lg p-3 mt-3"
+                  className="bg-gold/15 border-2 border-gold rounded-candy p-3 mt-3"
                 >
                   <div className="flex items-center gap-2">
                     <span className="text-xl">⚠️</span>
                     <div className="flex-1">
-                      <p className="text-sm font-bold text-[#FFD93D]">
+                      <p className="text-sm font-bold text-navy">
                         Running low on transforms!
                       </p>
-                      <p className="text-xs text-gray-300">
+                      <p className="text-xs text-navy/60">
                         Upgrade to get {isPremium ? 'unlimited' : '10x more'} AI transforms
                       </p>
                     </div>
                     {!isPremium && onUpgradeClick && (
                       <button
                         onClick={onUpgradeClick}
-                        className="px-4 py-2 bg-[#FFD93D] hover:bg-[#E6C335] text-[#1A1A2E] rounded font-black text-xs uppercase shadow-[0_3px_0_#0F3460] hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1 transition-all"
+                        className="kq-btn kq-btn-gold px-4 py-2 text-xs"
                       >
                         Upgrade
                       </button>
@@ -205,20 +205,20 @@ export default function RateLimitStatus({ userId, isPremium, onUpgradeClick }) {
 
               {/* Premium Upsell */}
               {!isPremium && (
-                <div className="border-t-2 border-[#0F3460] pt-3 mt-2">
+                <div className="border-t-2 border-stone pt-3 mt-2">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-xs font-bold text-gray-300">Want more?</p>
-                      <p className="text-xs text-gray-400">
+                      <p className="text-xs font-bold text-navy/70">Want more?</p>
+                      <p className="text-xs text-navy/50">
                         Premium: 200 quests + 20 journals per day
                       </p>
                     </div>
                     {onUpgradeClick && (
                       <button
                         onClick={onUpgradeClick}
-                        className="px-3 py-1 bg-[#00D4FF] hover:bg-[#00BBE6] text-[#0F3460] rounded font-black text-xs uppercase border-2 border-[#0F3460] transition-all"
+                        className="kq-btn kq-btn-blue px-3 py-1 text-xs"
                       >
-                        🔥 Go Pro
+                        🌟 Go Pro
                       </button>
                     )}
                   </div>
@@ -237,8 +237,8 @@ export default function RateLimitStatus({ userId, isPremium, onUpgradeClick }) {
               className="w-2 h-2 rounded-full"
               style={{ backgroundColor: getStatusColor(questPercentage) }}
             />
-            <span className="text-gray-400">
-              Quests: <span className="font-bold text-white">{questRemaining}</span>
+            <span className="text-navy/60">
+              Quests: <span className="font-bold text-navy">{questRemaining}</span>
             </span>
           </div>
           <div className="flex items-center gap-2">
@@ -246,8 +246,8 @@ export default function RateLimitStatus({ userId, isPremium, onUpgradeClick }) {
               className="w-2 h-2 rounded-full"
               style={{ backgroundColor: getStatusColor(journalPercentage) }}
             />
-            <span className="text-gray-400">
-              Journal: <span className="font-bold text-white">{journalRemaining}</span>
+            <span className="text-navy/60">
+              Journal: <span className="font-bold text-navy">{journalRemaining}</span>
             </span>
           </div>
         </div>

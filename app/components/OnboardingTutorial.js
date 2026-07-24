@@ -77,14 +77,14 @@ export default function OnboardingTutorial({ profile, onComplete, onSkip }) {
           ? 'bottom-32 left-1/2 transform -translate-x-1/2'
           : 'top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2'
       } max-w-md w-full mx-4`}>
-        <div className="bg-gradient-to-br from-purple-600 to-indigo-600 rounded-2xl shadow-2xl p-6 border-2 border-yellow-400">
+        <div className="kq-card p-6 border-2 border-gold">
           {/* Progress Indicator */}
           <div className="flex gap-2 mb-4">
             {steps.map((_, index) => (
               <div
                 key={index}
                 className={`h-2 flex-1 rounded-full transition-all ${
-                  index <= currentStep ? 'bg-yellow-400' : 'bg-gray-600'
+                  index <= currentStep ? 'bg-gold' : 'bg-stone'
                 }`}
               />
             ))}
@@ -92,8 +92,8 @@ export default function OnboardingTutorial({ profile, onComplete, onSkip }) {
 
           {/* Content */}
           <div className="text-center mb-6">
-            <h2 className="text-2xl font-bold text-white mb-3">{step.title}</h2>
-            <p className="text-white/90 text-lg">{step.description}</p>
+            <h2 className="kq-display text-2xl text-navy mb-3">{step.title}</h2>
+            <p className="text-navy/70 text-lg">{step.description}</p>
           </div>
 
           {/* Navigation */}
@@ -101,14 +101,14 @@ export default function OnboardingTutorial({ profile, onComplete, onSkip }) {
             {currentStep > 0 && (
               <button
                 onClick={handlePrevious}
-                className="flex-1 px-4 py-3 bg-white/20 hover:bg-white/30 text-white rounded-lg font-semibold transition"
+                className="kq-btn kq-btn-ghost flex-1"
               >
                 Previous
               </button>
             )}
             <button
               onClick={handleNext}
-              className="flex-1 px-4 py-3 bg-yellow-400 hover:bg-yellow-500 text-black rounded-lg font-semibold transition"
+              className="kq-btn kq-btn-gold flex-1"
             >
               {currentStep === steps.length - 1 ? "Let's Go!" : 'Next'}
             </button>
@@ -118,7 +118,7 @@ export default function OnboardingTutorial({ profile, onComplete, onSkip }) {
           {currentStep < steps.length - 1 && (
             <button
               onClick={onSkip}
-              className="w-full mt-3 text-white/70 hover:text-white text-sm transition"
+              className="w-full mt-3 text-navy/50 hover:text-navy text-sm transition"
             >
               Skip tutorial
             </button>
@@ -129,22 +129,22 @@ export default function OnboardingTutorial({ profile, onComplete, onSkip }) {
       {/* Highlight Overlays */}
       {step.highlight === 'character' && (
         <div className="fixed top-20 left-8 z-[55] pointer-events-none">
-          <div className="w-96 h-40 border-4 border-yellow-400 rounded-xl animate-pulse" />
+          <div className="w-96 h-40 border-4 border-gold rounded-candy animate-pulse" />
         </div>
       )}
       {step.highlight === 'stats' && (
         <div className="fixed top-32 left-8 z-[55] pointer-events-none">
-          <div className="w-80 h-20 border-4 border-yellow-400 rounded-xl animate-pulse" />
+          <div className="w-80 h-20 border-4 border-gold rounded-candy animate-pulse" />
         </div>
       )}
       {step.highlight === 'add-quest' && (
         <div className="fixed bottom-96 left-1/2 transform -translate-x-1/2 z-[55] pointer-events-none">
-          <div className="w-[600px] h-24 border-4 border-yellow-400 rounded-xl animate-pulse" />
+          <div className="w-[600px] h-24 border-4 border-gold rounded-candy animate-pulse" />
         </div>
       )}
       {step.highlight === 'quests' && (
         <div className="fixed bottom-32 left-1/2 transform -translate-x-1/2 z-[55] pointer-events-none">
-          <div className="w-[600px] h-48 border-4 border-yellow-400 rounded-xl animate-pulse" />
+          <div className="w-[600px] h-48 border-4 border-gold rounded-candy animate-pulse" />
         </div>
       )}
     </>

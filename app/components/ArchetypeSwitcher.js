@@ -149,7 +149,7 @@ export default function ArchetypeSwitcher({ currentArchetype, isPremium, onSwitc
       {/* Trigger Button */}
       <button
         onClick={() => setShow(true)}
-        className="px-4 py-2 bg-[#9333EA] hover:bg-[#7C3AED] text-white border-3 border-[#1A1A2E] rounded-lg font-bold uppercase text-sm tracking-wide transition-all shadow-[0_3px_0_#1A1A2E] hover:shadow-[0_5px_0_#1A1A2E] hover:-translate-y-0.5 active:shadow-[0_1px_0_#1A1A2E] active:translate-y-1"
+        className="kq-btn kq-btn-blue"
       >
         🎭 Switch Archetype
       </button>
@@ -169,20 +169,17 @@ export default function ArchetypeSwitcher({ currentArchetype, isPremium, onSwitc
             />
 
             <motion.div
-              className="relative bg-[#1A1A2E] rounded-2xl shadow-[0_0_40px_rgba(147,51,234,0.5)] max-w-4xl w-full overflow-hidden border-3 border-[#9333EA]"
+              className="relative kq-card max-w-4xl w-full overflow-hidden"
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
             >
               {/* Header */}
-              <div className="bg-gradient-to-r from-[#9333EA] to-[#7C3AED] p-6 border-b-3 border-[#1A1A2E]">
-                <h2
-                  className="text-4xl font-black text-white text-center uppercase tracking-wide"
-                  style={{ fontFamily: 'VT323, monospace' }}
-                >
+              <div className="bg-gradient-to-r from-purple to-hero-blue p-6">
+                <h2 className="kq-display text-4xl text-white text-center">
                   🎭 Choose Your Path
                 </h2>
-                <p className="text-purple-100 text-center mt-2">
+                <p className="text-white/90 text-center mt-2">
                   {canSwitch
                     ? 'Transform your hero and embrace a new journey'
                     : `Next switch available in ${daysUntilSwitch} day${daysUntilSwitch !== 1 ? 's' : ''}`}
@@ -206,17 +203,17 @@ export default function ArchetypeSwitcher({ currentArchetype, isPremium, onSwitc
                         }}
                         disabled={!canSwitch && !isCurrent}
                         className={
-                          'p-6 rounded-lg border-3 text-left transition-all relative overflow-hidden ' +
+                          'p-6 rounded-candy border-2 text-left transition-all relative overflow-hidden ' +
                           (isCurrent
-                            ? `bg-gradient-to-br from-[${archetype.color}] to-[#1A1A2E] border-[${archetype.color}] shadow-[0_0_20px_${archetype.color}]`
+                            ? 'bg-gold/15 border-gold shadow-candy'
                             : canSwitch
-                            ? 'bg-[#0F3460] border-[#1A1A2E] hover:border-[#9333EA] hover:scale-105'
-                            : 'bg-[#0F3460] border-gray-700 opacity-50 cursor-not-allowed')
+                            ? 'bg-cream border-stone hover:border-purple hover:scale-105'
+                            : 'bg-cream border-stone opacity-50 cursor-not-allowed')
                         }
                         whileHover={canSwitch && !isCurrent ? { scale: 1.05 } : {}}
                       >
                         {isCurrent && (
-                          <div className="absolute top-3 right-3 px-3 py-1 bg-[#FFD93D] text-[#1A1A2E] rounded-full font-black text-xs uppercase">
+                          <div className="absolute top-3 right-3 kq-chip bg-gold text-navy">
                             ✓ Current
                           </div>
                         )}
@@ -224,18 +221,18 @@ export default function ArchetypeSwitcher({ currentArchetype, isPremium, onSwitc
                         <div className="text-5xl mb-3">{archetype.emoji}</div>
 
                         <h3
-                          className="text-2xl font-black mb-2 uppercase"
+                          className="kq-display text-2xl mb-2"
                           style={{ color: archetype.color }}
                         >
                           {archetype.name}
                         </h3>
 
-                        <p className="text-gray-300 text-sm leading-relaxed">
+                        <p className="text-navy/70 text-sm leading-relaxed">
                           {archetype.description}
                         </p>
 
                         {!isCurrent && canSwitch && (
-                          <div className="mt-4 text-[#9333EA] font-bold text-sm">
+                          <div className="mt-4 text-purple font-bold text-sm">
                             → Click to switch
                           </div>
                         )}
@@ -245,8 +242,8 @@ export default function ArchetypeSwitcher({ currentArchetype, isPremium, onSwitc
                 </div>
 
                 {!canSwitch && (
-                  <div className="mt-6 p-4 bg-[#FF6B6B] bg-opacity-20 border-2 border-[#FF6B6B] rounded-lg">
-                    <p className="text-white font-bold text-center">
+                  <div className="mt-6 p-4 bg-coral/12 border-2 border-coral rounded-candy">
+                    <p className="text-navy font-bold text-center">
                       ⏰ You can switch archetypes once every 7 days.
                       {nextSwitchDate && (
                         <span className="block mt-1 text-sm">
@@ -259,10 +256,10 @@ export default function ArchetypeSwitcher({ currentArchetype, isPremium, onSwitc
               </div>
 
               {/* Footer */}
-              <div className="p-6 bg-[#0F3460] border-t-3 border-[#1A1A2E]">
+              <div className="p-6 border-t-2 border-stone">
                 <button
                   onClick={() => setShow(false)}
-                  className="w-full py-3 px-6 bg-transparent border-2 border-gray-500 hover:border-gray-400 text-gray-400 hover:text-gray-300 font-bold rounded-lg transition-colors"
+                  className="kq-btn kq-btn-ghost w-full"
                 >
                   Close
                 </button>
@@ -279,10 +276,10 @@ export default function ArchetypeSwitcher({ currentArchetype, isPremium, onSwitc
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <div className="absolute inset-0 bg-black bg-opacity-90 backdrop-blur-md" />
+            <div className="absolute inset-0 bg-navy/60 backdrop-blur-md" />
 
             <motion.div
-              className="relative bg-[#1A1A2E] rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border-4 border-[#FFD93D]"
+              className="relative kq-card max-w-md w-full overflow-hidden"
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -290,15 +287,15 @@ export default function ArchetypeSwitcher({ currentArchetype, isPremium, onSwitc
               <div className="p-8 text-center">
                 <div className="text-7xl mb-4">{selectedArchetype.emoji}</div>
 
-                <h3 className="text-3xl font-black text-[#FFD93D] mb-4">
+                <h3 className="kq-display text-3xl text-gold mb-4">
                   Become the {selectedArchetype.name}?
                 </h3>
 
-                <p className="text-white mb-2">
+                <p className="text-navy mb-2">
                   This will change your story tone and future quest transformations.
                 </p>
 
-                <p className="text-gray-400 text-sm mb-6">
+                <p className="text-navy/50 text-sm mb-6">
                   You can switch again in 7 days.
                 </p>
 
@@ -306,7 +303,7 @@ export default function ArchetypeSwitcher({ currentArchetype, isPremium, onSwitc
                   <button
                     onClick={() => setShowConfirm(false)}
                     disabled={isSwitching}
-                    className="flex-1 py-3 px-6 bg-transparent border-2 border-gray-500 hover:border-gray-400 text-gray-400 hover:text-gray-300 font-bold rounded-lg transition-colors disabled:opacity-50"
+                    className="kq-btn kq-btn-ghost flex-1 disabled:opacity-50"
                   >
                     Cancel
                   </button>
@@ -315,10 +312,10 @@ export default function ArchetypeSwitcher({ currentArchetype, isPremium, onSwitc
                     onClick={handleSwitchArchetype}
                     disabled={isSwitching}
                     className={
-                      'flex-1 py-3 px-6 rounded-lg font-black uppercase border-3 transition-all ' +
+                      'flex-1 kq-btn ' +
                       (isSwitching
-                        ? 'bg-gray-600 border-gray-700 text-gray-400 cursor-not-allowed'
-                        : 'bg-[#9333EA] border-[#0F3460] text-white hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1 shadow-[0_3px_0_#0F3460]')
+                        ? 'bg-navy/20 text-navy/50 cursor-not-allowed'
+                        : 'kq-btn-gold')
                     }
                   >
                     {isSwitching ? 'Transforming...' : 'Confirm'}

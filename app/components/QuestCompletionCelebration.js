@@ -25,7 +25,7 @@ export default function QuestCompletionCelebration({
       // Trigger confetti celebration
       const duration = 3000;
       const animationEnd = Date.now() + duration;
-      const colors = ['#E8B44C', '#D4943C', '#FFD93D', '#FF6B6B', '#00D4FF'];
+      const colors = ['#FFC83D', '#E8B44C', '#FF7B6B', '#57D7F5', '#4F7DF3'];
 
       const frame = () => {
         confetti({
@@ -71,7 +71,7 @@ export default function QuestCompletionCelebration({
         >
           {/* Backdrop */}
           <motion.div
-            className="absolute inset-0 bg-black bg-opacity-80 backdrop-blur-sm"
+            className="absolute inset-0 bg-navy/70 backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -80,7 +80,7 @@ export default function QuestCompletionCelebration({
 
           {/* Modal Content */}
           <motion.div
-            className="relative bg-gradient-to-br from-[#1A1A2E] via-[#16213e] to-[#0F3460] rounded-3xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto border-4 border-[#FFD93D]"
+            className="relative kq-card rounded-candy shadow-candy-lg max-w-lg w-full max-h-[90vh] overflow-y-auto border-4 border-gold"
             initial={{ scale: 0.8, opacity: 0, y: 50 }}
             animate={{
               scale: 1,
@@ -95,9 +95,6 @@ export default function QuestCompletionCelebration({
               damping: 20
             }}
           >
-            {/* Glow Effect */}
-            <div className="absolute inset-0 bg-gradient-to-br from-[#FFD93D] via-transparent to-[#FF6B6B] opacity-20 animate-pulse" />
-
             {/* Header */}
             <div className="relative text-center pt-8 pb-6 px-6">
               <motion.div
@@ -121,10 +118,7 @@ export default function QuestCompletionCelebration({
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="text-4xl font-black text-[#FFD93D] mb-2 uppercase tracking-wide"
-                style={{
-                  textShadow: '0 4px 8px rgba(0,0,0,0.5), 0 0 20px rgba(255,217,61,0.5)'
-                }}
+                className="kq-display text-4xl font-black text-coral mb-2"
               >
                 Quest Complete!
               </motion.h2>
@@ -133,7 +127,7 @@ export default function QuestCompletionCelebration({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.4 }}
-                className="text-lg text-[#00D4FF] font-bold px-4"
+                className="text-lg text-hero-blue font-bold px-4"
               >
                 {questTitle}
               </motion.p>
@@ -146,15 +140,15 @@ export default function QuestCompletionCelebration({
                 initial={{ opacity: 0, x: -50 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.5 }}
-                className="bg-gradient-to-r from-[#FFD93D] to-[#FF6B6B] rounded-2xl p-6 mb-4 border-3 border-[#0F3460] shadow-[0_0_20px_rgba(255,217,61,0.5)]"
+                className="bg-gradient-to-r from-gold to-coral rounded-candy p-6 mb-4 border-2 border-stone shadow-candy"
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-2xl font-black text-[#0F3460] uppercase">
+                    <p className="text-2xl font-black text-navy">
                       +{totalXP} XP
                     </p>
                     {rewards.equipment_bonus_xp && rewards.equipment_bonus_xp > 0 && (
-                      <p className="text-sm font-bold text-[#0F3460]">
+                      <p className="text-sm font-bold text-navy">
                         (+{rewards.equipment_bonus_xp} equipment bonus)
                       </p>
                     )}
@@ -170,7 +164,7 @@ export default function QuestCompletionCelebration({
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.55 }}
-                  className="text-center text-sm italic text-[#94a3b8] mb-4 px-2"
+                  className="text-center text-sm italic text-navy/60 mb-4 px-2"
                 >
                   {storyBeat}
                 </motion.p>
@@ -181,10 +175,10 @@ export default function QuestCompletionCelebration({
                 initial={{ opacity: 0, x: -50 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.6 }}
-                className="bg-gradient-to-r from-[#FFD93D] to-[#E8B44C] rounded-2xl p-4 mb-4 border-3 border-[#0F3460] shadow-[0_0_15px_rgba(232,180,76,0.4)]"
+                className="bg-gradient-to-r from-gold to-[#E8B44C] rounded-candy p-4 mb-4 border-2 border-stone shadow-candy"
               >
                 <div className="flex items-center justify-between">
-                  <p className="text-xl font-black text-[#0F3460] uppercase">
+                  <p className="text-xl font-black text-navy">
                     +{rewards.gold} Gold
                   </p>
                   <span className="text-4xl">💰</span>
@@ -197,14 +191,14 @@ export default function QuestCompletionCelebration({
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.65, type: 'spring', stiffness: 300 }}
-                  className="bg-gradient-to-r from-[#9333EA] to-[#7E22CE] rounded-2xl p-4 mb-4 border-3 border-[#FFD93D] shadow-[0_0_20px_rgba(147,51,234,0.6)]"
+                  className="bg-gradient-to-r from-purple to-[#7E22CE] rounded-candy p-4 mb-4 border-2 border-gold shadow-candy"
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-xl font-black text-white uppercase">
+                      <p className="text-xl font-black text-white">
                         +{rewards.skill_points_earned} Skill Point{rewards.skill_points_earned > 1 ? 's' : ''}!
                       </p>
-                      <p className="text-sm font-bold text-[#FFD93D]">
+                      <p className="text-sm font-bold text-gold">
                         Visit the Skill Tree to unlock new abilities!
                       </p>
                     </div>
@@ -219,11 +213,11 @@ export default function QuestCompletionCelebration({
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.7 }}
-                  className="bg-gradient-to-r from-[#00D4FF] to-[#48BB78] rounded-2xl p-4 mb-4 border-3 border-[#0F3460] shadow-[0_0_15px_rgba(0,212,255,0.4)]"
+                  className="bg-gradient-to-r from-hero-blue to-emerald rounded-candy p-4 mb-4 border-2 border-stone shadow-candy"
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-xl font-black text-white uppercase">
+                      <p className="text-xl font-black text-white">
                         Comeback Bonus!
                       </p>
                       <p className="text-sm font-bold text-white">
@@ -241,7 +235,7 @@ export default function QuestCompletionCelebration({
                   initial={{ opacity: 0, scale: 0.8, y: 20 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   transition={{ delay: 0.8, type: 'spring', stiffness: 300 }}
-                  className="bg-gradient-to-r from-[#FF6B6B] to-[#FFD93D] rounded-2xl p-6 mb-4 border-4 border-[#FFD93D] shadow-[0_0_30px_rgba(255,107,107,0.6)]"
+                  className="bg-gradient-to-r from-coral to-gold rounded-candy p-6 mb-4 border-4 border-gold shadow-candy-lg"
                 >
                   <div className="text-center">
                     <motion.div
@@ -257,8 +251,8 @@ export default function QuestCompletionCelebration({
                     >
                       ⚡
                     </motion.div>
-                    <p className="text-3xl font-black text-white uppercase mb-1">
-                      LEVEL UP!
+                    <p className="kq-display text-3xl font-black text-white mb-1">
+                      Level Up!
                     </p>
                     <p className="text-2xl font-bold text-white">
                       You are now level {rewards.new_level}!
@@ -295,7 +289,7 @@ export default function QuestCompletionCelebration({
                 transition={{ delay: 0.9 }}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-[#48BB78] to-[#38A169] text-white font-black text-xl uppercase tracking-wide border-4 border-[#0F3460] shadow-[0_6px_0_#0F3460] hover:shadow-[0_8px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_2px_0_#0F3460] active:translate-y-1 transition-all"
+                className="kq-btn kq-btn-emerald w-full py-4 px-6 text-xl"
               >
                 ✨ Continue Your Journey
               </motion.button>
@@ -304,7 +298,7 @@ export default function QuestCompletionCelebration({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1 }}
-                className="text-center text-sm text-[#00D4FF] mt-4 font-semibold"
+                className="text-center text-sm text-hero-blue mt-4 font-semibold"
               >
                 Keep up the great work!
               </motion.p>

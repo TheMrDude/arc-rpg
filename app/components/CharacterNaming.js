@@ -66,10 +66,10 @@ export default function CharacterNaming({
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className={`bg-white rounded-3xl shadow-2xl p-8 md:p-12 max-w-2xl mx-auto ${className}`}
+      className={`kq-card rounded-candy shadow-candy-lg p-8 md:p-12 max-w-2xl mx-auto ${className}`}
     >
       {/* Character Silhouette Background */}
-      <div className="absolute inset-0 opacity-5 overflow-hidden rounded-3xl pointer-events-none">
+      <div className="absolute inset-0 opacity-5 overflow-hidden rounded-candy pointer-events-none">
         <motion.div
           animate={{
             scale: [1, 1.1, 1],
@@ -102,11 +102,11 @@ export default function CharacterNaming({
             {!['warrior', 'seeker', 'builder', 'sage'].includes(archetype) && '✨'}
           </div>
 
-          <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-3">
+          <h2 className="kq-display text-4xl md:text-5xl font-black text-navy mb-3">
             Name Your Hero
           </h2>
 
-          <p className="text-xl text-gray-600 max-w-lg mx-auto">
+          <p className="text-xl text-navy/60 max-w-lg mx-auto">
             This is how your character will be known in your weekly story chapters
           </p>
         </motion.div>
@@ -129,11 +129,12 @@ export default function CharacterNaming({
             placeholder="The Determined One"
             maxLength={50}
             className={`
-              w-full text-2xl md:text-3xl p-6 rounded-2xl text-center font-bold
-              border-4 focus:outline-none transition-all
+              kq-input
+              w-full text-2xl md:text-3xl p-6 rounded-candy text-center font-bold
+              border-2 focus:outline-none transition-all
               ${error
-                ? 'border-red-400 focus:border-red-500'
-                : 'border-gray-300 focus:border-purple-500'
+                ? 'border-coral focus:border-coral'
+                : 'border-stone focus:border-hero-blue'
               }
             `}
             autoFocus
@@ -143,13 +144,13 @@ export default function CharacterNaming({
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="text-red-600 font-semibold mt-2 text-center"
+              className="text-coral font-semibold mt-2 text-center"
             >
               {error}
             </motion.p>
           )}
 
-          <p className="text-sm text-gray-500 mt-2 text-center">
+          <p className="text-sm text-navy/50 mt-2 text-center">
             {name.length}/50 characters
           </p>
         </motion.div>
@@ -161,7 +162,7 @@ export default function CharacterNaming({
           transition={{ delay: 0.3 }}
           className="mb-6"
         >
-          <p className="text-sm font-semibold text-gray-600 mb-3 text-center">
+          <p className="text-sm font-semibold text-navy/60 mb-3 text-center">
             Need inspiration? Try one of these:
           </p>
 
@@ -170,7 +171,7 @@ export default function CharacterNaming({
               <button
                 key={suggestion}
                 onClick={() => setName(suggestion)}
-                className="px-4 py-2 bg-purple-100 hover:bg-purple-200 rounded-lg text-purple-800 font-semibold text-sm transition-colors"
+                className="kq-chip px-4 py-2 bg-purple/10 hover:bg-purple/20 text-purple font-semibold text-sm transition-colors"
               >
                 {suggestion}
               </button>
@@ -183,23 +184,23 @@ export default function CharacterNaming({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-6 mb-6"
+          className="bg-purple/10 rounded-candy p-6 mb-6"
         >
-          <p className="text-sm font-bold text-purple-900 mb-3 text-center">
+          <p className="text-sm font-bold text-purple mb-3 text-center">
             ✨ Why name your character?
           </p>
 
-          <div className="space-y-2 text-sm text-gray-700">
+          <div className="space-y-2 text-sm text-navy/70">
             <div className="flex items-start gap-2">
-              <span className="text-purple-600 font-bold">•</span>
+              <span className="text-purple font-bold">•</span>
               <span>Your name appears in personalized weekly story chapters</span>
             </div>
             <div className="flex items-start gap-2">
-              <span className="text-purple-600 font-bold">•</span>
+              <span className="text-purple font-bold">•</span>
               <span>Creates emotional attachment to your journey (85% increase!)</span>
             </div>
             <div className="flex items-start gap-2">
-              <span className="text-purple-600 font-bold">•</span>
+              <span className="text-purple font-bold">•</span>
               <span>Named characters receive richer, more immersive narratives</span>
             </div>
           </div>
@@ -216,17 +217,14 @@ export default function CharacterNaming({
             onClick={handleSubmit}
             disabled={isSubmitting}
             className={`
-              w-full py-5 px-8 rounded-2xl
-              font-black text-xl uppercase tracking-wide
-              border-4 transition-all duration-200
+              kq-btn w-full py-5 px-8
+              font-black text-xl
+              transition-all duration-200
               ${isSubmitting
-                ? 'bg-gray-300 border-gray-500 text-gray-600 cursor-not-allowed'
-                : 'bg-gradient-to-br from-purple-500 to-pink-500 border-purple-900 text-white hover:shadow-xl cursor-pointer'
+                ? 'bg-navy/20 text-navy/50 cursor-not-allowed'
+                : 'kq-btn-gold cursor-pointer'
               }
             `}
-            style={{
-              boxShadow: !isSubmitting ? '0 6px 0 #581c87' : 'none'
-            }}
           >
             {isSubmitting ? (
               <span className="flex items-center justify-center gap-2">
@@ -246,7 +244,7 @@ export default function CharacterNaming({
           {onSkip && (
             <button
               onClick={handleSkip}
-              className="w-full py-3 px-6 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold transition-colors"
+              className="kq-btn kq-btn-ghost w-full py-3 px-6 font-bold"
             >
               Skip for Now
             </button>
@@ -258,7 +256,7 @@ export default function CharacterNaming({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6 }}
-            className="text-xs text-gray-500 text-center mt-4"
+            className="text-xs text-navy/50 text-center mt-4"
           >
             You can always change your character's name later in settings
           </motion.p>
@@ -293,14 +291,14 @@ export function CharacterNamingCompact({
 
   if (!isEditing && currentName) {
     return (
-      <div className="flex items-center justify-between bg-gray-50 rounded-lg p-4 border-2 border-gray-200">
+      <div className="flex items-center justify-between kq-card p-4">
         <div>
-          <p className="text-sm font-semibold text-gray-600">Character Name</p>
-          <p className="text-lg font-black text-gray-900">{currentName}</p>
+          <p className="text-sm font-semibold text-navy/60">Character Name</p>
+          <p className="text-lg font-black text-navy">{currentName}</p>
         </div>
         <button
           onClick={() => setIsEditing(true)}
-          className="px-4 py-2 bg-purple-500 text-white rounded-lg font-bold hover:bg-purple-600 transition-colors"
+          className="kq-btn kq-btn-blue px-4 py-2 font-bold"
         >
           Edit
         </button>
@@ -309,23 +307,23 @@ export function CharacterNamingCompact({
   }
 
   return (
-    <div className="bg-gray-50 rounded-lg p-4 border-2 border-purple-300">
-      <p className="text-sm font-semibold text-gray-600 mb-2">Character Name</p>
+    <div className="kq-card p-4 border-2 border-purple/30">
+      <p className="text-sm font-semibold text-navy/60 mb-2">Character Name</p>
       <div className="flex gap-2">
         <input
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Enter character name"
-          className="flex-1 px-4 py-2 rounded-lg border-2 border-gray-300 focus:border-purple-500 focus:outline-none"
+          className="kq-input flex-1 px-4 py-2"
         />
         <button
           onClick={handleSave}
           disabled={isSaving || !name.trim()}
-          className={`px-4 py-2 rounded-lg font-bold transition-colors ${
+          className={`kq-btn px-4 py-2 font-bold ${
             isSaving || !name.trim()
-              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              : 'bg-purple-500 text-white hover:bg-purple-600'
+              ? 'bg-navy/10 text-navy/40 cursor-not-allowed'
+              : 'kq-btn-emerald'
           }`}
         >
           {isSaving ? '...' : 'Save'}
