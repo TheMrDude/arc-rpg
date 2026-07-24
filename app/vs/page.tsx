@@ -27,16 +27,16 @@ const COMPARISONS = [
 
 export default function VsIndex() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 text-white">
+    <div className="kidquest min-h-screen bg-cream text-navy">
       <header className="pt-6 px-4">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 text-xl font-bold text-amber-400 hover:text-amber-300 transition-colors">
+          <Link href="/" className="flex items-center gap-2 text-xl font-bold kq-display text-hero-blue hover:opacity-80 transition-opacity">
             ⚔️ HabitQuest
           </Link>
-          <nav className="flex gap-4 text-sm">
-            <Link href="/blog" className="text-gray-300 hover:text-white transition-colors">Blog</Link>
-            <Link href="/pricing" className="text-gray-300 hover:text-white transition-colors">Pricing</Link>
-            <Link href="/signup" className="bg-amber-500 hover:bg-amber-400 text-gray-900 font-semibold px-4 py-2 rounded-lg transition-colors">
+          <nav className="flex gap-4 text-sm items-center">
+            <Link href="/blog" className="text-navy/60 hover:text-navy transition-colors">Blog</Link>
+            <Link href="/pricing" className="text-navy/60 hover:text-navy transition-colors">Pricing</Link>
+            <Link href="/signup" className="kq-btn kq-btn-gold">
               Start Free →
             </Link>
           </nav>
@@ -45,10 +45,10 @@ export default function VsIndex() {
 
       <section className="pt-16 pb-12 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            HabitQuest vs <span className="text-amber-400">Everyone</span>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 kq-display">
+            HabitQuest vs <span className="text-coral">Everyone</span>
           </h1>
-          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+          <p className="text-navy/60 text-lg max-w-2xl mx-auto">
             Honest comparisons written by the guy who built HabitQuest. Every page tells you when you should pick the other app instead. That is the deal.
           </p>
         </div>
@@ -60,12 +60,12 @@ export default function VsIndex() {
             <Link
               key={c.slug}
               href={`/vs/${c.slug}`}
-              className="group block bg-gray-800/50 border border-gray-700/50 rounded-xl p-6 hover:border-amber-500/50 hover:bg-gray-800/80 transition-all duration-300"
+              className="group block kq-card kq-card-hover p-6"
             >
-              <h2 className="text-xl font-bold text-white group-hover:text-amber-400 transition-colors mb-2">
+              <h2 className="text-xl font-bold text-navy group-hover:text-hero-blue transition-colors mb-2 kq-display">
                 HabitQuest vs {c.name}
               </h2>
-              <p className="text-gray-400 text-sm">{c.blurb}</p>
+              <p className="text-navy/60 text-sm">{c.blurb}</p>
             </Link>
           ))}
         </div>

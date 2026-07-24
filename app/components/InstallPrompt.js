@@ -56,23 +56,23 @@ export default function InstallPrompt({ questsCompleted }) {
           exit={{ opacity: 0, y: 40 }}
           className="fixed bottom-20 md:bottom-6 left-4 right-4 md:left-auto md:right-6 md:max-w-sm z-50"
         >
-          <div className="bg-[#1A1A2E] border-2 border-[#00D4FF] rounded-xl p-4 shadow-[0_0_20px_rgba(0,212,255,0.3)] flex items-start gap-3">
-            <div className="text-[#00D4FF] mt-0.5">
+          <div className="kq-card flex items-start gap-3 border-2 border-hero-blue/30">
+            <div className="text-hero-blue mt-0.5">
               <Download size={22} />
             </div>
             <div className="flex-1">
-              <p className="text-sm font-black text-white mb-1">Take your quests with you</p>
-              <p className="text-xs text-[#94a3b8] mb-3">
+              <p className="text-sm font-bold text-navy mb-1">Take your quests with you</p>
+              <p className="text-xs text-navy/60 mb-3">
                 Add HabitQuest to your home screen so your quests are one tap away.
               </p>
               <button
                 onClick={handleInstall}
-                className="px-4 py-2 bg-[#00D4FF] hover:bg-[#00BFFF] text-[#0F3460] rounded-lg font-black uppercase text-xs tracking-wide transition-all"
+                className="kq-btn kq-btn-blue text-xs"
               >
                 Add to Home Screen
               </button>
             </div>
-            <button onClick={handleDismiss} className="text-[#64748b] hover:text-white" aria-label="Dismiss">
+            <button onClick={handleDismiss} className="text-navy/40 hover:text-navy" aria-label="Dismiss">
               <X size={16} />
             </button>
           </div>

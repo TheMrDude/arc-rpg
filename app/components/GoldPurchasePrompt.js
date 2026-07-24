@@ -62,7 +62,7 @@ export default function GoldPurchasePrompt({ show, onClose, trigger, currentGold
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ backgroundColor: 'rgba(15, 52, 96, 0.95)' }}
+          style={{ backgroundColor: 'rgba(36, 59, 90, 0.55)' }}
           onClick={onClose}
         >
           <motion.div
@@ -70,7 +70,7 @@ export default function GoldPurchasePrompt({ show, onClose, trigger, currentGold
             animate={{ scale: 1, y: 0 }}
             exit={{ scale: 0.8, y: 50 }}
             transition={{ type: 'spring', duration: 0.5 }}
-            className="bg-[#1A1A2E] border-3 border-[#FFD93D] rounded-lg p-8 max-w-md w-full shadow-[0_0_40px_rgba(255,217,61,0.4)]"
+            className="kq-card border-2 border-gold rounded-candy p-8 max-w-md w-full shadow-candy-lg"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Icon */}
@@ -88,8 +88,7 @@ export default function GoldPurchasePrompt({ show, onClose, trigger, currentGold
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="text-3xl font-black text-center text-[#FFD93D] mb-4"
-              style={{ fontFamily: 'VT323, monospace' }}
+              className="kq-display text-3xl font-black text-center text-navy mb-4"
             >
               {promptData.title}
             </motion.h2>
@@ -99,7 +98,7 @@ export default function GoldPurchasePrompt({ show, onClose, trigger, currentGold
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="text-white text-center mb-4"
+              className="text-navy/70 text-center mb-4"
             >
               {promptData.message}
             </motion.p>
@@ -109,7 +108,7 @@ export default function GoldPurchasePrompt({ show, onClose, trigger, currentGold
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.5 }}
-              className="bg-[#FFD93D] text-[#0F3460] rounded-lg p-3 mb-6 text-center font-bold"
+              className="bg-gold text-navy rounded-candy p-3 mb-6 text-center font-bold"
             >
               ⚡ {promptData.urgency}
             </motion.div>
@@ -121,17 +120,17 @@ export default function GoldPurchasePrompt({ show, onClose, trigger, currentGold
               transition={{ delay: 0.6 }}
               className="grid grid-cols-2 gap-3 mb-6"
             >
-              <div className="bg-[#0F3460] border-2 border-[#00D4FF] rounded-lg p-3 text-center">
+              <div className="bg-cream border-2 border-hero-blue rounded-candy p-3 text-center">
                 <div className="text-2xl mb-1">⚔️</div>
-                <div className="text-[#00D4FF] font-bold text-sm">Hero Pack</div>
-                <div className="text-[#FFD93D] font-black">2,500g</div>
-                <div className="text-xs text-gray-400">$9.99</div>
+                <div className="text-hero-blue font-bold text-sm">Hero Pack</div>
+                <div className="text-gold font-black">2,500g</div>
+                <div className="text-xs text-navy/50">$9.99</div>
               </div>
-              <div className="bg-[#0F3460] border-2 border-[#FFD93D] rounded-lg p-3 text-center">
+              <div className="bg-cream border-2 border-gold rounded-candy p-3 text-center">
                 <div className="text-2xl mb-1">👑</div>
-                <div className="text-[#FFD93D] font-bold text-sm">Legend Pack</div>
-                <div className="text-[#FFD93D] font-black">6,000g</div>
-                <div className="text-xs text-gray-400">$19.99</div>
+                <div className="text-gold font-bold text-sm">Legend Pack</div>
+                <div className="text-gold font-black">6,000g</div>
+                <div className="text-xs text-navy/50">$19.99</div>
               </div>
             </motion.div>
 
@@ -144,22 +143,21 @@ export default function GoldPurchasePrompt({ show, onClose, trigger, currentGold
             >
               <button
                 onClick={handleGetGold}
-                className="w-full py-4 bg-gradient-to-r from-[#FFD93D] to-[#00D4FF] text-[#0F3460] font-black text-xl rounded-lg border-3 border-[#0F3460] shadow-[0_5px_0_#0F3460] hover:shadow-[0_7px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_2px_0_#0F3460] active:translate-y-1 transition-all"
-                style={{ fontFamily: 'VT323, monospace' }}
+                className="kq-btn kq-btn-gold w-full py-4 text-xl"
               >
                 🪙 {promptData.cta}
               </button>
 
               <button
                 onClick={onClose}
-                className="w-full py-3 bg-[#1A1A2E] border-2 border-[#00D4FF] border-opacity-50 text-[#00D4FF] rounded-lg font-bold hover:border-opacity-100 transition-all"
+                className="kq-btn kq-btn-ghost w-full py-3"
               >
                 Maybe Later
               </button>
             </motion.div>
 
             {/* Fair Play Notice */}
-            <p className="text-xs text-center text-gray-400 mt-4">
+            <p className="text-xs text-center text-navy/50 mt-4">
               💡 You can earn all gold for free by completing quests daily!
             </p>
           </motion.div>

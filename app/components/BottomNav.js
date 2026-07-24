@@ -16,7 +16,7 @@ export default function BottomNav({ active, onQuests, onMap, onCharacter, onJour
 
   return (
     <nav
-      className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0F172A]/95 backdrop-blur border-t-2 border-[#1E293B]"
+      className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-cream/95 backdrop-blur border-t-2 border-stone"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
       <div className="flex">
@@ -27,10 +27,10 @@ export default function BottomNav({ active, onQuests, onMap, onCharacter, onJour
               key={key}
               onClick={onClick}
               className="flex-1 flex flex-col items-center gap-0.5 py-2.5 transition-colors"
-              style={{ color: isActive ? '#00D4FF' : '#64748b' }}
+              style={{ color: isActive ? '#4F7DF3' : '#8a95a8' }}
             >
               <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
-              <span className="text-[10px] font-black uppercase tracking-wide">{label}</span>
+              <span className="text-[10px] font-extrabold tracking-wide">{label}</span>
             </button>
           );
         })}

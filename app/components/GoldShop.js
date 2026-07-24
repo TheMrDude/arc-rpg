@@ -56,15 +56,15 @@ function GoldPackageCard({ pkg, onPurchase, isPurchasing }) {
       animate={{ opacity: 1, y: 0 }}
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
-      className={`relative bg-[#1A1A2E] rounded-lg p-6 border-3 transition-all ${
+      className={`relative kq-card kq-card-hover p-6 transition-all ${
         pkg.highlight
-          ? 'border-[#FFD93D] shadow-[0_0_20px_rgba(255,217,61,0.3)]'
-          : 'border-[#00D4FF] border-opacity-30 hover:border-opacity-100'
-      } ${isHovered && !pkg.highlight ? 'shadow-[0_0_15px_rgba(0,212,255,0.2)]' : ''}`}
+          ? 'border-2 border-gold'
+          : 'border-2 border-stone'
+      }`}
     >
       {/* Best Value Badge */}
       {pkg.highlight && (
-        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-[#FFD93D] text-[#1A1A2E] px-4 py-1 rounded-full font-black text-xs uppercase border-2 border-[#1A1A2E]">
+        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-gold text-navy px-4 py-1 rounded-full font-bold text-xs kq-chip">
           ⭐ Best Value ⭐
         </div>
       )}
@@ -72,41 +72,32 @@ function GoldPackageCard({ pkg, onPurchase, isPurchasing }) {
       {/* Package Icon */}
       <div className="text-center mb-4">
         <div className="text-6xl mb-2">{pkg.emoji}</div>
-        <h3
-          className="text-2xl font-black text-[#FFD93D] mb-1"
-          style={{ fontFamily: 'VT323, monospace' }}
-        >
+        <h3 className="kq-display text-2xl font-bold text-navy mb-1">
           {pkg.name}
         </h3>
-        <p className="text-sm text-[#00D4FF] font-bold">{pkg.description}</p>
+        <p className="text-sm text-hero-blue font-bold">{pkg.description}</p>
       </div>
 
       {/* Gold Amount */}
-      <div className="bg-[#0F3460] rounded-lg p-4 mb-4 border-2 border-[#00D4FF] border-opacity-30">
+      <div className="bg-cream rounded-candy p-4 mb-4 border-2 border-stone">
         <div className="flex items-center justify-center gap-2">
           <span className="text-3xl">🪙</span>
-          <span
-            className="text-4xl font-black text-[#FFD93D]"
-            style={{ fontFamily: 'VT323, monospace' }}
-          >
+          <span className="kq-display text-4xl font-bold text-gold">
             {pkg.gold.toLocaleString()}
           </span>
-          <span className="text-lg text-[#00D4FF] font-bold">GOLD</span>
+          <span className="text-lg text-navy/60 font-bold">GOLD</span>
         </div>
       </div>
 
       {/* Comparison */}
       <div className="text-center mb-4">
-        <p className="text-xs text-gray-400 italic">{pkg.comparison}</p>
+        <p className="text-xs text-navy/50 italic">{pkg.comparison}</p>
       </div>
 
       {/* Price & Purchase Button */}
       <div className="space-y-3">
         <div className="text-center">
-          <span
-            className="text-3xl font-black text-white"
-            style={{ fontFamily: 'VT323, monospace' }}
-          >
+          <span className="kq-display text-3xl font-bold text-navy">
             ${pkg.price.toFixed(2)}
           </span>
         </div>
@@ -114,16 +105,15 @@ function GoldPackageCard({ pkg, onPurchase, isPurchasing }) {
           onClick={() => onPurchase(pkg.id)}
           disabled={isPurchasing}
           className={
-            'w-full py-3 px-6 rounded-lg font-black uppercase border-3 transition-all ' +
+            'kq-btn w-full ' +
             (isPurchasing
-              ? 'bg-gray-600 border-gray-700 text-gray-400 cursor-not-allowed'
+              ? 'bg-navy/20 text-navy/40 cursor-not-allowed'
               : pkg.highlight
-              ? 'bg-[#FFD93D] border-[#FF6B6B] text-[#1A1A2E] hover:shadow-[0_5px_0_#FF6B6B] hover:-translate-y-0.5 active:shadow-[0_1px_0_#FF6B6B] active:translate-y-1 shadow-[0_3px_0_#FF6B6B]'
-              : 'bg-[#00D4FF] border-[#0F3460] text-[#0F3460] hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1 shadow-[0_3px_0_#0F3460]')
+              ? 'kq-btn-gold'
+              : 'kq-btn-blue')
           }
-          style={{ fontFamily: 'VT323, monospace' }}
         >
-          {isPurchasing ? '⏳ PROCESSING...' : '💳 PURCHASE'}
+          {isPurchasing ? '⏳ Processing...' : '💳 Purchase'}
         </button>
       </div>
     </motion.div>
@@ -189,24 +179,21 @@ export default function GoldShop({ onClose }) {
   };
 
   return (
-    <div className="bg-[#0F3460] rounded-lg p-8 border-3 border-[#00D4FF]">
+    <div className="kq-card p-8">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2
-            className="text-4xl font-black text-[#FFD93D] mb-2"
-            style={{ fontFamily: 'VT323, monospace' }}
-          >
-            🪙 GOLD SHOP
+          <h2 className="kq-display text-4xl font-bold text-navy mb-2">
+            🪙 Gold Shop
           </h2>
-          <p className="text-[#00D4FF] font-bold">
+          <p className="text-hero-blue font-bold">
             Support development & speed up your adventure
           </p>
         </div>
         {onClose && (
           <button
             onClick={onClose}
-            className="text-[#00D4FF] hover:text-[#FFD93D] transition-colors text-3xl font-bold"
+            className="text-navy/50 hover:text-coral transition-colors text-3xl font-bold"
             title="Close"
           >
             ✕
@@ -216,15 +203,15 @@ export default function GoldShop({ onClose }) {
 
       {/* Error Message */}
       {error && (
-        <div className="bg-[#FF6B6B] bg-opacity-20 border-2 border-[#FF6B6B] rounded-lg p-4 mb-6">
-          <p className="text-[#FF6B6B] font-bold">⚠️ {error}</p>
+        <div className="bg-coral/12 border-2 border-coral rounded-candy p-4 mb-6">
+          <p className="text-coral font-bold">⚠️ {error}</p>
         </div>
       )}
 
       {/* Info Banner */}
-      <div className="bg-[#1A1A2E] border-2 border-[#00D4FF] border-opacity-30 rounded-lg p-4 mb-6">
-        <p className="text-white text-sm text-center">
-          💡 <strong className="text-[#FFD93D]">Fair Play:</strong> Gold helps you progress
+      <div className="bg-cream border-2 border-stone rounded-candy p-4 mb-6">
+        <p className="text-navy text-sm text-center">
+          💡 <strong className="text-gold">Fair Play:</strong> Gold helps you progress
           faster, but all content is accessible to free players through daily quests. Your
           purchase supports ongoing development!
         </p>
@@ -244,7 +231,7 @@ export default function GoldShop({ onClose }) {
 
       {/* Footer Note */}
       <div className="mt-6 text-center">
-        <p className="text-xs text-gray-400">
+        <p className="text-xs text-navy/50">
           Secure payment powered by Stripe • All purchases are final • Gold is granted
           immediately after payment
         </p>

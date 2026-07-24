@@ -8,7 +8,7 @@ export default function CompactCharacterCard({ profile, creature, isPremium }) {
   const xpNeeded = (profile.level || 1) * 100;
 
   return (
-    <div className="bg-[#1A1A2E] border-3 border-[#00D4FF] rounded-lg p-4 mb-6 shadow-[0_0_20px_rgba(0,212,255,0.3)]">
+    <div className="kq-card p-4 mb-6">
       {/* Mobile: stack, Desktop: row */}
       <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
         {/* Avatar */}
@@ -17,7 +17,7 @@ export default function CompactCharacterCard({ profile, creature, isPremium }) {
             <img
               src={`/images/archetypes/${profile.archetype}.png`}
               alt={profile.archetype}
-              className="w-20 h-20 object-cover rounded-lg border-2 border-[#FFD93D] shadow-[0_0_12px_rgba(255,217,61,0.4)]"
+              className="w-20 h-20 object-cover rounded-candy border-2 border-gold"
             />
           </div>
         )}
@@ -27,25 +27,25 @@ export default function CompactCharacterCard({ profile, creature, isPremium }) {
           {/* Row 1: Name + Level + Badges + Streak + Gold */}
           <div className="flex items-center justify-between flex-wrap gap-x-3 gap-y-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-lg sm:text-xl font-black uppercase tracking-wide text-[#FF6B6B]">
+              <h1 className="kq-display text-lg sm:text-xl font-black text-coral">
                 {profile.archetype}
               </h1>
-              <span className="text-sm font-black text-[#00D4FF]">
+              <span className="text-sm font-black text-hero-blue">
                 LV {profile.level}
               </span>
               {isPremium && (
-                <span className="px-2 py-0.5 bg-[#FFD93D] text-[#1A1A2E] rounded text-xs font-black uppercase">
+                <span className="px-2 py-0.5 bg-gold text-navy rounded-full text-xs font-black uppercase">
                   PRO
                 </span>
               )}
             </div>
             <div className="flex items-center gap-3 text-sm">
               {profile.current_streak > 0 && (
-                <span className="text-[#FF6B6B] font-black" title="Days active in a row">
+                <span className="text-coral font-black" title="Days active in a row">
                   🔥 {profile.current_streak}
                 </span>
               )}
-              <span className="text-[#FFD93D] font-black" title="Gold">
+              <span className="text-gold font-black" title="Gold">
                 💰 {(profile.gold || 0).toLocaleString()}
               </span>
             </div>
@@ -53,16 +53,16 @@ export default function CompactCharacterCard({ profile, creature, isPremium }) {
 
           {/* Row 2: XP Bar (full width, text below) */}
           <div className="mt-2">
-            <div className="h-3 bg-[#0F3460] rounded-full overflow-hidden border border-[#1A1A2E]">
+            <div className="h-3 bg-cream rounded-full overflow-hidden border border-stone">
               <div
                 className="h-full rounded-full transition-all duration-500"
                 style={{
                   width: `${xpProgress}%`,
-                  background: 'linear-gradient(90deg, #22d3ee, #f43f5e)',
+                  background: 'linear-gradient(90deg, #57D7F5, #FF7B6B)',
                 }}
               />
             </div>
-            <p className="text-xs text-[#94a3b8] font-bold mt-1 text-center">
+            <p className="text-xs text-navy/60 font-bold mt-1 text-center">
               {xpInLevel} / 100 XP
             </p>
           </div>
@@ -80,11 +80,11 @@ export default function CompactCharacterCard({ profile, creature, isPremium }) {
                 ) : (
                   <span className="text-sm">{creature.emoji}</span>
                 )}
-                <span className="text-xs text-[#E2E8F0] truncate">{creature.name}</span>
+                <span className="text-xs text-navy/70 truncate">{creature.name}</span>
               </div>
             ) : <div />}
             {profile.skill_points > 0 && (
-              <p className="text-xs text-[#FFD93D] font-black">
+              <p className="text-xs text-gold font-black">
                 💎 {profile.skill_points} Skill Pt{profile.skill_points > 1 ? 's' : ''}
               </p>
             )}

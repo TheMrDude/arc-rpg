@@ -103,21 +103,21 @@ export default function DailyBonus({ profile, onClaim }) {
 
   return (
     <>
-      <div className="bg-[#1A1A2E] border-3 border-[#FFD93D] rounded-lg p-6 shadow-[0_0_20px_rgba(255,217,61,0.3)]">
+      <div className="kq-card p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h3 className="text-2xl font-black text-[#FFD93D]" style={{ fontFamily: 'VT323, monospace' }}>
-              🎁 DAILY BONUS
+            <h3 className="kq-display text-2xl text-navy">
+              🎁 Daily Bonus
             </h3>
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-navy/60">
               {canClaim ? 'Claim your reward!' : `Next bonus in ${nextBonusHours} hours`}
             </p>
           </div>
           <div className="text-right">
-            <div className="text-[#00D4FF] font-black text-2xl" style={{ fontFamily: 'VT323, monospace' }}>
+            <div className="kq-display text-hero-blue text-2xl">
               {currentStreak} Day{currentStreak !== 1 ? 's' : ''}
             </div>
-            <div className="text-xs text-gray-400">Days in a Row</div>
+            <div className="text-xs text-navy/60">Days in a Row</div>
           </div>
         </div>
 
@@ -132,38 +132,38 @@ export default function DailyBonus({ profile, onClaim }) {
             return (
               <div
                 key={day}
-                className={`text-center p-2 rounded border-2 ${
+                className={`text-center p-2 rounded-2xl border-2 ${
                   isNext
-                    ? 'border-[#FFD93D] bg-[#FFD93D] bg-opacity-20'
+                    ? 'border-gold bg-gold/20'
                     : isCurrent
-                    ? 'border-[#00D4FF] bg-[#00D4FF] bg-opacity-10'
-                    : 'border-gray-600 bg-gray-800 bg-opacity-50'
+                    ? 'border-hero-blue bg-hero-blue/10'
+                    : 'border-stone bg-cream'
                 }`}
               >
                 <div className={`text-2xl ${isNext ? 'animate-bounce' : ''}`}>{bonus.emoji}</div>
-                <div className="text-xs text-gray-400 mt-1">{bonus.gold}g</div>
+                <div className="text-xs text-navy/60 mt-1">{bonus.gold}g</div>
               </div>
             );
           })}
         </div>
 
         {/* Next Reward Info */}
-        <div className="bg-[#0F3460] border-2 border-[#00D4FF] border-opacity-50 rounded-lg p-4 mb-4">
+        <div className="bg-hero-blue/10 border-2 border-hero-blue/40 rounded-candy p-4 mb-4">
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-[#00D4FF] font-bold mb-1">
+              <div className="text-hero-blue font-bold mb-1">
                 {canClaim ? 'Available Now:' : 'Next Reward:'}
               </div>
-              <div className="text-sm text-gray-300">{nextBonus.name}</div>
+              <div className="text-sm text-navy/70">{nextBonus.name}</div>
             </div>
             <div className="flex gap-3">
               <div className="text-center">
-                <div className="text-xl font-black text-[#FFD93D]">+{nextBonus.gold}</div>
-                <div className="text-xs text-gray-400">Gold</div>
+                <div className="text-xl font-black text-gold">+{nextBonus.gold}</div>
+                <div className="text-xs text-navy/60">Gold</div>
               </div>
               <div className="text-center">
-                <div className="text-xl font-black text-[#00D4FF]">+{nextBonus.xp}</div>
-                <div className="text-xs text-gray-400">XP</div>
+                <div className="text-xl font-black text-hero-blue">+{nextBonus.xp}</div>
+                <div className="text-xs text-navy/60">XP</div>
               </div>
             </div>
           </div>
@@ -173,18 +173,17 @@ export default function DailyBonus({ profile, onClaim }) {
         <button
           onClick={claimBonus}
           disabled={!canClaim || claiming}
-          className={`w-full py-4 rounded-lg font-black uppercase border-3 transition-all ${
+          className={`w-full ${
             canClaim && !claiming
-              ? 'bg-[#FFD93D] border-[#FF6B6B] text-[#0F3460] hover:shadow-[0_5px_0_#FF6B6B] hover:-translate-y-0.5 active:shadow-[0_1px_0_#FF6B6B] active:translate-y-1 shadow-[0_3px_0_#FF6B6B]'
-              : 'bg-gray-600 border-gray-700 text-gray-400 cursor-not-allowed'
+              ? 'kq-btn kq-btn-gold'
+              : 'kq-btn bg-navy/10 text-navy/40 cursor-not-allowed'
           }`}
-          style={{ fontFamily: 'VT323, monospace' }}
         >
-          {claiming ? '⏳ CLAIMING...' : canClaim ? '🎁 CLAIM DAILY BONUS' : `🔒 COME BACK IN ${nextBonusHours}H`}
+          {claiming ? '⏳ Claiming...' : canClaim ? '🎁 Claim Daily Bonus' : `🔒 Come back in ${nextBonusHours}h`}
         </button>
 
         {currentStreak > 0 && (
-          <p className="text-xs text-center text-gray-400 mt-3">
+          <p className="text-xs text-center text-navy/60 mt-3">
             💡 Claim your bonus each day for bigger rewards. Miss a day? No harm done, the bonuses just start fresh.
           </p>
         )}
@@ -198,14 +197,14 @@ export default function DailyBonus({ profile, onClaim }) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 flex items-center justify-center p-4"
-            style={{ backgroundColor: 'rgba(15, 52, 96, 0.95)' }}
+            style={{ backgroundColor: 'rgba(36, 59, 90, 0.6)' }}
           >
             <motion.div
               initial={{ scale: 0, rotate: -180 }}
               animate={{ scale: 1, rotate: 0 }}
               exit={{ scale: 0, rotate: 180 }}
               transition={{ type: 'spring', duration: 0.7 }}
-              className="bg-[#1A1A2E] border-3 border-[#FFD93D] rounded-lg p-8 max-w-md w-full shadow-[0_0_50px_rgba(255,217,61,0.5)]"
+              className="kq-card p-8 max-w-md w-full"
             >
               <div className="text-center">
                 <motion.div
@@ -216,43 +215,43 @@ export default function DailyBonus({ profile, onClaim }) {
                   {rewardData.emoji}
                 </motion.div>
 
-                <h2 className="text-4xl font-black text-[#FFD93D] mb-4" style={{ fontFamily: 'VT323, monospace' }}>
-                  DAILY BONUS CLAIMED!
+                <h2 className="kq-display text-4xl text-navy mb-4">
+                  Daily Bonus Claimed!
                 </h2>
 
                 <div className={`grid ${rewardData.skill_points_earned > 0 ? 'grid-cols-3' : 'grid-cols-2'} gap-4 mb-6`}>
-                  <div className="bg-[#0F3460] border-2 border-[#FFD93D] rounded-lg p-4">
+                  <div className="bg-gold/10 border-2 border-gold rounded-candy p-4">
                     <div className="text-4xl mb-2">💰</div>
-                    <div className="text-3xl font-black text-[#FFD93D]" style={{ fontFamily: 'VT323, monospace' }}>
+                    <div className="kq-display text-3xl text-gold">
                       +{rewardData.gold}
                     </div>
-                    <div className="text-sm text-gray-400">GOLD</div>
+                    <div className="text-sm text-navy/60">Gold</div>
                   </div>
-                  <div className="bg-[#0F3460] border-2 border-[#00D4FF] rounded-lg p-4">
+                  <div className="bg-hero-blue/10 border-2 border-hero-blue rounded-candy p-4">
                     <div className="text-4xl mb-2">⭐</div>
-                    <div className="text-3xl font-black text-[#00D4FF]" style={{ fontFamily: 'VT323, monospace' }}>
+                    <div className="kq-display text-3xl text-hero-blue">
                       +{rewardData.xp}
                     </div>
-                    <div className="text-sm text-gray-400">XP</div>
+                    <div className="text-sm text-navy/60">XP</div>
                   </div>
                   {rewardData.skill_points_earned > 0 && (
-                    <div className="bg-[#0F3460] border-2 border-[#9333EA] rounded-lg p-4">
+                    <div className="bg-purple/10 border-2 border-purple rounded-candy p-4">
                       <div className="text-4xl mb-2">💎</div>
-                      <div className="text-3xl font-black text-[#9333EA]" style={{ fontFamily: 'VT323, monospace' }}>
+                      <div className="kq-display text-3xl text-purple">
                         +{rewardData.skill_points_earned}
                       </div>
-                      <div className="text-sm text-gray-400">SKILL PT</div>
+                      <div className="text-sm text-navy/60">Skill Pt</div>
                     </div>
                   )}
                 </div>
 
-                <div className="bg-[#0F3460] border-2 border-[#00D4FF] border-opacity-50 rounded-lg p-3 mb-4">
-                  <div className="text-[#00D4FF] font-bold">
+                <div className="bg-hero-blue/10 border-2 border-hero-blue/40 rounded-candy p-3 mb-4">
+                  <div className="text-hero-blue font-bold">
                     🔥 {rewardData.total_streak} Day{rewardData.total_streak !== 1 ? 's' : ''} in a Row!
                   </div>
                 </div>
 
-                <p className="text-sm text-gray-300">
+                <p className="text-sm text-navy/70">
                   Keep logging in daily to increase your rewards!
                 </p>
               </div>

@@ -51,12 +51,12 @@ export default function QuestInput({ onTransform, loading, remainingPreviews }: 
           disabled={loading}
           maxLength={100}
           aria-label="Enter your habit or task"
-          className="w-full px-6 py-5 text-lg sm:text-xl bg-[#16213E] border-3 border-[#00D4FF] rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-[#FF6B4A] focus:ring-4 focus:ring-[#FF6B4A]/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          className="kq-input w-full px-6 py-5 text-lg sm:text-xl focus:ring-4 focus:ring-coral/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           style={{ fontSize: '18px' }} // Prevent iOS zoom
         />
 
         {/* Character counter */}
-        <div aria-live="polite" className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-400">
+        <div aria-live="polite" className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-navy/50">
           {charCount}/100
         </div>
       </div>
@@ -67,7 +67,7 @@ export default function QuestInput({ onTransform, loading, remainingPreviews }: 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           role="alert"
-          className="text-sm text-[#E74C3C] mt-2 ml-2"
+          className="text-sm text-coral mt-2 ml-2"
         >
           Give us a bit more detail!
         </motion.p>
@@ -80,11 +80,10 @@ export default function QuestInput({ onTransform, loading, remainingPreviews }: 
         whileHover={isValid && !loading ? { scale: 1.02 } : {}}
         whileTap={isValid && !loading ? { scale: 0.98 } : {}}
         className={`
-          w-full mt-6 px-8 py-5 rounded-xl font-black text-xl uppercase tracking-wide
-          transition-all duration-200 shadow-lg
+          w-full mt-6
           ${isValid && !loading
-            ? 'bg-[#FF6B4A] hover:bg-[#FF5733] text-white shadow-[#FF6B4A]/50 cursor-pointer'
-            : 'bg-gray-600 text-gray-400 cursor-not-allowed opacity-50'
+            ? 'kq-btn kq-btn-gold text-xl cursor-pointer'
+            : 'kq-btn text-xl bg-navy/10 text-navy/40 cursor-not-allowed opacity-50'
           }
         `}
       >
@@ -118,9 +117,9 @@ export default function QuestInput({ onTransform, loading, remainingPreviews }: 
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mt-4 p-3 bg-[#FF6B4A]/20 border-2 border-[#FF6B4A] rounded-lg"
+          className="mt-4 p-3 bg-coral/12 border-2 border-coral rounded-candy"
         >
-          <p className="text-center text-sm text-[#FF6B4A] font-bold">
+          <p className="text-center text-sm text-coral font-bold">
             {remainingPreviews === 0 ? (
               '🔥 No previews left today! Sign up to continue your adventure.'
             ) : remainingPreviews === 1 ? (
@@ -133,7 +132,7 @@ export default function QuestInput({ onTransform, loading, remainingPreviews }: 
       )}
 
       {/* Helpful hint */}
-      <p className="text-center text-sm text-gray-400 mt-4">
+      <p className="text-center text-sm text-navy/50 mt-4">
         Try: "do laundry" • "finish report" • "exercise for 30 minutes"
       </p>
     </motion.form>

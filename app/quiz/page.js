@@ -161,44 +161,44 @@ export default function QuizPage() {
     const archetype = archetypeInfo[result];
 
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 text-white p-8">
+      <div className="kidquest min-h-screen bg-cream text-navy p-8">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-8">
-            <div className={`inline-block bg-gradient-to-br ${archetype.color} rounded-full p-8 mb-6`}>
+            <div className={`inline-block bg-gradient-to-br ${archetype.color} rounded-full p-8 mb-6 shadow-candy`}>
               <div className="text-8xl">{archetype.emoji}</div>
             </div>
-            <h1 className="text-5xl font-bold mb-4">You're a {archetype.name}!</h1>
-            <p className="text-2xl text-gray-300 mb-8">{archetype.description}</p>
+            <h1 className="kq-display text-5xl font-bold mb-4">You're a {archetype.name}!</h1>
+            <p className="text-2xl text-navy/70 mb-8">{archetype.description}</p>
 
             {/* Character Image */}
             <div className="mb-8">
               <img
                 src={`/images/archetypes/${result}.png`}
                 alt={archetype.name}
-                className="w-64 h-64 object-cover rounded-2xl border-4 border-yellow-400 shadow-2xl mx-auto"
+                className="w-64 h-64 object-cover rounded-candy border-4 border-gold shadow-candy-lg mx-auto"
               />
             </div>
 
-            <div className="bg-gray-800/50 rounded-xl p-6 mb-8">
-              <h3 className="text-xl font-bold mb-3">Transform Your To-Do List Into An Epic Quest</h3>
-              <p className="text-gray-300 mb-4">
+            <div className="kq-card p-6 mb-8">
+              <h3 className="kq-display text-xl font-bold mb-3">Transform Your To-Do List Into An Epic Quest</h3>
+              <p className="text-navy/70 mb-4">
                 Join HabitQuest and turn your daily tasks into heroic adventures matched to your {archetype.name} style!
               </p>
               <ul className="text-left space-y-2 mb-6 max-w-md mx-auto">
                 <li className="flex items-start">
-                  <span className="text-green-400 mr-2">✓</span>
+                  <span className="text-emerald mr-2">✓</span>
                   <span>AI transforms tasks into {archetype.name}-style quests</span>
                 </li>
                 <li className="flex items-start">
-                  <span className="text-green-400 mr-2">✓</span>
+                  <span className="text-emerald mr-2">✓</span>
                   <span>Level up and unlock abilities</span>
                 </li>
                 <li className="flex items-start">
-                  <span className="text-green-400 mr-2">✓</span>
+                  <span className="text-emerald mr-2">✓</span>
                   <span>Earn XP and gold for real accomplishments</span>
                 </li>
                 <li className="flex items-start">
-                  <span className="text-green-400 mr-2">✓</span>
+                  <span className="text-emerald mr-2">✓</span>
                   <span>100% free to start</span>
                 </li>
               </ul>
@@ -207,21 +207,21 @@ export default function QuizPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
                 onClick={() => router.push('/signup')}
-                className="px-8 py-4 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black rounded-lg font-bold text-lg"
+                className="kq-btn kq-btn-gold px-8 py-4 text-lg"
               >
                 Start Your Adventure
               </button>
               <button
                 onClick={handleRestart}
-                className="px-8 py-4 bg-gray-700 hover:bg-gray-600 rounded-lg font-semibold text-lg"
+                className="kq-btn kq-btn-ghost px-8 py-4 text-lg"
               >
                 Retake Quiz
               </button>
             </div>
 
             {/* Share Buttons */}
-            <div className="mt-8 pt-8 border-t border-gray-700">
-              <p className="text-gray-400 mb-4">Share your result!</p>
+            <div className="mt-8 pt-8 border-t border-stone">
+              <p className="text-navy/60 mb-4">Share your result!</p>
               <div className="flex gap-4 justify-center">
                 <button
                   onClick={() => {
@@ -229,7 +229,7 @@ export default function QuizPage() {
                     const url = window.location.origin + '/quiz';
                     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
                   }}
-                  className="px-6 py-3 bg-blue-500 hover:bg-blue-600 rounded-lg font-semibold"
+                  className="kq-btn kq-btn-blue px-6 py-3"
                 >
                   Share on Twitter
                 </button>
@@ -238,7 +238,7 @@ export default function QuizPage() {
                     navigator.clipboard.writeText(window.location.origin + '/quiz');
                     alert('Link copied to clipboard!');
                   }}
-                  className="px-6 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg font-semibold"
+                  className="kq-btn kq-btn-ghost px-6 py-3"
                 >
                   Copy Link
                 </button>
@@ -254,35 +254,35 @@ export default function QuizPage() {
   const progress = ((currentQuestion) / questions.length) * 100;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 text-white p-8">
+    <div className="kidquest min-h-screen bg-cream text-navy p-8">
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-2">Which Archetype Are You?</h1>
-          <p className="text-gray-300">Discover your heroic personality type</p>
+          <h1 className="kq-display text-4xl font-bold mb-2">Which Archetype Are You?</h1>
+          <p className="text-navy/70">Discover your heroic personality type</p>
         </div>
 
         {/* Progress Bar */}
         <div className="mb-8">
-          <div className="bg-gray-700 rounded-full h-4 overflow-hidden">
+          <div className="bg-white border-2 border-stone rounded-full h-4 overflow-hidden">
             <div
-              className="bg-gradient-to-r from-yellow-500 to-orange-500 h-full transition-all duration-300"
+              className="bg-gradient-to-r from-gold to-coral h-full transition-all duration-300"
               style={{ width: `${progress}%` }}
             />
           </div>
-          <p className="text-center text-sm text-gray-400 mt-2">
+          <p className="text-center text-sm text-navy/60 mt-2">
             Question {currentQuestion + 1} of {questions.length}
           </p>
         </div>
 
         {/* Question */}
-        <div className="bg-gray-800/50 rounded-xl p-8 mb-6">
-          <h2 className="text-2xl font-bold mb-6 text-center">{question.question}</h2>
+        <div className="kq-card p-8 mb-6">
+          <h2 className="kq-display text-2xl font-bold mb-6 text-center">{question.question}</h2>
           <div className="space-y-3">
             {question.options.map((option, index) => (
               <button
                 key={index}
                 onClick={() => handleAnswer(option)}
-                className="w-full p-4 bg-gray-700/50 hover:bg-gray-600/50 rounded-lg text-left transition-all hover:scale-102 border-2 border-transparent hover:border-yellow-400"
+                className="w-full p-4 bg-cream hover:bg-gold/15 rounded-candy text-left transition-all hover:scale-102 border-2 border-stone hover:border-gold"
               >
                 {option.text}
               </button>
@@ -294,7 +294,7 @@ export default function QuizPage() {
         <div className="text-center">
           <button
             onClick={() => router.push('/')}
-            className="text-gray-400 hover:text-white underline"
+            className="text-navy/60 hover:text-navy underline"
           >
             ← Back to Home
           </button>

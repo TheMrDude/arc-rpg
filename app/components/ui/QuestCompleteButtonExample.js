@@ -59,15 +59,15 @@ export default function QuestCompleteButtonExample() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#2C1810] via-[#3d2817] to-[#2C1810] p-8">
+    <div className="min-h-screen bg-cream p-8">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-8 text-center">
-          <h1 className="text-5xl font-black text-[#E8B44C] mb-2">
+          <h1 className="kq-display text-5xl font-black text-navy mb-2">
             Quest Log
           </h1>
-          <div className="inline-block bg-[#2C1810] border-4 border-[#E8B44C] rounded-lg px-6 py-3">
-            <p className="text-2xl font-bold text-[#E8B44C]">
+          <div className="inline-block kq-card px-6 py-3">
+            <p className="text-2xl font-bold text-hero-blue">
               Total XP: {totalXP}
             </p>
           </div>
@@ -82,29 +82,29 @@ export default function QuestCompleteButtonExample() {
               <div
                 key={quest.id}
                 className={`
-                  bg-gradient-to-br from-[#D4943C] to-[#E8B44C]
-                  rounded-2xl border-4 border-[#2C1810]
-                  p-6 shadow-2xl
+                  kq-card
+                  p-6
                   transition-all duration-300
                   ${isCompleted ? 'opacity-60 scale-95' : 'opacity-100 scale-100'}
                 `}
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
-                    <h3 className="text-2xl font-black text-[#2C1810] mb-2">
+                    <h3 className="text-2xl font-black text-navy mb-2">
                       {quest.title}
                     </h3>
-                    <p className="text-[#2C1810] text-lg">
+                    <p className="text-navy/70 text-lg">
                       {quest.description}
                     </p>
                   </div>
 
                   {/* Difficulty Badge */}
                   <div className={`
-                    px-3 py-1 rounded-lg font-bold text-sm uppercase
-                    ${quest.difficulty === 'easy' ? 'bg-green-500 text-white' : ''}
-                    ${quest.difficulty === 'medium' ? 'bg-yellow-500 text-[#2C1810]' : ''}
-                    ${quest.difficulty === 'hard' ? 'bg-red-500 text-white' : ''}
+                    kq-chip
+                    px-3 py-1 font-bold text-sm
+                    ${quest.difficulty === 'easy' ? 'bg-emerald/15 text-emerald' : ''}
+                    ${quest.difficulty === 'medium' ? 'bg-gold/20 text-navy' : ''}
+                    ${quest.difficulty === 'hard' ? 'bg-coral/15 text-coral' : ''}
                   `}>
                     {quest.difficulty}
                   </div>
@@ -127,7 +127,7 @@ export default function QuestCompleteButtonExample() {
         {/* Completed Quests Counter */}
         {completedQuests.length > 0 && (
           <div className="mt-8 text-center">
-            <div className="inline-block bg-green-500 text-white px-6 py-3 rounded-lg border-4 border-green-700 font-bold text-xl">
+            <div className="inline-block kq-btn kq-btn-emerald px-6 py-3 text-xl">
               🎉 {completedQuests.length} / {exampleQuests.length} Quests Completed!
             </div>
           </div>

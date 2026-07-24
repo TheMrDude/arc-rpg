@@ -6,10 +6,10 @@ import { supabase } from '@/lib/supabase';
 import { crossroadsMilestone, crossroadsEligible, pickScenario } from '@/lib/crossroads';
 
 const TIER_LABELS = {
-  crit: { text: 'NATURAL 20!', color: '#FFD93D' },
-  great: { text: 'GREAT SUCCESS', color: '#6BCB77' },
-  success: { text: 'SUCCESS', color: '#00D4FF' },
-  complication: { text: 'A COMPLICATION...', color: '#c8a96e' },
+  crit: { text: 'NATURAL 20!', color: '#FFC83D' },
+  great: { text: 'GREAT SUCCESS', color: '#2DBE7E' },
+  success: { text: 'SUCCESS', color: '#4F7DF3' },
+  complication: { text: 'A COMPLICATION...', color: '#FF7B6B' },
 };
 
 /**
@@ -124,12 +124,12 @@ export default function CrossroadsCard({ profile, userId, onResolved }) {
   const icon = scenario?.icon || '🧭';
 
   return (
-    <div className="bg-[#1A1A2E] border-3 border-[#a78bfa] rounded-lg p-5 mb-6 shadow-[0_0_20px_rgba(167,139,250,0.3)]">
+    <div className="kq-card p-5 mb-6">
       <div className="flex items-center justify-between gap-2 flex-wrap mb-2">
-        <h3 className="text-lg font-black uppercase tracking-wide text-[#a78bfa]">
+        <h3 className="text-lg font-bold text-purple">
           {icon} A Crossroads Appears
         </h3>
-        <span className="text-[10px] font-black uppercase tracking-wider text-[#94a3b8] bg-[#0F3460] border-2 border-[#1A1A2E] rounded-full px-2.5 py-1">
+        <span className="kq-chip text-[11px] font-bold text-navy/60 bg-cream border border-stone">
           Quest {milestone}
         </span>
       </div>
@@ -137,17 +137,17 @@ export default function CrossroadsCard({ profile, userId, onResolved }) {
       {phase === 'loading' ? (
         <div className="py-6 text-center">
           <motion.p
-            className="text-sm text-[#a78bfa] font-bold"
+            className="text-sm text-purple font-bold"
             animate={{ opacity: [0.5, 1, 0.5] }}
             transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
           >
-            The Dungeon Master is drawing your road...
+            Your guide is drawing your road...
           </motion.p>
         </div>
       ) : (
         <>
-          <p className="text-sm font-bold text-white mb-1">{scenario.title}</p>
-          <p className="text-sm text-[#E2E8F0] mb-4">{scenario.setup}</p>
+          <p className="text-sm font-bold text-navy mb-1">{scenario.title}</p>
+          <p className="text-sm text-navy/70 mb-4">{scenario.setup}</p>
 
           <AnimatePresence mode="wait">
             {phase === 'choose' && (
@@ -157,23 +157,23 @@ export default function CrossroadsCard({ profile, userId, onResolved }) {
                     <button
                       key={c.id}
                       onClick={() => choose(c.id)}
-                      className={`flex-1 text-left px-4 py-3 rounded-lg border-2 font-bold text-sm transition-all hover:scale-[1.02] ${
+                      className={`flex-1 text-left px-4 py-3 rounded-candy border-2 font-bold text-sm transition-all hover:scale-[1.02] ${
                         c.style === 'bold'
-                          ? 'border-[#FF6B6B] text-[#FF6B6B] bg-[#FF6B6B]/10 hover:bg-[#FF6B6B]/20'
-                          : 'border-[#00D4FF] text-[#00D4FF] bg-[#00D4FF]/10 hover:bg-[#00D4FF]/20'
+                          ? 'border-coral text-coral bg-coral/10 hover:bg-coral/20'
+                          : 'border-hero-blue text-hero-blue bg-hero-blue/10 hover:bg-hero-blue/20'
                       }`}
                     >
-                      <span className="block text-[10px] uppercase tracking-widest opacity-80 mb-0.5">
+                      <span className="block text-[11px] opacity-80 mb-0.5">
                         {c.style === 'bold' ? '🎲 Bold (big swings)' : '🛡️ Careful (steady odds)'}
                       </span>
                       {c.label}
                     </button>
                   ))}
                 </div>
-                <p className="text-[11px] text-[#94a3b8] mt-2">
+                <p className="text-[11px] text-navy/50 mt-2">
                   A d20 decides how it goes. Every path pays something. The story keeps whatever happens.
                 </p>
-                {error && <p className="text-xs text-[#FF6B6B] mt-2 font-bold">{error}</p>}
+                {error && <p className="text-xs text-coral mt-2 font-bold">{error}</p>}
               </motion.div>
             )}
 
@@ -188,9 +188,9 @@ export default function CrossroadsCard({ profile, userId, onResolved }) {
                 <motion.div
                   animate={{ rotate: [0, 360] }}
                   transition={{ duration: 0.5, repeat: Infinity, ease: 'linear' }}
-                  className="w-16 h-16 rounded-xl bg-[#0F3460] border-2 border-[#a78bfa] flex items-center justify-center"
+                  className="w-16 h-16 rounded-2xl bg-cream border-2 border-purple flex items-center justify-center"
                 >
-                  <span className="text-2xl font-black text-white">{displayRoll}</span>
+                  <span className="text-2xl font-bold text-navy">{displayRoll}</span>
                 </motion.div>
               </motion.div>
             )}
@@ -198,28 +198,28 @@ export default function CrossroadsCard({ profile, userId, onResolved }) {
             {phase === 'done' && result && (
               <motion.div key="done" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="w-14 h-14 rounded-xl bg-[#0F3460] border-2 flex items-center justify-center flex-shrink-0"
+                  <div className="w-14 h-14 rounded-2xl bg-cream border-2 flex items-center justify-center flex-shrink-0"
                     style={{ borderColor: tierInfo.color }}>
-                    <span className="text-xl font-black" style={{ color: tierInfo.color }}>{result.roll}</span>
+                    <span className="text-xl font-bold" style={{ color: tierInfo.color }}>{result.roll}</span>
                   </div>
                   <div>
-                    <p className="text-sm font-black uppercase tracking-wide" style={{ color: tierInfo.color }}>
+                    <p className="text-sm font-bold" style={{ color: tierInfo.color }}>
                       {tierInfo.text}
                     </p>
-                    <p className="text-xs text-[#94a3b8]">d20 rolled {result.roll}</p>
+                    <p className="text-xs text-navy/50">d20 rolled {result.roll}</p>
                   </div>
                 </div>
-                <p className="text-sm text-[#E2E8F0] italic mb-3">{result.outcome}</p>
+                <p className="text-sm text-navy/70 italic mb-3">{result.outcome}</p>
                 <div className="flex items-center justify-between gap-2 flex-wrap">
-                  <p className="text-sm font-black text-[#FFD93D]">💰 +{result.gold} gold</p>
+                  <p className="text-sm font-bold text-gold">💰 +{result.gold} gold</p>
                   <button
                     onClick={() => onResolved && onResolved()}
-                    className="px-4 py-2 rounded-lg bg-[#a78bfa] hover:bg-[#8b5cf6] text-white font-black text-xs uppercase tracking-wide transition-colors"
+                    className="kq-btn kq-btn-emerald text-xs"
                   >
                     Continue the journey
                   </button>
                 </div>
-                <p className="text-[11px] text-[#94a3b8] mt-2">
+                <p className="text-[11px] text-navy/50 mt-2">
                   This outcome is now part of your story. The next crossroads opens at quest {milestone + 5}.
                 </p>
               </motion.div>

@@ -66,26 +66,26 @@ export default function MyQuotes() {
   }
 
   const sharingLabel = (q) => {
-    if (!q.consented_public) return { text: 'Private (not shared)', color: 'text-gray-400' };
-    if (q.consent_revoked_at) return { text: 'Sharing stopped', color: 'text-gray-400' };
-    if (q.status === 'live') return { text: 'Live on the site', color: 'text-[#10B981]' };
-    return { text: 'Shared — pending review', color: 'text-[#F59E0B]' };
+    if (!q.consented_public) return { text: 'Private (not shared)', color: 'text-navy/50' };
+    if (q.consent_revoked_at) return { text: 'Sharing stopped', color: 'text-navy/50' };
+    if (q.status === 'live') return { text: 'Live on the site', color: 'text-emerald' };
+    return { text: 'Shared — pending review', color: 'text-gold' };
   };
 
   return (
-    <div className="bg-[#16213E]/60 border-2 border-[#00D4FF]/20 rounded-xl p-6">
-      <h2 className="text-xl font-black text-white mb-1">My quotes</h2>
-      <p className="text-sm text-gray-400 mb-5">
+    <div className="kq-card p-6">
+      <h2 className="text-xl font-black text-navy mb-1">My quotes</h2>
+      <p className="text-sm text-navy/60 mb-5">
         Reflections you&apos;ve shared from milestone moments. Stop sharing any of
         them at any time &mdash; no questions asked.
       </p>
 
-      {loading && <p className="text-gray-400 text-sm">Loading…</p>}
+      {loading && <p className="text-navy/60 text-sm">Loading…</p>}
 
       {!loading && error && (
-        <p className="text-gray-400 text-sm">
+        <p className="text-navy/60 text-sm">
           Couldn&apos;t load your quotes right now.{' '}
-          <button onClick={load} className="text-[#00D4FF] underline">
+          <button onClick={load} className="text-hero-blue underline">
             Try again
           </button>
           .
@@ -93,7 +93,7 @@ export default function MyQuotes() {
       )}
 
       {!loading && !error && quotes.length === 0 && (
-        <p className="text-gray-400 text-sm">
+        <p className="text-navy/60 text-sm">
           You haven&apos;t shared any quotes yet. They show up here after you hit a
           milestone and choose to share a reflection.
         </p>
@@ -107,11 +107,11 @@ export default function MyQuotes() {
             return (
               <li
                 key={q.id}
-                className="border border-[#00D4FF]/10 rounded-lg p-4 bg-[#0F172A]/50"
+                className="border-2 border-stone rounded-candy p-4 bg-cream"
               >
-                <p className="text-gray-200 italic mb-2">&ldquo;{q.quote}&rdquo;</p>
+                <p className="text-navy italic mb-2">&ldquo;{q.quote}&rdquo;</p>
                 <div className="flex items-center justify-between gap-3 flex-wrap">
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-navy/50">
                     <span>{MILESTONE_LABELS[q.milestone] || q.milestone}</span>
                     <span className="mx-2">·</span>
                     <span className={label.color}>{label.text}</span>
@@ -120,7 +120,7 @@ export default function MyQuotes() {
                     <button
                       onClick={() => revoke(q.id)}
                       disabled={revoking === q.id}
-                      className="text-sm font-bold text-[#FF6B6B] hover:text-[#ff8a8a] transition-colors disabled:opacity-50"
+                      className="text-sm font-bold text-coral hover:text-coral/70 transition-colors disabled:opacity-50"
                     >
                       {revoking === q.id ? 'Stopping…' : 'Stop sharing this'}
                     </button>

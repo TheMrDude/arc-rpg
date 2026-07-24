@@ -104,7 +104,7 @@ export default function WelcomeQuestChain({ userId, refreshKey = 0 }: WelcomeQue
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.8, opacity: 0 }}
               transition={{ type: 'spring', damping: 12 }}
-              className="bg-gradient-to-br from-[#1A1A2E] to-[#16213E] border-4 border-[#F59E0B] rounded-2xl p-8 max-w-md w-full text-center shadow-[0_0_80px_rgba(245,158,11,0.4)]"
+              className="kq-card border-2 border-gold rounded-candy p-8 max-w-md w-full text-center shadow-candy-lg"
               onClick={(e) => e.stopPropagation()}
             >
               <motion.div
@@ -115,34 +115,34 @@ export default function WelcomeQuestChain({ userId, refreshKey = 0 }: WelcomeQue
               >
                 🏆
               </motion.div>
-              <h2 className="text-3xl font-black uppercase text-[#F59E0B] mb-2">
+              <h2 className="kq-display text-3xl text-navy mb-2">
                 Hero Established!
               </h2>
-              <p className="text-gray-300 mb-4">
+              <p className="text-navy/70 mb-4">
                 You&apos;ve completed the Welcome Quest chain. Your adventure truly begins now.
               </p>
-              <div className="bg-[#0F3460] border-2 border-[#10B981] rounded-xl p-4 mb-6">
-                <div className="text-sm text-gray-400 uppercase font-bold mb-2">
+              <div className="bg-emerald/10 border-2 border-emerald rounded-candy p-4 mb-6">
+                <div className="text-sm text-navy/60 font-bold mb-2">
                   Total Rewards Earned
                 </div>
                 <div className="flex justify-center gap-6">
                   <div>
-                    <span className="text-2xl font-black text-[#F59E0B]">
+                    <span className="text-2xl font-black text-gold">
                       {steps.reduce((sum, s) => sum + s.reward_gold, 0)}
                     </span>
-                    <span className="text-sm text-gray-400 ml-1">Gold</span>
+                    <span className="text-sm text-navy/60 ml-1">Gold</span>
                   </div>
                   <div>
-                    <span className="text-2xl font-black text-[#00D4FF]">
+                    <span className="text-2xl font-black text-hero-blue">
                       {steps.reduce((sum, s) => sum + s.reward_xp, 0)}
                     </span>
-                    <span className="text-sm text-gray-400 ml-1">XP</span>
+                    <span className="text-sm text-navy/60 ml-1">XP</span>
                   </div>
                 </div>
               </div>
               <button
                 onClick={() => setShowCelebration(false)}
-                className="px-8 py-3 bg-[#FF6B35] hover:bg-[#E55A2B] text-white rounded-xl font-black uppercase transition-all hover:scale-105"
+                className="kq-btn kq-btn-gold"
               >
                 Continue Your Journey
               </button>
@@ -154,27 +154,27 @@ export default function WelcomeQuestChain({ userId, refreshKey = 0 }: WelcomeQue
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-gradient-to-br from-[#16213E] to-[#0F3460] border-3 border-[#FF6B35] rounded-2xl p-6 shadow-lg"
+        className="kq-card border-2 border-coral/40 rounded-candy p-6 shadow-candy"
       >
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <span className="text-3xl">📜</span>
             <div>
-              <h3 className="text-lg font-black uppercase text-[#FF6B35]">
+              <h3 className="kq-display text-lg text-coral">
                 Welcome to the Quest
               </h3>
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-navy/50">
                 Step {currentStepNum} of {totalSteps}
               </p>
             </div>
           </div>
           {currentStep && (
             <div className="flex items-center gap-3 text-sm">
-              <span className="text-[#F59E0B] font-bold">
+              <span className="text-gold font-bold">
                 +{currentStep.reward_gold} Gold
               </span>
-              <span className="text-[#00D4FF] font-bold">
+              <span className="text-hero-blue font-bold">
                 +{currentStep.reward_xp} XP
               </span>
             </div>
@@ -183,12 +183,12 @@ export default function WelcomeQuestChain({ userId, refreshKey = 0 }: WelcomeQue
 
         {/* Progress bar */}
         <div className="mb-5">
-          <div className="h-2 bg-[#1E293B] rounded-full overflow-hidden">
+          <div className="h-2 bg-stone rounded-full overflow-hidden">
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${progressPercent}%` }}
               transition={{ duration: 0.8, ease: 'easeOut' }}
-              className="h-full bg-gradient-to-r from-[#FF6B35] to-[#F59E0B] rounded-full"
+              className="h-full bg-gradient-to-r from-coral to-gold rounded-full"
             />
           </div>
         </div>
@@ -206,10 +206,10 @@ export default function WelcomeQuestChain({ userId, refreshKey = 0 }: WelcomeQue
                 <div
                   className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-black mb-1 transition-all ${
                     isCompleted
-                      ? 'bg-[#10B981] text-white'
+                      ? 'bg-emerald text-white'
                       : isCurrent
-                      ? 'bg-[#FF6B35] text-white ring-2 ring-[#FF6B35]/50'
-                      : 'bg-[#1E293B] text-gray-600 border border-gray-700'
+                      ? 'bg-coral text-white ring-2 ring-coral/50'
+                      : 'bg-stone text-navy/40 border border-stone'
                   }`}
                 >
                   {isCompleted ? '✓' : step.step_number}
@@ -217,10 +217,10 @@ export default function WelcomeQuestChain({ userId, refreshKey = 0 }: WelcomeQue
                 <span
                   className={`text-[9px] text-center leading-tight max-w-[50px] ${
                     isCurrent
-                      ? 'text-[#FF6B35] font-bold'
+                      ? 'text-coral font-bold'
                       : isCompleted
-                      ? 'text-gray-400'
-                      : 'text-gray-600'
+                      ? 'text-navy/60'
+                      : 'text-navy/40'
                   }`}
                 >
                   {step.title}
@@ -232,22 +232,22 @@ export default function WelcomeQuestChain({ userId, refreshKey = 0 }: WelcomeQue
 
         {/* Current step narrative */}
         {currentStep && (
-          <div className="bg-[#0F172A]/60 border border-[#FF6B35]/20 rounded-xl p-4">
-            <h4 className="text-base font-black text-white mb-2">
+          <div className="bg-coral/5 border border-coral/20 rounded-candy p-4">
+            <h4 className="text-base font-black text-navy mb-2">
               {currentStep.title}
             </h4>
-            <p className="text-sm text-[#F59E0B]/90 italic mb-3 leading-relaxed">
+            <p className="text-sm text-gold/90 italic mb-3 leading-relaxed">
               &ldquo;{currentStep.story_text}&rdquo;
             </p>
-            <p className="text-sm text-gray-300">{currentStep.description}</p>
+            <p className="text-sm text-navy/70">{currentStep.description}</p>
           </div>
         )}
 
         {/* Completed steps summary */}
         {currentStepNum > 1 && (
-          <div className="mt-4 pt-3 border-t border-gray-700/50">
+          <div className="mt-4 pt-3 border-t border-stone">
             <details className="group">
-              <summary className="text-xs text-gray-500 font-bold uppercase cursor-pointer hover:text-gray-300 transition-colors">
+              <summary className="text-xs text-navy/50 font-bold cursor-pointer hover:text-navy/70 transition-colors">
                 Completed Steps ({currentStepNum - 1})
               </summary>
               <div className="mt-2 space-y-1">
@@ -258,11 +258,11 @@ export default function WelcomeQuestChain({ userId, refreshKey = 0 }: WelcomeQue
                       key={step.step_number}
                       className="flex items-center justify-between text-xs py-1"
                     >
-                      <span className="text-gray-400 flex items-center gap-2">
-                        <span className="text-[#10B981]">✓</span>
+                      <span className="text-navy/60 flex items-center gap-2">
+                        <span className="text-emerald">✓</span>
                         {step.title}
                       </span>
-                      <span className="text-gray-600">
+                      <span className="text-navy/40">
                         +{step.reward_gold}g +{step.reward_xp}xp
                       </span>
                     </div>

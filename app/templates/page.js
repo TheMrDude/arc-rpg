@@ -276,33 +276,33 @@ export default function TemplatesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
-        <div className="text-white text-xl">Loading...</div>
+      <div className="kidquest min-h-screen bg-cream flex items-center justify-center">
+        <div className="text-navy text-xl">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 text-white p-8">
+    <div className="kidquest min-h-screen bg-cream text-navy p-8">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex justify-between items-center mb-8 flex-wrap gap-4">
           <div>
-            <h1 className="text-4xl font-bold mb-2">Recurring Quest Templates</h1>
-            <p className="text-gray-300">Create templates that auto-generate quests daily, weekly, or on custom schedules</p>
+            <h1 className="kq-display text-4xl font-bold mb-2 text-navy">Recurring Quest Templates</h1>
+            <p className="text-navy/60">Create templates that auto-generate quests daily, weekly, or on custom schedules</p>
           </div>
           <div className="flex gap-4">
-            <button onClick={() => router.push('/dashboard')} className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg">
+            <button onClick={() => router.push('/dashboard')} className="kq-btn kq-btn-ghost">
               Back to Dashboard
             </button>
             <button
               onClick={generateQuestsNow}
               disabled={generating || templates.length === 0}
-              className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              className="kq-btn kq-btn-emerald disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {generating ? 'Generating...' : 'Generate Quests Now'}
             </button>
-            <button onClick={openCreateModal} className="px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black rounded-lg font-semibold">
+            <button onClick={openCreateModal} className="kq-btn kq-btn-gold">
               Create Template
             </button>
           </div>
@@ -311,19 +311,19 @@ export default function TemplatesPage() {
         {/* Templates List */}
         <div className="space-y-4">
           {templates.map((template) => (
-            <div key={template.id} className="bg-gray-800/50 border border-gray-700 rounded-xl p-6">
-              <div className="flex justify-between items-start mb-4">
+            <div key={template.id} className="kq-card p-6">
+              <div className="flex justify-between items-start mb-4 flex-wrap gap-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-3">
-                    <h3 className="text-2xl font-bold">{template.name}</h3>
-                    <span className={`px-3 py-1 rounded-full text-sm ${template.is_active ? 'bg-green-600' : 'bg-gray-600'}`}>
+                    <h3 className="text-2xl font-bold text-navy">{template.name}</h3>
+                    <span className={`px-3 py-1 rounded-full text-sm font-semibold ${template.is_active ? 'bg-emerald/15 text-emerald' : 'bg-navy/10 text-navy/60'}`}>
                       {template.is_active ? 'Active' : 'Inactive'}
                     </span>
                   </div>
                   {template.description && (
-                    <p className="text-gray-400 mt-2">{template.description}</p>
+                    <p className="text-navy/60 mt-2">{template.description}</p>
                   )}
-                  <p className="text-sm text-gray-500 mt-2">
+                  <p className="text-sm text-navy/50 mt-2">
                     Recurrence: {template.recurrence_type === 'custom'
                       ? `Every ${template.recurrence_interval} days`
                       : template.recurrence_type.charAt(0).toUpperCase() + template.recurrence_type.slice(1)}
@@ -332,19 +332,19 @@ export default function TemplatesPage() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => toggleTemplate(template.id, template.is_active)}
-                    className={`px-4 py-2 rounded-lg font-semibold ${template.is_active ? 'bg-gray-600 hover:bg-gray-700' : 'bg-green-600 hover:bg-green-700'}`}
+                    className={`kq-btn ${template.is_active ? 'kq-btn-ghost' : 'kq-btn-emerald'}`}
                   >
                     {template.is_active ? 'Pause' : 'Activate'}
                   </button>
                   <button
                     onClick={() => openEditModal(template)}
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold"
+                    className="kq-btn kq-btn-blue"
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => deleteTemplate(template.id)}
-                    className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg font-semibold"
+                    className="kq-btn bg-coral/12 border-2 border-coral text-coral hover:bg-coral/20"
                   >
                     Delete
                   </button>
@@ -353,16 +353,16 @@ export default function TemplatesPage() {
 
               {/* Tasks in this template */}
               <div className="mt-4">
-                <h4 className="font-semibold mb-2 text-gray-300">Tasks ({template.tasks.length}):</h4>
+                <h4 className="font-semibold mb-2 text-navy/70">Tasks ({template.tasks.length}):</h4>
                 <div className="space-y-2">
                   {template.tasks.map((task, idx) => (
-                    <div key={task.id} className="bg-gray-700/50 p-3 rounded-lg flex items-center gap-3">
-                      <span className="text-gray-400">{idx + 1}.</span>
-                      <span className="flex-1">{task.task_text}</span>
-                      <span className={`px-2 py-1 rounded text-xs ${
-                        task.difficulty === 'easy' ? 'bg-green-600' :
-                        task.difficulty === 'medium' ? 'bg-yellow-600' :
-                        'bg-red-600'
+                    <div key={task.id} className="bg-cream p-3 rounded-candy flex items-center gap-3">
+                      <span className="text-navy/50">{idx + 1}.</span>
+                      <span className="flex-1 text-navy">{task.task_text}</span>
+                      <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                        task.difficulty === 'easy' ? 'bg-emerald/15 text-emerald' :
+                        task.difficulty === 'medium' ? 'bg-gold/20 text-gold' :
+                        'bg-coral/15 text-coral'
                       }`}>
                         {task.difficulty.toUpperCase()}
                       </span>
@@ -374,10 +374,10 @@ export default function TemplatesPage() {
           ))}
 
           {templates.length === 0 && (
-            <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-12 text-center">
-              <h3 className="text-2xl font-bold mb-4">No Templates Yet</h3>
-              <p className="text-gray-400 mb-6">Create your first recurring quest template to automate your daily or weekly tasks!</p>
-              <button onClick={openCreateModal} className="px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black rounded-lg font-semibold">
+            <div className="kq-card p-12 text-center">
+              <h3 className="kq-display text-2xl font-bold mb-4 text-navy">No Templates Yet</h3>
+              <p className="text-navy/60 mb-6">Create your first recurring quest template to automate your daily or weekly tasks!</p>
+              <button onClick={openCreateModal} className="kq-btn kq-btn-gold">
                 Create Your First Template
               </button>
             </div>
@@ -387,30 +387,30 @@ export default function TemplatesPage() {
 
       {/* Create/Edit Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
-          <div className="bg-gray-800 rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <h2 className="text-2xl font-bold mb-6">{editingTemplate ? 'Edit Template' : 'Create New Template'}</h2>
+        <div className="fixed inset-0 bg-navy/60 flex items-center justify-center p-4 z-50">
+          <div className="kq-card p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <h2 className="kq-display text-2xl font-bold mb-6 text-navy">{editingTemplate ? 'Edit Template' : 'Create New Template'}</h2>
 
             {/* Template Name */}
             <div className="mb-4">
-              <label className="block text-sm font-semibold mb-2">Template Name</label>
+              <label className="kq-label">Template Name</label>
               <input
                 type="text"
                 value={templateName}
                 onChange={(e) => setTemplateName(e.target.value)}
                 placeholder="e.g., Morning Routine, Weekly Review"
-                className="w-full px-4 py-3 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="kq-input w-full"
               />
             </div>
 
             {/* Description */}
             <div className="mb-4">
-              <label className="block text-sm font-semibold mb-2">Description (optional)</label>
+              <label className="kq-label">Description (optional)</label>
               <textarea
                 value={templateDescription}
                 onChange={(e) => setTemplateDescription(e.target.value)}
                 placeholder="Describe this template..."
-                className="w-full px-4 py-3 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="kq-input w-full"
                 rows={2}
               />
             </div>
@@ -418,11 +418,11 @@ export default function TemplatesPage() {
             {/* Recurrence Type */}
             <div className="mb-4 grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold mb-2">Recurrence</label>
+                <label className="kq-label">Recurrence</label>
                 <select
                   value={recurrenceType}
                   onChange={(e) => setRecurrenceType(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="kq-input w-full"
                 >
                   <option value="daily">Daily</option>
                   <option value="weekly">Weekly</option>
@@ -431,13 +431,13 @@ export default function TemplatesPage() {
               </div>
               {recurrenceType === 'custom' && (
                 <div>
-                  <label className="block text-sm font-semibold mb-2">Every X Days</label>
+                  <label className="kq-label">Every X Days</label>
                   <input
                     type="number"
                     min="1"
                     value={recurrenceInterval}
                     onChange={(e) => setRecurrenceInterval(parseInt(e.target.value))}
-                    className="w-full px-4 py-3 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="kq-input w-full"
                   />
                 </div>
               )}
@@ -445,7 +445,7 @@ export default function TemplatesPage() {
 
             {/* Tasks */}
             <div className="mb-6">
-              <label className="block text-sm font-semibold mb-2">Tasks</label>
+              <label className="kq-label">Tasks</label>
               <div className="space-y-3">
                 {tasks.map((task, idx) => (
                   <div key={idx} className="flex gap-2">
@@ -454,12 +454,12 @@ export default function TemplatesPage() {
                       value={task.text}
                       onChange={(e) => updateTask(idx, 'text', e.target.value)}
                       placeholder="Task description..."
-                      className="flex-1 px-4 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="kq-input flex-1"
                     />
                     <select
                       value={task.difficulty}
                       onChange={(e) => updateTask(idx, 'difficulty', e.target.value)}
-                      className="px-4 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="kq-input"
                     >
                       <option value="easy">Easy</option>
                       <option value="medium">Medium</option>
@@ -468,7 +468,7 @@ export default function TemplatesPage() {
                     {tasks.length > 1 && (
                       <button
                         onClick={() => removeTask(idx)}
-                        className="px-3 py-2 bg-red-600 hover:bg-red-700 rounded-lg"
+                        className="kq-btn bg-coral/12 border-2 border-coral text-coral hover:bg-coral/20"
                       >
                         Remove
                       </button>
@@ -478,7 +478,7 @@ export default function TemplatesPage() {
               </div>
               <button
                 onClick={addTask}
-                className="mt-3 px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg text-sm"
+                className="mt-3 kq-btn kq-btn-ghost text-sm"
               >
                 + Add Another Task
               </button>
@@ -488,13 +488,13 @@ export default function TemplatesPage() {
             <div className="flex gap-4 justify-end">
               <button
                 onClick={() => setShowCreateModal(false)}
-                className="px-6 py-3 bg-gray-600 hover:bg-gray-700 rounded-lg font-semibold"
+                className="kq-btn kq-btn-ghost"
               >
                 Cancel
               </button>
               <button
                 onClick={saveTemplate}
-                className="px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black rounded-lg font-semibold"
+                className="kq-btn kq-btn-gold"
               >
                 {editingTemplate ? 'Update Template' : 'Create Template'}
               </button>

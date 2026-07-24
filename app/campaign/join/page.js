@@ -86,32 +86,32 @@ function JoinCampaignForm() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0f172a] flex items-center justify-center">
-        <div className="text-[#22d3ee] text-xl font-bold animate-pulse">Loading...</div>
+      <div className="kidquest min-h-screen bg-cream flex items-center justify-center">
+        <div className="text-hero-blue text-xl font-bold animate-pulse kq-display">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0f172a] text-white flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-[#1e293b] border-2 border-[#f43f5e]/40 rounded-xl p-8">
+    <div className="kidquest min-h-screen bg-cream flex items-center justify-center p-4">
+      <div className="max-w-md w-full kq-card p-8">
         <div className="text-4xl mb-4">🛡️</div>
-        <h1 className="text-2xl font-black uppercase tracking-wide text-[#f43f5e] mb-2">
+        <h1 className="kq-display text-2xl text-coral mb-2">
           Join Campaign
         </h1>
-        <p className="text-gray-400 text-sm mb-6">
+        <p className="text-navy/60 text-sm mb-6">
           Enter the invite code your DM shared with you.
         </p>
 
         {error && (
-          <div className="bg-[#f43f5e]/10 border border-[#f43f5e] text-[#f43f5e] rounded-lg p-3 mb-4 text-sm font-bold">
+          <div className="bg-coral/12 border-2 border-coral text-coral rounded-candy p-3 mb-4 text-sm font-bold">
             {error}
           </div>
         )}
 
         <form onSubmit={handleJoin} className="space-y-4">
           <div>
-            <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-1">
+            <label className="kq-label">
               Invite Code *
             </label>
             <input
@@ -121,11 +121,11 @@ function JoinCampaignForm() {
               placeholder="ABC12345"
               maxLength={8}
               required
-              className="w-full bg-[#0f172a] border border-gray-600 focus:border-[#f43f5e] rounded-lg px-4 py-2.5 text-white placeholder-gray-600 outline-none transition-colors font-mono text-lg tracking-widest"
+              className="kq-input text-lg tracking-widest"
             />
           </div>
           <div>
-            <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-1">
+            <label className="kq-label">
               Character Name *
             </label>
             <input
@@ -134,13 +134,13 @@ function JoinCampaignForm() {
               onChange={e => setCharacterName(e.target.value)}
               placeholder="Aldric the Bold"
               required
-              className="w-full bg-[#0f172a] border border-gray-600 focus:border-[#f43f5e] rounded-lg px-4 py-2.5 text-white placeholder-gray-600 outline-none transition-colors"
+              className="kq-input"
             />
           </div>
           <button
             type="submit"
             disabled={submitting}
-            className="w-full py-3 bg-[#f43f5e] hover:bg-[#e11d48] text-white font-black uppercase tracking-wide rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="kq-btn kq-btn-gold w-full disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {submitting ? 'Joining...' : 'Join Campaign'}
           </button>
@@ -149,7 +149,7 @@ function JoinCampaignForm() {
         <div className="mt-6 text-center">
           <button
             onClick={() => router.push('/campaign/setup')}
-            className="text-gray-600 hover:text-gray-400 text-sm transition-colors"
+            className="text-navy/50 hover:text-navy/70 text-sm transition-colors"
           >
             Want to create a campaign instead? →
           </button>
@@ -162,8 +162,8 @@ function JoinCampaignForm() {
 export default function JoinCampaignPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-[#0f172a] flex items-center justify-center">
-        <div className="text-[#22d3ee] text-xl font-bold animate-pulse">Loading...</div>
+      <div className="kidquest min-h-screen bg-cream flex items-center justify-center">
+        <div className="text-hero-blue text-xl font-bold animate-pulse kq-display">Loading...</div>
       </div>
     }>
       <JoinCampaignForm />

@@ -38,7 +38,7 @@ export default function FirstQuestCelebration({ xp, onContinue }: FirstQuestCele
         particleCount,
         spread: 70,
         origin: { y: 0.6 },
-        colors: ['#FF6B4A', '#00D4FF', '#9B59B6', '#10B981', '#FCD34D']
+        colors: ['#FF7B6B', '#57D7F5', '#9B59B6', '#10B981', '#FFC83D']
       });
 
       confetti({
@@ -46,7 +46,7 @@ export default function FirstQuestCelebration({ xp, onContinue }: FirstQuestCele
         angle: 60,
         spread: 55,
         origin: { x: 0 },
-        colors: ['#FF6B4A', '#00D4FF', '#9B59B6', '#10B981', '#FCD34D']
+        colors: ['#FF7B6B', '#57D7F5', '#9B59B6', '#10B981', '#FFC83D']
       });
 
       confetti({
@@ -54,7 +54,7 @@ export default function FirstQuestCelebration({ xp, onContinue }: FirstQuestCele
         angle: 120,
         spread: 55,
         origin: { x: 1 },
-        colors: ['#FF6B4A', '#00D4FF', '#9B59B6', '#10B981', '#FCD34D']
+        colors: ['#FF7B6B', '#57D7F5', '#9B59B6', '#10B981', '#FFC83D']
       });
     }, 250);
 
@@ -67,10 +67,10 @@ export default function FirstQuestCelebration({ xp, onContinue }: FirstQuestCele
         initial={{ scale: 0, rotate: -180 }}
         animate={{ scale: 1, rotate: 0 }}
         transition={{ type: 'spring', damping: 15, stiffness: 100 }}
-        className="relative w-full max-w-lg bg-gradient-to-br from-[#1A1A2E] to-[#16213E] border-4 border-[#FFD93D] rounded-2xl p-12 text-center shadow-2xl"
+        className="relative w-full max-w-lg kq-card border-2 border-gold rounded-candy p-12 text-center shadow-candy-lg"
       >
         {/* Animated stars */}
-        <div className="absolute inset-0 overflow-hidden rounded-2xl pointer-events-none">
+        <div className="absolute inset-0 overflow-hidden rounded-candy pointer-events-none">
           {[...Array(20)].map((_, i) => (
             <motion.div
               key={i}
@@ -87,7 +87,7 @@ export default function FirstQuestCelebration({ xp, onContinue }: FirstQuestCele
                 repeat: Infinity,
                 repeatDelay: Math.random() * 3
               }}
-              className="absolute w-2 h-2 bg-[#FFD93D] rounded-full"
+              className="absolute w-2 h-2 bg-gold rounded-full"
             />
           ))}
         </div>
@@ -100,12 +100,12 @@ export default function FirstQuestCelebration({ xp, onContinue }: FirstQuestCele
         >
           <div className="text-8xl mb-6">🎉</div>
 
-          <h2 className="text-4xl sm:text-5xl font-black text-[#FFD93D] uppercase tracking-wide mb-4">
+          <h2 className="kq-display text-4xl sm:text-5xl font-black text-gold mb-4">
             Quest Complete!
           </h2>
 
-          <p className="text-xl text-gray-300 mb-6">
-            You've earned your first XP and started your legendary journey!
+          <p className="text-xl text-navy/70 mb-6">
+            You've earned your first XP and started your journey!
           </p>
 
           {/* XP Badge */}
@@ -113,9 +113,9 @@ export default function FirstQuestCelebration({ xp, onContinue }: FirstQuestCele
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.5, type: 'spring', stiffness: 200 }}
-            className="inline-block bg-gradient-to-r from-[#10B981] to-[#059669] border-4 border-[#FFD93D] rounded-xl px-8 py-4 mb-8"
+            className="inline-block bg-emerald border-2 border-gold rounded-candy px-8 py-4 mb-8"
           >
-            <p className="text-sm text-[#FFD34D] uppercase font-bold mb-1">XP Earned</p>
+            <p className="text-sm text-white/90 font-bold mb-1">XP Earned</p>
             <p className="text-6xl text-white font-black">+{xp}</p>
           </motion.div>
 
@@ -128,18 +128,18 @@ export default function FirstQuestCelebration({ xp, onContinue }: FirstQuestCele
           >
             <div className="flex items-center justify-center gap-3 mb-2">
               <span className="text-2xl">⚡</span>
-              <p className="text-lg text-[#00D4FF] font-bold">Level 1 Progress</p>
+              <p className="text-lg text-hero-blue font-bold">Level 1 Progress</p>
               <span className="text-2xl">⚡</span>
             </div>
-            <div className="w-full bg-[#0F3460] rounded-full h-4 overflow-hidden border-2 border-[#00D4FF]">
+            <div className="w-full bg-cream rounded-full h-4 overflow-hidden border-2 border-hero-blue">
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${(xp / 100) * 100}%` }}
                 transition={{ delay: 0.8, duration: 1, ease: 'easeOut' }}
-                className="h-full bg-gradient-to-r from-[#00D4FF] to-[#7C3AED]"
+                className="h-full bg-gradient-to-r from-hero-blue to-purple"
               />
             </div>
-            <p className="text-sm text-gray-400 mt-2">{xp}/100 XP to Level 2</p>
+            <p className="text-sm text-navy/50 mt-2">{xp}/100 XP to Level 2</p>
           </motion.div>
 
           {/* Share Achievement */}
@@ -165,9 +165,9 @@ export default function FirstQuestCelebration({ xp, onContinue }: FirstQuestCele
             onClick={onContinue}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="w-full py-4 bg-gradient-to-r from-[#FF6B4A] to-[#FF5733] hover:from-[#FF5733] hover:to-[#E74C3C] text-white border-3 border-[#0F3460] rounded-xl font-black text-xl uppercase tracking-wide shadow-lg transition-all"
+            className="kq-btn kq-btn-gold w-full py-4 text-xl"
           >
-            ⚔️ Choose Your Character Class →
+            🎨 Choose Your Character →
           </motion.button>
         </motion.div>
       </motion.div>

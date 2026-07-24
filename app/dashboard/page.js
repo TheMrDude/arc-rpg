@@ -938,8 +938,8 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#1A1A2E] via-[#16213e] to-[#0F3460] flex items-center justify-center">
-        <div className="text-white text-xl font-black uppercase tracking-wide">Loading...</div>
+      <div className="kidquest min-h-screen bg-cream flex items-center justify-center">
+        <div className="text-navy text-xl font-bold kq-display">Loading...</div>
       </div>
     );
   }
@@ -982,7 +982,7 @@ export default function DashboardPage() {
       {/* Unlock Toast Notifications */}
       <UnlockToast unlocks={newUnlocks} />
 
-      <div className="min-h-screen bg-gradient-to-br from-[#1A1A2E] via-[#16213e] to-[#0F3460] text-white p-4 sm:p-8 pb-24 md:pb-8">
+      <div className="kidquest min-h-screen bg-cream text-navy p-4 sm:p-8 pb-24 md:pb-8">
       <div className="max-w-4xl mx-auto">
 
         {/* Top Navigation Bar */}
@@ -998,10 +998,10 @@ export default function DashboardPage() {
             {sections.skillTree && isPremium && (
               <button
                 onClick={() => router.push('/skills')}
-                className={`px-3 py-1.5 border-2 rounded-lg font-black uppercase text-xs tracking-wide transition-all ${
+                className={`kq-chip font-bold text-xs transition-all ${
                   profile?.skill_points > 0
-                    ? 'bg-[#9333EA] hover:bg-[#7E22CE] text-white border-[#0F3460] animate-pulse'
-                    : 'bg-[#4C1D95] hover:bg-[#5B21B6] text-white border-[#1A1A2E]'
+                    ? 'bg-purple text-white animate-pulse'
+                    : 'bg-purple/80 text-white'
                 }`}
               >
                 <Gem size={13} className="inline -mt-0.5 mr-1" /> Skills {profile?.skill_points > 0 && `(${profile.skill_points})`}
@@ -1010,7 +1010,7 @@ export default function DashboardPage() {
             {sections.journeyNav && isPremium && (
               <button
                 onClick={() => router.push('/journey')}
-                className="px-3 py-1.5 bg-[#9333EA] hover:bg-[#7E22CE] text-white border-2 border-[#0F3460] rounded-lg font-black uppercase text-xs tracking-wide transition-all"
+                className="kq-chip bg-purple text-white font-bold text-xs transition-all"
               >
                 <BookOpen size={13} className="inline -mt-0.5 mr-1" /> Journey
               </button>
@@ -1018,7 +1018,7 @@ export default function DashboardPage() {
             {sections.historyNav && (
               <button
                 onClick={() => router.push('/history')}
-                className="px-3 py-1.5 bg-[#0F3460] hover:bg-[#1a4a7a] text-white border-2 border-[#1A1A2E] rounded-lg font-bold uppercase text-xs tracking-wide transition-all"
+                className="kq-chip bg-navy text-cream font-bold text-xs transition-all"
               >
                 <ScrollText size={13} className="inline -mt-0.5 mr-1" /> History
               </button>
@@ -1027,42 +1027,42 @@ export default function DashboardPage() {
             {process.env.NEXT_PUBLIC_BADGES_ENABLED === 'true' && (
               <button
                 onClick={() => router.push('/badges')}
-                className="px-3 py-1.5 bg-[#0f172a] hover:bg-[#1e293b] text-[#FFD93D] border-2 border-[#FFD93D]/30 rounded-lg font-black uppercase text-xs tracking-wide transition-all"
+                className="kq-chip bg-gold/15 text-gold border-2 border-gold/40 font-bold text-xs transition-all"
               >
                 <Award size={13} className="inline -mt-0.5 mr-1" /> Badges
               </button>
             )}
             <button
               onClick={() => router.push('/settings')}
-              className="px-3 py-1.5 bg-[#0F3460] hover:bg-[#1a4a7a] text-white border-2 border-[#1A1A2E] rounded-lg font-bold uppercase text-xs tracking-wide transition-all"
+              className="kq-chip bg-navy text-cream font-bold text-xs transition-all"
             >
               Settings
             </button>
             {profile?.active_campaign_id ? (
               <button
                 onClick={() => router.push(profile.campaign_role === 'dm' ? '/campaign/dm' : '/campaign/player')}
-                className="px-3 py-1.5 bg-[#22d3ee]/20 hover:bg-[#22d3ee]/30 text-[#22d3ee] border-2 border-[#22d3ee]/40 rounded-lg font-black uppercase text-xs tracking-wide transition-all"
+                className="kq-chip bg-aqua/20 text-hero-blue border-2 border-aqua/40 font-bold text-xs transition-all"
               >
                 {profile.campaign_role === 'dm' ? <Swords size={13} className="inline -mt-0.5 mr-1" /> : <Shield size={13} className="inline -mt-0.5 mr-1" />} My Campaign
               </button>
             ) : (
               <button
                 onClick={() => router.push('/campaign/setup')}
-                className="px-3 py-1.5 bg-[#0f172a] hover:bg-[#1e293b] text-[#22d3ee] border-2 border-[#22d3ee]/30 rounded-lg font-black uppercase text-xs tracking-wide transition-all"
+                className="kq-chip bg-aqua/10 text-hero-blue border-2 border-aqua/30 font-bold text-xs transition-all"
               >
                 <Dices size={13} className="inline -mt-0.5 mr-1" /> Join Campaign
               </button>
             )}
             <button
               onClick={() => router.push('/shop')}
-              className="px-3 py-1.5 bg-[#FFD93D] hover:bg-[#E6C335] text-[#1A1A2E] border-2 border-[#0F3460] rounded-lg font-black uppercase text-xs tracking-wide transition-all"
+              className="kq-btn kq-btn-gold text-xs"
             >
               <Coins size={13} className="inline -mt-0.5 mr-1" /> Gold Shop
             </button>
             {!isPremium && (
               <button
                 onClick={() => router.push('/pricing')}
-                className="px-3 py-1.5 bg-[#00D4FF] hover:bg-[#00BFFF] text-[#0F3460] border-2 border-[#0F3460] rounded-lg font-black uppercase text-xs tracking-wide transition-all"
+                className="kq-btn kq-btn-blue text-xs"
               >
                 <Flame size={13} className="inline -mt-0.5 mr-1" /> Go Pro
               </button>
@@ -1070,14 +1070,14 @@ export default function DashboardPage() {
           </div>
           <button
             onClick={() => setSoundEnabled(!soundEnabled)}
-            className="px-2.5 py-1.5 bg-[#0f172a] hover:bg-[#1e293b] text-[#94a3b8] border-2 border-[#1e293b] rounded-lg font-black text-sm transition-all"
+            className="kq-chip bg-navy/10 text-navy/60 font-bold text-sm transition-all"
             title={soundEnabled ? 'Mute sound effects' : 'Unmute sound effects'}
           >
             {soundEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
           </button>
           <button
             onClick={handleLogout}
-            className="px-3 py-1.5 bg-[#FF6B6B] hover:bg-[#EE5A6F] text-white border-2 border-[#0F3460] rounded-lg font-bold uppercase text-xs tracking-wide transition-all"
+            className="kq-btn kq-btn-ghost text-xs"
             title="Logout"
           >
             Logout
@@ -1134,12 +1134,12 @@ export default function DashboardPage() {
 
         {/* Boss Encounter Alert */}
         {bossEncounter && (
-          <div className="bg-red-900/30 border-3 border-red-500 rounded-lg p-4 mb-6 shadow-[0_0_20px_rgba(239,68,68,0.5)]">
+          <div className="bg-coral/10 border-2 border-coral rounded-candy p-4 mb-6">
             <div className="flex items-center gap-4">
               <span className="text-4xl">{bossEncounter.emoji}</span>
               <div>
-                <h3 className="text-xl font-black uppercase tracking-wide text-[#FF6B6B]">{bossEncounter.name}</h3>
-                <p className="text-sm text-[#E2E8F0]">{bossEncounter.description}</p>
+                <h3 className="text-xl font-bold kq-display text-coral">{bossEncounter.name}</h3>
+                <p className="text-sm text-navy/70">{bossEncounter.description}</p>
               </div>
             </div>
           </div>
@@ -1147,12 +1147,12 @@ export default function DashboardPage() {
 
         {/* Trial Status Banner */}
         {profile?.trial_ends_at && new Date(profile.trial_ends_at) > new Date() && !profile?.is_premium && (
-          <div className="bg-gradient-to-r from-[#7C3AED]/20 to-[#FF6B35]/20 border-2 border-[#7C3AED] rounded-xl p-3 mb-4 text-center">
-            <p className="text-[#7C3AED] font-black text-sm uppercase">
+          <div className="bg-gradient-to-r from-purple/10 to-coral/10 border-2 border-purple rounded-candy p-3 mb-4 text-center">
+            <p className="text-purple font-bold text-sm">
               Pro Trial: {Math.ceil((new Date(profile.trial_ends_at) - new Date()) / (1000 * 60 * 60 * 24))} days remaining
             </p>
-            <p className="text-gray-400 text-xs mt-1">
-              <a href="/pricing" className="text-[#FF6B35] hover:underline font-bold">Upgrade now</a> to keep Pro features
+            <p className="text-navy/60 text-xs mt-1">
+              <a href="/pricing" className="text-coral hover:underline font-bold">Upgrade now</a> to keep Pro features
             </p>
           </div>
         )}
@@ -1165,20 +1165,20 @@ export default function DashboardPage() {
           <div className="mb-6">
             <div className="flex flex-wrap gap-2">
               {[
-                { key: 'quests', Icon: ClipboardList, label: 'Quests', color: '#FF6B6B' },
-                { key: 'recurring', Icon: RefreshCw, label: 'Recurring', color: '#00D4FF' },
-                { key: 'templates', Icon: Package, label: 'Templates', color: '#FFD93D' },
-                { key: 'equipment', Icon: Swords, label: 'Equipment', color: '#48BB78' },
-                { key: 'journal', Icon: BookOpen, label: 'Journal', color: '#9333EA' },
+                { key: 'quests', Icon: ClipboardList, label: 'Quests', color: '#FF7B6B' },
+                { key: 'recurring', Icon: RefreshCw, label: 'Recurring', color: '#57D7F5' },
+                { key: 'templates', Icon: Package, label: 'Templates', color: '#FFC83D' },
+                { key: 'equipment', Icon: Swords, label: 'Equipment', color: '#4CAF7D' },
+                { key: 'journal', Icon: BookOpen, label: 'Journal', color: '#9B6BE0' },
                 { key: 'events', Icon: PartyPopper, label: 'Events', color: '#ec4899', badge: eventBadgeCount },
               ].map(tab => (
                 <button
                   key={tab.key}
                   onClick={() => setActiveTab(tab.key)}
-                  className={`px-4 py-2 rounded-full font-black uppercase text-xs tracking-wide border-2 transition-all relative ${
+                  className={`kq-chip font-bold text-xs transition-all relative ${
                     activeTab === tab.key
-                      ? 'text-white shadow-[0_3px_0_#0F3460]'
-                      : 'bg-[#0F3460] border-[#1A1A2E] text-gray-400 hover:text-white'
+                      ? 'text-white'
+                      : 'bg-white text-navy/60 hover:text-navy'
                   }`}
                   style={
                     activeTab === tab.key
@@ -1188,7 +1188,7 @@ export default function DashboardPage() {
                 >
                   <tab.Icon size={13} className="inline -mt-0.5 mr-1" /> {tab.label}
                   {tab.badge > 0 && (
-                    <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] font-black rounded-full w-5 h-5 flex items-center justify-center border border-[#0F3460] animate-pulse">
+                    <span className="absolute -top-1.5 -right-1.5 bg-coral text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center border border-white animate-pulse">
                       {tab.badge}
                     </span>
                   )}
@@ -1227,15 +1227,15 @@ export default function DashboardPage() {
             {user && <CrossroadsCard profile={profile} userId={user.id} onResolved={loadUserData} />}
 
             {/* Active Quests */}
-            <div className="bg-[#1A1A2E] border-3 border-[#FF6B6B] rounded-lg p-6 mb-6 shadow-[0_0_20px_rgba(255,107,107,0.3)]">
-              <h3 className="text-xl font-black uppercase tracking-wide text-[#FF6B6B] mb-4">Active Quests</h3>
+            <div className="kq-card p-6 mb-6">
+              <h3 className="text-xl font-bold kq-display text-coral mb-4">Active Quests</h3>
               <div className="space-y-4">
                 {activeQuestsList.map((quest) => (
-                  <div key={quest.id} className="bg-[#0F3460] p-4 rounded-lg border-2 border-[#1A1A2E] flex justify-between items-start">
+                  <div key={quest.id} className="bg-cream p-4 rounded-candy border-2 border-stone flex justify-between items-start">
                     <div className="flex-1">
-                      <div className="font-black text-lg text-[#00D4FF]">{quest.transformed_text}</div>
-                      <div className="text-sm text-[#E2E8F0] mt-1">{quest.original_text}</div>
-                      <div className="text-xs text-[#FFD93D] mt-2 font-bold uppercase">
+                      <div className="font-bold text-lg text-hero-blue">{quest.transformed_text}</div>
+                      <div className="text-sm text-navy/70 mt-1">{quest.original_text}</div>
+                      <div className="text-xs text-gold mt-2 font-bold">
                         {quest.difficulty} | {quest.xp_value} XP
                       </div>
                     </div>
@@ -1243,7 +1243,7 @@ export default function DashboardPage() {
                       onClick={(e) => completeQuest(quest.id, quest.xp_value, e)}
                       whileTap={prefersReducedMotion ? {} : { scale: 0.92 }}
                       transition={{ type: 'spring', stiffness: 500, damping: 15 }}
-                      className="ml-4 px-4 py-2 bg-[#48BB78] hover:bg-[#38a169] text-white border-3 border-[#0F3460] rounded-lg font-black uppercase text-sm tracking-wide shadow-[0_3px_0_#0F3460] hover:shadow-[0_5px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_1px_0_#0F3460] active:translate-y-1 transition-all"
+                      className="kq-btn kq-btn-emerald ml-4 text-sm"
                     >
                       Complete
                     </motion.button>
@@ -1278,13 +1278,13 @@ export default function DashboardPage() {
 
         {/* Unlocked Skills — Level 5+ */}
         {sections.unlockedSkills && unlockedSkills.length > 0 && (sections.tabBar ? activeTab === 'quests' : true) && (
-          <div className="bg-[#1A1A2E] border-3 border-[#FFD93D] rounded-lg p-6 mb-6 shadow-[0_0_20px_rgba(255,217,61,0.3)]">
-            <h3 className="text-xl font-black uppercase tracking-wide text-[#FFD93D] mb-4">Unlocked Skills</h3>
+          <div className="kq-card p-6 mb-6">
+            <h3 className="text-xl font-bold kq-display text-gold mb-4">Unlocked Skills</h3>
             <div className="grid md:grid-cols-2 gap-4">
               {unlockedSkills.map((skill, i) => (
-                <div key={i} className="bg-[#0F3460] p-4 rounded-lg border-2 border-[#1A1A2E]">
-                  <div className="font-black text-[#00D4FF]">{skill.name}</div>
-                  <div className="text-sm text-[#E2E8F0]">{skill.description}</div>
+                <div key={i} className="bg-cream p-4 rounded-candy border-2 border-stone">
+                  <div className="font-bold text-hero-blue">{skill.name}</div>
+                  <div className="text-sm text-navy/70">{skill.description}</div>
                 </div>
               ))}
             </div>
@@ -1340,28 +1340,28 @@ export default function DashboardPage() {
 
         {/* Journal Tab */}
         {sections.tabBar && activeTab === 'journal' && (
-          <div className="bg-[#1A1A2E] border-3 border-[#FFD93D] rounded-lg p-6 mb-6 shadow-[0_0_20px_rgba(255,217,61,0.3)]">
+          <div className="kq-card p-6 mb-6">
             <div className="flex justify-between items-center mb-4">
               <div className="flex items-center gap-3">
                 <span className="text-3xl">📖</span>
-                <h3 className="text-xl font-black uppercase tracking-wide text-[#FFD93D]">Hero&apos;s Journal</h3>
+                <h3 className="text-xl font-bold kq-display text-gold">Hero&apos;s Journal</h3>
               </div>
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowJournalEntry(true)}
-                  className="px-4 py-2 bg-[#FFD93D] hover:bg-[#E6C335] text-[#1A1A2E] border-3 border-[#0F3460] rounded-lg font-black uppercase text-sm tracking-wide shadow-[0_4px_0_#0F3460] hover:shadow-[0_6px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_2px_0_#0F3460] active:translate-y-1 transition-all"
+                  className="kq-btn kq-btn-gold text-sm"
                 >
                   ✍️ Write
                 </button>
                 <button
                   onClick={() => setShowJournalSection(!showJournalSection)}
-                  className="px-4 py-2 bg-[#00D4FF] hover:bg-[#00BBE6] text-[#0F3460] border-3 border-[#0F3460] rounded-lg font-black uppercase text-sm tracking-wide shadow-[0_4px_0_#0F3460] hover:shadow-[0_6px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_2px_0_#0F3460] active:translate-y-1 transition-all"
+                  className="kq-btn kq-btn-blue text-sm"
                 >
                   {showJournalSection ? '▲ Hide' : '▼ View'} Timeline
                 </button>
               </div>
             </div>
-            <p className="text-[#E2E8F0] text-sm mb-4">
+            <p className="text-navy/70 text-sm mb-4">
               Document your journey, reflect on your progress, and let the AI transform your story into an epic tale.
             </p>
             {showJournalSection && (
@@ -1389,27 +1389,27 @@ export default function DashboardPage() {
 
         {/* Unlock Premium Section (for non-premium users) */}
         {!isPremium && (
-          <div className="bg-[#1A1A2E] border-3 border-[#FFD93D] rounded-lg p-8 mb-6 shadow-[0_0_30px_rgba(255,217,61,0.4)]">
+          <div className="kq-card p-8 mb-6">
             <div className="text-center">
-              <h3 className="text-2xl font-black mb-4 uppercase tracking-wide text-[#FFD93D]">🔥 Unlock the Full RPG Experience</h3>
-              <p className="text-[#E2E8F0] mb-6 font-bold">Go Pro to access all premium features, starting at just $5/month.</p>
+              <h3 className="text-2xl font-bold mb-4 kq-display text-gold">🔥 Unlock the Full Adventure</h3>
+              <p className="text-navy/70 mb-6 font-bold">Go Pro to access all premium features, starting at just $5/month.</p>
               <div className="grid grid-cols-3 gap-3 mb-6">
-                <div className="bg-[#0F3460] p-3 rounded-lg border-2 border-[#1A1A2E]">
+                <div className="bg-cream p-3 rounded-candy border-2 border-stone">
                   <div className="text-2xl mb-1">🔄</div>
-                  <div className="font-black text-[#00D4FF] text-sm">Templates</div>
+                  <div className="font-bold text-hero-blue text-sm">Templates</div>
                 </div>
-                <div className="bg-[#0F3460] p-3 rounded-lg border-2 border-[#1A1A2E]">
+                <div className="bg-cream p-3 rounded-candy border-2 border-stone">
                   <div className="text-2xl mb-1">⚔️</div>
-                  <div className="font-black text-[#FF6B6B] text-sm">Equipment</div>
+                  <div className="font-bold text-coral text-sm">Equipment</div>
                 </div>
-                <div className="bg-[#0F3460] p-3 rounded-lg border-2 border-[#1A1A2E]">
+                <div className="bg-cream p-3 rounded-candy border-2 border-stone">
                   <div className="text-2xl mb-1">🌳</div>
-                  <div className="font-black text-[#48BB78] text-sm">Skill Trees</div>
+                  <div className="font-bold text-emerald text-sm">Skill Trees</div>
                 </div>
               </div>
               <button
                 onClick={() => router.push('/pricing')}
-                className="px-8 py-3 bg-[#FFD93D] hover:bg-[#E6C335] text-[#1A1A2E] border-3 border-[#0F3460] rounded-lg font-black text-lg uppercase tracking-wide shadow-[0_5px_0_#0F3460] hover:shadow-[0_7px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_2px_0_#0F3460] active:translate-y-1 transition-all"
+                className="kq-btn kq-btn-gold text-lg px-8 py-3"
               >
                 🔥 Go Pro, $5/mo or $29/yr
               </button>
@@ -1515,7 +1515,7 @@ export default function DashboardPage() {
       <FloatingReward
         show={goldFloat.show}
         text={`+${goldFloat.amount} Gold`}
-        color="#FFD93D"
+        color="#FFC83D"
         targetId="gold-counter-target"
         reducedMotion={prefersReducedMotion}
       />
@@ -1527,7 +1527,7 @@ export default function DashboardPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            className="fixed bottom-6 left-6 z-50 bg-[#48BB78] text-white px-4 py-3 rounded-lg font-black text-sm shadow-lg"
+            className="fixed bottom-6 left-6 z-50 bg-emerald text-white px-4 py-3 rounded-candy font-bold text-sm shadow-candy"
           >
             ✨ Momentum filled! +25 bonus XP
           </motion.div>

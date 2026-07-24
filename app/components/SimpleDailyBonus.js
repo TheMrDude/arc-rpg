@@ -38,20 +38,20 @@ export default function SimpleDailyBonus({ profile, onClaim }) {
   if (!profile) return null;
 
   return (
-    <div className="bg-[#1A1A2E]/80 border-2 border-[#FFD93D]/30 rounded-lg px-4 py-3 mb-4 flex items-center justify-between flex-wrap gap-2">
+    <div className="kq-card border-2 border-gold/40 px-4 py-3 mb-4 flex items-center justify-between flex-wrap gap-2">
       <div className="flex items-center gap-3">
         <span className="text-xl">🎁</span>
-        <span className="text-sm font-bold text-[#E2E8F0]">
+        <span className="text-sm font-bold text-navy">
           {canClaim ? (
-            <span className="text-[#FFD93D]">Daily bonus ready!</span>
+            <span className="text-gold">Daily bonus ready!</span>
           ) : (
-            <>Come back in <span className="text-[#FFD93D]">{hoursLeft}h</span></>
+            <>Come back in <span className="text-gold">{hoursLeft}h</span></>
           )}
         </span>
       </div>
       <div className="flex items-center gap-3">
         {profile.current_streak > 0 && (
-          <span className="text-xs text-[#FF6B6B] font-black">
+          <span className="text-xs text-coral font-black">
             🔥 {profile.current_streak} days in a row
           </span>
         )}

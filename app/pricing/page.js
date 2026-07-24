@@ -89,20 +89,20 @@ export default function PricingPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#0F172A] flex items-center justify-center">
-        <div className="text-white text-xl font-black uppercase tracking-wide">Loading...</div>
+      <div className="kidquest min-h-screen bg-cream flex items-center justify-center">
+        <div className="text-navy text-xl font-extrabold">Loading…</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#0F172A] text-white p-4 sm:p-6 lg:p-8">
+    <div className="kidquest min-h-screen bg-cream text-navy p-4 sm:p-6 lg:p-8">
       <div className="max-w-5xl mx-auto">
         <motion.button
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           onClick={() => router.push(user ? '/dashboard' : '/')}
-          className="mb-8 px-4 py-2 bg-[#00D4FF] hover:bg-[#00B8E6] text-[#0F172A] rounded-lg font-black uppercase text-sm tracking-wide transition-all hover:-translate-y-0.5"
+          className="kq-btn kq-btn-ghost mb-8 text-sm px-4 py-2 min-h-0"
         >
           ← {user ? 'Dashboard' : 'Home'}
         </motion.button>
@@ -113,13 +113,11 @@ export default function PricingPage() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
         >
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black mb-4">
-            <span className="bg-gradient-to-r from-[#FF6B35] to-[#F59E0B] bg-clip-text text-transparent">
-              Pick Your Plan
-            </span>
+          <h1 className="kq-display text-4xl sm:text-5xl lg:text-6xl text-navy mb-4">
+            Pick Your <span className="text-hero-blue">Adventure Pass</span>
           </h1>
-          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-            Start free. Upgrade when you&apos;re ready for the full RPG experience.
+          <p className="text-navy/60 text-lg font-semibold max-w-2xl mx-auto">
+            Start free. Upgrade when you&apos;re ready for the full adventure.
           </p>
         </motion.div>
 
@@ -127,9 +125,9 @@ export default function PricingPage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-[#16213E] border-3 border-[#10B981] rounded-xl p-6 mb-8 text-center"
+            className="kq-card border-2 border-emerald p-6 mb-8 text-center"
           >
-            <p className="text-[#10B981] text-lg font-black uppercase">
+            <p className="text-emerald text-lg font-extrabold">
               You&apos;re a Pro member! Full access unlocked.
             </p>
           </motion.div>
@@ -142,26 +140,26 @@ export default function PricingPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="bg-[#16213E] border-2 border-[#1E293B] rounded-2xl p-8 flex flex-col"
+            className="kq-card p-8 flex flex-col"
           >
-            <h3 className="text-xl font-black text-white mb-1">Free</h3>
-            <div className="text-4xl font-black text-[#00D4FF] mb-1">$0</div>
-            <p className="text-gray-500 text-sm mb-6">Free forever</p>
+            <h3 className="kq-display text-xl text-navy mb-1">Free</h3>
+            <div className="kq-display text-4xl text-hero-blue mb-1">$0</div>
+            <p className="text-navy/50 text-sm font-bold mb-6">Free forever</p>
 
-            <ul className="space-y-3 text-gray-300 text-sm mb-8 flex-1">
-              <li className="flex items-start gap-2"><span className="text-[#10B981]">✓</span> 3 habits</li>
-              <li className="flex items-start gap-2"><span className="text-[#10B981]">✓</span> Basic XP &amp; leveling</li>
-              <li className="flex items-start gap-2"><span className="text-[#10B981]">✓</span> Archetype selection</li>
-              <li className="flex items-start gap-2"><span className="text-[#10B981]">✓</span> AI quest transformation</li>
-              <li className="flex items-start gap-2"><span className="text-gray-600">—</span> <span className="text-gray-600">Boss battles</span></li>
-              <li className="flex items-start gap-2"><span className="text-gray-600">—</span> <span className="text-gray-600">Equipment shop</span></li>
-              <li className="flex items-start gap-2"><span className="text-gray-600">—</span> <span className="text-gray-600">Quest chains</span></li>
-              <li className="flex items-start gap-2"><span className="text-gray-600">—</span> <span className="text-gray-600">Journal &amp; reflections</span></li>
+            <ul className="space-y-3 text-navy/80 text-sm font-semibold mb-8 flex-1">
+              <li className="flex items-start gap-2"><span className="text-emerald">✓</span> 3 quests (habits)</li>
+              <li className="flex items-start gap-2"><span className="text-emerald">✓</span> XP &amp; leveling</li>
+              <li className="flex items-start gap-2"><span className="text-emerald">✓</span> Pick your hero</li>
+              <li className="flex items-start gap-2"><span className="text-emerald">✓</span> Turn habits into quests</li>
+              <li className="flex items-start gap-2"><span className="text-navy/30">—</span> <span className="text-navy/40">Boss battles</span></li>
+              <li className="flex items-start gap-2"><span className="text-navy/30">—</span> <span className="text-navy/40">Pets &amp; gear</span></li>
+              <li className="flex items-start gap-2"><span className="text-navy/30">—</span> <span className="text-navy/40">Quest chains</span></li>
+              <li className="flex items-start gap-2"><span className="text-navy/30">—</span> <span className="text-navy/40">Hero journal</span></li>
             </ul>
 
             <button
               onClick={() => router.push('/signup')}
-              className="w-full px-6 py-3 bg-[#1E293B] hover:bg-[#2D3B4F] text-white border-2 border-[#00D4FF]/30 rounded-xl font-black text-lg uppercase tracking-wide transition-all hover:scale-105"
+              className="kq-btn kq-btn-blue w-full"
             >
               Start Free →
             </button>
@@ -172,43 +170,44 @@ export default function PricingPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="bg-gradient-to-br from-[#16213E] to-[#0F3460] border-4 border-[#FF6B35] rounded-2xl p-8 flex flex-col relative"
+            className="kq-card p-8 flex flex-col relative md:-translate-y-4"
+            style={{ boxShadow: '0 0 0 4px #FFC83D, 0 20px 45px rgba(36,59,90,0.2)' }}
           >
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#FF6B35] text-white text-xs font-black px-4 py-1 rounded-full uppercase">
-              Most Popular
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 kq-chip bg-gold text-[#5a4300] text-xs py-1 px-4 whitespace-nowrap">
+              ⭐ Most Popular
             </div>
-            <h3 className="text-xl font-black text-white mb-1">Pro</h3>
-            <div className="text-4xl font-black text-[#F59E0B] mb-1">
-              $5<span className="text-lg text-gray-400">/mo</span>
+            <h3 className="kq-display text-xl text-navy mb-1">Pro</h3>
+            <div className="kq-display text-4xl text-navy mb-1">
+              $5<span className="text-lg text-navy/40">/mo</span>
             </div>
-            <p className="text-gray-500 text-sm mb-6">Billed monthly</p>
+            <p className="text-navy/50 text-sm font-bold mb-6">Billed monthly</p>
 
-            <ul className="space-y-3 text-gray-300 text-sm mb-8 flex-1">
-              <li className="flex items-start gap-2"><span className="text-[#F59E0B]">✓</span> <strong className="text-white">Unlimited</strong> habits</li>
-              <li className="flex items-start gap-2"><span className="text-[#F59E0B]">✓</span> Boss battles</li>
-              <li className="flex items-start gap-2"><span className="text-[#F59E0B]">✓</span> Equipment shop</li>
-              <li className="flex items-start gap-2"><span className="text-[#F59E0B]">✓</span> Quest chains</li>
-              <li className="flex items-start gap-2"><span className="text-[#F59E0B]">✓</span> Journal &amp; reflections</li>
-              <li className="flex items-start gap-2"><span className="text-[#F59E0B]">✓</span> Weekly digest emails</li>
-              <li className="flex items-start gap-2"><span className="text-[#F59E0B]">✓</span> Priority support</li>
+            <ul className="space-y-3 text-navy/80 text-sm font-semibold mb-8 flex-1">
+              <li className="flex items-start gap-2"><span className="text-gold">★</span> <strong className="text-navy">Unlimited</strong> quests</li>
+              <li className="flex items-start gap-2"><span className="text-gold">★</span> Boss battles &amp; raids</li>
+              <li className="flex items-start gap-2"><span className="text-gold">★</span> Collect pets &amp; gear</li>
+              <li className="flex items-start gap-2"><span className="text-gold">★</span> Quest chains</li>
+              <li className="flex items-start gap-2"><span className="text-gold">★</span> Hero journal</li>
+              <li className="flex items-start gap-2"><span className="text-gold">★</span> Weekly digest emails</li>
+              <li className="flex items-start gap-2"><span className="text-gold">★</span> Priority support</li>
             </ul>
 
             {isPro ? (
-              <div className="w-full px-6 py-3 bg-[#FF6B35]/50 text-white rounded-xl font-black text-lg uppercase tracking-wide text-center opacity-50 cursor-not-allowed">
+              <div className="kq-btn kq-btn-gold w-full opacity-50 cursor-not-allowed">
                 Current Plan
               </div>
             ) : (
               <div className="space-y-3">
                 <a
                   href={stripeLink(STRIPE_LINK_PRO_MONTHLY, user?.email, user?.id)}
-                  className="block w-full px-6 py-3 bg-[#FF6B35] hover:bg-[#E55A2B] text-white rounded-xl font-black text-lg uppercase tracking-wide transition-all hover:scale-105 text-center"
+                  className="kq-btn kq-btn-gold w-full"
                 >
                   Go Pro for $5/mo
                 </a>
                 {!user && !hadTrial && (
                   <button
                     onClick={() => router.push('/signup')}
-                    className="block w-full px-6 py-2 bg-transparent hover:bg-[#FF6B35]/10 text-[#FF6B35] border-2 border-[#FF6B35]/50 rounded-xl font-black text-sm uppercase tracking-wide transition-all hover:scale-105 text-center"
+                    className="kq-btn kq-btn-ghost w-full text-sm py-2 min-h-0"
                   >
                     7-Day Free Trial
                   </button>
@@ -217,7 +216,7 @@ export default function PricingPage() {
                   <button
                     onClick={handleStartTrial}
                     disabled={startingTrial}
-                    className="block w-full px-6 py-2 bg-transparent hover:bg-[#FF6B35]/10 text-[#FF6B35] border-2 border-[#FF6B35]/50 rounded-xl font-black text-sm uppercase tracking-wide transition-all hover:scale-105 text-center disabled:opacity-50"
+                    className="kq-btn kq-btn-ghost w-full text-sm py-2 min-h-0 disabled:opacity-50"
                   >
                     {startingTrial ? 'Starting...' : 'Start 7-Day Pro Trial'}
                   </button>
@@ -231,32 +230,32 @@ export default function PricingPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="bg-[#16213E] border-2 border-[#F59E0B]/50 rounded-2xl p-8 flex flex-col relative"
+            className="kq-card p-8 flex flex-col relative"
           >
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#F59E0B] text-[#0F172A] text-xs font-black px-4 py-1 rounded-full uppercase">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 kq-chip bg-emerald text-white text-xs py-1 px-4 whitespace-nowrap">
               Best Value
             </div>
-            <h3 className="text-xl font-black text-white mb-1">Early Bird</h3>
-            <div className="text-4xl font-black text-[#10B981] mb-1">
-              $29<span className="text-lg text-gray-400">/year</span>
+            <h3 className="kq-display text-xl text-navy mb-1">Early Bird</h3>
+            <div className="kq-display text-4xl text-emerald mb-1">
+              $29<span className="text-lg text-navy/40">/year</span>
             </div>
-            <p className="text-gray-500 text-sm mb-6">Limited-time launch price</p>
+            <p className="text-navy/50 text-sm font-bold mb-6">Limited-time launch price</p>
 
-            <ul className="space-y-3 text-gray-300 text-sm mb-8 flex-1">
-              <li className="flex items-start gap-2"><span className="text-[#10B981]">✓</span> Everything in Pro</li>
-              <li className="flex items-start gap-2"><span className="text-[#10B981]">✓</span> Save 50% vs monthly</li>
-              <li className="flex items-start gap-2"><span className="text-[#10B981]">✓</span> Lock in launch pricing</li>
-              <li className="flex items-start gap-2"><span className="text-[#10B981]">✓</span> <strong className="text-white">$2.42/mo</strong> effective</li>
+            <ul className="space-y-3 text-navy/80 text-sm font-semibold mb-8 flex-1">
+              <li className="flex items-start gap-2"><span className="text-emerald">✓</span> Everything in Pro</li>
+              <li className="flex items-start gap-2"><span className="text-emerald">✓</span> Save 50% vs monthly</li>
+              <li className="flex items-start gap-2"><span className="text-emerald">✓</span> Lock in launch pricing</li>
+              <li className="flex items-start gap-2"><span className="text-emerald">✓</span> <strong className="text-navy">$2.42/mo</strong> effective</li>
             </ul>
 
             {isPro ? (
-              <div className="w-full px-6 py-3 bg-[#10B981]/50 text-white rounded-xl font-black text-lg uppercase tracking-wide text-center opacity-50 cursor-not-allowed">
+              <div className="kq-btn kq-btn-emerald w-full opacity-50 cursor-not-allowed">
                 Current Plan
               </div>
             ) : (
               <a
                 href={stripeLink(STRIPE_LINK_EARLY_BIRD, user?.email, user?.id)}
-                className="block w-full px-6 py-3 bg-[#10B981] hover:bg-[#059669] text-white rounded-xl font-black text-lg uppercase tracking-wide transition-all hover:scale-105 text-center"
+                className="kq-btn kq-btn-emerald w-full"
               >
                 Get Early Bird for $29/yr
               </a>
@@ -271,14 +270,14 @@ export default function PricingPage() {
           transition={{ delay: 0.5 }}
           className="max-w-4xl mx-auto mb-16"
         >
-          <h2 className="text-2xl sm:text-3xl font-black text-center mb-8 text-[#00D4FF]">
-            The Anti-Guilt Habit Tracker
+          <h2 className="kq-display text-2xl sm:text-3xl text-center mb-8 text-hero-blue">
+            The No-Guilt Habit Adventure
           </h2>
 
           <div className="grid md:grid-cols-2 gap-6">
-            <div className="bg-red-900/20 border-2 border-red-500/30 rounded-xl p-6">
-              <h3 className="text-xl font-black text-red-400 mb-4">Other Habit Apps</h3>
-              <ul className="space-y-2 text-gray-300">
+            <div className="kq-card p-6" style={{ background: 'color-mix(in srgb, #FF7B6B 10%, #fff)' }}>
+              <h3 className="kq-display text-xl text-coral mb-4">Other Habit Apps</h3>
+              <ul className="space-y-2 text-navy/70 font-semibold">
                 <li>• Shame you when you break streaks</li>
                 <li>• Penalize missed days with lost progress</li>
                 <li>• Compare you to other users</li>
@@ -286,10 +285,10 @@ export default function PricingPage() {
               </ul>
             </div>
 
-            <div className="bg-green-900/20 border-2 border-green-500/30 rounded-xl p-6">
-              <h3 className="text-xl font-black text-green-400 mb-4">HabitQuest</h3>
-              <ul className="space-y-2 text-gray-300">
-                <li>• <strong>No streak penalties</strong>, ever</li>
+            <div className="kq-card p-6" style={{ background: 'color-mix(in srgb, #2ECC71 12%, #fff)' }}>
+              <h3 className="kq-display text-xl text-emerald mb-4">HabitQuest</h3>
+              <ul className="space-y-2 text-navy/70 font-semibold">
+                <li>• <strong className="text-navy">No streak penalties</strong>, ever</li>
                 <li>• Miss a day? Your story continues</li>
                 <li>• Solo journey, no leaderboards</li>
                 <li>• Tasks become adventures you want to do</li>
@@ -306,21 +305,21 @@ export default function PricingPage() {
           className="text-center space-y-4 pb-12"
         >
           <div className="flex flex-wrap justify-center items-center gap-6 mb-6">
-            <div className="flex items-center gap-2 text-[#00D4FF]">
+            <div className="flex items-center gap-2 text-hero-blue">
               <span className="text-2xl">🔒</span>
-              <span className="font-bold">Secure via Stripe</span>
+              <span className="font-extrabold">Secure via Stripe</span>
             </div>
-            <div className="flex items-center gap-2 text-[#10B981]">
+            <div className="flex items-center gap-2 text-emerald">
               <span className="text-2xl">✓</span>
-              <span className="font-bold">Cancel anytime</span>
+              <span className="font-extrabold">Cancel anytime</span>
             </div>
-            <div className="flex items-center gap-2 text-[#F59E0B]">
+            <div className="flex items-center gap-2 text-gold">
               <span className="text-2xl">♾️</span>
-              <span className="font-bold">Free tier forever</span>
+              <span className="font-extrabold">Free tier forever</span>
             </div>
           </div>
 
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-navy/50 font-bold">
             Built by a solo dev who got tired of apps that make you feel bad.
           </p>
         </motion.div>

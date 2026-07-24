@@ -111,9 +111,9 @@ function Gallery() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0F1424] flex items-center justify-center">
-        <div className="text-[#00D4FF] text-2xl font-black" style={{ fontFamily: 'VT323, monospace' }}>
-          ⏳ LOADING BADGES...
+      <div className="min-h-screen bg-cream flex items-center justify-center">
+        <div className="text-hero-blue text-2xl font-black kq-display">
+          ⏳ Loading badges...
         </div>
       </div>
     );
@@ -121,14 +121,11 @@ function Gallery() {
 
   if (!authed) {
     return (
-      <div className="min-h-screen bg-[#0F1424] text-white flex items-center justify-center p-6">
+      <div className="min-h-screen bg-cream text-navy flex items-center justify-center p-6">
         <div className="text-center max-w-sm">
           <div className="text-5xl mb-4">🛡️</div>
-          <p className="text-gray-300 mb-6">Log in to see the badges you&apos;ve earned.</p>
-          <Link
-            href="/login"
-            className="inline-block bg-[#00D4FF] text-[#0F1424] font-black px-6 py-3 rounded-lg"
-          >
+          <p className="text-navy/60 mb-6">Log in to see the badges you&apos;ve earned.</p>
+          <Link href="/login" className="kq-btn kq-btn-gold inline-block">
             Log in
           </Link>
         </div>
@@ -137,28 +134,25 @@ function Gallery() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0F1424] text-white flex flex-col">
+    <div className="min-h-screen bg-cream text-navy flex flex-col">
       <div className="flex-1 max-w-6xl mx-auto w-full p-4 md:p-8">
         {/* Header */}
         <div className="mb-8 text-center">
           <button
             onClick={() => router.push('/dashboard')}
-            className="text-sm text-[#00D4FF] hover:underline mb-4 inline-block"
+            className="text-sm text-hero-blue hover:underline mb-4 inline-block"
           >
             ← Back to dashboard
           </button>
-          <h1
-            className="text-4xl md:text-5xl font-black text-[#FFD93D]"
-            style={{ fontFamily: 'VT323, monospace' }}
-          >
-            LEGENDARY BADGES
+          <h1 className="text-4xl md:text-5xl font-black text-gold kq-display">
+            Legendary Badges
           </h1>
-          <p className="text-gray-300 mt-3 max-w-xl mx-auto leading-relaxed">
+          <p className="text-navy/60 mt-3 max-w-xl mx-auto leading-relaxed">
             Permanent trophies for real milestones. Once you&apos;ve earned one, you can make it
             truly permanent — held in a wallet you control, where no app, company, or server
             outage can ever take it from you.
           </p>
-          <p className="text-sm text-[#8FE3D0] mt-3">
+          <p className="text-sm text-emerald mt-3">
             {earnedCount} of {BADGES.length} earned
           </p>
         </div>
@@ -172,8 +166,8 @@ function Gallery() {
             return (
               <div
                 key={badge.id}
-                className={`bg-[#1A1A2E] rounded-2xl overflow-hidden border-2 transition-colors ${
-                  earned ? 'border-[#00D4FF]/40' : 'border-white/5'
+                className={`kq-card kq-card-hover overflow-hidden border-2 transition-colors ${
+                  earned ? 'border-hero-blue/40' : 'border-stone'
                 }`}
               >
                 <div className="p-4">
@@ -181,11 +175,11 @@ function Gallery() {
                 </div>
                 <div className="px-5 pb-5">
                   <div className="flex items-center justify-between gap-2">
-                    <h2 className="text-xl font-black text-white">
+                    <h2 className="text-xl font-black text-navy kq-display">
                       {earned ? badge.name : '???'}
                     </h2>
                     {claimed && (
-                      <span className="text-[10px] font-black uppercase tracking-wide bg-[#2FA98C]/20 text-[#8FE3D0] px-2 py-1 rounded-full">
+                      <span className="kq-chip text-[10px] font-black bg-emerald/15 text-emerald px-2 py-1">
                         Permanent
                       </span>
                     )}
@@ -193,14 +187,14 @@ function Gallery() {
 
                   {earned ? (
                     <>
-                      <p className="text-sm text-gray-300 mt-1 leading-snug">{badge.tagline}</p>
-                      <p className="text-xs text-gray-500 mt-2">{badge.milestone}</p>
+                      <p className="text-sm text-navy/70 mt-1 leading-snug">{badge.tagline}</p>
+                      <p className="text-xs text-navy/50 mt-2">{badge.milestone}</p>
                       {claimed ? (
                         <ClaimedRow txHash={status?.tx_hash || null} />
                       ) : (
                         <button
                           onClick={() => setClaimBadgeId(badge.id)}
-                          className="mt-4 w-full text-sm font-bold text-[#00D4FF] border border-[#00D4FF]/40 rounded-lg py-2 hover:bg-[#00D4FF]/10 transition-colors"
+                          className="mt-4 w-full text-sm font-bold text-hero-blue border-2 border-hero-blue/40 rounded-candy py-2 hover:bg-hero-blue/10 transition-colors"
                         >
                           Make it permanent →
                         </button>
@@ -208,12 +202,12 @@ function Gallery() {
                     </>
                   ) : (
                     <>
-                      <p className="text-sm text-gray-500 mt-1 leading-snug">{badge.earnHint}</p>
+                      <p className="text-sm text-navy/50 mt-1 leading-snug">{badge.earnHint}</p>
                       {status?.progress && status.progress.required > 1 && (
                         <div className="mt-3">
-                          <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                          <div className="h-1.5 bg-stone rounded-full overflow-hidden">
                             <div
-                              className="h-full bg-[#00D4FF]/60"
+                              className="h-full bg-hero-blue/60"
                               style={{
                                 width: `${Math.min(
                                   100,
@@ -222,7 +216,7 @@ function Gallery() {
                               }}
                             />
                           </div>
-                          <p className="text-[11px] text-gray-500 mt-1">
+                          <p className="text-[11px] text-navy/50 mt-1">
                             {status.progress.current} / {status.progress.required}{' '}
                             {status.progress.label}
                           </p>
@@ -236,7 +230,7 @@ function Gallery() {
           })}
         </div>
 
-        <p className="text-center text-xs text-gray-600 mt-10 max-w-lg mx-auto">
+        <p className="text-center text-xs text-navy/40 mt-10 max-w-lg mx-auto">
           Making a badge permanent is completely optional. Ignore it entirely and you lose
           nothing — your badges live in HabitQuest either way.
         </p>
@@ -264,7 +258,7 @@ function ClaimedRow({ txHash }: { txHash: string | null }) {
       ? 'https://basescan.org/tx/'
       : 'https://sepolia.basescan.org/tx/';
   return (
-    <div className="mt-4 text-xs text-[#8FE3D0]">
+    <div className="mt-4 text-xs text-emerald">
       ✓ Minted to your wallet — yours forever.
       {txHash && (
         <>
@@ -273,7 +267,7 @@ function ClaimedRow({ txHash }: { txHash: string | null }) {
             href={`${explorer}${txHash}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="underline hover:text-white"
+            className="underline hover:text-navy"
           >
             View
           </a>
@@ -427,11 +421,11 @@ function ClaimModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
-      <div className="bg-[#1A1A2E] border-2 border-[#00D4FF]/40 rounded-2xl max-w-md w-full p-6 relative">
+    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+      <div className="kq-card border-2 border-hero-blue/40 max-w-md w-full p-6 relative">
         <button
           onClick={onClose}
-          className="absolute top-3 right-4 text-gray-400 hover:text-white text-xl"
+          className="absolute top-3 right-4 text-navy/40 hover:text-navy text-xl"
           aria-label="Close"
         >
           ✕
@@ -440,36 +434,33 @@ function ClaimModal({
         <div className="w-28 mx-auto mb-4">
           <SvgBadge badgeId={badge.id} earned />
         </div>
-        <h2 className="text-2xl font-black text-center text-white">{badge.name}</h2>
+        <h2 className="text-2xl font-black text-center text-navy kq-display">{badge.name}</h2>
 
         {step === 'done' ? (
           <div className="text-center mt-4">
-            <p className="text-[#8FE3D0] font-bold text-lg">It&apos;s permanent now. 🎉</p>
-            <p className="text-gray-300 text-sm mt-2">
+            <p className="text-emerald font-bold text-lg">It&apos;s permanent now. 🎉</p>
+            <p className="text-navy/60 text-sm mt-2">
               Your badge lives in a wallet you control. No one can ever take it from you.
             </p>
-            <button
-              onClick={onClaimed}
-              className="mt-6 w-full bg-[#00D4FF] text-[#0F1424] font-black py-3 rounded-lg"
-            >
+            <button onClick={onClaimed} className="kq-btn kq-btn-blue mt-6 w-full">
               Done
             </button>
           </div>
         ) : (
           <>
-            <p className="text-center text-gray-300 text-sm mt-3 leading-relaxed">
+            <p className="text-center text-navy/60 text-sm mt-3 leading-relaxed">
               You earned this. Now make it permanent — mint your badge to a wallet you control,
               and no app, company, or server outage can ever take it from you.
             </p>
 
             {notConfigured && (
-              <p className="mt-4 text-center text-xs text-amber-300 bg-amber-500/10 rounded-lg p-3">
+              <p className="mt-4 text-center text-xs text-gold bg-gold/10 rounded-candy p-3">
                 Minting isn&apos;t switched on yet. Check back soon.
               </p>
             )}
 
             {error && (
-              <p className="mt-4 text-center text-sm text-red-300 bg-red-500/10 rounded-lg p-3">
+              <p className="mt-4 text-center text-sm text-coral bg-coral/12 border-2 border-coral rounded-candy p-3">
                 {error}
               </p>
             )}
@@ -482,13 +473,13 @@ function ClaimModal({
                       key={connector.uid}
                       onClick={() => connect({ connector })}
                       disabled={connecting || notConfigured}
-                      className="w-full bg-[#00D4FF] text-[#0F1424] font-black py-3 rounded-lg disabled:opacity-50"
+                      className="kq-btn kq-btn-blue w-full disabled:opacity-50"
                     >
                       {connecting ? 'Connecting…' : `Connect ${connector.name}`}
                     </button>
                   ))}
                   {connectors.length === 0 && (
-                    <p className="text-center text-xs text-gray-400">
+                    <p className="text-center text-xs text-navy/50">
                       No wallet detected. Install a browser wallet (e.g. MetaMask or Coinbase
                       Wallet) to continue.
                     </p>
@@ -496,16 +487,16 @@ function ClaimModal({
                 </>
               ) : (
                 <>
-                  <div className="text-center text-xs text-gray-400">
-                    Wallet: <span className="text-gray-200">{shortAddr(address)}</span>{' '}
-                    <button onClick={() => disconnect()} className="text-[#00D4FF] hover:underline">
+                  <div className="text-center text-xs text-navy/50">
+                    Wallet: <span className="text-navy/70">{shortAddr(address)}</span>{' '}
+                    <button onClick={() => disconnect()} className="text-hero-blue hover:underline">
                       change
                     </button>
                   </div>
                   <button
                     onClick={handleMint}
                     disabled={busy(step) || notConfigured}
-                    className="w-full bg-[#FFD93D] text-[#0F1424] font-black py-3 rounded-lg disabled:opacity-60"
+                    className="kq-btn kq-btn-gold w-full disabled:opacity-60"
                   >
                     {stepLabel(step)}
                   </button>
@@ -513,7 +504,7 @@ function ClaimModal({
               )}
             </div>
 
-            <p className="text-center text-[11px] text-gray-600 mt-4">
+            <p className="text-center text-[11px] text-navy/40 mt-4">
               Optional forever. You lose nothing by skipping this.
             </p>
           </>

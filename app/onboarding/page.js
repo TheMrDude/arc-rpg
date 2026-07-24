@@ -117,16 +117,16 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-orange-100 p-4 md:p-8">
+    <div className="kidquest min-h-screen bg-cream p-4 md:p-8">
       <div className="max-w-3xl mx-auto">
         {/* Progress Indicator */}
         <div className="mb-8 text-center">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="inline-block bg-white rounded-full px-6 py-3 shadow-lg border-2 border-orange-300"
+            className="kq-chip inline-block bg-white px-6 py-3 shadow-candy border-2 border-stone"
           >
-            <p className="text-sm font-bold text-gray-700">
+            <p className="text-sm font-bold text-navy">
               {guestQuests.length} quest{guestQuests.length !== 1 ? 's' : ''} created • {totalXP} XP earned
             </p>
           </motion.div>
@@ -140,13 +140,13 @@ export default function OnboardingPage() {
               initial={{ opacity: 0, x: -50 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 50 }}
-              className="bg-white rounded-3xl shadow-2xl p-8 md:p-12"
+              className="kq-card p-8 md:p-12"
             >
               <motion.h1
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="text-4xl md:text-5xl font-black text-gray-900 mb-4 text-center"
+                className="kq-display text-4xl md:text-5xl text-navy mb-4 text-center"
               >
                 What do you want to accomplish today?
               </motion.h1>
@@ -155,7 +155,7 @@ export default function OnboardingPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="text-xl text-gray-600 mb-8 text-center"
+                className="text-xl text-navy/60 mb-8 text-center"
               >
                 Turn any mundane task into an epic quest
               </motion.p>
@@ -171,7 +171,7 @@ export default function OnboardingPage() {
                   onChange={(e) => setQuestText(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && transformQuest()}
                   placeholder="e.g., clean kitchen"
-                  className="w-full text-2xl p-6 rounded-2xl border-4 border-gray-300 focus:border-orange-500 focus:outline-none transition-colors mb-6"
+                  className="kq-input w-full text-2xl p-6 mb-6"
                   autoFocus
                 />
 
@@ -179,7 +179,7 @@ export default function OnboardingPage() {
                   <motion.p
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="text-red-600 font-semibold mb-4 text-center"
+                    className="text-coral font-semibold mb-4 text-center"
                   >
                     {error}
                   </motion.p>
@@ -189,17 +189,12 @@ export default function OnboardingPage() {
                   onClick={transformQuest}
                   disabled={isTransforming || !questText.trim()}
                   className={`
-                    w-full py-5 px-8 rounded-2xl
-                    font-black text-2xl uppercase tracking-wide
-                    border-4 transition-all duration-200
+                    kq-btn w-full py-5 px-8 text-2xl
                     ${isTransforming || !questText.trim()
-                      ? 'bg-gray-300 border-gray-500 text-gray-600 cursor-not-allowed'
-                      : 'bg-gradient-to-br from-orange-400 to-red-500 border-orange-800 text-white hover:shadow-xl cursor-pointer'
+                      ? 'bg-navy/10 text-navy/40 cursor-not-allowed'
+                      : 'kq-btn-gold cursor-pointer'
                     }
                   `}
-                  style={{
-                    boxShadow: questText.trim() && !isTransforming ? '0 6px 0 #92400e' : 'none'
-                  }}
                 >
                   {isTransforming ? (
                     <span className="flex items-center justify-center gap-3">
@@ -224,7 +219,7 @@ export default function OnboardingPage() {
                 transition={{ delay: 0.5 }}
                 className="mt-8"
               >
-                <p className="text-sm font-semibold text-gray-600 mb-3 text-center">
+                <p className="text-sm font-semibold text-navy/60 mb-3 text-center">
                   Try these examples:
                 </p>
                 <div className="flex flex-wrap gap-2 justify-center">
@@ -232,7 +227,7 @@ export default function OnboardingPage() {
                     <button
                       key={example}
                       onClick={() => setQuestText(example)}
-                      className="px-4 py-2 bg-orange-100 hover:bg-orange-200 rounded-lg text-orange-800 font-semibold text-sm transition-colors"
+                      className="kq-chip bg-gold/15 hover:bg-gold/25 text-navy font-semibold text-sm transition-colors px-4 py-2"
                     >
                       {example}
                     </button>
@@ -249,7 +244,7 @@ export default function OnboardingPage() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="bg-white rounded-3xl shadow-2xl p-8 md:p-12"
+              className="kq-card p-8 md:p-12"
             >
               <motion.div
                 initial={{ scale: 0 }}
@@ -264,7 +259,7 @@ export default function OnboardingPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="text-4xl font-black text-gray-900 mb-6 text-center"
+                className="kq-display text-4xl text-navy mb-6 text-center"
               >
                 {transformedQuest.title}
               </motion.h2>
@@ -273,9 +268,9 @@ export default function OnboardingPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="bg-gradient-to-br from-orange-100 to-red-100 rounded-2xl p-6 mb-6"
+                className="bg-coral/10 rounded-candy p-6 mb-6"
               >
-                <p className="text-lg text-gray-800 leading-relaxed italic">
+                <p className="text-lg text-navy leading-relaxed italic">
                   {transformedQuest.description}
                 </p>
               </motion.div>
@@ -286,17 +281,17 @@ export default function OnboardingPage() {
                 transition={{ delay: 0.4 }}
                 className="flex items-center justify-center gap-6 mb-8"
               >
-                <div className="bg-yellow-100 border-2 border-yellow-400 rounded-xl px-6 py-3">
-                  <p className="text-sm font-bold text-yellow-800 uppercase mb-1">
+                <div className="bg-gold/15 border-2 border-gold rounded-candy px-6 py-3">
+                  <p className="text-sm font-bold text-navy/70 mb-1">
                     XP Reward
                   </p>
-                  <p className="text-3xl font-black text-yellow-700">
+                  <p className="text-3xl font-black text-navy">
                     +{transformedQuest.xp_value}
                   </p>
                 </div>
 
-                <div className="bg-purple-100 border-2 border-purple-400 rounded-xl px-6 py-3">
-                  <p className="text-sm font-bold text-purple-800 uppercase mb-1">
+                <div className="bg-purple/15 border-2 border-purple rounded-candy px-6 py-3">
+                  <p className="text-sm font-bold text-navy/70 mb-1">
                     Difficulty
                   </p>
                   <p className="text-2xl">
@@ -313,15 +308,14 @@ export default function OnboardingPage() {
               >
                 <button
                   onClick={acceptQuest}
-                  className="w-full py-5 px-8 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 border-4 border-green-800 text-white font-black text-2xl uppercase tracking-wide hover:shadow-xl transition-all"
-                  style={{ boxShadow: '0 6px 0 #065f46' }}
+                  className="kq-btn kq-btn-emerald w-full py-5 px-8 text-2xl"
                 >
                   ⚔️ Accept This Quest
                 </button>
 
                 <button
                   onClick={tryAgain}
-                  className="w-full py-4 px-6 rounded-2xl bg-gray-100 border-2 border-gray-300 text-gray-700 font-bold text-lg hover:bg-gray-200 transition-colors"
+                  className="kq-btn kq-btn-ghost w-full py-4 px-6 text-lg"
                 >
                   Try Different Words
                 </button>
@@ -336,7 +330,7 @@ export default function OnboardingPage() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="bg-white rounded-3xl shadow-2xl p-8 md:p-12 text-center"
+              className="kq-card p-8 md:p-12 text-center"
             >
               <motion.div
                 animate={{
@@ -349,16 +343,16 @@ export default function OnboardingPage() {
                 🎉
               </motion.div>
 
-              <h2 className="text-5xl font-black text-gray-900 mb-4">
+              <h2 className="kq-display text-5xl text-navy mb-4">
                 You've Earned {totalXP} XP!
               </h2>
 
-              <p className="text-2xl text-gray-700 mb-8">
+              <p className="text-2xl text-navy/70 mb-8">
                 Save your progress and unlock even more features
               </p>
 
-              <div className="bg-gradient-to-br from-purple-100 to-pink-100 rounded-2xl p-8 mb-8">
-                <h3 className="text-2xl font-black text-gray-900 mb-4">
+              <div className="bg-purple/10 rounded-candy p-8 mb-8">
+                <h3 className="kq-display text-2xl text-navy mb-4">
                   Create a free account to unlock:
                 </h3>
 
@@ -376,7 +370,7 @@ export default function OnboardingPage() {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      className="flex items-center gap-3 text-lg font-semibold text-gray-800"
+                      className="flex items-center gap-3 text-lg font-semibold text-navy"
                     >
                       <span>{benefit}</span>
                     </motion.div>
@@ -386,14 +380,13 @@ export default function OnboardingPage() {
 
               <button
                 onClick={handleSignup}
-                className="w-full py-6 px-8 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 border-4 border-purple-900 text-white font-black text-2xl uppercase tracking-wide hover:shadow-xl transition-all mb-4"
-                style={{ boxShadow: '0 6px 0 #581c87' }}
+                className="kq-btn kq-btn-gold w-full py-6 px-8 text-2xl mb-4"
               >
                 🚀 Create Free Account
               </button>
 
-              <p className="text-sm text-gray-600">
-                Users who sign up after 3+ quests have <span className="font-bold text-purple-600">4x higher retention</span>
+              <p className="text-sm text-navy/60">
+                Users who sign up after 3+ quests have <span className="font-bold text-purple">4x higher retention</span>
               </p>
             </motion.div>
           )}
@@ -406,7 +399,7 @@ export default function OnboardingPage() {
             animate={{ opacity: 1, y: 0 }}
             className="mt-8"
           >
-            <h3 className="text-2xl font-black text-gray-800 mb-4 text-center">
+            <h3 className="kq-display text-2xl text-navy mb-4 text-center">
               Your Quests ({guestQuests.length}/3)
             </h3>
 
@@ -417,13 +410,13 @@ export default function OnboardingPage() {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  className="bg-white rounded-xl p-4 shadow-md border-2 border-orange-200"
+                  className="kq-card p-4 border-2 border-stone"
                 >
                   <div className="flex items-center gap-3">
                     <span className="text-3xl">{quest.emoji}</span>
                     <div className="flex-1">
-                      <h4 className="font-black text-gray-900">{quest.title}</h4>
-                      <p className="text-sm text-gray-600">+{quest.xp_value} XP</p>
+                      <h4 className="font-black text-navy">{quest.title}</h4>
+                      <p className="text-sm text-navy/60">+{quest.xp_value} XP</p>
                     </div>
                     <span className="text-2xl">✅</span>
                   </div>

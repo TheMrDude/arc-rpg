@@ -68,7 +68,7 @@ export default function StoryEventNotification({ userId }) {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ backgroundColor: 'rgba(15, 52, 96, 0.95)' }}
+          style={{ backgroundColor: 'rgba(36, 59, 90, 0.75)' }}
           onClick={markEventAsViewed}
         >
           {/* Event Card */}
@@ -77,7 +77,7 @@ export default function StoryEventNotification({ userId }) {
             animate={{ scale: 1, y: 0 }}
             exit={{ scale: 0.8, y: 50 }}
             transition={{ type: 'spring', duration: 0.5 }}
-            className="bg-[#1A1A2E] border-3 border-[#FFD93D] rounded-lg p-8 max-w-md w-full shadow-[0_0_40px_rgba(255,217,61,0.4)]"
+            className="kq-card border-2 border-gold p-8 max-w-md w-full shadow-candy-lg"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Icon */}
@@ -95,8 +95,7 @@ export default function StoryEventNotification({ userId }) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="text-3xl font-black text-center text-[#FFD93D] mb-4"
-              style={{ fontFamily: 'VT323, monospace' }}
+              className="kq-display text-3xl text-center text-navy mb-4"
             >
               {eventData.title || 'A Story Event!'}
             </motion.h2>
@@ -106,7 +105,7 @@ export default function StoryEventNotification({ userId }) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="text-white text-center mb-6"
+              className="text-navy/80 text-center mb-6"
             >
               {eventData.description || 'Something unexpected happened on your journey!'}
             </motion.p>
@@ -117,12 +116,12 @@ export default function StoryEventNotification({ userId }) {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
-                className="bg-[#0F3460] border-2 border-[#00D4FF] rounded-lg p-4 mb-6"
+                className="bg-hero-blue/10 border-2 border-hero-blue rounded-2xl p-4 mb-6"
               >
-                <div className="text-[#00D4FF] font-bold text-center mb-2">
+                <div className="text-hero-blue font-bold text-center mb-2">
                   {eventData.npc_name}
                 </div>
-                <div className="text-sm text-gray-300 text-center">
+                <div className="text-sm text-navy/70 text-center">
                   {eventData.npc_description}
                 </div>
               </motion.div>
@@ -137,21 +136,21 @@ export default function StoryEventNotification({ userId }) {
                 className="grid grid-cols-2 gap-4 mb-6"
               >
                 {rewards.gold !== undefined && rewards.gold !== 0 && (
-                  <div className="bg-[#0F3460] border-2 border-[#FFD93D] rounded-lg p-3 text-center">
+                  <div className="bg-gold/15 border-2 border-gold rounded-2xl p-3 text-center">
                     <div className="text-3xl mb-1">💰</div>
-                    <div className="text-[#FFD93D] font-black text-xl" style={{ fontFamily: 'VT323, monospace' }}>
+                    <div className="kq-display text-xl text-navy">
                       {rewards.gold > 0 ? '+' : ''}{rewards.gold}
                     </div>
-                    <div className="text-xs text-gray-400">GOLD</div>
+                    <div className="text-xs text-navy/60">Gold</div>
                   </div>
                 )}
                 {rewards.xp && rewards.xp > 0 && (
-                  <div className="bg-[#0F3460] border-2 border-[#00D4FF] rounded-lg p-3 text-center">
+                  <div className="bg-hero-blue/10 border-2 border-hero-blue rounded-2xl p-3 text-center">
                     <div className="text-3xl mb-1">⭐</div>
-                    <div className="text-[#00D4FF] font-black text-xl" style={{ fontFamily: 'VT323, monospace' }}>
+                    <div className="kq-display text-xl text-hero-blue">
                       +{rewards.xp}
                     </div>
-                    <div className="text-xs text-gray-400">XP</div>
+                    <div className="text-xs text-navy/60">XP</div>
                   </div>
                 )}
               </motion.div>
@@ -163,10 +162,9 @@ export default function StoryEventNotification({ userId }) {
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.7 }}
-                className="bg-[#FFD93D] text-[#0F3460] rounded-lg p-3 mb-6 text-center font-black"
-                style={{ fontFamily: 'VT323, monospace' }}
+                className="bg-gold text-navy rounded-2xl p-3 mb-6 text-center font-black"
               >
-                🎉 LEVEL UP! You are now level {rewards.new_level}!
+                🎉 Level up! You are now level {rewards.new_level}!
               </motion.div>
             )}
 
@@ -176,14 +174,13 @@ export default function StoryEventNotification({ userId }) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.8 }}
               onClick={markEventAsViewed}
-              className="w-full py-4 bg-gradient-to-r from-[#FFD93D] to-[#00D4FF] text-[#0F3460] font-black text-xl rounded-lg border-3 border-[#0F3460] shadow-[0_5px_0_#0F3460] hover:shadow-[0_7px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_2px_0_#0F3460] active:translate-y-1 transition-all"
-              style={{ fontFamily: 'VT323, monospace' }}
+              className="kq-btn kq-btn-gold w-full py-4 text-xl"
             >
-              CONTINUE ADVENTURE
+              Continue Adventure
             </motion.button>
 
             {/* Hint */}
-            <p className="text-xs text-center text-gray-400 mt-4">
+            <p className="text-xs text-center text-navy/50 mt-4">
               💡 Story events happen randomly during your journey. Check back daily!
             </p>
           </motion.div>

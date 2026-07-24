@@ -14,16 +14,16 @@ function EquipmentCard({ item, owned, equipped, gold, onPurchase, onEquip }) {
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       className={
-        'p-4 rounded-lg border-2 transition-all ' +
+        'relative p-4 rounded-candy border-2 transition-all ' +
         (equipped
-          ? `border-[${RARITY_COLORS[item.rarity]}] shadow-[0_0_20px_${RARITY_GLOW[item.rarity]}] bg-gradient-to-br from-[#0F3460] to-[#1A1A2E]`
+          ? `border-[${RARITY_COLORS[item.rarity]}] shadow-candy bg-white`
           : owned
-          ? 'border-[#48BB78] bg-[#0F3460]'
-          : 'border-[#1A1A2E] bg-[#0F3460] hover:border-[#00D4FF]')
+          ? 'border-emerald bg-white'
+          : 'border-stone bg-white hover:border-hero-blue')
       }
     >
       {equipped && (
-        <div className="absolute top-2 right-2 px-2 py-1 bg-[#FFD93D] text-[#1A1A2E] rounded-full text-xs font-black">
+        <div className="absolute top-2 right-2 px-2 py-1 bg-gold text-navy rounded-full text-xs font-black">
           ✓ EQUIPPED
         </div>
       )}
@@ -38,7 +38,7 @@ function EquipmentCard({ item, owned, equipped, gold, onPurchase, onEquip }) {
           {item.name}
         </h3>
 
-        <p className="text-xs text-gray-300 mb-3 min-h-[40px]">{item.description}</p>
+        <p className="text-xs text-navy/60 mb-3 min-h-[40px]">{item.description}</p>
 
         {/* Stats. The live catalog stores the XP bonus in the xp_multiplier
             column (stat_bonus JSONB is null there), so fall back to it —
@@ -49,19 +49,19 @@ function EquipmentCard({ item, owned, equipped, gold, onPurchase, onEquip }) {
           const hasOther = item.stat_bonus?.gold_bonus || item.stat_bonus?.streak_protection;
           if (!hasXP && !hasOther) return null;
           return (
-            <div className="mb-3 p-2 bg-[#1A1A2E] rounded text-xs space-y-1">
+            <div className="mb-3 p-2 bg-cream rounded-xl text-xs space-y-1">
               {hasXP && (
-                <p className="text-[#00D4FF] font-bold">
+                <p className="text-hero-blue font-bold">
                   +{((xpMult - 1) * 100).toFixed(0)}% XP
                 </p>
               )}
               {item.stat_bonus?.gold_bonus && (
-                <p className="text-[#FFD93D] font-bold">
+                <p className="text-navy font-bold">
                   +{((item.stat_bonus.gold_bonus - 1) * 100).toFixed(0)}% Gold
                 </p>
               )}
               {item.stat_bonus?.streak_protection && (
-                <p className="text-[#48BB78] font-bold">Momentum Protection</p>
+                <p className="text-emerald font-bold">Momentum Protection</p>
               )}
             </div>
           );
@@ -73,10 +73,9 @@ function EquipmentCard({ item, owned, equipped, gold, onPurchase, onEquip }) {
             onClick={() => canAfford && onPurchase(item)}
             disabled={!canAfford}
             className={
-              'w-full py-2 px-4 rounded font-black text-sm border-2 transition-all ' +
-              (canAfford
-                ? 'bg-[#FFD93D] border-[#0F3460] text-[#0F3460] hover:scale-105'
-                : 'bg-gray-600 border-gray-700 text-gray-400 cursor-not-allowed')
+              canAfford
+                ? 'kq-btn kq-btn-gold w-full disabled:opacity-50'
+                : 'w-full py-2 px-4 rounded-full font-black text-sm border-2 border-stone bg-stone/40 text-navy/40 cursor-not-allowed'
             }
           >
             {canAfford ? `💰 ${item.gold_price} Gold` : `🔒 ${item.gold_price} Gold`}
@@ -84,14 +83,14 @@ function EquipmentCard({ item, owned, equipped, gold, onPurchase, onEquip }) {
         ) : !equipped ? (
           <button
             onClick={() => onEquip(item)}
-            className="w-full py-2 px-4 rounded font-black text-sm bg-[#48BB78] border-2 border-[#0F3460] text-white hover:scale-105 transition-all"
+            className="kq-btn kq-btn-emerald w-full"
           >
             Equip
           </button>
         ) : (
           <button
             onClick={() => onEquip(null, item.type)}
-            className="w-full py-2 px-4 rounded font-black text-sm bg-gray-600 border-2 border-gray-700 text-gray-300 hover:bg-gray-500 transition-all"
+            className="kq-btn kq-btn-ghost w-full"
           >
             Unequip
           </button>
@@ -245,8 +244,8 @@ export default function EquipmentShop({ isPremium, gold, onGoldChange, onEquipme
 
   if (loading) {
     return (
-      <div className="bg-[#1A1A2E] border-3 border-[#FF6B6B] rounded-lg p-8 text-center">
-        <p className="text-white font-bold">Loading equipment shop...</p>
+      <div className="kq-card p-8 text-center">
+        <p className="text-navy font-bold">Loading equipment shop...</p>
       </div>
     );
   }
@@ -260,19 +259,19 @@ export default function EquipmentShop({ isPremium, gold, onGoldChange, onEquipme
   const ownedIds = inventory.map((i) => i.equipment_id);
 
   return (
-    <div className="bg-[#1A1A2E] border-3 border-[#FF6B6B] rounded-lg p-6 shadow-[0_0_20px_rgba(255,107,107,0.3)]">
+    <div className="kq-card p-6">
       {/* Header */}
       <div className="mb-6">
         <div className="flex justify-between items-center mb-2">
-          <h2 className="text-2xl font-black text-[#FF6B6B] uppercase tracking-wide">
+          <h2 className="kq-display text-2xl text-coral">
             ⚔️ Equipment Shop
           </h2>
-          <div className="px-4 py-2 bg-[#FFD93D] border-3 border-[#0F3460] rounded-lg font-black text-[#0F3460]">
+          <div className="px-4 py-2 bg-gold border-2 border-navy/10 rounded-full font-black text-navy">
             💰 {gold} Gold
           </div>
         </div>
-        <p className="text-gray-300 text-sm">
-          Enhance your hero with legendary gear and companions
+        <p className="text-navy/60 text-sm">
+          Enhance your hero with fun gear and companions
         </p>
       </div>
 
@@ -283,10 +282,9 @@ export default function EquipmentShop({ isPremium, gold, onGoldChange, onEquipme
             key={type}
             onClick={() => setSelectedType(type)}
             className={
-              'px-4 py-2 rounded-lg font-bold text-sm border-2 transition-all ' +
-              (selectedType === type
-                ? 'bg-[#FF6B6B] border-[#FF6B6B] text-white'
-                : 'bg-[#0F3460] border-gray-600 text-gray-300 hover:border-[#FF6B6B]')
+              selectedType === type
+                ? 'kq-chip border-2 bg-coral text-white border-coral'
+                : 'kq-chip border-2 bg-cream text-navy/70 border-stone hover:border-coral'
             }
           >
             {type === 'all' ? 'All' : type.replace('_', ' ').toUpperCase()}

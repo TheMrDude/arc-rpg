@@ -94,27 +94,27 @@ export default function ReflectionPrompt({ show, onClose, questId, questTitle, o
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.9, opacity: 0, y: 20 }}
         >
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="kq-card w-full max-h-[90vh] overflow-y-auto">
           {showSuccess ? (
             <div className="p-12 text-center">
               <div className="text-8xl mb-4">✨</div>
-              <h3 className="text-3xl font-black text-green-600 mb-2">+10 XP Earned!</h3>
-              <p className="text-gray-600 text-lg">Thank you for reflecting</p>
+              <h3 className="kq-display text-3xl text-emerald mb-2">+10 XP Earned!</h3>
+              <p className="text-navy/60 text-lg">Thank you for reflecting</p>
             </div>
           ) : (
             <>
-              <div className="bg-gradient-to-br from-purple-500 to-pink-500 p-6 text-center rounded-t-3xl">
+              <div className="bg-gradient-to-br from-coral to-gold p-6 text-center rounded-t-candy">
                 <div className="text-6xl mb-3">🎉</div>
-                <h2 className="text-2xl font-black text-white mb-1">Quest Complete!</h2>
-                <p className="text-purple-100 font-semibold">{questTitle}</p>
+                <h2 className="kq-display text-2xl text-white mb-1">Quest Complete!</h2>
+                <p className="text-white/90 font-semibold">{questTitle}</p>
               </div>
 
               <div className="p-6">
                 <div className="mb-4">
-                  <p className="text-xl font-bold text-gray-800 mb-2 text-center">
+                  <p className="text-xl font-bold text-navy mb-2 text-center">
                     How do you feel about this victory?
                   </p>
-                  <p className="text-sm text-gray-600 text-center">
+                  <p className="text-sm text-navy/60 text-center">
                     Optional • Earn +10 XP bonus for reflecting
                   </p>
                 </div>
@@ -125,13 +125,13 @@ export default function ReflectionPrompt({ show, onClose, questId, questTitle, o
                       <button
                         key={option.value}
                         onClick={() => setMood(option.value)}
-                        className={'p-3 rounded-xl border-3 transition-all ' + (mood === option.value ? 'bg-purple-100 border-purple-500 scale-110' : 'bg-gray-50 border-gray-300 hover:border-purple-300')}
+                        className={'p-3 rounded-xl border-2 transition-all ' + (mood === option.value ? 'bg-gold/20 border-gold scale-110' : 'bg-cream border-stone hover:border-gold')}
                       >
                         <span className="text-3xl">{option.emoji}</span>
                       </button>
                     ))}
                   </div>
-                  <p className="text-center text-sm font-semibold text-gray-700">
+                  <p className="text-center text-sm font-semibold text-navy/70">
                     {MOOD_OPTIONS.find(o => o.value === mood)?.label}
                   </p>
                 </div>
@@ -143,13 +143,13 @@ export default function ReflectionPrompt({ show, onClose, questId, questTitle, o
                     placeholder="I feel accomplished because..."
                     maxLength={maxChars}
                     rows={4}
-                    className="w-full p-4 rounded-xl border-2 border-gray-300 focus:border-purple-500 focus:outline-none resize-none text-gray-800"
+                    className="kq-input resize-none"
                   />
                   <div className="flex justify-between items-center mt-1">
-                    <p className={'text-xs ' + (charCount > maxChars - 50 ? 'text-red-600' : 'text-gray-500')}>
+                    <p className={'text-xs ' + (charCount > maxChars - 50 ? 'text-coral' : 'text-navy/50')}>
                       {charCount}/{maxChars} characters
                     </p>
-                    {error && <p className="text-xs text-red-600 font-semibold">{error}</p>}
+                    {error && <p className="text-xs text-coral font-semibold">{error}</p>}
                   </div>
                 </div>
 
@@ -157,7 +157,7 @@ export default function ReflectionPrompt({ show, onClose, questId, questTitle, o
                   <button
                     onClick={handleSubmit}
                     disabled={isSubmitting}
-                    className={'w-full py-4 px-6 rounded-xl font-black text-lg uppercase border-3 transition-all ' + (isSubmitting ? 'bg-gray-300 border-gray-500 text-gray-600 cursor-not-allowed' : 'bg-gradient-to-r from-purple-500 to-pink-500 border-purple-900 text-white hover:shadow-lg cursor-pointer')}
+                    className={'kq-btn kq-btn-gold w-full py-4 px-6 text-lg ' + (isSubmitting ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer')}
                   >
                     {isSubmitting ? '⏳ Saving...' : '✨ Save Reflection (+10 XP)'}
                   </button>
@@ -165,7 +165,7 @@ export default function ReflectionPrompt({ show, onClose, questId, questTitle, o
                   <button
                     onClick={handleSkip}
                     disabled={isSubmitting}
-                    className="w-full py-3 px-6 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold transition-colors disabled:opacity-50"
+                    className="kq-btn kq-btn-ghost w-full py-3 px-6 disabled:opacity-50"
                   >
                     Skip for Now
                   </button>

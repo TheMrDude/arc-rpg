@@ -45,13 +45,13 @@ export default function TestimonialsSection() {
       viewport={{ once: true }}
       className="max-w-5xl mx-auto"
     >
-      <h2 className="text-3xl sm:text-4xl font-black text-center mb-4 text-white">
+      <h2 className="kq-display text-3xl sm:text-4xl text-center mb-4 text-navy">
         {hasEnough ? 'What Questers Are Saying' : 'What Founding Questers Are Saying'}
       </h2>
 
       {/* Honest early-state framing — shown until we have 3+ real quotes. */}
       {!hasEnough && (
-        <p className="text-center text-gray-400 mb-10 text-lg max-w-2xl mx-auto">
+        <p className="text-center text-navy/60 mb-10 text-lg max-w-2xl mx-auto">
           We&apos;re early. This section fills in as real users hit real
           milestones &mdash; no invented reviews here, ever.
         </p>

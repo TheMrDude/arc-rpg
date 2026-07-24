@@ -63,12 +63,12 @@ export default function ExitIntentPopup({ onTryPreview }: ExitIntentPopupProps) 
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.9, y: -20 }}
           transition={{ type: 'spring', damping: 25 }}
-          className="relative w-full max-w-md bg-gradient-to-br from-[#1A1A2E] to-[#16213E] border-4 border-[#FF6B6B] rounded-2xl p-8 text-center shadow-2xl"
+          className="relative w-full max-w-md kq-card p-8 text-center"
         >
           {/* Close button */}
           <button
             onClick={handleStay}
-            className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-[#16213E] hover:bg-[#0F3460] border-2 border-[#FF6B6B] text-[#FF6B6B] text-xl font-bold transition-colors"
+            className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-coral/12 hover:bg-coral/20 border-2 border-coral text-coral text-xl font-bold transition-colors"
           >
             ×
           </button>
@@ -76,48 +76,48 @@ export default function ExitIntentPopup({ onTryPreview }: ExitIntentPopupProps) 
           {/* Content */}
           <div className="text-6xl mb-4">⚔️</div>
 
-          <h2 className="text-3xl font-black text-[#FF6B6B] uppercase tracking-wide mb-4">
-            Wait! Don't Leave Yet
+          <h2 className="kq-display text-3xl text-coral mb-4">
+            Wait! Don&apos;t Leave Yet
           </h2>
 
-          <p className="text-lg text-white mb-2">
-            See the magic <span className="text-[#00D4FF] font-black">before you go!</span>
+          <p className="text-lg text-navy mb-2">
+            See the magic <span className="text-hero-blue font-black">before you go!</span>
           </p>
 
-          <p className="text-gray-300 mb-8">
+          <p className="text-navy/60 mb-8">
             Try transforming one task into an epic quest.
             Takes 3 seconds. No signup required.
           </p>
 
           {/* Benefits */}
-          <div className="bg-[#0F3460]/50 border-2 border-[#00D4FF] rounded-lg p-4 mb-6 text-left">
+          <div className="bg-hero-blue/10 border-2 border-hero-blue/40 rounded-candy p-4 mb-6 text-left">
             <div className="flex items-center gap-3 mb-2">
-              <span className="text-[#10B981] text-xl">✓</span>
-              <span className="text-sm text-white">See AI transform your task instantly</span>
+              <span className="text-emerald text-xl">✓</span>
+              <span className="text-sm text-navy">See AI transform your task instantly</span>
             </div>
             <div className="flex items-center gap-3 mb-2">
-              <span className="text-[#10B981] text-xl">✓</span>
-              <span className="text-sm text-white">Preview XP rewards & difficulty</span>
+              <span className="text-emerald text-xl">✓</span>
+              <span className="text-sm text-navy">Preview XP rewards & difficulty</span>
             </div>
             <div className="flex items-center gap-3">
-              <span className="text-[#10B981] text-xl">✓</span>
-              <span className="text-sm text-white">No credit card or signup needed</span>
+              <span className="text-emerald text-xl">✓</span>
+              <span className="text-sm text-navy">No credit card or signup needed</span>
             </div>
           </div>
 
           {/* CTAs */}
           <button
             onClick={handleTryPreview}
-            className="w-full mb-3 py-4 bg-gradient-to-r from-[#FF6B4A] to-[#FF5733] hover:from-[#FF5733] hover:to-[#E74C3C] text-white border-3 border-[#0F3460] rounded-xl font-black text-lg uppercase tracking-wide shadow-lg transition-all"
+            className="kq-btn kq-btn-gold w-full mb-3 py-4 text-lg"
           >
             ⚡ Try One Quest Preview
           </button>
 
           <button
             onClick={handleStay}
-            className="w-full py-2 text-gray-400 hover:text-white text-sm transition-colors"
+            className="w-full py-2 text-navy/50 hover:text-navy text-sm transition-colors"
           >
-            No thanks, I'll leave
+            No thanks, I&apos;ll leave
           </button>
         </motion.div>
       </div>

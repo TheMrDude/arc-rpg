@@ -62,7 +62,7 @@ export default function AchievementNotification({
           className="fixed top-4 left-1/2 -translate-x-1/2 z-[60] w-full max-w-md px-4"
         >
           <div
-            className={`bg-gradient-to-r ${colors.bg} rounded-xl p-4 ${colors.glow} border-3 ${colors.border}`}
+            className={`kq-card bg-white rounded-candy shadow-candy-lg p-4 border-2 ${colors.border}`}
           >
             <div className="flex items-start gap-4">
               {/* Icon */}
@@ -78,7 +78,7 @@ export default function AchievementNotification({
               {/* Content */}
               <div className="flex-1">
                 <div className="flex items-start justify-between mb-1">
-                  <h3 className="text-xl font-black text-white uppercase">
+                  <h3 className="kq-display text-xl font-black text-navy">
                     Achievement Unlocked!
                   </h3>
                   <button
@@ -86,18 +86,18 @@ export default function AchievementNotification({
                       setIsVisible(false);
                       setTimeout(onClose, 300);
                     }}
-                    className="text-white/70 hover:text-white transition-colors"
+                    className="text-navy/40 hover:text-navy transition-colors"
                   >
                     ×
                   </button>
                 </div>
-                <p className="text-white font-bold mb-1">{achievement.title}</p>
-                <p className="text-white/80 text-sm mb-2">{achievement.description}</p>
+                <p className="text-navy font-bold mb-1">{achievement.title}</p>
+                <p className="text-navy/60 text-sm mb-2">{achievement.description}</p>
                 <div className="flex items-center gap-3">
-                  <span className="text-white/90 text-sm font-black">
+                  <span className="text-gold text-sm font-black">
                     +{achievement.xp_reward} XP
                   </span>
-                  <span className="text-white/70 text-xs uppercase font-bold">
+                  <span className="kq-chip text-navy/60 text-xs font-bold">
                     {achievement.rarity}
                   </span>
                 </div>
@@ -105,12 +105,14 @@ export default function AchievementNotification({
             </div>
 
             {/* Progress bar animation */}
-            <motion.div
-              initial={{ width: '0%' }}
-              animate={{ width: '100%' }}
-              transition={{ duration: 5, ease: 'linear' }}
-              className="h-1 bg-white/30 rounded-full mt-3"
-            />
+            <div className="h-1.5 bg-stone rounded-full mt-3 overflow-hidden">
+              <motion.div
+                initial={{ width: '0%' }}
+                animate={{ width: '100%' }}
+                transition={{ duration: 5, ease: 'linear' }}
+                className="h-full bg-gold rounded-full"
+              />
+            </div>
           </div>
         </motion.div>
       )}
