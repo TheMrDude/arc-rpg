@@ -25,7 +25,7 @@ type Competitor = {
   faqs: Faq[];
 };
 
-const COMPETITORS: Competitor[] = [
+export const COMPETITORS: Competitor[] = [
   {
     slug: 'habitica',
     name: 'Habitica',
