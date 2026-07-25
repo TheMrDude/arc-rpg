@@ -3,40 +3,96 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import { COMPANION_SPECIES } from '@/lib/companions';
 
-// Seeker first: it's the pre-selected default, so it should be the first card seen
-const ARCHETYPES = [
+/**
+ * The egg picker.
+ *
+ * This used to be "Choose Your Archetype": five human hero portraits and five
+ * personality descriptions, asking a child to declare who she is before she had
+ * seen anything. Two problems with that. The art is five male-presenting
+ * figures, so a large part of the audience picks someone who is not them. And it
+ * framed the first decision as an identity claim, which is a lot to ask of a
+ * nine-year-old who just wants to start.
+ *
+ * So she picks an egg instead. Same five values, same column, same behaviour
+ * downstream -- profiles.archetype is untouched and still drives every AI
+ * narration voice. Only the presentation changed: she is choosing a friend, not
+ * declaring an identity.
+ *
+ * The egg name and the hint both come from COMPANION_SPECIES so this page and
+ * the companion card can never disagree about what is in the egg. Only the
+ * colours live here, because they are presentation and nothing else reads them.
+ *
+ * Deliberately NOT shown: the species name. "A Curious Egg" that hints at
+ * something doubling back on its own trail is a choice; "Foxfire" is a spoiler.
+ * The hatch at three quests is the payoff and it needs something left to reveal.
+ */
+
+// Each egg is drawn in CSS -- shell gradient, highlight, and speckles. Five
+// identical egg emoji would have made this a text-only choice, which is worse
+// than the page it replaces.
+const EGGS = [
   {
     id: 'seeker',
-    name: 'Seeker',
-    image: '/images/archetypes/seeker.png',
-    description: 'Curious explorer. Your quests become adventures into the unknown.',
+    accent: '#2E9CC4',
+    shell: ['#7FE3F7', '#2E9CC4'],
+    speckle: 'rgba(255, 243, 196, 0.85)',
+    recommended: true,
   },
   {
     id: 'warrior',
-    name: 'Warrior',
-    image: '/images/archetypes/warrior.png',
-    description: 'Bold and direct. Your quests become battles to win.',
+    accent: '#D9553A',
+    shell: ['#FFC98A', '#E2603F'],
+    speckle: 'rgba(255, 240, 214, 0.85)',
   },
   {
     id: 'builder',
-    name: 'Builder',
-    image: '/images/archetypes/builder.png',
-    description: 'Steady creator. Your quests become projects that stack up.',
+    accent: '#8A7A62',
+    shell: ['#E4D9C5', '#9C8B72'],
+    speckle: 'rgba(94, 79, 61, 0.45)',
   },
   {
     id: 'shadow',
-    name: 'Shadow',
-    image: '/images/archetypes/shadow.png',
-    description: 'Sharp strategist. Your quests become precision missions.',
+    accent: '#5B47A6',
+    shell: ['#A78BFF', '#4B3A8F'],
+    speckle: 'rgba(226, 216, 255, 0.9)',
   },
   {
     id: 'sage',
-    name: 'Sage',
-    image: '/images/archetypes/sage.png',
-    description: 'Wise and calm. Your quests become lessons on the path.',
+    accent: '#5E82A8',
+    shell: ['#D6E6F2', '#6E93B8'],
+    speckle: 'rgba(255, 255, 255, 0.9)',
   },
-];
+].map((egg) => {
+  const def = COMPANION_SPECIES[egg.id];
+  return { ...egg, name: def.stages[0].name, hint: def.lore };
+});
+
+/** One egg, drawn in CSS. An ovoid: narrower at the top, rounder at the base. */
+function Egg({ shell, speckle, size = 96 }) {
+  return (
+    <div
+      style={{
+        width: size,
+        height: size * 1.26,
+        borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%',
+        backgroundImage: [
+          // Highlight first: in backgroundImage the earliest layer paints on top.
+          'radial-gradient(ellipse at 34% 24%, rgba(255,255,255,0.55) 0 16%, transparent 48%)',
+          `radial-gradient(circle at 30% 62%, ${speckle} 0 3.5%, transparent 4%)`,
+          `radial-gradient(circle at 62% 45%, ${speckle} 0 2.5%, transparent 3%)`,
+          `radial-gradient(circle at 48% 79%, ${speckle} 0 3%, transparent 3.5%)`,
+          `radial-gradient(circle at 72% 68%, ${speckle} 0 2%, transparent 2.5%)`,
+          `radial-gradient(circle at 38% 37%, ${speckle} 0 2%, transparent 2.5%)`,
+          `linear-gradient(160deg, ${shell[0]}, ${shell[1]})`,
+        ].join(', '),
+        boxShadow: 'inset -6px -10px 18px rgba(0,0,0,0.18), 0 4px 12px rgba(36,59,90,0.16)',
+      }}
+      aria-hidden="true"
+    />
+  );
+}
 
 export default function SelectArchetypePage() {
   const router = useRouter();
@@ -44,13 +100,13 @@ export default function SelectArchetypePage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   // Seeker pre-selected: the page should never block on an unmade choice
-  const [selectedArchetype, setSelectedArchetype] = useState('seeker');
+  const [selectedEgg, setSelectedEgg] = useState('seeker');
 
-  // "Choose for me" dice roll states
+  // "Surprise me" dice roll states
   const [showDice, setShowDice] = useState(false);
   const [dicePhase, setDicePhase] = useState('spinning'); // spinning -> landed
   const [diceNumber, setDiceNumber] = useState('?');
-  const [rolledArchetype, setRolledArchetype] = useState(null);
+  const [rolledEgg, setRolledEgg] = useState(null);
   const spinIntervalRef = useRef(null);
 
   useEffect(() => {
@@ -69,7 +125,7 @@ export default function SelectArchetypePage() {
       }
       setUser(user);
 
-      // Check if user already has an archetype
+      // Check if user has already chosen
       const { data: profile } = await supabase
         .from('profiles')
         .select('archetype')
@@ -77,7 +133,7 @@ export default function SelectArchetypePage() {
         .single();
 
       if (profile?.archetype) {
-        // Already has archetype, go to dashboard
+        // Already chosen, go to dashboard
         router.push('/dashboard');
       }
     } catch (error) {
@@ -92,7 +148,7 @@ export default function SelectArchetypePage() {
     setShowDice(true);
     setDicePhase('spinning');
     setDiceNumber('?');
-    setRolledArchetype(null);
+    setRolledEgg(null);
 
     // Rapid number cycling during spin (same feel as the D10 encounter dice)
     spinIntervalRef.current = setInterval(() => {
@@ -102,16 +158,17 @@ export default function SelectArchetypePage() {
     setTimeout(() => {
       if (spinIntervalRef.current) clearInterval(spinIntervalRef.current);
       const roll = Math.floor(Math.random() * 10) + 1;
-      const archetype = ARCHETYPES[(roll - 1) % ARCHETYPES.length];
+      const egg = EGGS[(roll - 1) % EGGS.length];
       setDiceNumber(roll);
-      setRolledArchetype(archetype);
-      setSelectedArchetype(archetype.id);
+      setRolledEgg(egg);
+      setSelectedEgg(egg.id);
       setDicePhase('landed');
     }, 1500);
   }
 
-  async function handleSelectArchetype(archetypeId) {
-    const archetype = archetypeId || selectedArchetype;
+  async function handleChooseEgg(eggId) {
+    // The egg IS the archetype. Presentation changed; the stored value did not.
+    const archetype = eggId || selectedEgg;
     if (!archetype || saving) return;
 
     setSaving(true);
@@ -152,8 +209,8 @@ export default function SelectArchetypePage() {
       // the hatch instead.
       router.push('/dashboard');
     } catch (error) {
-      console.error('Error selecting archetype:', error);
-      alert(`Failed to select archetype: ${error.message}\n\nPlease try again or contact support.`);
+      console.error('Error choosing egg:', error);
+      alert(`Failed to choose your egg: ${error.message}\n\nPlease try again or contact support.`);
     } finally {
       setSaving(false);
     }
@@ -167,91 +224,100 @@ export default function SelectArchetypePage() {
     );
   }
 
+  const selected = EGGS.find((e) => e.id === selectedEgg);
+
   return (
     <div className="kidquest min-h-screen bg-cream text-navy p-4 sm:p-8">
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="kq-display text-4xl sm:text-5xl mb-3 text-coral">Choose Your Archetype</h1>
+          <h1 className="kq-display text-4xl sm:text-5xl mb-3 text-coral">Choose Your Egg</h1>
           <p className="text-lg text-navy/70 mb-4">
-            Your archetype shapes how the AI narrates your quests. Style only — no stats, no wrong answers.
+            Something is growing inside each one. Pick the egg you like best.
           </p>
           <div className="inline-block bg-gold/10 border-2 border-gold rounded-candy px-5 py-3">
             <p className="text-navy font-bold text-sm sm:text-base">
-              ✨ Not sure? Start as Seeker. You can change your archetype anytime in settings.
+              🥚 Complete 3 quests and your egg will hatch.
             </p>
           </div>
         </div>
 
-        {/* Choose for me */}
+        {/* Surprise me */}
         <div className="text-center mb-8">
           <button
             onClick={chooseForMe}
             className="kq-btn kq-btn-ghost"
           >
-            🎲 Choose for me
+            🎲 Surprise me
           </button>
         </div>
 
-        {/* Archetype Grid */}
+        {/* Egg Grid */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
-          {ARCHETYPES.map((archetype) => (
-            <div
-              key={archetype.id}
-              onClick={() => setSelectedArchetype(archetype.id)}
-              className={`kq-card kq-card-hover rounded-candy p-5 cursor-pointer transition-all ${
-                selectedArchetype === archetype.id
-                  ? 'border-2 border-gold scale-105'
-                  : 'border-2 border-stone hover:border-hero-blue'
-              }`}
-            >
-              <div className="flex justify-center mb-3">
-                <img
-                  src={archetype.image}
-                  alt={archetype.name}
-                  className="w-24 h-24 object-contain rounded-candy"
-                />
-              </div>
-
-              <h3 className="text-xl font-bold text-center mb-2 text-coral">
-                {archetype.name}
-                {archetype.id === 'seeker' && (
-                  <span className="block text-[10px] text-gold tracking-widest mt-1">Recommended start</span>
-                )}
-              </h3>
-
-              <p className="text-navy/70 text-sm text-center">{archetype.description}</p>
-
-              {selectedArchetype === archetype.id && (
-                <div className="mt-3 text-center">
-                  <span className="text-gold font-bold text-sm">✓ Selected</span>
+          {EGGS.map((egg) => {
+            const isSelected = selectedEgg === egg.id;
+            return (
+              <button
+                key={egg.id}
+                type="button"
+                onClick={() => setSelectedEgg(egg.id)}
+                aria-pressed={isSelected}
+                style={{
+                  borderColor: isSelected ? egg.accent : undefined,
+                  minHeight: 44,
+                  touchAction: 'manipulation',
+                }}
+                className={`kq-card kq-card-hover rounded-candy p-5 cursor-pointer transition-all text-center w-full ${
+                  isSelected
+                    ? 'border-2 scale-105'
+                    : 'border-2 border-stone hover:border-hero-blue'
+                }`}
+              >
+                <div className="flex justify-center mb-3">
+                  <Egg shell={egg.shell} speckle={egg.speckle} />
                 </div>
-              )}
-            </div>
-          ))}
+
+                <h3 className="text-xl font-bold mb-2" style={{ color: egg.accent }}>
+                  {egg.name}
+                  {egg.recommended && (
+                    <span className="block text-[10px] text-gold tracking-widest mt-1">Recommended start</span>
+                  )}
+                </h3>
+
+                {/* A hint at what is inside, never the species name. */}
+                <p className="text-navy/70 text-sm">{egg.hint}</p>
+
+                {isSelected && (
+                  <div className="mt-3">
+                    <span className="font-bold text-sm" style={{ color: egg.accent }}>✓ Chosen</span>
+                  </div>
+                )}
+              </button>
+            );
+          })}
         </div>
 
         {/* Confirm Button */}
         <div className="text-center pb-8">
           <button
-            onClick={() => handleSelectArchetype()}
+            onClick={() => handleChooseEgg()}
             disabled={saving}
             className="kq-btn kq-btn-gold text-xl px-12 py-4 disabled:opacity-60"
           >
-            {saving ? 'Beginning...' : '⚔️ Begin Your Campaign'}
+            {saving ? 'Taking it...' : '🥚 Take this egg'}
           </button>
           <p className="text-xs text-navy/50 mt-3">
-            Starting as {ARCHETYPES.find((a) => a.id === selectedArchetype)?.name}
+            Taking {selected?.name}
           </p>
         </div>
       </div>
 
-      {/* Choose-for-me dice roll overlay */}
+      {/* Surprise-me dice roll overlay */}
       {showDice && (
         <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60">
           <div className="flex flex-col items-center gap-6 p-8">
             <h2 className="text-xl font-bold text-cream">
-              🎲 The dice decide your fate...
+              🎲 The dice pick your egg...
             </h2>
 
             <div
@@ -265,30 +331,28 @@ export default function SelectArchetypePage() {
               <span className="text-[2.5rem] font-bold text-white">{diceNumber}</span>
             </div>
 
-            {dicePhase === 'landed' && rolledArchetype && (
+            {dicePhase === 'landed' && rolledEgg && (
               <div className="kq-card border-2 border-gold rounded-candy p-6 max-w-[350px] w-[90vw] text-center" style={{ animation: 'archetypeSlideUp 0.4s ease' }}>
-                <img
-                  src={rolledArchetype.image}
-                  alt={rolledArchetype.name}
-                  className="w-20 h-20 object-contain rounded-candy mx-auto mb-3"
-                />
-                <h3 className="text-xl font-bold text-gold mb-2">
-                  {rolledArchetype.name}!
+                <div className="flex justify-center mb-3">
+                  <Egg shell={rolledEgg.shell} speckle={rolledEgg.speckle} size={72} />
+                </div>
+                <h3 className="text-xl font-bold mb-2" style={{ color: rolledEgg.accent }}>
+                  {rolledEgg.name}!
                 </h3>
-                <p className="text-navy/60 text-sm mb-5">{rolledArchetype.description}</p>
+                <p className="text-navy/60 text-sm mb-5">{rolledEgg.hint}</p>
                 <div className="flex flex-col gap-2">
                   <button
-                    onClick={() => handleSelectArchetype(rolledArchetype.id)}
+                    onClick={() => handleChooseEgg(rolledEgg.id)}
                     disabled={saving}
                     className="kq-btn kq-btn-gold disabled:opacity-60"
                   >
-                    {saving ? 'Beginning...' : '⚔️ Begin Your Campaign'}
+                    {saving ? 'Taking it...' : '🥚 Take this egg'}
                   </button>
                   <button
                     onClick={() => setShowDice(false)}
                     className="text-navy/50 hover:text-navy text-sm font-bold transition-colors"
                   >
-                    Roll rejected — I&apos;ll pick myself
+                    I&apos;ll pick myself
                   </button>
                 </div>
               </div>

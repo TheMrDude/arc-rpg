@@ -54,13 +54,23 @@ export default function CharacterPanel({ profile, creature, isPremium, equipment
 
   const xpProgress = xpInLevel / 100;
   const strokeDashoffset = RING_CIRCUMFERENCE * (1 - xpProgress);
-  const title = `Level ${profile.level} ${profile.archetype ? profile.archetype.charAt(0).toUpperCase() + profile.archetype.slice(1) : 'Adventurer'}`;
+
+  // The companion is the avatar. The archetype art was five male-presenting
+  // human figures, so the portrait told a lot of players they were someone
+  // they are not; the companion is a creature she chose as an egg and named
+  // herself. Archetype still drives the AI narration voice, it just no longer
+  // has a face here.
+  //
+  // Level and companion name are separate elements rather than one string:
+  // globals.css forces h1 to 2rem on mobile, and companion names run longer
+  // than "Seeker", so a combined title wrapped to two lines on a phone.
+  const title = `Level ${profile.level}`;
 
   return (
     <div className="kq-card border-2 border-stone rounded-candy p-4 mb-6">
       <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
-        {/* Portrait with XP ring */}
-        {profile.archetype && (
+        {/* Portrait with XP ring — the companion at its current stage */}
+        {creature && (
           <div className="relative flex-shrink-0 w-24 h-24">
             <svg className="absolute inset-0 w-24 h-24 -rotate-90" viewBox="0 0 80 80">
               <circle cx="40" cy="40" r={RING_RADIUS} fill="none" stroke="#ECE7DD" strokeWidth="5" />
@@ -84,11 +94,14 @@ export default function CharacterPanel({ profile, creature, isPremium, equipment
                 </linearGradient>
               </defs>
             </svg>
-            <img
-              src={`/images/archetypes/${profile.archetype}.png`}
-              alt={profile.archetype}
-              className="absolute inset-0 m-auto w-[70px] h-[70px] object-cover rounded-full border-2 border-stone"
-            />
+            <div
+              className="absolute inset-0 m-auto w-[70px] h-[70px] rounded-full border-2 border-stone bg-cream flex items-center justify-center select-none"
+              title={creature.stageTitle}
+              role="img"
+              aria-label={`${creature.name}, ${creature.stageTitle}`}
+            >
+              <span className="text-[34px] leading-none">{creature.emoji}</span>
+            </div>
             <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-gold border-2 border-white flex items-center justify-center">
               <span className="text-[10px] font-black text-navy">{profile.level}</span>
             </div>
@@ -102,6 +115,11 @@ export default function CharacterPanel({ profile, creature, isPremium, equipment
               <h1 className="kq-display text-lg sm:text-xl font-black text-navy">
                 {title}
               </h1>
+              {creature && (
+                <span className="text-sm font-bold text-emerald truncate max-w-[10rem]" title={creature.stageTitle}>
+                  {creature.name}
+                </span>
+              )}
               {isPremium && (
                 <span className="kq-chip px-2 py-0.5 bg-gold text-navy rounded-full text-xs font-black uppercase">
                   PRO
@@ -151,16 +169,9 @@ export default function CharacterPanel({ profile, creature, isPremium, equipment
                 </div>
               );
             })}
-            {creature && (
-              <div className="flex items-center gap-1.5 ml-1">
-                {creature.image ? (
-                  <img src={creature.image} alt={creature.name} className="w-5 h-5 object-contain rounded" />
-                ) : (
-                  <span className="text-sm">{creature.emoji}</span>
-                )}
-                <span className="text-xs text-navy/60 truncate">{creature.name}</span>
-              </div>
-            )}
+            {/* The companion badge that used to live here is gone: the portrait
+                above IS the companion now, and showing the same creature twice
+                in one card just read as a bug. */}
             {profile.skill_points > 0 && (
               <p className="text-xs text-gold font-black ml-auto inline-flex items-center gap-1">
                 <Gem size={12} /> {profile.skill_points} Skill Pt{profile.skill_points > 1 ? 's' : ''}
