@@ -946,17 +946,17 @@ export default function DashboardPage() {
   // Must sit above the `loading` early return: hooks have to run in the same
   // order on every render. It therefore derives the companion itself rather
   // than using the `creature` computed further down.
-  const companionNamingKey = user ? `companion_named_prompt_${user.id}` : null;
+  //
+  // Naming normally happens during onboarding, one screen after the hero is
+  // chosen. This is the catch-up path for accounts created before that existed:
+  // prompt once if they have never been asked. The flag is a profile column, not
+  // localStorage, so a second device does not ask again.
   useEffect(() => {
-    if (!profile || !companionNamingKey) return;
-    if (typeof window === 'undefined') return;
-    const visible = getDashboardSections(profile).companion;
-    if (!visible) return;
-    const c = getCompanion(profile, quests);
-    if (!c || c.customName) return;
-    if (window.localStorage.getItem(companionNamingKey)) return;
+    if (!profile) return;
+    if (profile.companion_name) return;
+    if (profile.companion_name_prompted) return;
     setShowCompanionNaming(true);
-  }, [profile, quests, companionNamingKey]);
+  }, [profile]);
 
   if (loading) {
     return (
@@ -990,19 +990,34 @@ export default function DashboardPage() {
       if (response.ok) {
         const data = await response.json();
         // Update in place so the card renames instantly, without a full reload.
-        setProfile((p) => (p ? { ...p, companion_name: data.companion_name } : p));
+        setProfile((p) => (p ? { ...p, companion_name: data.companion_name, companion_name_prompted: true } : p));
       }
     } catch (error) {
       console.error('Error saving companion name:', error);
     } finally {
-      if (companionNamingKey) window.localStorage.setItem(companionNamingKey, '1');
       setShowCompanionNaming(false);
     }
   }
 
-  function skipCompanionNaming() {
-    if (companionNamingKey) window.localStorage.setItem(companionNamingKey, '1');
+  async function skipCompanionNaming() {
+    // Records the prompt as answered without setting a name, so the species
+    // default stands and the child is not asked again on any device.
     setShowCompanionNaming(false);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      await fetch('/api/companion/name', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ name: null }),
+      });
+      setProfile((p) => (p ? { ...p, companion_name_prompted: true } : p));
+    } catch (error) {
+      console.error('Error skipping companion naming:', error);
+    }
   }
   const activeQuestsList = quests.filter(q => !q.completed);
   const isNewUser = (profile?.level || 1) <= 2 && activeQuestsList.length === 0;

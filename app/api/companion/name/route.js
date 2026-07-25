@@ -36,12 +36,16 @@ export async function POST(request) {
     const { name } = await request.json();
     const supabaseAdmin = getSupabaseAdminClient();
 
+    // Any call marks the prompt answered, whether the child typed a name or
+    // skipped. That flag lives on the profile rather than in localStorage so a
+    // second device does not ask again.
+    //
     // null / empty clears the name and restores the species default. This is
     // what both "skip" and a later "use the default again" do.
     if (name === null || name === undefined || String(name).trim() === '') {
       const { error } = await supabaseAdmin
         .from('profiles')
-        .update({ companion_name: null })
+        .update({ companion_name: null, companion_name_prompted: true })
         .eq('id', user.id);
 
       if (error) {
@@ -62,7 +66,7 @@ export async function POST(request) {
 
     const { error } = await supabaseAdmin
       .from('profiles')
-      .update({ companion_name: cleaned })
+      .update({ companion_name: cleaned, companion_name_prompted: true })
       .eq('id', user.id);
 
     if (error) {
