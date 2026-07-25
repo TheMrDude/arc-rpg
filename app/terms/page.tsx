@@ -142,7 +142,6 @@ export default function TermsOfService() {
               <li>Archetype switching</li>
               <li>Weekly AI summaries</li>
               <li>Hero's Journal with AI transformations</li>
-              <li>Priority support</li>
               <li>All future premium features</li>
             </ul>
 
