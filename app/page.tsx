@@ -10,6 +10,7 @@ import ExitIntentPopup from './components/ExitIntentPopup';
 import EmailCapture from './components/EmailCapture';
 import ScrollDepthTracker from './components/ScrollDepthTracker';
 import CollectionBand from './components/CollectionBand';
+import TestimonialsSection from './components/TestimonialsSection';
 import { PreviewQuest } from '@/lib/onboarding';
 import { trackEvent } from '@/lib/analytics';
 import { track } from '@/lib/track';
@@ -70,28 +71,6 @@ const COLLECTIBLES = [
   { emoji: '🎉', name: 'Seasonal Events' },
 ] as const;
 
-// ─── Testimonials (P7) — placeholder copy, safe to edit anytime ───────
-const QUOTES = [
-  {
-    quote: 'I actually WANT to do my homework now so I can beat the boss this week. My dragon is level 9!',
-    name: 'Maya, age 9',
-    who: 'kid',
-    emoji: '🧒',
-  },
-  {
-    quote: 'Mornings used to be a battle. Now my son checks off his own routine to level up. No nagging from me.',
-    name: 'Jordan P.',
-    who: 'parent',
-    emoji: '👨',
-  },
-  {
-    quote: 'I love that missing a day doesn’t punish her. It celebrates effort, and it’s completely ad-free.',
-    name: 'Priya S.',
-    who: 'parent',
-    emoji: '👩',
-  },
-] as const;
-
 export default function LandingPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -101,6 +80,9 @@ export default function LandingPage() {
   const [userEmail, setUserEmail] = useState<string | null>(null);
   // Audience toggle (P3) — React state only, NEVER browser storage. Default: kids.
   const [audience, setAudience] = useState<Audience>('kids');
+  // Hero try-it-now input. Submits through the same handleTransform as the
+  // mid-page demo, so /api/preview-quest wiring and rate limiting are shared.
+  const [heroTask, setHeroTask] = useState('');
   const questInputRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -289,6 +271,47 @@ export default function LandingPage() {
               <p className="mt-4 text-navy/50 text-sm font-bold">
                 Free forever &middot; No credit card &middot; Ad-free
               </p>
+
+              {/* Try-it-now demo — the strongest proof, above the fold. Shares
+                  handleTransform with the mid-page demo (same API + limits). */}
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const task = heroTask.trim();
+                  if (!task || loading) return;
+                  handleTransform(task);
+                }}
+                className="mt-6 kq-card p-4 max-w-md mx-auto lg:mx-0 text-left"
+              >
+                <label htmlFor="hero-task" className="kq-label">
+                  <span className="kid-only">✨ Try it &mdash; type something you have to do</span>
+                  <span className="parent-only">✨ See it work &mdash; type any kid routine</span>
+                </label>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <input
+                    id="hero-task"
+                    type="text"
+                    value={heroTask}
+                    onChange={(e) => setHeroTask(e.target.value)}
+                    placeholder="Brush my teeth"
+                    maxLength={200}
+                    className="kq-input flex-1"
+                  />
+                  <button
+                    type="submit"
+                    disabled={loading || !heroTask.trim()}
+                    className="kq-btn kq-btn-blue text-sm px-5 py-2 min-h-0 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {loading ? 'Working…' : 'Make it a quest'}
+                  </button>
+                </div>
+                <p className="text-navy/50 text-xs font-bold mt-2">
+                  Free, no signup needed. {remainingPreviews} left today.
+                </p>
+                {error && (
+                  <p className="text-coral text-xs font-bold mt-2">{error}</p>
+                )}
+              </form>
             </div>
 
             {/* Right — illustrated hero scene (CSS/emoji placeholders) */}
@@ -316,16 +339,22 @@ export default function LandingPage() {
               <div className="absolute -bottom-10 -left-10 -right-10 h-40 rounded-[50%] bg-[#3fb56b]" aria-hidden="true" />
               <div className="absolute -bottom-6 -left-16 w-3/4 h-36 rounded-[50%] bg-[#2ECC71]" aria-hidden="true" />
 
-              {/* Hero + companions on the hill */}
-              <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-end gap-1 sm:gap-2">
-                <span className="text-4xl sm:text-5xl kq-bob" aria-hidden="true" style={{ animationDelay: '0.3s' }}>🦊</span>
-                <span className="text-5xl sm:text-7xl kq-hop" aria-hidden="true">🧒</span>
-                <span className="text-4xl sm:text-5xl kq-hop" aria-hidden="true" style={{ animationDelay: '0.5s' }}>🐉</span>
-                <span className="text-3xl sm:text-4xl kq-bob" aria-hidden="true" style={{ animationDelay: '0.7s' }}>🦉</span>
+              {/* Hero + companions on the hill — real chibi art */}
+              <div className="absolute bottom-6 left-[40%] -translate-x-1/2 flex items-end gap-2 sm:gap-3">
+                <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-full overflow-hidden border-[3px] border-white shadow-candy kq-bob" style={{ animationDelay: '0.3s' }}>
+                  <Image src="/images/chibi/5.png" alt="" aria-hidden="true" width={80} height={80} className="w-full h-full object-cover" />
+                </div>
+                <div className="w-20 h-20 sm:w-28 sm:h-28 rounded-full overflow-hidden border-4 border-white shadow-candy-lg kq-hop">
+                  <Image src="/images/chibi/2.png" alt="A young hero explorer ready for adventure" width={112} height={112} className="w-full h-full object-cover" priority />
+                </div>
+                <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-full overflow-hidden border-[3px] border-white shadow-candy kq-hop" style={{ animationDelay: '0.5s' }}>
+                  <Image src="/images/chibi/1.png" alt="" aria-hidden="true" width={80} height={80} className="w-full h-full object-cover" />
+                </div>
               </div>
 
-              {/* Animated LVL / XP chip */}
-              <div className="absolute bottom-4 left-4 bg-white/90 rounded-2xl px-3 py-2 shadow-candy backdrop-blur-sm">
+              {/* Animated LVL / XP chip — bottom-right keeps it clear of the
+                  centered character row and the sun/castle in the top corners. */}
+              <div className="absolute bottom-4 right-4 bg-white/90 rounded-2xl px-3 py-2 shadow-candy backdrop-blur-sm">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="kq-chip bg-[#FFC83D] text-[#5a4300] text-xs py-0.5 px-2">LVL 7</span>
                   <span className="text-navy/70 text-xs font-extrabold">XP</span>
@@ -343,7 +372,8 @@ export default function LandingPage() {
           <div className="text-center mb-8">
             <h2 className="text-3xl sm:text-5xl text-navy mb-3">A Whole World to Explore</h2>
             <p className="text-navy/60 text-lg font-semibold max-w-2xl mx-auto">
-              Every habit you finish helps you unlock the next region. New lands are always waiting.
+              <span className="kid-only">Every habit you finish helps you unlock the next region. New lands are always waiting.</span>
+              <span className="parent-only">Progress they can see. Consistency opens the next region, so the reward is the routine itself &mdash; not a prize you have to buy.</span>
             </p>
           </div>
 
@@ -384,7 +414,10 @@ export default function LandingPage() {
         <section className="py-14 kq-reveal">
           <div className="text-center mb-10">
             <h2 className="text-3xl sm:text-5xl text-navy mb-3">Real Habits Become Epic Quests</h2>
-            <p className="text-navy/60 text-lg font-semibold">The boring stuff turns into missions worth doing.</p>
+            <p className="text-navy/60 text-lg font-semibold">
+              <span className="kid-only">The boring stuff turns into missions worth doing.</span>
+              <span className="parent-only">The routines you already ask for, reframed so they want to do them.</span>
+            </p>
           </div>
           <div className="max-w-3xl mx-auto space-y-4">
             {QUESTS.map((q) => (
@@ -441,7 +474,10 @@ export default function LandingPage() {
         <section className="py-14 kq-reveal">
           <div className="text-center mb-4">
             <h2 className="text-3xl sm:text-5xl text-navy mb-3">Meet Your Pet</h2>
-            <p className="text-navy/60 text-lg font-semibold">A companion that grows with you on every quest.</p>
+            <p className="text-navy/60 text-lg font-semibold">
+              <span className="kid-only">A companion that grows with you on every quest.</span>
+              <span className="parent-only">A companion that grows with them &mdash; and never guilt-trips them for a missed day.</span>
+            </p>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6">
             {PETS.map((p) => (
@@ -545,14 +581,16 @@ export default function LandingPage() {
               ))}
             </div>
 
-            {/* Parent quote */}
-            <div className="kq-card p-6 sm:p-8 max-w-2xl mx-auto text-center mb-6">
-              <div className="text-4xl mb-3" aria-hidden="true">💬</div>
-              <p className="text-navy text-lg sm:text-xl font-bold leading-relaxed mb-3">
-                &ldquo;For the first time, getting ready in the morning isn&rsquo;t a fight. She wants
-                to check off her routine to help her hero level up.&rdquo;
-              </p>
-              <p className="text-navy/50 font-bold text-sm">&mdash; Placeholder parent quote (edit in QUOTES)</p>
+            {/* What actually happens in week one — our own claim, not a quote
+                attributed to an invented person. */}
+            <div className="kq-card p-6 sm:p-8 max-w-2xl mx-auto mb-6">
+              <h3 className="kq-display text-lg text-navy mb-3 text-center">What week one looks like</h3>
+              <ul className="space-y-2.5 text-navy/75 font-semibold text-sm sm:text-base">
+                <li className="flex gap-2.5"><span className="text-emerald flex-shrink-0" aria-hidden="true">1</span> They pick a hero and name their first companion.</li>
+                <li className="flex gap-2.5"><span className="text-emerald flex-shrink-0" aria-hidden="true">2</span> You add 2&ndash;3 real routines &mdash; teeth, reading, homework.</li>
+                <li className="flex gap-2.5"><span className="text-emerald flex-shrink-0" aria-hidden="true">3</span> Each one they finish earns XP and opens more of the map.</li>
+                <li className="flex gap-2.5"><span className="text-emerald flex-shrink-0" aria-hidden="true">4</span> Miss a day? Nothing breaks. Their companion just waits.</li>
+              </ul>
             </div>
 
             {/* Reassurance pills */}
@@ -566,26 +604,11 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* ════════════════ TESTIMONIALS (P7) ════════════════ */}
+        {/* ════════════════ TESTIMONIALS ════════════════ */}
         <section className="py-14 kq-reveal">
-          <div className="text-center mb-10">
-            <h2 className="text-3xl sm:text-5xl text-navy mb-3">Loved by Kids and Parents</h2>
-            <p className="text-navy/60 text-lg font-semibold">Placeholder quotes &mdash; swap in real ones anytime.</p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-5 sm:gap-6 max-w-5xl mx-auto">
-            {QUOTES.map((q) => (
-              <div key={q.name} className="kq-card p-6 flex flex-col">
-                <div className="text-4xl mb-3" aria-hidden="true">{q.emoji}</div>
-                <p className="text-navy font-bold leading-relaxed flex-1">&ldquo;{q.quote}&rdquo;</p>
-                <div className="mt-4 flex items-center gap-2">
-                  <span className={`kq-chip text-xs py-0.5 px-2 ${q.who === 'kid' ? 'bg-[#FFC83D] text-[#5a4300]' : 'bg-[#57D7F5] text-[#0b3a45]'}`}>
-                    {q.who === 'kid' ? 'Kid' : 'Parent'}
-                  </span>
-                  <span className="text-navy/60 font-bold text-sm">{q.name}</span>
-                </div>
-              </div>
-            ))}
-          </div>
+          {/* Real, consented user quotes only (live_testimonials feed), with an
+              honest "we're early" empty state. No invented reviews — ever. */}
+          <TestimonialsSection />
         </section>
 
         {/* ════════════════ PRICING (P8 — re-skin only, logic unchanged) ════════════════ */}
@@ -604,7 +627,7 @@ export default function LandingPage() {
               <ul className="space-y-2.5 text-navy/80 text-sm font-semibold mb-6 flex-1">
                 <li className="flex gap-2"><span className="text-emerald" aria-hidden="true">✓</span> 3 quests (habits)</li>
                 <li className="flex gap-2"><span className="text-emerald" aria-hidden="true">✓</span> Pick your hero</li>
-                <li className="flex gap-2"><span className="text-emerald" aria-hidden="true">✓</span> Turn habits into quests</li>
+                <li className="flex gap-2"><span className="text-emerald" aria-hidden="true">✓</span> Explore the world map</li>
                 <li className="flex gap-2"><span className="text-emerald" aria-hidden="true">✓</span> Level up &amp; earn XP</li>
               </ul>
               <button onClick={goToSignup} className="kq-btn kq-btn-blue w-full">Start Free</button>
@@ -617,10 +640,10 @@ export default function LandingPage() {
               <div className="kq-display text-4xl text-navy mb-1">$5<span className="text-lg text-navy/40">/mo</span></div>
               <p className="text-navy/50 text-sm font-bold mb-5">billed monthly</p>
               <ul className="space-y-2.5 text-navy/80 text-sm font-semibold mb-6 flex-1">
-                <li className="flex gap-2"><span className="text-gold" aria-hidden="true">★</span> Unlimited quests</li>
-                <li className="flex gap-2"><span className="text-gold" aria-hidden="true">★</span> Boss battles &amp; raids</li>
-                <li className="flex gap-2"><span className="text-gold" aria-hidden="true">★</span> Unlock every world</li>
-                <li className="flex gap-2"><span className="text-gold" aria-hidden="true">★</span> Collect pets &amp; gear</li>
+                <li className="flex gap-2"><span className="text-gold" aria-hidden="true">★</span> <strong className="text-navy">Boss battles</strong> &amp; raids</li>
+                <li className="flex gap-2"><span className="text-gold" aria-hidden="true">★</span> <strong className="text-navy">Unlimited</strong> quests</li>
+                <li className="flex gap-2"><span className="text-gold" aria-hidden="true">★</span> Gear &amp; equipment shop</li>
+                <li className="flex gap-2"><span className="text-gold" aria-hidden="true">★</span> Quest chains</li>
                 <li className="flex gap-2"><span className="text-gold" aria-hidden="true">★</span> Hero journal</li>
                 <li className="flex gap-2"><span className="text-gold" aria-hidden="true">★</span> Campaign adventures</li>
               </ul>
@@ -689,9 +712,13 @@ export default function LandingPage() {
         <section className="py-14 kq-reveal">
           <div className="kq-navy rounded-candy p-8 sm:p-12 text-center">
             <div className="text-5xl mb-4 kq-hop" aria-hidden="true">🚀</div>
-            <h2 className="text-3xl sm:text-5xl text-cream mb-4">Ready to Start Your Adventure?</h2>
+            <h2 className="text-3xl sm:text-5xl text-cream mb-4">
+              <span className="kid-only">Ready to Start Your Adventure?</span>
+              <span className="parent-only">Ready for Easier Mornings?</span>
+            </h2>
             <p className="text-cream/70 text-lg font-semibold mb-8 max-w-xl mx-auto">
-              Free forever. No credit card. No guilt &mdash; ever.
+              <span className="kid-only">Free forever. No credit card. No guilt &mdash; ever.</span>
+              <span className="parent-only">Free forever, ad-free, and private. Set it up in a couple of minutes.</span>
             </p>
             <button onClick={goToSignup} className="kq-btn kq-btn-gold text-lg">
               <span aria-hidden="true">⚔️</span> {PRIMARY_CTA_LABEL}

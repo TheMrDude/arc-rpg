@@ -47,6 +47,9 @@ export default function PricingPage() {
   }, []);
 
   const [startingTrial, setStartingTrial] = useState(false);
+  // Billing period toggle. Yearly = the Early Bird plan (same entitlements as
+  // Pro, 50% cheaper). Defaults to yearly so the better value leads.
+  const [isYearly, setIsYearly] = useState(true);
 
   const isPro = profile?.subscription_tier === 'pro' && profile?.subscription_status === 'active';
   const isInTrial = profile?.trial_ends_at && new Date(profile.trial_ends_at) > new Date();
@@ -134,7 +137,31 @@ export default function PricingPage() {
         )}
 
         {/* Pricing Cards */}
-        <div className="grid md:grid-cols-3 gap-6 mb-16">
+        {/* Billing period toggle */}
+        <div className="flex justify-center mb-10">
+          <div
+            className="inline-flex items-center gap-1 bg-white rounded-full p-1 shadow-candy border-2 border-stone"
+            role="group"
+            aria-label="Choose billing period"
+          >
+            <button
+              onClick={() => setIsYearly(false)}
+              aria-pressed={!isYearly}
+              className={`kq-chip text-sm px-4 py-2 transition-colors ${!isYearly ? 'bg-hero-blue text-white' : 'text-navy/70'}`}
+            >
+              Monthly
+            </button>
+            <button
+              onClick={() => setIsYearly(true)}
+              aria-pressed={isYearly}
+              className={`kq-chip text-sm px-4 py-2 transition-colors ${isYearly ? 'bg-emerald text-white' : 'text-navy/70'}`}
+            >
+              Yearly <span className={isYearly ? 'text-white/90' : 'text-emerald'}>&middot; save 50%</span>
+            </button>
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-6 mb-16 max-w-3xl mx-auto">
           {/* Free Tier */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -152,7 +179,7 @@ export default function PricingPage() {
               <li className="flex items-start gap-2"><span className="text-emerald">✓</span> Pick your hero</li>
               <li className="flex items-start gap-2"><span className="text-emerald">✓</span> Turn habits into quests</li>
               <li className="flex items-start gap-2"><span className="text-navy/30">—</span> <span className="text-navy/40">Boss battles</span></li>
-              <li className="flex items-start gap-2"><span className="text-navy/30">—</span> <span className="text-navy/40">Pets &amp; gear</span></li>
+              <li className="flex items-start gap-2"><span className="text-navy/30">—</span> <span className="text-navy/40">Gear &amp; equipment shop</span></li>
               <li className="flex items-start gap-2"><span className="text-navy/30">—</span> <span className="text-navy/40">Quest chains</span></li>
               <li className="flex items-start gap-2"><span className="text-navy/30">—</span> <span className="text-navy/40">Hero journal</span></li>
             </ul>
@@ -177,19 +204,35 @@ export default function PricingPage() {
               ⭐ Most Popular
             </div>
             <h3 className="kq-display text-xl text-navy mb-1">Pro</h3>
-            <div className="kq-display text-4xl text-navy mb-1">
-              $5<span className="text-lg text-navy/40">/mo</span>
-            </div>
-            <p className="text-navy/50 text-sm font-bold mb-6">Billed monthly</p>
+            {isYearly ? (
+              <>
+                <div className="kq-display text-4xl text-navy mb-1">
+                  $29<span className="text-lg text-navy/40">/year</span>
+                </div>
+                <p className="text-navy/50 text-sm font-bold mb-6">
+                  Just <strong className="text-emerald">$2.42/mo</strong> &mdash; launch price, locked in
+                </p>
+              </>
+            ) : (
+              <>
+                <div className="kq-display text-4xl text-navy mb-1">
+                  $5<span className="text-lg text-navy/40">/mo</span>
+                </div>
+                <p className="text-navy/50 text-sm font-bold mb-6">Billed monthly</p>
+              </>
+            )}
 
             <ul className="space-y-3 text-navy/80 text-sm font-semibold mb-8 flex-1">
               <li className="flex items-start gap-2"><span className="text-gold">★</span> <strong className="text-navy">Unlimited</strong> quests</li>
               <li className="flex items-start gap-2"><span className="text-gold">★</span> Boss battles &amp; raids</li>
-              <li className="flex items-start gap-2"><span className="text-gold">★</span> Collect pets &amp; gear</li>
+              <li className="flex items-start gap-2"><span className="text-gold">★</span> Gear &amp; equipment shop</li>
               <li className="flex items-start gap-2"><span className="text-gold">★</span> Quest chains</li>
               <li className="flex items-start gap-2"><span className="text-gold">★</span> Hero journal</li>
               <li className="flex items-start gap-2"><span className="text-gold">★</span> Weekly digest emails</li>
               <li className="flex items-start gap-2"><span className="text-gold">★</span> Priority support</li>
+              {isYearly && (
+                <li className="flex items-start gap-2"><span className="text-emerald">✓</span> <strong className="text-navy">Save 50%</strong> vs monthly</li>
+              )}
             </ul>
 
             {isPro ? (
@@ -198,11 +241,17 @@ export default function PricingPage() {
               </div>
             ) : (
               <div className="space-y-3">
+                {/* Checkout link is chosen by the billing toggle. Both Stripe
+                    links and the email/client_reference_id prefill are unchanged. */}
                 <a
-                  href={stripeLink(STRIPE_LINK_PRO_MONTHLY, user?.email, user?.id)}
+                  href={
+                    isYearly
+                      ? stripeLink(STRIPE_LINK_EARLY_BIRD, user?.email, user?.id)
+                      : stripeLink(STRIPE_LINK_PRO_MONTHLY, user?.email, user?.id)
+                  }
                   className="kq-btn kq-btn-gold w-full"
                 >
-                  Go Pro for $5/mo
+                  {isYearly ? 'Get Early Bird for $29/yr' : 'Go Pro for $5/mo'}
                 </a>
                 {!user && !hadTrial && (
                   <button
@@ -225,42 +274,6 @@ export default function PricingPage() {
             )}
           </motion.div>
 
-          {/* Early Bird Annual */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="kq-card p-8 flex flex-col relative"
-          >
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 kq-chip bg-emerald text-white text-xs py-1 px-4 whitespace-nowrap">
-              Best Value
-            </div>
-            <h3 className="kq-display text-xl text-navy mb-1">Early Bird</h3>
-            <div className="kq-display text-4xl text-emerald mb-1">
-              $29<span className="text-lg text-navy/40">/year</span>
-            </div>
-            <p className="text-navy/50 text-sm font-bold mb-6">Limited-time launch price</p>
-
-            <ul className="space-y-3 text-navy/80 text-sm font-semibold mb-8 flex-1">
-              <li className="flex items-start gap-2"><span className="text-emerald">✓</span> Everything in Pro</li>
-              <li className="flex items-start gap-2"><span className="text-emerald">✓</span> Save 50% vs monthly</li>
-              <li className="flex items-start gap-2"><span className="text-emerald">✓</span> Lock in launch pricing</li>
-              <li className="flex items-start gap-2"><span className="text-emerald">✓</span> <strong className="text-navy">$2.42/mo</strong> effective</li>
-            </ul>
-
-            {isPro ? (
-              <div className="kq-btn kq-btn-emerald w-full opacity-50 cursor-not-allowed">
-                Current Plan
-              </div>
-            ) : (
-              <a
-                href={stripeLink(STRIPE_LINK_EARLY_BIRD, user?.email, user?.id)}
-                className="kq-btn kq-btn-emerald w-full"
-              >
-                Get Early Bird for $29/yr
-              </a>
-            )}
-          </motion.div>
         </div>
 
         {/* Comparison: Anti-guilt */}

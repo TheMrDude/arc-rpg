@@ -76,17 +76,18 @@ export default function TestimonialsSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className="bg-[#16213E]/60 border-2 border-[#00D4FF]/20 rounded-xl p-6"
+              className="kq-card p-6"
             >
-              <p className="text-gray-300 leading-relaxed mb-4 italic">
+              <div className="text-3xl mb-3" aria-hidden="true">💬</div>
+              <p className="text-navy font-bold leading-relaxed mb-4">
                 &ldquo;{t.quote}&rdquo;
               </p>
               <div>
                 {t.display_name && (
-                  <p className="font-bold text-white">{t.display_name}</p>
+                  <p className="kq-display text-navy">{t.display_name}</p>
                 )}
                 {formatMeta(t) && (
-                  <p className="text-sm text-[#F59E0B]">{formatMeta(t)}</p>
+                  <p className="text-sm text-navy/50 font-bold">{formatMeta(t)}</p>
                 )}
               </div>
             </motion.div>
