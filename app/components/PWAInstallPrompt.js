@@ -61,10 +61,10 @@ export default function PWAInstallPrompt() {
   if (!showPrompt || !deferredPrompt) return null;
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-96 bg-gradient-to-r from-purple-900 to-pink-900 border-3 border-yellow-500 rounded-lg p-6 shadow-2xl z-50 animate-slide-up">
+    <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-96 kq-card border-2 border-stone p-6 shadow-candy-lg z-50 animate-slide-up">
       <button
         onClick={handleDismiss}
-        className="absolute top-2 right-2 text-white hover:text-gray-300 text-2xl font-bold leading-none"
+        className="absolute top-2 right-2 text-navy/50 hover:text-navy text-2xl font-bold leading-none"
         aria-label="Dismiss"
       >
         ×
@@ -73,22 +73,22 @@ export default function PWAInstallPrompt() {
       <div className="flex items-start gap-4">
         <div className="text-5xl">📱</div>
         <div className="flex-1">
-          <h3 className="text-xl font-black text-white mb-2">
+          <h3 className="kq-display text-xl text-navy mb-2">
             Install HabitQuest App
           </h3>
-          <p className="text-sm text-gray-200 mb-4">
+          <p className="text-sm text-navy/60 mb-4">
             Install the app on your device for a better experience! Access your quests offline, get notifications, and more.
           </p>
           <div className="flex gap-2">
             <button
               onClick={handleInstallClick}
-              className="px-6 py-2 bg-yellow-500 hover:bg-yellow-400 text-black font-black rounded-lg shadow-lg transition-all hover:scale-105"
+              className="kq-btn kq-btn-gold"
             >
               Install Now
             </button>
             <button
               onClick={handleDismiss}
-              className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white font-bold rounded-lg transition-all"
+              className="kq-btn kq-btn-ghost"
             >
               Later
             </button>

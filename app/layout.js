@@ -5,6 +5,11 @@ import PostHogProvider from './components/PostHogProvider'
 import { SoundProvider } from './components/SoundProvider'
 
 export const metadata = {
+  // Base for resolving relative metadata URLs (notably the generated
+  // opengraph-image routes). Without this Next falls back to VERCEL_URL, so
+  // share cards would point at a per-deployment hostname instead of the real
+  // domain. Explicit absolute canonicals below are unaffected.
+  metadataBase: new URL('https://habitquest.dev'),
   title: 'HabitQuest - ADHD-Friendly Gamified Habit Tracker | No Streaks, No Guilt',
   description: 'Most habit apps punish you for missing a day. HabitQuest turns your habits into epic RPG quests, so building consistency actually feels fun. Your habits. Your story. No guilt.',
   keywords: ['habit tracker', 'RPG', 'gamification', 'productivity', 'AI', 'task management', 'habits', 'motivation', 'ADHD', 'neurodivergent', 'no guilt', 'anti-guilt'],
@@ -111,8 +116,16 @@ export default function RootLayout({ children }) {
           }}
         />
 
-        {/* Facebook Pixel */}
-        {process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID && (
+        {/* Facebook Pixel — behavioural ad tracking.
+            HabitQuest is a child-directed service, and running third-party
+            advertising trackers on a child-directed site is the single biggest
+            children's-privacy exposure we have. So this is OFF unless BOTH the
+            pixel id and an explicit opt-in flag are set:
+              NEXT_PUBLIC_FACEBOOK_PIXEL_ID=<id>
+              NEXT_PUBLIC_ENABLE_AD_TRACKING=true
+            Do not enable it for pages a child may use without first getting
+            proper advice on COPPA / children's advertising rules. */}
+        {process.env.NEXT_PUBLIC_ENABLE_AD_TRACKING === 'true' && process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID && (
           <>
             <Script id="facebook-pixel" strategy="afterInteractive">
               {`

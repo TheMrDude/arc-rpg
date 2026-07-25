@@ -12,23 +12,23 @@ export default function MomentumMeter({ quests, profile, reducedMotion }) {
   const isFull = activeDays >= MOMENTUM_GOAL_DAYS;
 
   return (
-    <div className="bg-[#1A1A2E] border-2 border-[#48BB78]/50 rounded-lg p-4 mb-6">
+    <div className="kq-card p-4 mb-6">
       <div className="flex items-center justify-between mb-2">
-        <p className="text-sm font-black uppercase tracking-wide text-[#48BB78]">
+        <p className="text-sm font-bold text-emerald">
           Momentum: {filled}/{MOMENTUM_GOAL_DAYS} days this week
         </p>
         {isFull && <span className="text-lg">✨</span>}
       </div>
-      <div className="h-3 bg-[#0F3460] rounded-full overflow-hidden border border-[#1A1A2E]">
+      <div className="h-3 bg-cream rounded-full overflow-hidden border border-stone">
         <motion.div
           className="h-full rounded-full"
-          style={{ background: 'linear-gradient(90deg, #48BB78, #22d3ee)' }}
+          style={{ background: 'linear-gradient(90deg, #34D399, #57D7F5)' }}
           initial={false}
           animate={{ width: `${progress * 100}%` }}
           transition={reducedMotion ? { duration: 0 } : { duration: 0.6, ease: 'easeOut' }}
         />
       </div>
-      <p className="text-xs text-[#94a3b8] mt-1.5">
+      <p className="text-xs text-navy/60 mt-1.5">
         {isFull
           ? 'Goal hit. No punishment for missed days, ever, just keep building.'
           : 'Any 4 active days count. Missing a day never resets this.'}

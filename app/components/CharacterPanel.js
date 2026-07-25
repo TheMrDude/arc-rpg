@@ -57,13 +57,13 @@ export default function CharacterPanel({ profile, creature, isPremium, equipment
   const title = `Level ${profile.level} ${profile.archetype ? profile.archetype.charAt(0).toUpperCase() + profile.archetype.slice(1) : 'Adventurer'}`;
 
   return (
-    <div className="bg-[#1A1A2E] border-3 border-[#00D4FF] rounded-lg p-4 mb-6 shadow-[0_0_20px_rgba(0,212,255,0.3)]">
+    <div className="kq-card border-2 border-stone rounded-candy p-4 mb-6">
       <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
         {/* Portrait with XP ring */}
         {profile.archetype && (
           <div className="relative flex-shrink-0 w-24 h-24">
             <svg className="absolute inset-0 w-24 h-24 -rotate-90" viewBox="0 0 80 80">
-              <circle cx="40" cy="40" r={RING_RADIUS} fill="none" stroke="#0F3460" strokeWidth="5" />
+              <circle cx="40" cy="40" r={RING_RADIUS} fill="none" stroke="#ECE7DD" strokeWidth="5" />
               <motion.circle
                 cx="40"
                 cy="40"
@@ -79,18 +79,18 @@ export default function CharacterPanel({ profile, creature, isPremium, equipment
               />
               <defs>
                 <linearGradient id="xpRingGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#22d3ee" />
-                  <stop offset="100%" stopColor="#f43f5e" />
+                  <stop offset="0%" stopColor="#FFC83D" />
+                  <stop offset="100%" stopColor="#FF7B6B" />
                 </linearGradient>
               </defs>
             </svg>
             <img
               src={`/images/archetypes/${profile.archetype}.png`}
               alt={profile.archetype}
-              className="absolute inset-0 m-auto w-[70px] h-[70px] object-cover rounded-full border-2 border-[#0F3460]"
+              className="absolute inset-0 m-auto w-[70px] h-[70px] object-cover rounded-full border-2 border-stone"
             />
-            <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-[#FFD93D] border-2 border-[#1A1A2E] flex items-center justify-center">
-              <span className="text-[10px] font-black text-[#1A1A2E]">{profile.level}</span>
+            <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-gold border-2 border-white flex items-center justify-center">
+              <span className="text-[10px] font-black text-navy">{profile.level}</span>
             </div>
           </div>
         )}
@@ -99,32 +99,32 @@ export default function CharacterPanel({ profile, creature, isPremium, equipment
         <div className="flex-1 min-w-0 w-full">
           <div className="flex items-center justify-between flex-wrap gap-x-3 gap-y-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-lg sm:text-xl font-black uppercase tracking-wide text-[#FF6B6B]">
+              <h1 className="kq-display text-lg sm:text-xl font-black text-navy">
                 {title}
               </h1>
               {isPremium && (
-                <span className="px-2 py-0.5 bg-[#FFD93D] text-[#1A1A2E] rounded text-xs font-black uppercase">
+                <span className="kq-chip px-2 py-0.5 bg-gold text-navy rounded-full text-xs font-black uppercase">
                   PRO
                 </span>
               )}
             </div>
-            <span id="gold-counter-target" className="text-[#FFD93D] font-black text-sm inline-flex items-center gap-1" title="Gold">
+            <span id="gold-counter-target" className="text-gold font-black text-sm inline-flex items-center gap-1" title="Gold">
               <Coins size={14} /> {(profile.gold || 0).toLocaleString()}
             </span>
           </div>
 
           {/* XP bar */}
           <div className="mt-2" id="xp-bar-target">
-            <div className="h-3 bg-[#0F3460] rounded-full overflow-hidden border border-[#1A1A2E]">
+            <div className="h-3 bg-stone rounded-full overflow-hidden border border-stone">
               <div
                 className="h-full rounded-full transition-all duration-500"
                 style={{
                   width: `${xpProgress * 100}%`,
-                  background: 'linear-gradient(90deg, #22d3ee, #f43f5e)',
+                  background: 'linear-gradient(90deg, #FFC83D, #FF7B6B)',
                 }}
               />
             </div>
-            <p className="text-xs text-[#94a3b8] font-bold mt-1 text-center">
+            <p className="text-xs text-navy/60 font-bold mt-1 text-center">
               {animatedXP} / 100 XP
             </p>
           </div>
@@ -133,17 +133,17 @@ export default function CharacterPanel({ profile, creature, isPremium, equipment
           <div className="flex items-center gap-2 mt-3">
             {SLOT_TYPES.map((slot) => {
               const item = equippedItems[slot];
-              const color = item ? RARITY_COLORS[item.rarity] : '#334155';
+              const color = item ? RARITY_COLORS[item.rarity] : '#ECE7DD';
               const glow = item ? RARITY_GLOW[item.rarity] : 'transparent';
               return (
                 <div
                   key={slot}
                   title={item ? item.name : `No ${SLOT_LABELS[slot].toLowerCase()} equipped`}
-                  className="w-9 h-9 rounded-lg border-2 flex items-center justify-center text-lg"
+                  className="w-9 h-9 rounded-xl border-2 flex items-center justify-center text-lg"
                   style={{
                     borderColor: color,
                     boxShadow: item ? `0 0 10px ${glow}` : 'none',
-                    background: item ? '#0F3460' : 'transparent',
+                    background: item ? '#FFF9F1' : 'transparent',
                     opacity: item ? 1 : 0.4,
                   }}
                 >
@@ -158,11 +158,11 @@ export default function CharacterPanel({ profile, creature, isPremium, equipment
                 ) : (
                   <span className="text-sm">{creature.emoji}</span>
                 )}
-                <span className="text-xs text-[#E2E8F0] truncate">{creature.name}</span>
+                <span className="text-xs text-navy/60 truncate">{creature.name}</span>
               </div>
             )}
             {profile.skill_points > 0 && (
-              <p className="text-xs text-[#FFD93D] font-black ml-auto inline-flex items-center gap-1">
+              <p className="text-xs text-gold font-black ml-auto inline-flex items-center gap-1">
                 <Gem size={12} /> {profile.skill_points} Skill Pt{profile.skill_points > 1 ? 's' : ''}
               </p>
             )}

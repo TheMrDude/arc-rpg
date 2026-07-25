@@ -109,8 +109,8 @@ export default function AdminMonitoring() {
   if (loading) {
     return (
       <div className="p-8 text-center">
-        <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-purple-500 border-t-transparent"></div>
-        <p className="mt-4 text-gray-400">Loading admin dashboard...</p>
+        <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-hero-blue border-t-transparent"></div>
+        <p className="mt-4 text-navy/60">Loading admin dashboard...</p>
       </div>
     );
   }
@@ -118,10 +118,10 @@ export default function AdminMonitoring() {
   if (error) {
     return (
       <div className="p-8 text-center">
-        <div className="bg-red-500/10 border border-red-500 rounded-lg p-6 max-w-md mx-auto">
-          <h3 className="text-red-500 font-bold text-lg mb-2">Access Denied</h3>
-          <p className="text-gray-300">{error}</p>
-          <p className="text-sm text-gray-400 mt-4">
+        <div className="bg-coral/12 border-2 border-coral rounded-candy p-6 max-w-md mx-auto">
+          <h3 className="text-coral font-bold text-lg mb-2">Access Denied</h3>
+          <p className="text-navy/70">{error}</p>
+          <p className="text-sm text-navy/50 mt-4">
             Admin access required. Contact system administrator.
           </p>
         </div>
@@ -130,24 +130,24 @@ export default function AdminMonitoring() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 text-white p-8">
+    <div className="min-h-screen bg-cream p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold mb-2">Admin Monitoring Dashboard</h1>
-            <p className="text-gray-400">System health, costs, and support tools</p>
+            <h1 className="kq-display text-4xl font-bold mb-2 text-navy">Admin Monitoring Dashboard</h1>
+            <p className="text-navy/60">System health, costs, and support tools</p>
           </div>
           <a
             href="/admin/analytics"
-            className="px-6 py-3 bg-purple-600 hover:bg-purple-700 rounded-lg font-bold transition-colors flex items-center gap-2"
+            className="kq-btn kq-btn-blue flex items-center gap-2"
           >
             📊 Analytics & Revenue
           </a>
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-8 border-b border-gray-700">
+        <div className="flex gap-2 mb-8 border-b border-stone">
           {[
             { id: 'overview', label: 'Overview' },
             { id: 'costs', label: 'API Costs' },
@@ -159,8 +159,8 @@ export default function AdminMonitoring() {
               onClick={() => setActiveTab(tab.id)}
               className={`px-6 py-3 font-medium transition-colors ${
                 activeTab === tab.id
-                  ? 'text-purple-400 border-b-2 border-purple-400'
-                  : 'text-gray-400 hover:text-white'
+                  ? 'text-hero-blue border-b-2 border-hero-blue'
+                  : 'text-navy/50 hover:text-navy'
               }`}
             >
               {tab.label}
@@ -188,7 +188,7 @@ export default function AdminMonitoring() {
         <div className="mt-8 text-center">
           <button
             onClick={loadAllData}
-            className="px-6 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors"
+            className="kq-btn kq-btn-gold"
           >
             Refresh Data
           </button>
@@ -264,18 +264,18 @@ function CostsTab({ data }) {
   return (
     <div className="space-y-6">
       {/* Costs by Endpoint */}
-      <div className="bg-gray-800/50 rounded-lg p-6">
-        <h2 className="text-2xl font-bold mb-4">Costs by Endpoint</h2>
+      <div className="kq-card p-6">
+        <h2 className="kq-display text-2xl font-bold mb-4 text-navy">Costs by Endpoint</h2>
         <div className="space-y-3">
           {data.costs.byEndpoint.map(endpoint => (
-            <div key={endpoint.endpoint} className="flex items-center justify-between p-3 bg-gray-700/30 rounded">
+            <div key={endpoint.endpoint} className="flex items-center justify-between p-3 bg-cream rounded-candy">
               <div>
-                <p className="font-medium">{endpoint.endpoint}</p>
-                <p className="text-sm text-gray-400">{endpoint.requests} requests</p>
+                <p className="font-medium text-navy">{endpoint.endpoint}</p>
+                <p className="text-sm text-navy/50">{endpoint.requests} requests</p>
               </div>
               <div className="text-right">
-                <p className="font-bold text-purple-400">${endpoint.cost}</p>
-                <p className="text-xs text-gray-400">{endpoint.percentage}% of total</p>
+                <p className="font-bold text-hero-blue">${endpoint.cost}</p>
+                <p className="text-xs text-navy/50">{endpoint.percentage}% of total</p>
               </div>
             </div>
           ))}
@@ -283,15 +283,15 @@ function CostsTab({ data }) {
       </div>
 
       {/* Daily Trend */}
-      <div className="bg-gray-800/50 rounded-lg p-6">
-        <h2 className="text-2xl font-bold mb-4">Daily Trend</h2>
+      <div className="kq-card p-6">
+        <h2 className="kq-display text-2xl font-bold mb-4 text-navy">Daily Trend</h2>
         <div className="space-y-2">
           {data.costs.byDay.map(day => (
-            <div key={day.day} className="flex items-center justify-between p-2 hover:bg-gray-700/20 rounded">
-              <span className="text-sm">{new Date(day.day).toLocaleDateString()}</span>
+            <div key={day.day} className="flex items-center justify-between p-2 hover:bg-cream rounded-candy">
+              <span className="text-sm text-navy">{new Date(day.day).toLocaleDateString()}</span>
               <div className="text-right">
-                <span className="font-medium">${day.cost.toFixed(2)}</span>
-                <span className="text-sm text-gray-400 ml-3">({day.requests} req)</span>
+                <span className="font-medium text-navy">${day.cost.toFixed(2)}</span>
+                <span className="text-sm text-navy/50 ml-3">({day.requests} req)</span>
               </div>
             </div>
           ))}
@@ -308,22 +308,22 @@ function RateLimitsTab({ data, onClearLimit }) {
   return (
     <div className="space-y-6">
       {/* Top Users */}
-      <div className="bg-gray-800/50 rounded-lg p-6">
-        <h2 className="text-2xl font-bold mb-4">Top Users (by requests)</h2>
+      <div className="kq-card p-6">
+        <h2 className="kq-display text-2xl font-bold mb-4 text-navy">Top Users (by requests)</h2>
         <div className="space-y-3">
           {data.stats.topUsers.map((user, idx) => (
-            <div key={user.userId} className="flex items-center justify-between p-3 bg-gray-700/30 rounded">
+            <div key={user.userId} className="flex items-center justify-between p-3 bg-cream rounded-candy">
               <div className="flex items-center gap-3">
-                <span className="text-2xl font-bold text-gray-600">#{idx + 1}</span>
+                <span className="text-2xl font-bold text-navy/40">#{idx + 1}</span>
                 <div>
-                  <p className="font-medium">{user.userId.substring(0, 8)}...</p>
-                  <p className="text-sm text-gray-400">
+                  <p className="font-medium text-navy">{user.userId.substring(0, 8)}...</p>
+                  <p className="text-sm text-navy/50">
                     Level {user.level} {user.archetype} | {user.isPremium ? '👑 Premium' : 'Free'}
                   </p>
                 </div>
               </div>
               <div className="text-right">
-                <p className="font-bold">{user.totalRequests} requests</p>
+                <p className="font-bold text-navy">{user.totalRequests} requests</p>
               </div>
             </div>
           ))}
@@ -331,22 +331,22 @@ function RateLimitsTab({ data, onClearLimit }) {
       </div>
 
       {/* Recent Rate Limit Events */}
-      <div className="bg-gray-800/50 rounded-lg p-6">
-        <h2 className="text-2xl font-bold mb-4">Recent Activity</h2>
+      <div className="kq-card p-6">
+        <h2 className="kq-display text-2xl font-bold mb-4 text-navy">Recent Activity</h2>
         <div className="space-y-2 max-h-96 overflow-y-auto">
           {data.rateLimits.slice(0, 20).map((rl) => (
-            <div key={rl.id} className="flex items-center justify-between p-2 bg-gray-700/20 rounded text-sm">
+            <div key={rl.id} className="flex items-center justify-between p-2 bg-cream rounded-candy text-sm">
               <div>
-                <span className="font-medium">{rl.endpoint}</span>
-                <span className="text-gray-400 ml-2">({rl.request_count} req)</span>
+                <span className="font-medium text-navy">{rl.endpoint}</span>
+                <span className="text-navy/50 ml-2">({rl.request_count} req)</span>
               </div>
               <div className="flex items-center gap-3">
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-navy/40">
                   {new Date(rl.window_start).toLocaleString()}
                 </span>
                 <button
                   onClick={() => onClearLimit(rl.user_id, rl.endpoint)}
-                  className="px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-xs transition-colors"
+                  className="kq-btn kq-btn-ghost px-3 py-1 text-xs text-coral"
                 >
                   Clear
                 </button>
@@ -366,18 +366,18 @@ function SubscribersTab({ data }) {
   return (
     <div className="space-y-6">
       {/* Premium Users */}
-      <div className="bg-gray-800/50 rounded-lg p-6">
-        <h2 className="text-2xl font-bold mb-4">Premium Users ({data.premiumUsers.length})</h2>
+      <div className="kq-card p-6">
+        <h2 className="kq-display text-2xl font-bold mb-4 text-navy">Premium Users ({data.premiumUsers.length})</h2>
         <div className="space-y-2 max-h-96 overflow-y-auto">
           {data.premiumUsers.map((user, idx) => (
-            <div key={user.id} className="flex items-center justify-between p-3 bg-gray-700/20 rounded">
+            <div key={user.id} className="flex items-center justify-between p-3 bg-cream rounded-candy">
               <div>
-                <p className="font-medium">#{idx + 1} - Level {user.level} {user.archetype}</p>
-                <p className="text-xs text-gray-400">
+                <p className="font-medium text-navy">#{idx + 1} - Level {user.level} {user.archetype}</p>
+                <p className="text-xs text-navy/50">
                   Premium since: {user.premium_since ? new Date(user.premium_since).toLocaleDateString() : 'Unknown'}
                 </p>
               </div>
-              <span className="text-xs px-2 py-1 bg-green-600 rounded">
+              <span className="text-xs px-2 py-1 bg-emerald/20 text-emerald rounded-full font-medium">
                 {user.subscription_status}
               </span>
             </div>
@@ -391,18 +391,18 @@ function SubscribersTab({ data }) {
 // Stat Card Component
 function StatCard({ title, value, subtitle, color = 'purple' }) {
   const colors = {
-    purple: 'from-purple-600 to-purple-800',
-    green: 'from-green-600 to-green-800',
-    blue: 'from-blue-600 to-blue-800',
-    red: 'from-red-600 to-red-800',
-    yellow: 'from-yellow-600 to-yellow-800'
+    purple: 'from-purple to-purple/80',
+    green: 'from-emerald to-emerald/80',
+    blue: 'from-hero-blue to-hero-blue/80',
+    red: 'from-coral to-coral/80',
+    yellow: 'from-gold to-gold/80'
   };
 
   return (
-    <div className={`bg-gradient-to-br ${colors[color]} rounded-lg p-6`}>
+    <div className={`bg-gradient-to-br ${colors[color]} rounded-candy shadow-candy p-6 text-white`}>
       <h3 className="text-sm font-medium text-white/80 mb-2">{title}</h3>
       <p className="text-3xl font-bold mb-1">{value}</p>
-      <p className="text-sm text-white/60">{subtitle}</p>
+      <p className="text-sm text-white/70">{subtitle}</p>
     </div>
   );
 }

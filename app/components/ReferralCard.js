@@ -60,11 +60,11 @@ export default function ReferralCard({ userId, profile }) {
   const rewardsEarned = Math.floor(referralCount / 3);
 
   return (
-    <div className="bg-gradient-to-br from-purple-600/20 to-pink-600/20 border-2 border-purple-500 rounded-xl p-6">
+    <div className="kq-card p-6 border-2 border-purple/30">
       <div className="flex items-start justify-between mb-4">
         <div>
-          <h3 className="text-xl font-bold mb-1">🎁 Refer Friends, Get Rewards!</h3>
-          <p className="text-sm text-gray-300">
+          <h3 className="kq-display text-xl font-bold mb-1 text-navy">🎁 Refer Friends, Get Rewards!</h3>
+          <p className="text-sm text-navy/60">
             Share HabitQuest and earn premium perks when friends join
           </p>
         </div>
@@ -72,21 +72,17 @@ export default function ReferralCard({ userId, profile }) {
 
       {/* Referral Link */}
       <div className="mb-4">
-        <label className="text-sm text-gray-400 mb-2 block">Your Referral Link</label>
+        <label className="kq-label mb-2 block">Your Referral Link</label>
         <div className="flex gap-2">
           <input
             type="text"
             value={getReferralLink()}
             readOnly
-            className="flex-1 px-4 py-2 bg-gray-800 text-white rounded-lg text-sm font-mono"
+            className="kq-input flex-1 text-sm"
           />
           <button
             onClick={handleCopy}
-            className={`px-4 py-2 rounded-lg font-semibold transition ${
-              copied
-                ? 'bg-green-600 text-white'
-                : 'bg-yellow-400 hover:bg-yellow-500 text-black'
-            }`}
+            className={`kq-btn ${copied ? 'kq-btn-emerald' : 'kq-btn-gold'}`}
           >
             {copied ? '✓ Copied!' : 'Copy'}
           </button>
@@ -95,17 +91,17 @@ export default function ReferralCard({ userId, profile }) {
 
       {/* Social Share Buttons */}
       <div className="mb-4">
-        <label className="text-sm text-gray-400 mb-2 block">Share On</label>
+        <label className="kq-label mb-2 block">Share On</label>
         <div className="flex gap-2">
           <button
             onClick={() => handleShare('twitter')}
-            className="flex-1 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold text-sm transition"
+            className="kq-btn kq-btn-blue flex-1 text-sm"
           >
             Twitter
           </button>
           <button
             onClick={() => handleShare('facebook')}
-            className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold text-sm transition"
+            className="kq-btn kq-btn-blue flex-1 text-sm"
           >
             Facebook
           </button>
@@ -113,27 +109,27 @@ export default function ReferralCard({ userId, profile }) {
       </div>
 
       {/* Progress Tracker */}
-      <div className="bg-gray-800/50 rounded-lg p-4">
+      <div className="bg-cream rounded-candy p-4 border-2 border-stone">
         <div className="flex justify-between items-center mb-2">
-          <span className="text-sm font-semibold">Referral Progress</span>
-          <span className="text-sm text-gray-400">{referralCount} / 3 referrals</span>
+          <span className="text-sm font-semibold text-navy">Referral Progress</span>
+          <span className="text-sm text-navy/60">{referralCount} / 3 referrals</span>
         </div>
-        <div className="w-full bg-gray-700 rounded-full h-3 overflow-hidden mb-3">
+        <div className="w-full bg-stone rounded-full h-3 overflow-hidden mb-3">
           <div
-            className="bg-gradient-to-r from-yellow-400 to-orange-500 h-full transition-all duration-500"
+            className="bg-gradient-to-r from-gold to-coral h-full transition-all duration-500"
             style={{ width: `${rewardProgress * 100}%` }}
           />
         </div>
         {referralCount < 3 ? (
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-navy/60">
             🎯 Refer {3 - referralCount} more {referralCount === 2 ? 'friend' : 'friends'} to earn 1 month of Premium FREE!
           </p>
         ) : (
           <div className="text-center">
-            <p className="text-yellow-400 font-bold mb-2">
+            <p className="text-gold font-bold mb-2">
               🎉 Congratulations! You've earned {rewardsEarned} month{rewardsEarned > 1 ? 's' : ''} of Premium!
             </p>
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-navy/60">
               Contact support to claim your reward
             </p>
           </div>
@@ -142,10 +138,10 @@ export default function ReferralCard({ userId, profile }) {
 
       {/* How It Works */}
       <details className="mt-4">
-        <summary className="text-sm text-gray-400 cursor-pointer hover:text-white">
+        <summary className="text-sm text-navy/60 cursor-pointer hover:text-navy">
           How does it work?
         </summary>
-        <div className="mt-2 text-xs text-gray-400 space-y-1">
+        <div className="mt-2 text-xs text-navy/60 space-y-1">
           <p>1. Share your unique referral link with friends</p>
           <p>2. When they sign up and complete 5 quests, you both win!</p>
           <p>3. Every 3 referrals = 1 month of Premium FREE</p>

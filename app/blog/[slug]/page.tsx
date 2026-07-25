@@ -89,19 +89,19 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 text-white">
+    <div className="kidquest min-h-screen bg-cream text-navy">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <header className="pt-6 px-4">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 text-xl font-bold text-amber-400 hover:text-amber-300 transition-colors">
+          <Link href="/" className="flex items-center gap-2 text-xl kq-display font-bold text-hero-blue hover:text-navy transition-colors">
             ⚔️ HabitQuest
           </Link>
-          <nav className="flex gap-4 text-sm">
-            <Link href="/blog" className="text-gray-300 hover:text-white transition-colors">Blog</Link>
-            <Link href="/signup" className="bg-amber-500 hover:bg-amber-400 text-gray-900 font-semibold px-4 py-2 rounded-lg transition-colors">
+          <nav className="flex gap-4 items-center text-sm">
+            <Link href="/blog" className="text-navy/70 hover:text-navy transition-colors">Blog</Link>
+            <Link href="/signup" className="kq-btn kq-btn-gold">
               Start Free →
             </Link>
           </nav>
@@ -110,30 +110,30 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
 
       <article className="pt-12 pb-20 px-4">
         <div className="max-w-3xl mx-auto">
-          <Link href="/blog" className="text-amber-400 hover:text-amber-300 text-sm mb-6 inline-block transition-colors">
+          <Link href="/blog" className="text-hero-blue hover:text-navy text-sm mb-6 inline-block transition-colors">
             ← All Posts
           </Link>
 
           <div className="flex flex-wrap gap-2 mb-4">
             {post.tags.map((tag: string) => (
-              <span key={tag} className="text-xs px-2 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">
+              <span key={tag} className="kq-chip text-xs px-2 py-1 bg-gold/15 text-navy border border-gold/30">
                 {tag}
               </span>
             ))}
           </div>
 
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 leading-tight">
+          <h1 className="kq-display text-3xl md:text-4xl lg:text-5xl font-bold mb-4 leading-tight text-navy">
             {post.title}
           </h1>
 
-          <div className="flex items-center gap-3 text-sm text-gray-400 mb-8 pb-8 border-b border-gray-700/50">
+          <div className="flex items-center gap-3 text-sm text-navy/60 mb-8 pb-8 border-b border-stone">
             <span>{formatDate(post.date)}</span>
             <span>·</span>
             <span>{post.author}</span>
           </div>
 
           <div
-            className="prose prose-invert prose-lg max-w-none prose-headings:text-amber-400 prose-headings:font-bold prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4 prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3 prose-p:text-gray-300 prose-p:leading-relaxed prose-a:text-amber-400 prose-a:no-underline hover:prose-a:underline prose-strong:text-white prose-li:text-gray-300 prose-blockquote:border-amber-500/50 prose-blockquote:text-gray-400 prose-code:text-amber-300 prose-code:bg-gray-800 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-img:rounded-xl"
+            className="prose prose-lg max-w-none prose-headings:text-navy prose-headings:font-bold prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4 prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3 prose-p:text-navy/80 prose-p:leading-relaxed prose-a:text-hero-blue prose-a:no-underline hover:prose-a:underline prose-strong:text-navy prose-li:text-navy/80 prose-blockquote:border-coral/50 prose-blockquote:text-navy/60 prose-code:text-coral prose-code:bg-coral/10 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-img:rounded-candy"
             dangerouslySetInnerHTML={{ __html: post.contentHtml }}
           />
 
@@ -159,18 +159,18 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
             const related = scored.slice(0, 3);
             return related.length > 0 ? (
               <div className="mt-16 mb-12">
-                <h3 className="text-2xl font-bold text-amber-400 mb-6">Related Posts</h3>
+                <h3 className="kq-display text-2xl font-bold text-navy mb-6">Related Posts</h3>
                 <div className="grid sm:grid-cols-3 gap-4">
                   {related.map((rp: { slug: string; title: string; description: string }) => (
                     <Link
                       key={rp.slug}
                       href={`/blog/${rp.slug}`}
-                      className="group block p-5 rounded-xl bg-gray-800/50 border border-gray-700/50 hover:border-amber-500/30 transition-all"
+                      className="kq-card kq-card-hover group block p-5"
                     >
-                      <h4 className="text-base font-bold text-white group-hover:text-amber-400 transition-colors mb-2 leading-snug">
+                      <h4 className="text-base font-bold text-navy group-hover:text-hero-blue transition-colors mb-2 leading-snug">
                         {rp.title}
                       </h4>
-                      <p className="text-sm text-gray-400 leading-relaxed line-clamp-2">{rp.description}</p>
+                      <p className="text-sm text-navy/60 leading-relaxed line-clamp-2">{rp.description}</p>
                     </Link>
                   ))}
                 </div>
@@ -178,10 +178,10 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
             ) : null;
           })()}
 
-          <div className="mt-16 p-8 rounded-xl bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 text-center">
-            <h3 className="text-2xl font-bold text-amber-400 mb-2">Ready to make your habits epic?</h3>
-            <p className="text-gray-400 mb-6">HabitQuest turns your daily tasks into RPG quests, with AI storytelling, character progression, and zero guilt.</p>
-            <Link href="/signup" className="inline-block bg-amber-500 hover:bg-amber-400 text-gray-900 font-bold px-8 py-3 rounded-lg transition-colors text-lg">
+          <div className="mt-16 p-8 rounded-candy bg-gradient-to-r from-gold/15 to-coral/15 border-2 border-gold/30 text-center">
+            <h3 className="kq-display text-2xl font-bold text-navy mb-2">Ready to make your habits epic?</h3>
+            <p className="text-navy/70 mb-6">HabitQuest turns your daily tasks into fun quests, with AI storytelling, character progression, and zero guilt.</p>
+            <Link href="/signup" className="kq-btn kq-btn-gold text-lg">
               Start Free →
             </Link>
           </div>

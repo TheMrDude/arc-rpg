@@ -15,6 +15,9 @@ function SignupForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [referralCode, setReferralCode] = useState('');
+  // Grown-up affirmation — accounts must be created by an adult (18+), who is
+  // either the user or the child's parent/guardian. Gates the submit button.
+  const [isGuardian, setIsGuardian] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
@@ -169,12 +172,15 @@ function SignupForm() {
 
   if (awaitingConfirmation) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#1A1A2E] via-[#16213e] to-[#0F3460] flex items-center justify-center p-4 sm:p-8">
+      <div
+        className="kidquest min-h-screen flex items-center justify-center p-4 sm:p-8"
+        style={{ background: 'radial-gradient(900px 500px at 15% 0%, rgba(46,204,113,.18), transparent 60%), radial-gradient(800px 500px at 100% 100%, rgba(87,215,245,.16), transparent 60%), #FFF9F1' }}
+      >
         <motion.div
           initial={{ opacity: 0, y: 20, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.5 }}
-          className="max-w-md w-full bg-[#1A1A2E] border-3 border-[#10B981] rounded-xl p-6 sm:p-8 text-center shadow-[0_0_25px_rgba(16,185,129,0.4)]"
+          className="max-w-md w-full kq-card p-6 sm:p-8 text-center"
         >
           <motion.div
             initial={{ scale: 0 }}
@@ -185,24 +191,24 @@ function SignupForm() {
             📜
           </motion.div>
 
-          <h1 className="text-2xl sm:text-3xl font-black text-[#10B981] mb-4 uppercase tracking-wide">
+          <h1 className="kq-display text-3xl text-emerald mb-4">
             Quest Accepted!
           </h1>
 
-          <p className="text-white mb-6 text-sm sm:text-base">
+          <p className="text-navy/70 font-bold mb-6 text-sm sm:text-base">
             We sent a confirmation scroll to{' '}
-            <span className="text-[#00D4FF] font-bold break-all">{email}</span>.
+            <span className="text-hero-blue font-extrabold break-all">{email}</span>.
             Click the link inside to begin your adventure.
           </p>
 
           {resendMessage && (
             <div className={`${
               resendMessage.includes('re-sent')
-                ? 'bg-green-900/30 border-green-500'
-                : 'bg-red-900/30 border-red-500'
-            } border-3 rounded-lg p-3 mb-4`}>
+                ? 'bg-emerald/12 border-emerald'
+                : 'bg-coral/12 border-coral'
+            } border-2 rounded-2xl p-3 mb-4`}>
               <p className={`${
-                resendMessage.includes('re-sent') ? 'text-green-300' : 'text-red-300'
+                resendMessage.includes('re-sent') ? 'text-emerald' : 'text-coral'
               } text-sm font-bold`}>
                 {resendMessage}
               </p>
@@ -212,20 +218,20 @@ function SignupForm() {
           <button
             onClick={handleResendConfirmation}
             disabled={resendCooldown > 0}
-            className="w-full py-3 bg-[#00D4FF] hover:bg-[#00B8E6] text-white border-3 border-[#0F3460] rounded-lg font-black uppercase tracking-wide transition-all duration-200 shadow-[0_5px_0_#0F3460] hover:shadow-[0_7px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_2px_0_#0F3460] active:translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+            className="kq-btn kq-btn-blue w-full disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {resendCooldown > 0
               ? `Resend available in ${resendCooldown}s`
               : 'Resend Confirmation Email'}
           </button>
 
-          <p className="text-[#E2E8F0]/60 text-xs mt-4">
+          <p className="text-navy/50 text-xs mt-4 font-bold">
             Didn&apos;t get it? Check your spam folder.
           </p>
 
           <button
             onClick={handleStartOver}
-            className="text-[#E2E8F0] hover:text-white text-xs mt-4 underline transition-colors duration-200"
+            className="text-navy/50 hover:text-navy text-xs mt-4 underline font-bold transition-colors"
           >
             Wrong email? Start over
           </button>
@@ -235,26 +241,34 @@ function SignupForm() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1A1A2E] via-[#16213e] to-[#0F3460] flex items-center justify-center p-4 sm:p-8">
+    <div
+      className="kidquest min-h-screen flex items-center justify-center p-4 sm:p-8"
+      style={{ background: 'radial-gradient(900px 500px at 15% 0%, rgba(255,200,61,.2), transparent 60%), radial-gradient(800px 500px at 100% 100%, rgba(87,215,245,.16), transparent 60%), #FFF9F1' }}
+    >
       <motion.div
         initial={{ opacity: 0, y: 20, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.5 }}
-        className="max-w-md w-full bg-[#1A1A2E] border-3 border-[#FF6B6B] rounded-xl p-6 sm:p-8 shadow-[0_0_25px_rgba(255,107,107,0.4)]"
+        className="max-w-md w-full kq-card p-6 sm:p-8"
       >
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
+          className="text-center"
         >
-          <h1 className="text-2xl sm:text-3xl font-black text-[#FF6B6B] mb-2 uppercase tracking-wide">
-            Create Account
-          </h1>
-          <p className="text-[#00D4FF] mb-2 font-bold text-sm sm:text-base">
-            {hasPreviewQuest ? 'Complete your quest and start your adventure' : 'Start your epic adventure'}
+          <div className="text-5xl mb-2 kq-bob" aria-hidden="true">🚀</div>
+          <h1 className="kq-display text-3xl text-navy mb-1">Start Your Adventure</h1>
+          <p className="text-navy/60 mb-2 font-bold text-sm sm:text-base">
+            {hasPreviewQuest ? 'Complete your quest and create your hero' : 'Create your hero and jump in.'}
           </p>
+          {/* Accounts are parent/guardian-owned. Kids play on a grown-up's
+              account under supervision — see /terms and /privacy. */}
+          <div className="kq-chip bg-[#57D7F5]/20 text-[#0b3a45] text-xs mt-2 mb-1">
+            <span aria-hidden="true">👨‍👩‍👧</span> A grown-up sets this up &mdash; kids play on their account
+          </div>
           {hasPreviewQuest && (
-            <p className="text-[#10B981] text-sm mb-4 font-semibold">
+            <p className="text-emerald text-sm mb-4 font-extrabold">
               ✨ Your preview quest is ready to be added!
             </p>
           )}
@@ -264,9 +278,9 @@ function SignupForm() {
           <motion.div
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
-            className="bg-red-900/30 border-3 border-red-500 rounded-lg p-3 mb-4"
+            className="bg-coral/12 border-2 border-coral rounded-2xl p-3 mb-4 mt-4"
           >
-            <p className="text-red-300 text-sm font-bold">{error}</p>
+            <p className="text-coral text-sm font-bold">{error}</p>
           </motion.div>
         )}
 
@@ -275,66 +289,80 @@ function SignupForm() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
           onSubmit={handleSignup}
+          className="mt-4"
         >
           <div className="mb-4">
-            <label className="block text-white mb-2 font-bold uppercase text-xs sm:text-sm tracking-wide">
-              Email
-            </label>
+            <label className="kq-label">Email</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="hero@questmail.com"
-              className="w-full px-4 py-3 bg-[#0F3460] text-white placeholder-gray-500 border-3 border-[#1A1A2E] rounded-lg focus:outline-none focus:border-[#00D4FF] focus:shadow-[0_0_15px_rgba(0,212,255,0.3)] transition-all duration-200"
+              className="kq-input"
               required
             />
           </div>
 
           <div className="mb-2">
-            <label className="block text-white mb-2 font-bold uppercase text-xs sm:text-sm tracking-wide">
-              Password
-            </label>
+            <label className="kq-label">Password</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Minimum 6 characters"
-              className="w-full px-4 py-3 bg-[#0F3460] text-white placeholder-gray-500 border-3 border-[#1A1A2E] rounded-lg focus:outline-none focus:border-[#00D4FF] focus:shadow-[0_0_15px_rgba(0,212,255,0.3)] transition-all duration-200"
+              className="kq-input"
               required
               minLength={6}
             />
           </div>
 
-          <p className="text-xs text-[#E2E8F0]/60 mb-4">
+          <p className="text-xs text-navy/50 mb-4 font-bold">
             Password must be at least 6 characters long
           </p>
 
           <div className="mb-6">
-            <label className="block text-white mb-2 font-bold uppercase text-xs sm:text-sm tracking-wide flex items-center gap-2">
+            <label className="kq-label flex items-center gap-2">
               Referral Code
-              <span className="text-[#FFD93D] text-xs normal-case">(Optional)</span>
+              <span className="text-gold text-xs normal-case">(Optional)</span>
             </label>
             <input
               type="text"
               value={referralCode}
               onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
               placeholder="FRIEND123"
-              className="w-full px-4 py-3 bg-[#0F3460] text-white placeholder-gray-500 border-3 border-[#1A1A2E] rounded-lg focus:outline-none focus:border-[#FFD93D] focus:shadow-[0_0_15px_rgba(255,217,61,0.3)] transition-all duration-200 uppercase"
+              className="kq-input uppercase"
               maxLength={8}
             />
             {referralCode && (
-              <p className="text-xs text-[#10B981] mt-1 font-semibold">
+              <p className="text-xs text-emerald mt-1 font-extrabold">
                 ✓ You and your friend will both get rewards!
               </p>
             )}
           </div>
 
+          {/* Required grown-up affirmation. Accounts are owned by an adult; a
+              child plays on it under supervision. Keeps us out of collecting
+              registration details directly from a child. */}
+          <label className="flex items-start gap-2.5 mb-5 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={isGuardian}
+              onChange={(e) => setIsGuardian(e.target.checked)}
+              required
+              className="mt-1 w-5 h-5 flex-shrink-0 accent-[#4F7DF3] cursor-pointer"
+            />
+            <span className="text-navy/70 text-xs font-bold leading-relaxed">
+              I&apos;m 18 or older, and I&apos;m creating this account for myself or as the parent or
+              guardian of the child who will use it.
+            </span>
+          </label>
+
           <motion.button
             type="submit"
-            disabled={loading}
-            whileHover={!loading ? { scale: 1.02 } : {}}
-            whileTap={!loading ? { scale: 0.98 } : {}}
-            className="w-full py-3 bg-[#FF6B6B] hover:bg-[#EE5A6F] text-white border-3 border-[#0F3460] rounded-lg font-black uppercase tracking-wide transition-all duration-200 shadow-[0_5px_0_#0F3460] hover:shadow-[0_7px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_2px_0_#0F3460] active:translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+            disabled={loading || !isGuardian}
+            whileHover={!loading && isGuardian ? { scale: 1.02 } : {}}
+            whileTap={!loading && isGuardian ? { scale: 0.98 } : {}}
+            className="kq-btn kq-btn-gold w-full disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {loading ? '⏳ Creating Account...' : hasPreviewQuest ? '🎉 Complete Quest & Sign Up' : '🚀 Sign Up & Begin Quest'}
           </motion.button>
@@ -346,18 +374,18 @@ function SignupForm() {
           transition={{ delay: 0.4 }}
           className="text-center mt-6"
         >
-          <p className="text-[#E2E8F0] text-sm">
+          <p className="text-navy/70 text-sm font-bold">
             Already have an account?{' '}
             <button
               onClick={() => router.push('/login')}
-              className="text-[#00D4FF] hover:text-[#00B8E6] font-bold transition-colors duration-200 underline"
+              className="text-hero-blue hover:opacity-80 font-extrabold transition-opacity underline"
             >
-              Login
+              Log In
             </button>
           </p>
           <button
             onClick={() => router.push('/')}
-            className="text-[#E2E8F0] hover:text-white text-xs mt-3 transition-colors duration-200"
+            className="text-navy/50 hover:text-navy text-xs mt-3 font-bold transition-colors"
           >
             ← Back to Home
           </button>
@@ -378,8 +406,8 @@ function SignupForm() {
 export default function SignupPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-br from-[#16213E] to-[#0F3460] flex items-center justify-center">
-        <div className="text-white text-xl">Loading...</div>
+      <div className="kidquest min-h-screen bg-cream flex items-center justify-center">
+        <div className="text-navy text-xl font-extrabold">Loading…</div>
       </div>
     }>
       <SignupForm />

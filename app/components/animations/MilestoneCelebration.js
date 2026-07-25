@@ -205,7 +205,7 @@ export default function MilestoneCelebration({
 
           {/* Modal Card */}
           <motion.div
-            className="relative bg-white rounded-3xl shadow-2xl max-w-2xl w-full overflow-hidden"
+            className="relative bg-white rounded-candy shadow-candy-lg max-w-2xl w-full overflow-hidden"
             initial={{ scale: 0.8, opacity: 0, rotateZ: -5 }}
             animate={{
               scale: 1,
@@ -220,10 +220,10 @@ export default function MilestoneCelebration({
             }}
           >
             {/* Header Section */}
-            <div className="bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 p-12 text-center relative overflow-hidden">
+            <div className="bg-gradient-to-br from-purple via-coral to-gold p-12 text-center relative overflow-hidden">
               {/* Background Animation */}
               <motion.div
-                className="absolute inset-0 bg-gradient-to-br from-yellow-400 via-red-400 to-pink-500 opacity-50"
+                className="absolute inset-0 bg-gradient-to-br from-gold via-coral to-purple opacity-50"
                 animate={{
                   scale: [1, 1.2, 1],
                   rotate: [0, 90, 180, 270, 360]
@@ -242,7 +242,7 @@ export default function MilestoneCelebration({
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.15 }}
-                    className="text-xl font-black text-white uppercase tracking-widest relative z-10 mb-1"
+                    className="text-xl font-black text-white relative z-10 mb-1"
                   >
                     Level Up
                   </motion.p>
@@ -250,8 +250,8 @@ export default function MilestoneCelebration({
                     initial={{ scale: 0.5, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ type: 'spring', stiffness: 220, damping: 14, delay: 0.2 }}
-                    className="text-8xl sm:text-9xl font-black text-white relative z-10 leading-none"
-                    style={{ textShadow: '0 6px 16px rgba(0,0,0,0.4), 0 0 40px rgba(255,217,61,0.6)' }}
+                    className="kq-display text-8xl sm:text-9xl font-black text-white relative z-10 leading-none"
+                    style={{ textShadow: '0 6px 16px rgba(0,0,0,0.4), 0 0 40px rgba(255,200,61,0.6)' }}
                   >
                     {milestone}
                   </motion.h1>
@@ -291,7 +291,7 @@ export default function MilestoneCelebration({
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.4 }}
-                    className="text-5xl font-black text-white mb-2 relative z-10"
+                    className="kq-display text-5xl font-black text-white mb-2 relative z-10"
                     style={{
                       textShadow: '0 4px 8px rgba(0,0,0,0.3)'
                     }}
@@ -322,7 +322,7 @@ export default function MilestoneCelebration({
                 transition={{ delay: 0.6 }}
                 className="text-center mb-6"
               >
-                <p className="text-xl text-gray-700 leading-relaxed">
+                <p className="text-xl text-navy/70 leading-relaxed">
                   {type === 'level' && "You've grown stronger! Your journey continues with new powers:"}
                   {type === 'streak' && "Your consistency is legendary! Keep building your momentum:"}
                   {type === 'achievement' && "You've earned something special!"}
@@ -335,9 +335,9 @@ export default function MilestoneCelebration({
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.7 }}
-                  className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-6 mb-6"
+                  className="bg-gradient-to-br from-purple/10 to-coral/10 rounded-candy p-6 mb-6"
                 >
-                  <h3 className="text-2xl font-black text-gray-800 mb-4 text-center">
+                  <h3 className="kq-display text-2xl font-black text-navy mb-4 text-center">
                     🎁 New Unlocks
                   </h3>
 
@@ -352,9 +352,9 @@ export default function MilestoneCelebration({
                           type: 'spring',
                           stiffness: 300
                         }}
-                        className="bg-white rounded-xl p-4 shadow-md border-2 border-purple-200 hover:border-purple-400 transition-colors"
+                        className="kq-card border-2 border-stone hover:border-purple/50 p-4 transition-colors"
                       >
-                        <p className="text-gray-800 font-semibold text-lg">
+                        <p className="text-navy font-semibold text-lg">
                           {unlock}
                         </p>
                       </motion.div>
@@ -371,22 +371,22 @@ export default function MilestoneCelebration({
                   transition={{ delay: 0.9 }}
                   className="grid grid-cols-2 gap-4 mb-6"
                 >
-                  <div className="bg-gradient-to-br from-yellow-100 to-orange-100 rounded-xl p-4 text-center border-2 border-yellow-300">
+                  <div className="bg-gradient-to-br from-gold/20 to-gold/5 rounded-2xl p-4 text-center border-2 border-gold/40">
                     <div className="text-3xl mb-1">⚡</div>
-                    <div className="text-2xl font-black text-orange-600">
+                    <div className="text-2xl font-black text-navy">
                       Level {milestone}
                     </div>
-                    <div className="text-sm font-semibold text-orange-800">
+                    <div className="text-sm font-semibold text-navy/60">
                       Power Level
                     </div>
                   </div>
 
-                  <div className="bg-gradient-to-br from-green-100 to-emerald-100 rounded-xl p-4 text-center border-2 border-green-300">
+                  <div className="bg-gradient-to-br from-emerald/20 to-emerald/5 rounded-2xl p-4 text-center border-2 border-emerald/40">
                     <div className="text-3xl mb-1">🎯</div>
-                    <div className="text-2xl font-black text-green-600">
+                    <div className="text-2xl font-black text-navy">
                       {unlocksToShow.length}
                     </div>
-                    <div className="text-sm font-semibold text-green-800">
+                    <div className="text-sm font-semibold text-navy/60">
                       Features Unlocked
                     </div>
                   </div>
@@ -399,24 +399,24 @@ export default function MilestoneCelebration({
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.95 }}
-                  className="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-2xl p-6 mb-6 border-2 border-amber-300"
+                  className="bg-gradient-to-br from-gold/15 to-gold/5 rounded-candy p-6 mb-6 border-2 border-gold/40"
                 >
-                  <h3 className="text-xl font-black text-gray-800 mb-2 text-center">
+                  <h3 className="kq-display text-xl font-black text-navy mb-2 text-center">
                     👑 {proMoment.headline}
                   </h3>
-                  <p className="text-gray-700 text-center mb-4">
+                  <p className="text-navy/70 text-center mb-4">
                     {proMoment.copy}
                   </p>
                   <div className="flex flex-col sm:flex-row gap-3 justify-center">
                     <a
                       href="/pricing"
-                      className="px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-gray-900 font-black text-center uppercase tracking-wide transition-colors"
+                      className="kq-btn kq-btn-gold text-center"
                     >
                       See What Pro Unlocks
                     </a>
                     <button
                       onClick={() => setProMomentDismissed(true)}
-                      className="px-6 py-3 rounded-xl font-bold text-gray-600 hover:text-gray-800 border-2 border-gray-300 hover:border-gray-400 bg-white transition-colors"
+                      className="kq-btn kq-btn-ghost"
                     >
                       Keep questing free
                     </button>
@@ -435,18 +435,14 @@ export default function MilestoneCelebration({
                   whileHover={canClose ? { scale: 1.05 } : {}}
                   whileTap={canClose ? { scale: 0.95 } : {}}
                   className={`
-                    w-full py-4 px-6 rounded-xl
-                    font-black text-xl uppercase tracking-wide
-                    border-4
+                    w-full py-4 px-6
+                    font-black text-xl
                     transition-all duration-200
                     ${canClose
-                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 border-purple-900 text-white cursor-pointer hover:shadow-xl'
-                      : 'bg-gray-300 border-gray-500 text-gray-500 cursor-not-allowed'
+                      ? 'kq-btn kq-btn-gold cursor-pointer'
+                      : 'kq-btn kq-btn-ghost opacity-50 cursor-not-allowed'
                     }
                   `}
-                  style={{
-                    boxShadow: canClose ? '0 4px 0 #581c87' : 'none'
-                  }}
                 >
                   {canClose ? '✨ Continue Your Journey' : '⏳ Celebrating...'}
                 </motion.button>
@@ -482,7 +478,7 @@ export default function MilestoneCelebration({
                 <motion.p
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="text-center text-sm text-gray-500 mt-4"
+                  className="text-center text-sm text-navy/50 mt-4"
                 >
                   Savor this moment... ✨
                 </motion.p>
@@ -523,8 +519,8 @@ export function MilestoneCelebrationCompact({
           animate={{ opacity: 1, x: 0, scale: 1 }}
           exit={{ opacity: 0, x: 100, scale: 0.8 }}
         >
-          <div className="bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl shadow-2xl p-6 text-white">
-            <h3 className="text-2xl font-black mb-2">🎉 {title}</h3>
+          <div className="bg-gradient-to-br from-purple to-coral rounded-candy shadow-candy-lg p-6 text-white">
+            <h3 className="kq-display text-2xl font-black mb-2">🎉 {title}</h3>
             <p className="text-lg">{message}</p>
           </div>
         </motion.div>

@@ -161,32 +161,41 @@ export default function SkillsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
-        <div className="text-white text-xl">Loading...</div>
+      <div className="kidquest min-h-screen bg-cream flex items-center justify-center">
+        <div className="text-navy text-xl">Loading...</div>
       </div>
     );
   }
 
   const currentTree = SKILL_TREES[activeTree];
 
+  // Presentational-only color mapping from each tree's `color` key to candy theme classes
+  const TREE_STYLES = {
+    red: { line: 'bg-coral', unlockedCard: 'bg-coral/12 border-coral shadow-candy', bar: 'bg-coral' },
+    blue: { line: 'bg-hero-blue', unlockedCard: 'bg-hero-blue/12 border-hero-blue shadow-candy', bar: 'bg-hero-blue' },
+    green: { line: 'bg-emerald', unlockedCard: 'bg-emerald/12 border-emerald shadow-candy', bar: 'bg-emerald' },
+    yellow: { line: 'bg-gold', unlockedCard: 'bg-gold/12 border-gold shadow-candy', bar: 'bg-gold' },
+  };
+  const treeStyle = TREE_STYLES[currentTree.color] || TREE_STYLES.blue;
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 text-white p-8">
+    <div className="kidquest min-h-screen bg-cream text-navy p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-4xl font-bold mb-2">Skill Trees</h1>
-            <p className="text-gray-300">Spend skill points to unlock powerful abilities</p>
+            <h1 className="kq-display text-4xl font-bold mb-2 text-navy">Skill Trees</h1>
+            <p className="text-navy/60">Spend skill points to unlock fun new abilities</p>
             <div className="flex items-center gap-6 mt-4">
-              <div className="text-2xl font-bold text-yellow-400">
+              <div className="text-2xl font-bold text-gold">
                 {profile.skill_points} Skill Points Available
               </div>
-              <div className="text-gray-400">
+              <div className="text-navy/50">
                 Total Earned: {profile.total_skill_points_earned} (1 point every 5 levels)
               </div>
             </div>
           </div>
-          <button onClick={() => router.push('/dashboard')} className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg">
+          <button onClick={() => router.push('/dashboard')} className="kq-btn kq-btn-ghost">
             Back to Dashboard
           </button>
         </div>
@@ -199,10 +208,10 @@ export default function SkillsPage() {
               <button
                 key={key}
                 onClick={() => setActiveTree(key)}
-                className={`flex-1 px-6 py-4 rounded-lg font-semibold transition-all ${
+                className={`flex-1 px-6 py-4 rounded-candy font-semibold transition-all ${
                   activeTree === key
-                    ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-black transform scale-105'
-                    : 'bg-gray-700 hover:bg-gray-600'
+                    ? 'kq-btn-gold text-navy transform scale-105 shadow-candy'
+                    : 'kq-card kq-card-hover text-navy/70'
                 }`}
               >
                 <div className="flex items-center justify-center gap-2">
@@ -218,10 +227,10 @@ export default function SkillsPage() {
         </div>
 
         {/* Skill Tree */}
-        <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-8">
+        <div className="kq-card p-8">
           <div className="text-center mb-8">
             <span className="text-6xl">{currentTree.icon}</span>
-            <h2 className="text-3xl font-bold mt-4">{currentTree.name}</h2>
+            <h2 className="kq-display text-3xl font-bold mt-4 text-navy">{currentTree.name}</h2>
           </div>
 
           {/* Skills in vertical tree layout */}
@@ -237,41 +246,41 @@ export default function SkillsPage() {
                   {/* Connection Line */}
                   {index > 0 && (
                     <div className="w-full h-12 flex items-center justify-center -mb-12">
-                      <div className={`w-1 h-12 ${
-                        requirementsMet ? 'bg-green-500' : 'bg-gray-600'
+                      <div className={`w-1 h-12 rounded-full ${
+                        requirementsMet ? treeStyle.line : 'bg-stone'
                       }`} />
                     </div>
                   )}
 
                   {/* Skill Card */}
                   <div
-                    className={`w-full border-2 rounded-xl p-6 transition-all ${
+                    className={`w-full border-2 rounded-candy p-6 transition-all ${
                       unlocked
-                        ? `bg-${currentTree.color}-600/30 border-${currentTree.color}-500 shadow-lg shadow-${currentTree.color}-500/50`
+                        ? treeStyle.unlockedCard
                         : canUnlock
-                        ? 'bg-gray-700/50 border-yellow-500 hover:border-yellow-400 cursor-pointer'
-                        : 'bg-gray-800/30 border-gray-600 opacity-60'
+                        ? 'bg-white border-gold hover:border-gold/70 cursor-pointer shadow-candy'
+                        : 'bg-white/60 border-stone opacity-60'
                     }`}
                     onClick={() => canUnlock && unlockSkill(skill, activeTree)}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
-                          <h3 className="text-xl font-bold">{skill.name}</h3>
+                          <h3 className="text-xl font-bold text-navy">{skill.name}</h3>
                           {unlocked && (
-                            <span className="px-3 py-1 bg-green-600 rounded-full text-sm font-bold">
+                            <span className="kq-chip bg-emerald/15 text-emerald px-3 py-1 rounded-full text-sm font-bold">
                               UNLOCKED
                             </span>
                           )}
                           {!unlocked && !requirementsMet && (
-                            <span className="px-3 py-1 bg-red-600 rounded-full text-sm font-bold">
+                            <span className="kq-chip bg-coral/12 text-coral px-3 py-1 rounded-full text-sm font-bold">
                               LOCKED
                             </span>
                           )}
                         </div>
-                        <p className="text-gray-300">{skill.description}</p>
+                        <p className="text-navy/60">{skill.description}</p>
                         {skill.requires.length > 0 && (
-                          <p className="text-sm text-gray-500 mt-2">
+                          <p className="text-sm text-navy/50 mt-2">
                             Requires: {skill.requires.map(req => {
                               const reqSkill = currentTree.skills.find(s => s.id === req);
                               return reqSkill?.name;
@@ -280,8 +289,8 @@ export default function SkillsPage() {
                         )}
                       </div>
                       <div className="ml-6 text-right">
-                        <div className="text-3xl font-bold text-yellow-400">{skill.cost}</div>
-                        <div className="text-sm text-gray-400">points</div>
+                        <div className="text-3xl font-bold text-gold">{skill.cost}</div>
+                        <div className="text-sm text-navy/50">points</div>
                       </div>
                     </div>
                   </div>
@@ -292,27 +301,28 @@ export default function SkillsPage() {
         </div>
 
         {/* Progress Summary */}
-        <div className="mt-8 bg-gray-800/50 border border-gray-700 rounded-xl p-6">
-          <h3 className="text-xl font-bold mb-4">Your Progress</h3>
+        <div className="mt-8 kq-card p-6">
+          <h3 className="kq-display text-xl font-bold mb-4 text-navy">Your Progress</h3>
           <div className="grid md:grid-cols-4 gap-4">
             {Object.entries(SKILL_TREES).map(([key, tree]) => {
               const unlockedCount = unlockedSkills.filter(s => s.skill_tree === key).length;
               const totalCount = tree.skills.length;
               const percentage = (unlockedCount / totalCount) * 100;
+              const barColor = (TREE_STYLES[tree.color] || TREE_STYLES.blue).bar;
 
               return (
-                <div key={key} className="bg-gray-700/50 p-4 rounded-lg">
+                <div key={key} className="bg-cream p-4 rounded-candy">
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-2xl">{tree.icon}</span>
-                    <span className="font-semibold">{tree.name}</span>
+                    <span className="font-semibold text-navy">{tree.name}</span>
                   </div>
-                  <div className="w-full bg-gray-600 rounded-full h-3 mb-2">
+                  <div className="w-full bg-stone rounded-full h-3 mb-2">
                     <div
-                      className={`bg-${tree.color}-500 h-3 rounded-full transition-all`}
+                      className={`${barColor} h-3 rounded-full transition-all`}
                       style={{ width: `${percentage}%` }}
                     />
                   </div>
-                  <div className="text-sm text-gray-400">
+                  <div className="text-sm text-navy/50">
                     {unlockedCount}/{totalCount} skills
                   </div>
                 </div>

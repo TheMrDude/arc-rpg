@@ -71,25 +71,25 @@ export default function SetupPage() {
 
   if (checking) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
-        <div className="text-white text-xl">Checking database setup...</div>
+      <div className="kidquest min-h-screen bg-cream flex items-center justify-center">
+        <div className="text-navy text-xl">Checking database setup...</div>
       </div>
     );
   }
 
   if (setupComplete) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 text-white p-8">
+      <div className="kidquest min-h-screen bg-cream text-navy p-8">
         <div className="max-w-2xl mx-auto">
-          <div className="bg-green-600/20 border-2 border-green-500 rounded-xl p-8 text-center">
+          <div className="kq-card bg-emerald/10 border-2 border-emerald p-8 text-center">
             <div className="text-6xl mb-4">✅</div>
-            <h1 className="text-3xl font-bold mb-4">Database Setup Complete!</h1>
-            <p className="text-gray-300 mb-6">
+            <h1 className="kq-display text-3xl font-bold mb-4">Database Setup Complete!</h1>
+            <p className="text-navy/60 mb-6">
               Your HabitQuest database is ready to go. You can now start your adventure!
             </p>
             <button
               onClick={() => router.push('/login')}
-              className="px-8 py-4 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black rounded-lg font-bold text-lg"
+              className="kq-btn kq-btn-gold"
             >
               Go to Login
             </button>
@@ -100,15 +100,15 @@ export default function SetupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 text-white p-8">
+    <div className="kidquest min-h-screen bg-cream text-navy p-8">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold mb-4">Database Setup Required</h1>
-          <p className="text-xl text-gray-300">
+          <h1 className="kq-display text-5xl font-bold mb-4">Database Setup Required</h1>
+          <p className="text-xl text-navy/60">
             Your HabitQuest database needs to be initialized. Follow these steps:
           </p>
           {error && (
-            <div className="mt-4 bg-red-600/20 border border-red-500 rounded-lg p-4 text-red-200">
+            <div className="mt-4 bg-coral/12 border-2 border-coral rounded-candy p-4 text-coral">
               {error}
             </div>
           )}
@@ -118,21 +118,21 @@ export default function SetupPage() {
           {setupInstructions.map((instruction) => (
             <div
               key={instruction.step}
-              className="bg-gray-800/50 border border-gray-700 rounded-xl p-6"
+              className="kq-card p-6"
             >
               <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-12 h-12 bg-yellow-500 text-black rounded-full flex items-center justify-center font-bold text-xl">
+                <div className="flex-shrink-0 w-12 h-12 bg-gold text-navy rounded-full flex items-center justify-center font-bold text-xl">
                   {instruction.step}
                 </div>
                 <div className="flex-1">
                   <h3 className="text-xl font-bold mb-2">{instruction.title}</h3>
-                  <p className="text-gray-300 mb-3">{instruction.description}</p>
+                  <p className="text-navy/60 mb-3">{instruction.description}</p>
                   {instruction.link && (
                     <a
                       href={instruction.link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-block px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold"
+                      className="kq-btn kq-btn-blue inline-block"
                     >
                       {instruction.action} →
                     </a>
@@ -143,15 +143,15 @@ export default function SetupPage() {
           ))}
         </div>
 
-        <div className="bg-gray-800/50 border border-yellow-500 rounded-xl p-6 mb-8">
+        <div className="kq-card border-2 border-gold p-6 mb-8">
           <h3 className="text-xl font-bold mb-3">📋 COMPLETE_SETUP.sql Location</h3>
-          <p className="text-gray-300 mb-3">
+          <p className="text-navy/60 mb-3">
             The SQL file is located in your project root directory:
           </p>
-          <code className="block bg-black/50 p-3 rounded text-green-400 font-mono text-sm">
+          <code className="block bg-navy/5 p-3 rounded-candy text-emerald font-mono text-sm">
             /COMPLETE_SETUP.sql
           </code>
-          <p className="text-gray-400 text-sm mt-3">
+          <p className="text-navy/50 text-sm mt-3">
             Open this file, copy all contents, and paste them into the Supabase SQL editor
           </p>
         </div>
@@ -159,7 +159,7 @@ export default function SetupPage() {
         <div className="text-center">
           <button
             onClick={checkDatabaseSetup}
-            className="px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-lg font-bold text-lg"
+            className="kq-btn kq-btn-emerald"
           >
             ✓ Check Setup Status
           </button>
@@ -168,7 +168,7 @@ export default function SetupPage() {
         <div className="mt-8 text-center">
           <button
             onClick={() => router.push('/')}
-            className="text-gray-400 hover:text-white underline"
+            className="text-navy/50 hover:text-navy underline"
           >
             ← Back to Home
           </button>

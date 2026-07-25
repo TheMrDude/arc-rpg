@@ -65,29 +65,29 @@ export default function QuestSuggestions({ userSession, onQuestAdded }) {
 
   const getDifficultyColor = (difficulty) => {
     switch (difficulty) {
-      case 'easy': return 'bg-green-600';
-      case 'medium': return 'bg-yellow-600';
-      case 'hard': return 'bg-red-600';
-      default: return 'bg-gray-600';
+      case 'easy': return 'bg-emerald';
+      case 'medium': return 'bg-gold';
+      case 'hard': return 'bg-coral';
+      default: return 'bg-navy/40';
     }
   };
 
   return (
-    <div className="bg-gradient-to-br from-[#1A1A2E] to-[#16213e] rounded-lg border-3 border-[#00D4FF] p-6">
+    <div className="kq-card p-6">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-black text-[#00D4FF]">✨ AI Quest Suggestions</h2>
+        <h2 className="kq-display text-2xl text-navy">✨ AI Quest Suggestions</h2>
         <button
           onClick={loadSuggestions}
           disabled={loading}
-          className="px-4 py-2 bg-[#00D4FF] hover:bg-[#00BFEA] text-[#0F3460] border-2 border-[#0F3460] rounded-lg font-black uppercase tracking-wide shadow-lg disabled:opacity-50 transition-all"
+          className="kq-btn kq-btn-blue disabled:opacity-50"
         >
           {loading ? '🔮 Thinking...' : '🎲 Get Ideas'}
         </button>
       </div>
 
       {error && (
-        <div className="bg-red-900/50 border-2 border-red-600 rounded-lg p-4 mb-4">
-          <p className="text-red-200">{error}</p>
+        <div className="bg-coral/12 border-2 border-coral rounded-candy p-4 mb-4">
+          <p className="text-coral">{error}</p>
         </div>
       )}
 
@@ -96,22 +96,22 @@ export default function QuestSuggestions({ userSession, onQuestAdded }) {
           {suggestions.map((suggestion, idx) => (
             <div
               key={idx}
-              className="bg-[#0F3460]/50 border-2 border-[#00D4FF]/30 rounded-lg p-4 flex items-center justify-between hover:border-[#00D4FF] transition-all"
+              className="bg-cream border-2 border-stone rounded-candy p-4 flex items-center justify-between hover:border-hero-blue transition-all"
             >
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className={`px-3 py-1 ${getDifficultyColor(suggestion.difficulty)} text-white text-xs font-black rounded-full uppercase`}>
+                  <span className={`px-3 py-1 ${getDifficultyColor(suggestion.difficulty)} text-white text-xs font-bold rounded-full capitalize`}>
                     {suggestion.difficulty}
                   </span>
-                  <span className="text-[#FFD93D] font-bold text-sm">
+                  <span className="text-gold font-bold text-sm">
                     +{suggestion.xp_value} XP
                   </span>
                 </div>
-                <p className="text-white font-bold">{suggestion.text}</p>
+                <p className="text-navy font-bold">{suggestion.text}</p>
               </div>
               <button
                 onClick={() => addQuest(suggestion)}
-                className="ml-4 px-4 py-2 bg-[#FF6B6B] hover:bg-[#EE5A6F] text-white border-2 border-[#0F3460] rounded-lg font-black shadow-lg hover:scale-105 transition-all"
+                className="kq-btn kq-btn-gold ml-4"
               >
                 Add
               </button>
@@ -121,7 +121,7 @@ export default function QuestSuggestions({ userSession, onQuestAdded }) {
       )}
 
       {suggestions.length === 0 && !loading && !error && (
-        <div className="text-center py-8 text-gray-400">
+        <div className="text-center py-8 text-navy/50">
           <p className="text-xl mb-2">🎯</p>
           <p>Click "Get Ideas" to discover quests tailored to your journey!</p>
         </div>

@@ -25,7 +25,7 @@ type Competitor = {
   faqs: Faq[];
 };
 
-const COMPETITORS: Competitor[] = [
+export const COMPETITORS: Competitor[] = [
   {
     slug: 'habitica',
     name: 'Habitica',
@@ -412,19 +412,19 @@ export default async function VsPage({ params }: { params: Promise<{ slug: strin
   const others = COMPETITORS.filter((c) => c.slug !== comp.slug);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 text-white">
+    <div className="kidquest min-h-screen bg-cream text-navy">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }} />
 
       <header className="pt-6 px-4">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 text-xl font-bold text-amber-400 hover:text-amber-300 transition-colors">
+          <Link href="/" className="flex items-center gap-2 text-xl font-bold text-navy hover:text-hero-blue transition-colors kq-display">
             ⚔️ HabitQuest
           </Link>
-          <nav className="flex gap-4 text-sm">
-            <Link href="/blog" className="text-gray-300 hover:text-white transition-colors">Blog</Link>
-            <Link href="/pricing" className="text-gray-300 hover:text-white transition-colors">Pricing</Link>
-            <Link href="/signup" className="bg-amber-500 hover:bg-amber-400 text-gray-900 font-semibold px-4 py-2 rounded-lg transition-colors">
+          <nav className="flex gap-4 text-sm items-center">
+            <Link href="/blog" className="text-navy/70 hover:text-navy transition-colors">Blog</Link>
+            <Link href="/pricing" className="text-navy/70 hover:text-navy transition-colors">Pricing</Link>
+            <Link href="/signup" className="kq-btn kq-btn-gold">
               Start Free →
             </Link>
           </nav>
@@ -433,47 +433,47 @@ export default async function VsPage({ params }: { params: Promise<{ slug: strin
 
       <article className="pt-12 pb-20 px-4">
         <div className="max-w-3xl mx-auto">
-          <Link href="/vs" className="text-amber-400 hover:text-amber-300 text-sm mb-6 inline-block transition-colors">
+          <Link href="/vs" className="text-hero-blue hover:text-navy text-sm mb-6 inline-block transition-colors">
             ← All Comparisons
           </Link>
 
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 leading-tight">
-            HabitQuest vs <span className="text-amber-400">{comp.name}</span>
+          <h1 className="kq-display text-3xl md:text-4xl lg:text-5xl font-bold mb-6 leading-tight text-navy">
+            HabitQuest vs <span className="text-hero-blue">{comp.name}</span>
           </h1>
 
           {comp.intro.map((p, i) => (
-            <p key={i} className="text-gray-300 text-lg leading-relaxed mb-4">{p}</p>
+            <p key={i} className="text-navy/70 text-lg leading-relaxed mb-4">{p}</p>
           ))}
 
           {/* Quick verdict */}
           <div className="grid md:grid-cols-2 gap-4 my-10">
-            <div className="bg-gray-800/60 border border-gray-700/60 rounded-xl p-6">
-              <h2 className="text-lg font-bold text-white mb-2">Pick {comp.name} if…</h2>
-              <p className="text-gray-300 text-sm leading-relaxed">{comp.verdictThem}</p>
+            <div className="kq-card p-6">
+              <h2 className="text-lg font-bold text-navy mb-2">Pick {comp.name} if…</h2>
+              <p className="text-navy/70 text-sm leading-relaxed">{comp.verdictThem}</p>
             </div>
-            <div className="bg-amber-500/10 border border-amber-500/40 rounded-xl p-6">
-              <h2 className="text-lg font-bold text-amber-400 mb-2">Pick HabitQuest if…</h2>
-              <p className="text-gray-300 text-sm leading-relaxed">{comp.verdictUs}</p>
+            <div className="bg-gold/10 border-2 border-gold rounded-candy p-6">
+              <h2 className="text-lg font-bold text-navy mb-2">Pick HabitQuest if…</h2>
+              <p className="text-navy/70 text-sm leading-relaxed">{comp.verdictUs}</p>
             </div>
           </div>
 
           {/* Comparison table */}
-          <h2 className="text-2xl font-bold text-amber-400 mt-10 mb-4">Side by side</h2>
-          <div className="overflow-x-auto rounded-xl border border-gray-700/60">
+          <h2 className="kq-display text-2xl font-bold text-navy mt-10 mb-4">Side by side</h2>
+          <div className="overflow-x-auto rounded-candy border-2 border-stone">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-gray-800/80 text-left">
-                  <th className="p-3 font-semibold text-gray-400"></th>
-                  <th className="p-3 font-semibold text-white">{comp.name}</th>
-                  <th className="p-3 font-semibold text-amber-400">HabitQuest</th>
+                <tr className="bg-cream text-left">
+                  <th className="p-3 font-semibold text-navy/50"></th>
+                  <th className="p-3 font-semibold text-navy">{comp.name}</th>
+                  <th className="p-3 font-semibold text-hero-blue">HabitQuest</th>
                 </tr>
               </thead>
               <tbody>
                 {comp.table.map((row) => (
-                  <tr key={row.label} className="border-t border-gray-700/50">
-                    <td className="p-3 text-gray-400 font-medium">{row.label}</td>
-                    <td className="p-3 text-gray-300">{row.them}</td>
-                    <td className="p-3 text-gray-200">{row.us}</td>
+                  <tr key={row.label} className="border-t border-stone bg-white">
+                    <td className="p-3 text-navy/50 font-medium">{row.label}</td>
+                    <td className="p-3 text-navy/70">{row.them}</td>
+                    <td className="p-3 text-navy">{row.us}</td>
                   </tr>
                 ))}
               </tbody>
@@ -481,53 +481,53 @@ export default async function VsPage({ params }: { params: Promise<{ slug: strin
           </div>
 
           {/* Honest sections */}
-          <h2 className="text-2xl font-bold text-amber-400 mt-12 mb-4">{comp.theyWin.heading}</h2>
+          <h2 className="kq-display text-2xl font-bold text-navy mt-12 mb-4">{comp.theyWin.heading}</h2>
           <ul className="space-y-3">
             {comp.theyWin.points.map((pt, i) => (
-              <li key={i} className="text-gray-300 leading-relaxed flex gap-3">
-                <span className="text-gray-500 mt-1">▸</span><span>{pt}</span>
+              <li key={i} className="text-navy/70 leading-relaxed flex gap-3">
+                <span className="text-navy/40 mt-1">▸</span><span>{pt}</span>
               </li>
             ))}
           </ul>
 
-          <h2 className="text-2xl font-bold text-amber-400 mt-12 mb-4">{comp.weWin.heading}</h2>
+          <h2 className="kq-display text-2xl font-bold text-navy mt-12 mb-4">{comp.weWin.heading}</h2>
           <ul className="space-y-3">
             {comp.weWin.points.map((pt, i) => (
-              <li key={i} className="text-gray-300 leading-relaxed flex gap-3">
-                <span className="text-amber-400 mt-1">▸</span><span>{pt}</span>
+              <li key={i} className="text-navy/70 leading-relaxed flex gap-3">
+                <span className="text-hero-blue mt-1">▸</span><span>{pt}</span>
               </li>
             ))}
           </ul>
 
-          <h2 className="text-2xl font-bold text-amber-400 mt-12 mb-4">The miss-a-day test</h2>
-          <p className="text-gray-300 leading-relaxed">{comp.missADay}</p>
+          <h2 className="kq-display text-2xl font-bold text-navy mt-12 mb-4">The miss-a-day test</h2>
+          <p className="text-navy/70 leading-relaxed">{comp.missADay}</p>
 
           {/* CTA */}
-          <div className="mt-12 bg-gradient-to-r from-amber-500/15 to-amber-500/5 border border-amber-500/40 rounded-xl p-8 text-center">
-            <h2 className="text-2xl font-bold text-white mb-2">Your first quest takes 2 minutes</h2>
-            <p className="text-gray-300 mb-2">Free forever plan: 3 habits, full RPG mechanics, no credit card, 60-second setup.</p>
-            <p className="text-amber-400/90 font-semibold mb-6">Miss a day? Nothing resets. Ever. That is the whole point.</p>
-            <Link href="/signup" className="inline-block bg-amber-500 hover:bg-amber-400 text-gray-900 font-bold px-8 py-3 rounded-lg transition-colors">
+          <div className="mt-12 bg-gold/10 border-2 border-gold rounded-candy p-8 text-center">
+            <h2 className="kq-display text-2xl font-bold text-navy mb-2">Your first quest takes 2 minutes</h2>
+            <p className="text-navy/70 mb-2">Free forever plan: 3 habits, full RPG mechanics, no credit card, 60-second setup.</p>
+            <p className="text-coral font-semibold mb-6">Miss a day? Nothing resets. Ever. That is the whole point.</p>
+            <Link href="/signup" className="kq-btn kq-btn-gold">
               Start Your Quest Free →
             </Link>
-            <p className="text-gray-400 text-sm mt-4">
-              When you outgrow free: Pro is $5/mo, or lock in the <Link href="/pricing" className="text-amber-400 hover:underline">$29/yr Early Bird</Link> while launch pricing lasts.
+            <p className="text-navy/60 text-sm mt-4">
+              When you outgrow free: Pro is $5/mo, or lock in the <Link href="/pricing" className="text-hero-blue hover:underline">$29/yr Early Bird</Link> while launch pricing lasts.
             </p>
-            <p className="text-gray-500 text-xs mt-3">
+            <p className="text-navy/50 text-xs mt-3">
               Want the full breakdown of every app? Read the{' '}
-              <Link href="/blog/best-habit-tracking-apps-2026" className="text-amber-400 hover:underline">
+              <Link href="/blog/best-habit-tracking-apps-2026" className="text-hero-blue hover:underline">
                 2026 habit app comparison
               </Link>.
             </p>
           </div>
 
           {/* FAQ */}
-          <h2 className="text-2xl font-bold text-amber-400 mt-12 mb-6">Frequently asked questions</h2>
+          <h2 className="kq-display text-2xl font-bold text-navy mt-12 mb-6">Frequently asked questions</h2>
           <div className="space-y-6">
             {comp.faqs.map((f) => (
               <div key={f.q}>
-                <h3 className="text-lg font-semibold text-white mb-2">{f.q}</h3>
-                <p className="text-gray-300 leading-relaxed">{f.a}</p>
+                <h3 className="text-lg font-semibold text-navy mb-2">{f.q}</h3>
+                <p className="text-navy/70 leading-relaxed">{f.a}</p>
               </div>
             ))}
           </div>
@@ -542,14 +542,14 @@ export default async function VsPage({ params }: { params: Promise<{ slug: strin
           </div>
 
           {/* Other comparisons */}
-          <div className="mt-12 pt-8 border-t border-gray-700/50">
-            <h2 className="text-lg font-bold text-white mb-4">More comparisons</h2>
+          <div className="mt-12 pt-8 border-t border-stone">
+            <h2 className="text-lg font-bold text-navy mb-4">More comparisons</h2>
             <div className="flex flex-wrap gap-3">
               {others.map((o) => (
                 <Link
                   key={o.slug}
                   href={`/vs/${o.slug}`}
-                  className="text-sm bg-gray-800/60 border border-gray-700/60 hover:border-amber-500/50 rounded-lg px-4 py-2 text-gray-300 hover:text-amber-400 transition-colors"
+                  className="kq-chip text-sm bg-white border-2 border-stone hover:border-hero-blue text-navy/70 hover:text-hero-blue transition-colors"
                 >
                   HabitQuest vs {o.name}
                 </Link>

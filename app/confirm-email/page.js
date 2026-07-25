@@ -39,13 +39,13 @@ export default function ConfirmEmailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1A1A2E] via-[#16213e] to-[#0F3460] flex items-center justify-center p-8">
-      <div className="max-w-md w-full bg-[#1A1A2E] border-3 border-[#00D4FF] rounded-lg p-8 shadow-[0_0_20px_rgba(0,212,255,0.3)]">
+    <div className="kidquest min-h-screen bg-gradient-to-br from-cream via-cream to-aqua/10 flex items-center justify-center p-8">
+      <div className="max-w-md w-full kq-card p-8">
         <div className="text-center">
           <div className="mb-6">
-            <div className="w-20 h-20 mx-auto bg-[#00D4FF]/20 rounded-full flex items-center justify-center border-3 border-[#00D4FF]">
+            <div className="w-20 h-20 mx-auto bg-hero-blue/15 rounded-full flex items-center justify-center border-2 border-hero-blue/30">
               <svg
-                className="w-10 h-10 text-[#00D4FF]"
+                className="w-10 h-10 text-hero-blue"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -60,21 +60,21 @@ export default function ConfirmEmailPage() {
             </div>
           </div>
 
-          <h1 className="text-3xl font-black text-[#FF6B6B] mb-4 uppercase tracking-wide">
+          <h1 className="kq-display text-3xl text-coral mb-4">
             Check Your Email
           </h1>
 
-          <p className="text-white mb-2 font-bold">
+          <p className="text-navy mb-2 font-bold">
             We've sent you a confirmation email
           </p>
 
-          <p className="text-[#00D4FF] mb-6 text-sm">
+          <p className="text-hero-blue mb-6 text-sm">
             Click the link in the email to verify your account and complete your registration.
           </p>
 
-          <div className="bg-[#0F3460] border-2 border-[#00D4FF]/30 rounded-lg p-4 mb-6 text-left">
-            <p className="text-white text-sm font-bold mb-2">Next Steps:</p>
-            <ol className="text-[#E2E8F0] text-sm space-y-1 list-decimal list-inside">
+          <div className="bg-cream border-2 border-stone rounded-candy p-4 mb-6 text-left">
+            <p className="text-navy text-sm font-bold mb-2">Next Steps:</p>
+            <ol className="text-navy/70 text-sm space-y-1 list-decimal list-inside">
               <li>Check your email inbox</li>
               <li>Click the confirmation link</li>
               <li>Return here to log in</li>
@@ -84,13 +84,13 @@ export default function ConfirmEmailPage() {
           {message && (
             <div className={`${
               message.includes('sent') || message.includes('check')
-                ? 'bg-green-900/30 border-green-500'
-                : 'bg-red-900/30 border-red-500'
-            } border-3 rounded-lg p-3 mb-4`}>
+                ? 'bg-emerald/12 border-emerald'
+                : 'bg-coral/12 border-coral'
+            } border-2 rounded-candy p-3 mb-4`}>
               <p className={`${
                 message.includes('sent') || message.includes('check')
-                  ? 'text-green-300'
-                  : 'text-red-300'
+                  ? 'text-emerald'
+                  : 'text-coral'
               } text-sm font-bold`}>
                 {message}
               </p>
@@ -101,20 +101,20 @@ export default function ConfirmEmailPage() {
             <button
               onClick={handleResendEmail}
               disabled={resending}
-              className="w-full py-3 bg-[#00D4FF] hover:bg-[#00B8E6] text-white border-3 border-[#0F3460] rounded-lg font-black uppercase tracking-wide transition-all duration-100 shadow-[0_5px_0_#0F3460] hover:shadow-[0_7px_0_#0F3460] hover:-translate-y-0.5 active:shadow-[0_2px_0_#0F3460] active:translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="kq-btn kq-btn-blue w-full disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {resending ? 'Sending...' : 'Resend Email'}
             </button>
 
             <button
               onClick={() => router.push('/login')}
-              className="w-full py-3 bg-transparent hover:bg-[#0F3460] text-[#00D4FF] border-3 border-[#00D4FF] rounded-lg font-black uppercase tracking-wide transition-all"
+              className="kq-btn kq-btn-ghost w-full"
             >
               Back to Login
             </button>
           </div>
 
-          <p className="text-[#E2E8F0] text-sm mt-6">
+          <p className="text-navy/60 text-sm mt-6">
             Didn't receive an email? Check your spam folder or click "Resend Email" above.
           </p>
         </div>

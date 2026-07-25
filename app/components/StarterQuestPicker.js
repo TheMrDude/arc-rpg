@@ -75,19 +75,19 @@ export default function StarterQuestPicker({ onPick, creating }) {
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-gradient-to-br from-[#16213E] to-[#0F3460] border-3 border-[#00D4FF] rounded-2xl p-6 mb-6 shadow-[0_0_30px_rgba(0,212,255,0.35)]"
+      className="kq-card border-2 border-stone p-6 mb-6"
     >
       <div className="text-center mb-5">
         <div className="text-4xl mb-2">⚡</div>
-        <h2 className="text-2xl font-black uppercase tracking-wide text-[#00D4FF] mb-1">
+        <h2 className="kq-display text-2xl text-navy mb-1">
           Claim Your First Win
         </h2>
         {quizArchetype && (
-          <p className="text-xs font-bold uppercase tracking-wide text-[#FFD93D] mb-1">
+          <p className="text-xs font-bold text-gold mb-1">
             ✨ Built from your quiz answers
           </p>
         )}
-        <p className="text-sm text-[#E2E8F0]">
+        <p className="text-sm text-navy/70">
           Pick one. Do it. Watch it become a quest. Your campaign starts with a single victory.
         </p>
       </div>
@@ -101,17 +101,17 @@ export default function StarterQuestPicker({ onPick, creating }) {
               onClick={() => handlePick(quest.text)}
               disabled={creating}
               whileTap={creating ? {} : { scale: 0.95 }}
-              className={`p-4 rounded-xl border-3 text-center transition-all ${
+              className={`p-4 rounded-candy border-2 text-center transition-all ${
                 isPicked && creating
-                  ? 'border-[#FFD93D] bg-[#FFD93D]/10 animate-pulse'
-                  : 'border-[#1A1A2E] bg-[#1A1A2E] hover:border-[#00D4FF] hover:-translate-y-0.5'
+                  ? 'border-gold bg-gold/10 animate-pulse'
+                  : 'border-stone bg-cream hover:border-hero-blue hover:-translate-y-0.5'
               } disabled:cursor-wait`}
             >
               <div className="text-3xl mb-2">{quest.emoji}</div>
-              <div className="font-black text-white text-sm leading-snug mb-1">
+              <div className="font-bold text-navy text-sm leading-snug mb-1">
                 {isPicked && creating ? 'Forging your quest...' : quest.text}
               </div>
-              <div className="text-[10px] text-[#94a3b8] uppercase font-bold tracking-wide">
+              <div className="text-[10px] text-navy/50 font-bold">
                 {isPicked && creating ? '⚒️ The AI is at work' : `~${quest.time}`}
               </div>
             </motion.button>
@@ -119,7 +119,7 @@ export default function StarterQuestPicker({ onPick, creating }) {
         })}
       </div>
 
-      <p className="text-center text-xs text-[#94a3b8] mt-4">
+      <p className="text-center text-xs text-navy/50 mt-4">
         Or type your own habit below — any small task works.
       </p>
     </motion.div>

@@ -86,17 +86,17 @@ export default function SeasonalEvent({ onEventComplete }) {
     return (
       <div className="text-center py-8">
         <div className="animate-spin text-4xl mb-2">⚙️</div>
-        <p className="text-gray-400">Loading seasonal event...</p>
+        <p className="text-navy/60">Loading seasonal event...</p>
       </div>
     );
   }
 
   if (!eventData || !eventData.active) {
     return (
-      <div className="bg-gray-800 rounded-lg p-8 text-center">
+      <div className="kq-card p-8 text-center">
         <div className="text-6xl mb-4">📅</div>
-        <h3 className="text-xl font-bold text-white mb-2">No Active Events</h3>
-        <p className="text-gray-400">Check back soon for limited-time seasonal events!</p>
+        <h3 className="kq-display text-xl font-bold text-navy mb-2">No Active Events</h3>
+        <p className="text-navy/60">Check back soon for limited-time seasonal events!</p>
       </div>
     );
   }
@@ -115,51 +115,51 @@ export default function SeasonalEvent({ onEventComplete }) {
   return (
     <div className="space-y-6">
       {/* Event Header */}
-      <div className="bg-gradient-to-r from-purple-900 to-pink-900 rounded-lg p-6 border-2 border-yellow-500">
+      <div className="kq-navy rounded-candy p-6 border-2 border-gold">
         <div className="flex items-start justify-between">
           <div>
             <div className="flex items-center gap-3 mb-2">
               <span className="text-4xl">{event.icon}</span>
-              <h2 className="text-3xl font-bold text-white">{event.name}</h2>
+              <h2 className="kq-display text-3xl font-bold text-cream">{event.name}</h2>
             </div>
-            <p className="text-gray-200 mb-3">{event.description}</p>
+            <p className="text-cream/80 mb-3">{event.description}</p>
             {event.lore && (
-              <p className="text-sm text-gray-300 italic">"{event.lore}"</p>
+              <p className="text-sm text-cream/60 italic">"{event.lore}"</p>
             )}
           </div>
           <div className="text-right">
-            <div className="bg-black bg-opacity-50 rounded-lg px-4 py-2">
-              <div className="text-sm text-gray-300">Time Remaining</div>
-              <div className="text-2xl font-bold text-yellow-400">{daysRemaining} days</div>
+            <div className="bg-white/10 rounded-candy px-4 py-2">
+              <div className="text-sm text-cream/70">Time Remaining</div>
+              <div className="text-2xl font-bold text-gold">{daysRemaining} days</div>
             </div>
           </div>
         </div>
 
         {/* User Stats */}
         <div className="mt-6 grid grid-cols-3 gap-4">
-          <div className="bg-black bg-opacity-30 rounded-lg p-4 text-center">
-            <div className="text-3xl font-bold text-yellow-400">{userProgress.event_points}</div>
-            <div className="text-sm text-gray-300">Event Points</div>
+          <div className="bg-white/10 rounded-candy p-4 text-center">
+            <div className="text-3xl font-bold text-gold">{userProgress.event_points}</div>
+            <div className="text-sm text-cream/70">Event Points</div>
           </div>
-          <div className="bg-black bg-opacity-30 rounded-lg p-4 text-center">
-            <div className="text-3xl font-bold text-green-400">{userProgress.challenges_completed}</div>
-            <div className="text-sm text-gray-300">Challenges Done</div>
+          <div className="bg-white/10 rounded-candy p-4 text-center">
+            <div className="text-3xl font-bold text-emerald">{userProgress.challenges_completed}</div>
+            <div className="text-sm text-cream/70">Challenges Done</div>
           </div>
-          <div className="bg-black bg-opacity-30 rounded-lg p-4 text-center">
-            <div className="text-3xl font-bold text-purple-400">{userProgress.rewards_claimed?.length || 0}</div>
-            <div className="text-sm text-gray-300">Rewards Claimed</div>
+          <div className="bg-white/10 rounded-candy p-4 text-center">
+            <div className="text-3xl font-bold text-purple">{userProgress.rewards_claimed?.length || 0}</div>
+            <div className="text-sm text-cream/70">Rewards Claimed</div>
           </div>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 border-b border-gray-700">
+      <div className="flex gap-2 border-b border-stone">
         <button
           onClick={() => setSelectedTab('challenges')}
           className={`px-6 py-3 font-bold transition-colors ${
             selectedTab === 'challenges'
-              ? 'text-purple-400 border-b-2 border-purple-400'
-              : 'text-gray-400 hover:text-gray-200'
+              ? 'text-hero-blue border-b-2 border-hero-blue'
+              : 'text-navy/50 hover:text-navy/80'
           }`}
         >
           ⚔️ Challenges
@@ -168,8 +168,8 @@ export default function SeasonalEvent({ onEventComplete }) {
           onClick={() => setSelectedTab('rewards')}
           className={`px-6 py-3 font-bold transition-colors ${
             selectedTab === 'rewards'
-              ? 'text-purple-400 border-b-2 border-purple-400'
-              : 'text-gray-400 hover:text-gray-200'
+              ? 'text-hero-blue border-b-2 border-hero-blue'
+              : 'text-navy/50 hover:text-navy/80'
           }`}
         >
           🎁 Rewards
@@ -186,48 +186,48 @@ export default function SeasonalEvent({ onEventComplete }) {
             const progressPercent = Math.min(100, (currentProgress / challenge.requirement_value) * 100);
 
             const difficultyColors = {
-              easy: 'bg-green-900 border-green-500 text-green-300',
-              medium: 'bg-yellow-900 border-yellow-500 text-yellow-300',
-              hard: 'bg-red-900 border-red-500 text-red-300',
-              extreme: 'bg-purple-900 border-purple-500 text-purple-300'
+              easy: 'bg-emerald/15 border border-emerald text-emerald',
+              medium: 'bg-gold/15 border border-gold text-gold',
+              hard: 'bg-coral/15 border border-coral text-coral',
+              extreme: 'bg-purple/15 border border-purple text-purple'
             };
 
             return (
               <div
                 key={challenge.id}
-                className={`rounded-lg p-4 border-2 ${
+                className={`rounded-candy p-4 border-2 ${
                   isCompleted
-                    ? 'bg-green-900 bg-opacity-20 border-green-500'
-                    : 'bg-gray-800 border-gray-700'
+                    ? 'bg-emerald/10 border-emerald'
+                    : 'kq-card border-stone'
                 }`}
               >
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
                       {isCompleted && <span className="text-2xl">✅</span>}
-                      <h3 className="text-lg font-bold text-white">{challenge.title}</h3>
-                      <span className={`px-2 py-1 rounded text-xs font-bold ${difficultyColors[challenge.difficulty]}`}>
+                      <h3 className="text-lg font-bold text-navy">{challenge.title}</h3>
+                      <span className={`px-2 py-1 rounded-full text-xs font-bold ${difficultyColors[challenge.difficulty]}`}>
                         {challenge.difficulty.toUpperCase()}
                       </span>
                     </div>
-                    <p className="text-gray-400 text-sm">{challenge.description}</p>
+                    <p className="text-navy/60 text-sm">{challenge.description}</p>
                   </div>
                   <div className="text-right ml-4">
-                    <div className="text-2xl font-bold text-yellow-400">+{challenge.points}</div>
-                    <div className="text-xs text-gray-400">points</div>
+                    <div className="text-2xl font-bold text-gold">+{challenge.points}</div>
+                    <div className="text-xs text-navy/50">points</div>
                   </div>
                 </div>
 
                 {/* Progress Bar */}
                 {!isCompleted && (
                   <div className="mt-3">
-                    <div className="flex justify-between text-sm text-gray-400 mb-1">
+                    <div className="flex justify-between text-sm text-navy/60 mb-1">
                       <span>Progress</span>
                       <span>{currentProgress} / {challenge.requirement_value}</span>
                     </div>
-                    <div className="w-full bg-gray-700 rounded-full h-2">
+                    <div className="w-full bg-stone rounded-full h-2">
                       <div
-                        className="bg-purple-500 h-2 rounded-full transition-all duration-500"
+                        className="bg-hero-blue h-2 rounded-full transition-all duration-500"
                         style={{ width: `${progressPercent}%` }}
                       />
                     </div>
@@ -235,7 +235,7 @@ export default function SeasonalEvent({ onEventComplete }) {
                 )}
 
                 {/* Reward Preview */}
-                <div className="mt-2 text-sm text-gray-400">
+                <div className="mt-2 text-sm text-navy/60">
                   <span className="font-bold">Reward:</span> {challenge.reward_value} {challenge.reward_type}
                 </div>
               </div>
@@ -253,36 +253,36 @@ export default function SeasonalEvent({ onEventComplete }) {
             const isSoldOut = reward.limited_quantity !== null && reward.remaining_quantity <= 0;
 
             const rarityColors = {
-              common: 'border-gray-500 bg-gray-900',
-              rare: 'border-blue-500 bg-blue-900 bg-opacity-20',
-              epic: 'border-purple-500 bg-purple-900 bg-opacity-20',
-              legendary: 'border-yellow-500 bg-yellow-900 bg-opacity-20',
-              exclusive: 'border-pink-500 bg-pink-900 bg-opacity-20'
+              common: 'border-stone bg-white',
+              rare: 'border-hero-blue bg-hero-blue/10',
+              epic: 'border-purple bg-purple/10',
+              legendary: 'border-gold bg-gold/10',
+              exclusive: 'border-coral bg-coral/10'
             };
 
             return (
               <div
                 key={reward.id}
-                className={`rounded-lg p-4 border-2 ${rarityColors[reward.rarity]}`}
+                className={`rounded-candy p-4 border-2 shadow-candy ${rarityColors[reward.rarity]}`}
               >
                 <div className="flex items-start justify-between mb-3">
                   <div>
-                    <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                    <h3 className="text-lg font-bold text-navy flex items-center gap-2">
                       {reward.name}
-                      {isClaimed && <span className="text-green-400">✓</span>}
+                      {isClaimed && <span className="text-emerald">✓</span>}
                     </h3>
-                    <p className="text-sm text-gray-400">{reward.description}</p>
+                    <p className="text-sm text-navy/60">{reward.description}</p>
                   </div>
                   {reward.icon && <span className="text-3xl">{reward.icon}</span>}
                 </div>
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-xl font-bold text-yellow-400">
+                    <div className="text-xl font-bold text-gold">
                       {reward.cost_event_points} points
                     </div>
                     {reward.limited_quantity !== null && (
-                      <div className="text-xs text-gray-400">
+                      <div className="text-xs text-navy/50">
                         {reward.remaining_quantity} / {reward.limited_quantity} remaining
                       </div>
                     )}
@@ -291,15 +291,15 @@ export default function SeasonalEvent({ onEventComplete }) {
                   <button
                     onClick={() => claimReward(reward.id)}
                     disabled={!canAfford || isClaimed || isSoldOut}
-                    className={`px-4 py-2 rounded-lg font-bold transition-all ${
+                    className={
                       isClaimed
-                        ? 'bg-green-600 text-white cursor-not-allowed'
+                        ? 'kq-btn kq-btn-emerald opacity-80 cursor-not-allowed'
                         : isSoldOut
-                        ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                        ? 'kq-btn kq-btn-ghost opacity-50 cursor-not-allowed'
                         : canAfford
-                        ? 'bg-purple-600 hover:bg-purple-500 text-white'
-                        : 'bg-gray-700 text-gray-500 cursor-not-allowed'
-                    }`}
+                        ? 'kq-btn kq-btn-gold'
+                        : 'kq-btn kq-btn-ghost opacity-50 cursor-not-allowed'
+                    }
                   >
                     {isClaimed ? 'Claimed' : isSoldOut ? 'Sold Out' : canAfford ? 'Claim' : 'Locked'}
                   </button>

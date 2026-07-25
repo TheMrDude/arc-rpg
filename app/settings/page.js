@@ -33,23 +33,23 @@ export default function SettingsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#1A1A2E] via-[#16213e] to-[#0F3460] flex items-center justify-center">
-        <div className="text-white text-xl font-black uppercase tracking-wide">Loading…</div>
+      <div className="kidquest min-h-screen bg-cream flex items-center justify-center">
+        <div className="text-navy text-xl font-bold kq-display">Loading…</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1A1A2E] via-[#16213E] to-[#0F3460] text-white">
+    <div className="kidquest min-h-screen bg-cream">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <Link
           href="/dashboard"
-          className="text-[#00D4FF] hover:text-[#7FE7FF] transition-colors mb-6 inline-block"
+          className="text-hero-blue hover:text-coral transition-colors mb-6 inline-block font-semibold"
         >
           ← Back to Dashboard
         </Link>
 
-        <h1 className="text-3xl font-black mb-8">Settings</h1>
+        <h1 className="kq-display text-3xl text-navy mb-8">Settings</h1>
 
         <MyQuotes />
       </div>

@@ -10,9 +10,9 @@ import GlobalFooter from '@/app/components/GlobalFooter';
 const BadgesClient = dynamic(() => import('./BadgesClient'), {
   ssr: false,
   loading: () => (
-    <div className="min-h-screen bg-[#0F1424] flex items-center justify-center">
-      <div className="text-[#00D4FF] text-2xl font-black" style={{ fontFamily: 'VT323, monospace' }}>
-        ⏳ LOADING BADGES...
+    <div className="kidquest min-h-screen bg-cream flex items-center justify-center">
+      <div className="text-hero-blue text-2xl font-black kq-display">
+        ⏳ Loading badges...
       </div>
     </div>
   ),
@@ -21,23 +21,20 @@ const BadgesClient = dynamic(() => import('./BadgesClient'), {
 export default function BadgesPage() {
   if (!BADGES_ENABLED) {
     return (
-      <div className="min-h-screen bg-[#0F1424] text-white flex flex-col">
+      <div className="kidquest min-h-screen bg-cream text-navy flex flex-col">
         <div className="flex-1 flex items-center justify-center p-6">
-          <div className="max-w-md text-center">
+          <div className="max-w-md text-center kq-card p-8">
             <div className="text-6xl mb-4">🛡️</div>
-            <h1
-              className="text-3xl font-black text-[#FFD93D] mb-3"
-              style={{ fontFamily: 'VT323, monospace' }}
-            >
-              LEGENDARY BADGES
+            <h1 className="text-3xl font-black text-gold mb-3 kq-display">
+              Legendary Badges
             </h1>
-            <p className="text-gray-300 leading-relaxed mb-6">
+            <p className="text-navy/60 leading-relaxed mb-6">
               Permanent trophies for real milestones are on the way. Keep earning — your
               badges will be here waiting.
             </p>
             <Link
               href="/dashboard"
-              className="inline-block bg-[#00D4FF] text-[#0F1424] font-black px-6 py-3 rounded-lg hover:opacity-90"
+              className="kq-btn kq-btn-blue inline-block"
             >
               ← Back to your quest
             </Link>

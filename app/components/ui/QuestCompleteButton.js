@@ -32,7 +32,7 @@ export default function QuestCompleteButton({
     const count = 200;
     const defaults = {
       origin: { y: 0.7 },
-      colors: ['#E8B44C', '#D4943C', '#FFD93D', '#FF6B6B', '#00D4FF']
+      colors: ['#FFC83D', '#FFB300', '#FF7B6B', '#57D7F5', '#5FD9A0']
     };
 
     function fire(particleRatio, opts) {
@@ -114,22 +114,22 @@ export default function QuestCompleteButton({
           quest-complete-button
           relative
           px-8 py-4
-          font-black text-lg uppercase tracking-wide
-          rounded-xl
-          border-4
+          font-black text-lg
+          rounded-candy
+          border-2
           transition-all duration-100
           ${isCompleted
-            ? 'bg-green-500 border-green-700 text-white'
-            : 'bg-gradient-to-b from-[#E8B44C] to-[#D4943C] border-[#2C1810] text-[#2C1810]'
+            ? 'bg-emerald border-emerald text-white'
+            : 'bg-gradient-to-b from-gold to-[#FFB300] border-navy/20 text-navy'
           }
           ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
         `}
         style={{
           boxShadow: isPressed
-            ? '0 2px 0 #2C1810, 0 4px 8px rgba(44, 24, 16, 0.3)'
-            : '0 6px 0 #2C1810, 0 8px 16px rgba(44, 24, 16, 0.4)',
+            ? '0 2px 0 #243B5A, 0 4px 8px rgba(36, 59, 90, 0.25)'
+            : '0 6px 0 #243B5A, 0 8px 16px rgba(36, 59, 90, 0.3)',
           transform: isPressed ? 'translateY(4px)' : 'translateY(0)',
-          textShadow: '1px 1px 0 rgba(0,0,0,0.1)',
+          textShadow: '1px 1px 0 rgba(0,0,0,0.06)',
         }}
         whileHover={!disabled && !isCompleted ? {
           scale: 1.05,
@@ -175,7 +175,7 @@ export default function QuestCompleteButton({
             <span className="text-xl">⚔️</span>
             Complete Quest
             {xpReward && (
-              <span className="ml-2 bg-[#2C1810] text-[#E8B44C] px-2 py-1 rounded-md text-sm font-bold">
+              <span className="ml-2 bg-navy text-gold px-2 py-1 rounded-full text-sm font-bold">
                 +{xpReward} XP
               </span>
             )}
@@ -192,7 +192,7 @@ export default function QuestCompleteButton({
           transition={{ delay: 0.2 }}
           className="absolute -top-12 left-1/2 transform -translate-x-1/2 whitespace-nowrap"
         >
-          <div className="bg-[#2C1810] text-[#E8B44C] px-4 py-2 rounded-lg border-2 border-[#E8B44C] font-bold text-sm shadow-lg">
+          <div className="bg-navy text-gold px-4 py-2 rounded-candy border-2 border-gold font-bold text-sm shadow-candy">
             🎉 +{xpReward} XP Earned!
           </div>
         </motion.div>

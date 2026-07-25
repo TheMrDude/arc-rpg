@@ -79,14 +79,14 @@ export default function DailyLoginReward({ userId, onRewardClaimed }: DailyLogin
           const isToday = day === currentDay;
           return (
             <div key={day} className="flex flex-col items-center gap-1">
-              <span className="text-[10px] text-gray-500 font-bold">D{day}</span>
+              <span className="text-[10px] text-navy/50 font-bold">D{day}</span>
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-black transition-all ${
                   isToday
-                    ? 'bg-[#F59E0B] text-[#0F172A] ring-2 ring-[#F59E0B]/50 scale-110'
+                    ? 'bg-gold text-navy ring-2 ring-gold/50 scale-110'
                     : isClaimed
-                    ? 'bg-[#10B981] text-white'
-                    : 'bg-[#1E293B] text-gray-600 border border-gray-700'
+                    ? 'bg-emerald text-white'
+                    : 'bg-cream text-navy/40 border border-stone'
                 }`}
               >
                 {isClaimed ? '✓' : '—'}
@@ -138,7 +138,7 @@ export default function DailyLoginReward({ userId, onRewardClaimed }: DailyLogin
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 bg-navy/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
           onClick={dismiss}
         >
           <motion.div
@@ -146,10 +146,10 @@ export default function DailyLoginReward({ userId, onRewardClaimed }: DailyLogin
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.8, opacity: 0, y: 20 }}
             transition={{ type: 'spring', damping: 15 }}
-            className={`relative bg-gradient-to-br from-[#1A1A2E] to-[#16213E] rounded-2xl p-6 md:p-8 max-w-sm w-full shadow-2xl ${
+            className={`relative kq-card rounded-candy p-6 md:p-8 max-w-sm w-full ${
               isStreakBonus
-                ? 'border-4 border-[#F59E0B] shadow-[0_0_60px_rgba(245,158,11,0.4)]'
-                : 'border-3 border-[#00D4FF] shadow-[0_0_30px_rgba(0,212,255,0.2)]'
+                ? 'border-4 border-gold shadow-candy-lg'
+                : 'border-2 border-hero-blue shadow-candy'
             }`}
             onClick={(e) => e.stopPropagation()}
           >
@@ -166,10 +166,10 @@ export default function DailyLoginReward({ userId, onRewardClaimed }: DailyLogin
                 {isStreakBonus ? '🏆' : '🪙'}
               </motion.div>
               <h2
-                className={`font-black uppercase mb-1 ${
+                className={`kq-display mb-1 ${
                   isStreakBonus
-                    ? 'text-2xl text-[#F59E0B]'
-                    : 'text-xl text-[#00D4FF]'
+                    ? 'text-2xl text-gold'
+                    : 'text-xl text-hero-blue'
                 }`}
               >
                 {isStreakBonus ? 'Milestone Bonus!' : 'Daily Login Reward'}
@@ -181,34 +181,30 @@ export default function DailyLoginReward({ userId, onRewardClaimed }: DailyLogin
               initial={{ scale: 0.5, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.2, type: 'spring' }}
-              className={`text-center rounded-xl p-4 mb-3 ${
+              className={`text-center rounded-candy p-4 mb-3 ${
                 isStreakBonus
-                  ? 'bg-gradient-to-r from-[#F59E0B]/20 to-[#FF6B35]/20 border-2 border-[#F59E0B]/50'
-                  : 'bg-[#0F3460] border-2 border-[#00D4FF]/30'
+                  ? 'bg-gradient-to-r from-gold/20 to-coral/20 border-2 border-gold/50'
+                  : 'bg-hero-blue/10 border-2 border-hero-blue/30'
               }`}
             >
-              <div
-                className={`text-4xl font-black ${
-                  isStreakBonus ? 'text-[#F59E0B]' : 'text-[#F59E0B]'
-                }`}
-              >
+              <div className="text-4xl font-black text-gold">
                 +{reward.gold_awarded} Gold
               </div>
               {reward.bonus_gold > 0 && (
-                <div className="text-sm text-gray-400 mt-1">
+                <div className="text-sm text-navy/60 mt-1">
                   ({reward.base_gold} base + {reward.bonus_gold} milestone bonus)
                 </div>
               )}
             </motion.div>
 
             {/* Message */}
-            <p className="text-center text-gray-300 text-sm mb-3">
+            <p className="text-center text-navy/70 text-sm mb-3">
               {reward.message}
             </p>
 
             {/* Streak day */}
             <div className="text-center">
-              <span className="text-xs font-bold text-gray-500 uppercase">
+              <span className="text-xs font-bold text-navy/50">
                 Bonus Day {reward.streak_day} of 7
               </span>
             </div>
@@ -217,7 +213,7 @@ export default function DailyLoginReward({ userId, onRewardClaimed }: DailyLogin
             {renderCalendar()}
 
             {/* Dismiss hint */}
-            <p className="text-center text-gray-600 text-xs mt-4">
+            <p className="text-center text-navy/40 text-xs mt-4">
               Tap anywhere to dismiss
             </p>
           </motion.div>

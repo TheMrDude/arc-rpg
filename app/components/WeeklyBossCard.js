@@ -49,10 +49,8 @@ export default function WeeklyBossCard({ refreshKey = 0 }) {
 
   return (
     <div
-      className={`bg-[#1A1A2E] border-3 rounded-lg p-6 mb-6 transition-all ${
-        defeated
-          ? 'border-[#FFD93D] shadow-[0_0_25px_rgba(255,217,61,0.4)]'
-          : 'border-[#FF6B6B] shadow-[0_0_20px_rgba(255,107,107,0.3)]'
+      className={`kq-card p-6 mb-6 transition-all border-2 ${
+        defeated ? 'border-gold' : 'border-coral/40'
       }`}
     >
       <div className="flex items-start gap-4">
@@ -66,21 +64,21 @@ export default function WeeklyBossCard({ refreshKey = 0 }) {
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2 flex-wrap">
             <h3
-              className={`text-xl font-black uppercase tracking-wide ${
-                defeated ? 'text-[#FFD93D]' : 'text-[#FF6B6B]'
+              className={`kq-display text-xl ${
+                defeated ? 'text-gold' : 'text-coral'
               }`}
             >
               {boss.boss_name}
             </h3>
-            <span className="text-[10px] font-black uppercase tracking-wider text-[#94a3b8] bg-[#0F3460] border-2 border-[#1A1A2E] rounded-full px-2.5 py-1">
+            <span className="kq-chip text-[10px] font-bold text-navy/60 bg-cream border-2 border-stone">
               Weekly Boss
             </span>
           </div>
-          <p className="text-sm text-[#E2E8F0] mt-1">{boss.boss_flavor}</p>
+          <p className="text-sm text-navy/70 mt-1">{boss.boss_flavor}</p>
 
           {defeated ? (
-            <div className="mt-3 bg-[#0F3460] border-2 border-[#FFD93D] rounded-lg p-3">
-              <p className="font-black uppercase tracking-wide text-[#FFD93D] text-sm">
+            <div className="mt-3 bg-gold/12 border-2 border-gold rounded-candy p-3">
+              <p className="font-bold text-gold text-sm">
                 🏆 Defeated! It dropped: 💰 {boss.reward?.gold || 0} gold
                 {boss.reward?.equipment
                   ? ` and ${boss.reward.equipment.emoji} ${boss.reward.equipment.name}`
@@ -89,12 +87,12 @@ export default function WeeklyBossCard({ refreshKey = 0 }) {
                   ? ` and 💰 ${boss.reward.bonus_gold} bonus gold`
                   : ''}
               </p>
-              <p className="text-xs text-[#E2E8F0] mt-1">
+              <p className="text-xs text-navy/70 mt-1">
                 A mighty victory. A new challenger arrives next week.
               </p>
             </div>
           ) : retreated ? (
-            <p className="text-sm text-[#94a3b8] mt-3">
+            <p className="text-sm text-navy/50 mt-3">
               The boss slips away into the mist. It will return. Nothing lost.
             </p>
           ) : (
@@ -102,26 +100,26 @@ export default function WeeklyBossCard({ refreshKey = 0 }) {
               {/* HP bar: drains from full as damage is dealt */}
               <div className="mt-3">
                 <div className="flex justify-between items-center mb-1">
-                  <span className="text-xs font-black uppercase tracking-wide text-[#FF6B6B]">
+                  <span className="text-xs font-bold text-coral">
                     HP
                   </span>
-                  <span className="text-xs font-bold text-[#E2E8F0]">
+                  <span className="text-xs font-bold text-navy/70">
                     {hpLeft} / {boss.max_hp}
                   </span>
                 </div>
-                <div className="h-4 bg-[#0F3460] rounded-full border-2 border-[#1A1A2E] overflow-hidden">
+                <div className="h-4 bg-cream rounded-full border-2 border-stone overflow-hidden">
                   <motion.div
-                    className="h-full rounded-full bg-gradient-to-r from-[#FF6B6B] to-[#7f1d1d]"
+                    className="h-full rounded-full bg-gradient-to-r from-coral to-[#E55A2B]"
                     initial={false}
                     animate={{ width: `${hpPercent}%` }}
                     transition={{ type: 'spring', stiffness: 120, damping: 20 }}
                   />
                 </div>
               </div>
-              <p className="text-sm text-[#E2E8F0] mt-2 font-bold">
+              <p className="text-sm text-navy/70 mt-2 font-bold">
                 {hpLeft} HP left. Every quest you complete strikes the boss.
               </p>
-              <p className="text-xs text-[#94a3b8] mt-1">{daysText}</p>
+              <p className="text-xs text-navy/50 mt-1">{daysText}</p>
             </>
           )}
         </div>

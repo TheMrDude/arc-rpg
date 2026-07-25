@@ -45,14 +45,14 @@ export default function UnlockToast({ unlocks }) {
           : 'translate-x-full opacity-0'
       }`}
     >
-      <div className="bg-[#1A1A2E] border-2 border-[#00D4FF] rounded-lg p-4 shadow-[0_0_20px_rgba(0,212,255,0.3)]">
+      <div className="kq-card border-2 border-aqua/40 p-4">
         <div className="flex items-start gap-3">
           <span className="text-2xl">{activeToast.icon}</span>
           <div>
-            <p className="text-[#00D4FF] font-black uppercase text-sm tracking-wide">
-              🔓 New Unlocked: {activeToast.title}!
+            <p className="text-hero-blue font-bold text-sm">
+              🔓 New unlock: {activeToast.title}!
             </p>
-            <p className="text-[#E2E8F0] text-xs mt-1">{activeToast.description}</p>
+            <p className="text-navy/60 text-xs mt-1">{activeToast.description}</p>
           </div>
         </div>
       </div>
