@@ -25,9 +25,8 @@ export default function PricingPage() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    document.title = "HabitQuest Pricing | Free Plan or Pro from $5/mo";
-  }, []);
+  // Title/description now come from app/pricing/layout.js metadata (server-side),
+  // so we no longer overwrite document.title after hydration.
 
   useEffect(() => {
     async function loadUser() {
@@ -91,9 +90,20 @@ export default function PricingPage() {
   }
 
   if (loading) {
+    // Render the real page heading even while user/profile data loads. This is
+    // the server-rendered HTML crawlers see, so it must contain the page's
+    // single h1 rather than a bare spinner.
     return (
-      <div className="kidquest min-h-screen bg-cream flex items-center justify-center">
-        <div className="text-navy text-xl font-extrabold">Loading…</div>
+      <div className="kidquest min-h-screen bg-cream p-4 sm:p-6 lg:p-8">
+        <div className="max-w-5xl mx-auto text-center">
+          <h1 className="kq-display text-4xl sm:text-5xl lg:text-6xl text-navy mb-4 mt-8">
+            Pick Your <span className="text-hero-blue">Adventure Pass</span>
+          </h1>
+          <p className="text-navy/60 text-lg font-semibold mb-10">
+            Start free. Upgrade when you&apos;re ready for the full adventure.
+          </p>
+          <div className="text-navy/50 text-lg font-extrabold">Loading plans…</div>
+        </div>
       </div>
     );
   }

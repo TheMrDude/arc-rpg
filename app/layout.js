@@ -5,6 +5,11 @@ import PostHogProvider from './components/PostHogProvider'
 import { SoundProvider } from './components/SoundProvider'
 
 export const metadata = {
+  // Base for resolving relative metadata URLs (notably the generated
+  // opengraph-image routes). Without this Next falls back to VERCEL_URL, so
+  // share cards would point at a per-deployment hostname instead of the real
+  // domain. Explicit absolute canonicals below are unaffected.
+  metadataBase: new URL('https://habitquest.dev'),
   title: 'HabitQuest - ADHD-Friendly Gamified Habit Tracker | No Streaks, No Guilt',
   description: 'Most habit apps punish you for missing a day. HabitQuest turns your habits into epic RPG quests, so building consistency actually feels fun. Your habits. Your story. No guilt.',
   keywords: ['habit tracker', 'RPG', 'gamification', 'productivity', 'AI', 'task management', 'habits', 'motivation', 'ADHD', 'neurodivergent', 'no guilt', 'anti-guilt'],

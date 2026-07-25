@@ -9,9 +9,8 @@ export default function QuizPage() {
   const [answers, setAnswers] = useState([]);
   const [result, setResult] = useState(null);
 
-  useEffect(() => {
-    document.title = "What's Your Archetype? | HabitQuest Quiz";
-  }, []);
+  // Title/description now come from app/quiz/layout.js metadata (server-side),
+  // so we no longer overwrite document.title after hydration.
 
   const questions = [
     {

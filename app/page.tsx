@@ -237,15 +237,17 @@ export default function LandingPage() {
                 <span aria-hidden="true">✨</span> For heroes ages 4 and up
               </span>
 
-              {/* Kid headline */}
-              <h1 className="kid-only text-[2.6rem] sm:text-6xl lg:text-[3.6rem] xl:text-6xl text-navy mb-5">
-                Turn Your Day Into an{' '}
-                <span className="text-hero-blue">Epic Quest</span>
-              </h1>
-              {/* Parent headline */}
-              <h1 className="parent-only text-[2.6rem] sm:text-6xl lg:text-[3.6rem] xl:text-6xl text-navy mb-5">
-                Mornings Without the{' '}
-                <span className="text-hero-blue">Nagging</span>
+              {/* Exactly ONE h1 per page. The audience toggle swaps the text
+                  inside it via spans, so we never emit a second h1. */}
+              <h1 className="text-[2.6rem] sm:text-6xl lg:text-[3.6rem] xl:text-6xl text-navy mb-5">
+                <span className="kid-only">
+                  Turn Your Day Into an{' '}
+                  <span className="text-hero-blue">Epic Quest</span>
+                </span>
+                <span className="parent-only">
+                  Mornings Without the{' '}
+                  <span className="text-hero-blue">Nagging</span>
+                </span>
               </h1>
 
               {/* Kid subcopy */}
@@ -714,6 +716,58 @@ export default function LandingPage() {
                 <p className="text-navy/70 font-semibold">{item.a}</p>
               </div>
             ))}
+          </div>
+        </section>
+
+        {/* ════════════════ COMPARE & READ (internal links) ════════════════ */}
+        <section className="py-14 kq-reveal">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl sm:text-4xl text-navy mb-3">Compare &amp; Read</h2>
+            <p className="text-navy/60 text-lg font-semibold max-w-2xl mx-auto">
+              Still deciding? Here&rsquo;s an honest look at how we stack up and why the
+              no-streak approach works.
+            </p>
+          </div>
+          <div className="grid sm:grid-cols-2 gap-4 sm:gap-5 max-w-4xl mx-auto">
+            {[
+              {
+                href: '/vs/habitica',
+                label: 'HabitQuest vs Habitica',
+                blurb: 'Two RPG habit trackers compared — punishment mechanics vs momentum, and who should pick which.',
+                emoji: '⚔️',
+              },
+              {
+                href: '/blog/habit-tracker-without-streaks',
+                label: 'A habit tracker without streaks',
+                blurb: 'Why breaking the chain backfires, and what replaces streaks when you drop them.',
+                emoji: '🔗',
+              },
+              {
+                href: '/blog/adhd-habit-tracker-gamification',
+                label: 'ADHD habit tracker: why gamification works',
+                blurb: 'What actually helps ADHD brains build routines when willpower alone does not.',
+                emoji: '🧠',
+              },
+              {
+                href: '/blog/best-habit-tracking-apps-2026',
+                label: 'Best habit tracking apps in 2026',
+                blurb: 'Habitica, Streaks, Everyday and HabitQuest compared — including when to pick someone else.',
+                emoji: '🏆',
+              },
+            ].map((l) => (
+              <Link key={l.href} href={l.href} className="kq-card kq-card-hover p-5 flex gap-4 items-start">
+                <span className="text-3xl flex-shrink-0" aria-hidden="true">{l.emoji}</span>
+                <span>
+                  <span className="kq-display text-navy text-lg block leading-tight mb-1">{l.label}</span>
+                  <span className="text-navy/60 text-sm font-semibold">{l.blurb}</span>
+                </span>
+              </Link>
+            ))}
+          </div>
+          <div className="text-center mt-6">
+            <Link href="/blog" className="text-hero-blue font-extrabold hover:underline">
+              Read more on the HabitQuest blog →
+            </Link>
           </div>
         </section>
 
