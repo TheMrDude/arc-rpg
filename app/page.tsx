@@ -601,6 +601,15 @@ export default function LandingPage() {
                 </span>
               ))}
             </div>
+
+            {/* Kids' privacy posture — parents look for this before signing up. */}
+            <p className="text-center text-navy/60 text-sm font-semibold mt-6 max-w-2xl mx-auto">
+              <span aria-hidden="true">🔒</span> You own the account, your child plays on it. No ads,
+              no data selling, and we never ask kids for personal details.{' '}
+              <Link href="/privacy" className="text-hero-blue underline font-bold">
+                How we handle privacy
+              </Link>
+            </p>
           </div>
         </section>
 

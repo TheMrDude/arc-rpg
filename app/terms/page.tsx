@@ -52,10 +52,36 @@ export default function TermsOfService() {
           <section className="mb-8">
             <h2 className="text-2xl font-bold mb-4 text-navy">Account Registration</h2>
 
-            <h3 className="text-xl font-semibold mb-3 mt-6 text-navy">Eligibility</h3>
+            <h3 className="text-xl font-semibold mb-3 mt-6 text-navy">Eligibility &amp; Accounts for Children</h3>
             <p className="text-navy/70 mb-4">
-              You must be at least 13 years old to use HabitQuest. By creating an account, you represent
-              that you meet this age requirement.
+              HabitQuest is designed to be enjoyed by children, but <strong>accounts may only be
+              created and owned by someone 18 or older</strong>. If you are under 18, ask a parent or
+              guardian to create the account for you.
+            </p>
+            <p className="text-navy/70 mb-4">
+              By creating an account you represent that you are at least 18 years old and that you are
+              either using HabitQuest yourself or setting it up for a child in your care as their
+              parent or legal guardian.
+            </p>
+            <p className="text-navy/70 mb-4">
+              Where a parent or guardian sets up HabitQuest for a child:
+            </p>
+            <ul className="list-disc list-inside text-navy/70 mb-4 space-y-2">
+              <li>The parent or guardian is the account holder and is responsible for the account.</li>
+              <li>The child uses the account under the parent or guardian&apos;s supervision.</li>
+              <li>
+                We ask that you do not enter a child&apos;s real full name, school, address, photo, or
+                other identifying details anywhere in the app. A first name or nickname is all
+                HabitQuest ever needs.
+              </li>
+              <li>
+                The parent or guardian may access, export, or delete the account and its data at any
+                time by contacting us.
+              </li>
+            </ul>
+            <p className="text-navy/70 mb-4">
+              We do not knowingly allow children to create their own accounts. If we learn that an
+              account was created by a child without a parent or guardian, we will delete it.
             </p>
 
             <h3 className="text-xl font-semibold mb-3 mt-6 text-navy">Account Security</h3>

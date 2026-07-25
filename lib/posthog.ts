@@ -8,6 +8,9 @@ export const initPostHog = () => {
     const host = process.env.NEXT_PUBLIC_POSTHOG_HOST || 'https://app.posthog.com';
 
     if (key) {
+      // Data minimisation for a child-directed service: we only want the
+      // deliberate funnel events we send ourselves, never an automatic sweep of
+      // everything a child clicks or types.
       posthog.init(key, {
         api_host: host,
         loaded: (posthog: any) => {
@@ -15,7 +18,13 @@ export const initPostHog = () => {
         },
         capture_pageview: false, // We'll manually track pageviews
         capture_pageleave: true,
-        autocapture: true,
+        // Off: autocapture records every click/change on the page, which on a
+        // kids' app can pick up content we have no reason to collect.
+        autocapture: false,
+        // Never record sessions, and never capture typed input values.
+        disable_session_recording: true,
+        mask_all_text: true,
+        mask_all_element_attributes: true,
       });
     }
   }
