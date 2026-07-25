@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
 import { isPremium as resolveIsPremium } from '@/lib/premium';
+import { getCompanion } from '@/lib/companions';
 
 export default function JourneyPage() {
   const router = useRouter();
@@ -143,7 +144,10 @@ export default function JourneyPage() {
                 📖 Your Epic Journey
               </h1>
               <p className="text-hero-blue text-lg font-semibold">
-                Chapter {profile?.story_chapter || 1} • Level {profile?.level || 1} {profile?.archetype}
+                {/* Was "Level 3 seeker" -- the raw archetype value as a label
+                    for the player. The companion is the avatar now. */}
+                Chapter {profile?.story_chapter || 1} • Level {profile?.level || 1}
+                {profile ? ` • ${getCompanion(profile).name}` : ''}
               </p>
             </div>
             <button

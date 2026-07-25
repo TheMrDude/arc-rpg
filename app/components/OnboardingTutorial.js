@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-export default function OnboardingTutorial({ profile, onComplete, onSkip }) {
+export default function OnboardingTutorial({ profile, creature, onComplete, onSkip }) {
   const [currentStep, setCurrentStep] = useState(0);
 
   const steps = [
@@ -13,8 +13,11 @@ export default function OnboardingTutorial({ profile, onComplete, onSkip }) {
       position: "center"
     },
     {
-      title: "Your Character",
-      description: `You are a ${profile?.archetype?.toUpperCase()}. Your archetype influences how quests are narrated, making your tasks feel epic!`,
+      title: "Your Companion",
+      // Was "You are a SEEKER" -- an identity claim about a hero figure the
+      // player never picked. She picked an egg, so this points at the egg and
+      // at the thing that makes it hatch.
+      description: `This is ${creature?.name || 'your egg'}. Complete quests and it grows with you — three quests until it hatches.`,
       highlight: "character",
       position: "top-left"
     },

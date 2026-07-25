@@ -1040,6 +1040,7 @@ export default function DashboardPage() {
       {profile && (
         <ComebackMoment
           profile={profile}
+          creature={creature}
           onPick={(text) => addQuest(text)}
           creating={adding}
         />
@@ -1530,6 +1531,7 @@ export default function DashboardPage() {
       {showOnboarding && profile && (
         <OnboardingTutorial
           profile={profile}
+          creature={creature}
           onComplete={handleOnboardingComplete}
           onSkip={handleOnboardingSkip}
         />

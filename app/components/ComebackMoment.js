@@ -21,7 +21,7 @@ function capitalize(str) {
  * the days out loud. We show that nothing was lost, then offer one gentle
  * quest to restart, or a no-pressure look around.
  */
-export default function ComebackMoment({ profile, onPick, creating }) {
+export default function ComebackMoment({ profile, creature, onPick, creating }) {
   const [show, setShow] = useState(false);
 
   useEffect(() => {
@@ -67,7 +67,10 @@ export default function ComebackMoment({ profile, onPick, creating }) {
 
   if (!profile) return null;
 
-  const archetypeName = capitalize(profile.archetype);
+  // "The Seeker Returns" named an archetype the player never chose as a
+  // character. The companion is the one she picked and named, so the return is
+  // about the pair. Falls back to the old wording if there is no companion.
+  const returningName = creature?.name || capitalize(profile.archetype);
 
   return (
     <AnimatePresence>
@@ -109,7 +112,7 @@ export default function ComebackMoment({ profile, onPick, creating }) {
             </p>
 
             <h2 className="kq-display text-3xl font-black text-hero-blue mb-3">
-              The {archetypeName} Returns.
+              {returningName} waited for you.
             </h2>
 
             <p className="text-navy/70 mb-6">
