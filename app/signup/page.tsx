@@ -259,6 +259,11 @@ function SignupForm() {
           <p className="text-navy/60 mb-2 font-bold text-sm sm:text-base">
             {hasPreviewQuest ? 'Complete your quest and create your hero' : 'Create your hero and jump in.'}
           </p>
+          {/* Younger players need a grown-up to create the account (and for
+              under-13s that consent is a legal requirement, not just a nicety). */}
+          <div className="kq-chip bg-[#57D7F5]/20 text-[#0b3a45] text-xs mt-2 mb-1">
+            <span aria-hidden="true">👨‍👩‍👧</span> Under 13? A parent or guardian should set this up
+          </div>
           {hasPreviewQuest && (
             <p className="text-emerald text-sm mb-4 font-extrabold">
               ✨ Your preview quest is ready to be added!
