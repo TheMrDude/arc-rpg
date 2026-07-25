@@ -2,9 +2,15 @@ import { NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { createClient } from '@supabase/supabase-js';
 import { checkRateLimit, createRateLimitResponse } from '@/lib/rate-limiter';
+import { FREE_TIER_QUEST_LIMIT } from '@/lib/quest-limits';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
+
+// once/daily/weekly only. 'custom' (every N days) was dropped along with its
+// number-entry field. "Weekly" means seven days after the last generation, not
+// a fixed weekday -- there is deliberately no recurrence_day_of_week.
+const VALID_RECURRENCE = ['once', 'daily', 'weekly'];
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -59,7 +65,17 @@ export async function POST(request) {
       return createRateLimitResponse(rateLimit);
     }
 
-    const { questText, archetype, difficulty } = await request.json();
+    const { questText, archetype, difficulty, recurrence } = await request.json();
+
+    // Recurrence is optional and defaults to a one-off, so every existing
+    // caller keeps working unchanged. 'custom' was removed: it was the only
+    // option needing a number field, and a child cannot misconfigure a choice
+    // that does not exist.
+    const recurrenceType = recurrence || 'once';
+    if (!VALID_RECURRENCE.includes(recurrenceType)) {
+      return NextResponse.json({ error: 'Invalid recurrence' }, { status: 400 });
+    }
+    const isRecurring = recurrenceType !== 'once';
 
     // SECURE: Input validation
     if (!questText || typeof questText !== 'string') {
@@ -90,11 +106,15 @@ export async function POST(request) {
     // Load user profile and fetch recent completed quests for continuity
     const { data: profile } = await supabaseAdmin
       .from('profiles')
-      .select('subscription_status, level, current_story_thread, story_progress')
+      .select('subscription_status, is_premium, level, current_story_thread, story_progress')
       .eq('id', user.id)
       .single();
 
     const isPremium = profile?.subscription_status === 'active';
+    // The recurring-quest allowance uses the broader test that the create route
+    // it replaces used. Kept separate from `isPremium` above, which only sizes
+    // the AI response and whose narrower meaning is left untouched.
+    const isPremiumForLimits = profile?.is_premium || profile?.subscription_status === 'active';
     const userLevel = profile?.level || 1;
     const currentThread = profile?.current_story_thread || null;
     const storyProgress = profile?.story_progress || { recent_events: [], ongoing_conflicts: [], npcs_met: [], thread_completion: 0 };
@@ -105,6 +125,7 @@ export async function POST(request) {
       .select('transformed_text, completed_at, story_thread, narrative_impact')
       .eq('user_id', user.id)
       .eq('completed', true)
+      .eq('status', 'active')
       .order('completed_at', { ascending: false })
       .limit(5);
 
@@ -152,8 +173,9 @@ Player Level: ${userLevel}
 ${recentQuestContext}
 
 Original task: "${sanitizedQuestText}"
+${isRecurring ? `\nThis is a RECURRING habit that repeats ${recurrenceType === 'daily' ? 'daily' : 'weekly'}.` : ''}
 
-Transform this boring task into an epic RPG quest that fits the ongoing story. Keep the quest description to 1-2 sentences. Make it exciting and match the archetype style.
+Transform this boring task into an epic RPG quest that fits the ongoing story. Keep the quest description to 1-2 sentences. Make it exciting and match the archetype style.${isRecurring ? ' Since this is a recurring habit, make it feel like an ongoing duty or ritual, not a one-time mission.' : ''}
 
 Then, assess the difficulty of the ORIGINAL task (not the RPG version) and provide story metadata.
 
@@ -224,10 +246,89 @@ Now transform the task above:`;
     // XP values by difficulty
     const XP_VALUES = { easy: 10, medium: 25, hard: 50 };
 
+    const xpValue = XP_VALUES[aiDifficulty] || 25;
+
+    // A one-off quest is still inserted by the caller, exactly as before.
+    // A recurring habit is created here instead, because the rule and its first
+    // instance have to be written together and stamped with each other's id --
+    // splitting that across client round-trips is how you get an orphan rule
+    // with no quest, or a quest the generator can never supersede.
+    let recurringQuest = null;
+    let firstQuest = null;
+
+    if (isRecurring) {
+      if (!isPremiumForLimits) {
+        const { count } = await supabaseAdmin
+          .from('recurring_quests')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', user.id)
+          .eq('is_active', true);
+
+        if (count >= FREE_TIER_QUEST_LIMIT) {
+          return NextResponse.json({
+            error: `Free tier limited to ${FREE_TIER_QUEST_LIMIT} recurring quests. Upgrade to Pro for unlimited.`,
+            limit_reached: true,
+          }, { status: 403 });
+        }
+      }
+
+      const { data: rule, error: ruleError } = await supabaseAdmin
+        .from('recurring_quests')
+        .insert({
+          user_id: user.id,
+          original_text: sanitizedQuestText,
+          transformed_text: transformedText,
+          difficulty: aiDifficulty,
+          xp_value: xpValue,
+          archetype,
+          recurrence_type: recurrenceType,
+          recurrence_interval: 1,
+          is_active: true,
+          last_generated_at: new Date().toISOString().split('T')[0], // today
+        })
+        .select()
+        .single();
+
+      if (ruleError || !rule) {
+        console.error('Error creating recurring quest rule:', ruleError);
+        return NextResponse.json({ error: 'Failed to create recurring quest' }, { status: 500 });
+      }
+
+      const { data: quest, error: questError } = await supabaseAdmin
+        .from('quests')
+        .insert({
+          user_id: user.id,
+          original_text: sanitizedQuestText,
+          transformed_text: transformedText,
+          difficulty: aiDifficulty,
+          xp_value: xpValue,
+          completed: false,
+          status: 'active',
+          recurring_quest_id: rule.id,
+          story_thread: cleanThread,
+          narrative_impact: cleanImpact ? { description: cleanImpact } : null,
+        })
+        .select()
+        .single();
+
+      if (questError) {
+        // The rule exists but today's instance does not. Roll the rule back
+        // rather than leaving a habit that silently produces nothing until
+        // tomorrow's cron run.
+        await supabaseAdmin.from('recurring_quests').delete().eq('id', rule.id);
+        console.error('Error creating first recurring instance:', questError);
+        return NextResponse.json({ error: 'Failed to create recurring quest' }, { status: 500 });
+      }
+
+      recurringQuest = rule;
+      firstQuest = quest;
+    }
+
     console.log('Quest transformed successfully', {
       userId: user.id,
       archetype,
       difficulty: aiDifficulty,
+      recurrence: recurrenceType,
       storyThread: cleanThread,
       narrativeImpact: cleanImpact,
       timestamp: new Date().toISOString(),
@@ -236,9 +337,13 @@ Now transform the task above:`;
     return NextResponse.json({
       transformedText,
       difficulty: aiDifficulty,
-      xpValue: XP_VALUES[aiDifficulty] || 25,
+      xpValue,
       storyThread: cleanThread,
-      narrativeImpact: cleanImpact ? { description: cleanImpact } : null
+      narrativeImpact: cleanImpact ? { description: cleanImpact } : null,
+      // Present only for recurring habits; tells the caller the quest is
+      // already saved and must not be inserted again.
+      recurringQuest,
+      firstQuest,
     });
   } catch (error) {
     // SECURE: Don't expose internal errors to users

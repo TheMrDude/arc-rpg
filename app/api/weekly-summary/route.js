@@ -75,6 +75,7 @@ export async function GET(request) {
       .select('*')
       .eq('user_id', user.id)
       .eq('completed', true)
+      .eq('status', 'active')
       .gte('completed_at', weekStart.toISOString())
       .lte('completed_at', weekEnd.toISOString())
       .order('completed_at', { ascending: true });
@@ -285,6 +286,7 @@ export async function POST(request) {
       .select('*')
       .eq('user_id', user.id)
       .eq('completed', true)
+      .eq('status', 'active')
       .gte('completed_at', weekStart.toISOString())
       .lte('completed_at', weekEnd.toISOString())
       .order('completed_at', { ascending: true });

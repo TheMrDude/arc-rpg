@@ -11,7 +11,7 @@ export async function POST(request) {
       return NextResponse.json({ error: authError || 'Unauthorized' }, { status: 401 });
     }
 
-    const { quest_id, is_active, recurrence_type, recurrence_interval } = await request.json();
+    const { quest_id, is_active, recurrence_type } = await request.json();
 
     if (!quest_id) {
       return NextResponse.json({ error: 'Quest ID required' }, { status: 400 });
@@ -28,11 +28,10 @@ export async function POST(request) {
         updates.last_generated_at = null;
       }
     }
-    if (recurrence_type && ['daily', 'weekly', 'custom'].includes(recurrence_type)) {
+    // daily/weekly only. 'custom' (every N days) was retired along with its
+    // number-entry field, so recurrence_interval is no longer settable either.
+    if (recurrence_type && ['daily', 'weekly'].includes(recurrence_type)) {
       updates.recurrence_type = recurrence_type;
-    }
-    if (recurrence_interval && recurrence_interval >= 2 && recurrence_interval <= 30) {
-      updates.recurrence_interval = recurrence_interval;
     }
 
     if (Object.keys(updates).length === 0) {

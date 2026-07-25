@@ -72,6 +72,7 @@ export async function POST(request) {
       .select('transformed_text, difficulty, completed_at')
       .eq('user_id', user.id)
       .eq('completed', true)
+      .eq('status', 'active')
       .order('completed_at', { ascending: false })
       .limit(10);
 

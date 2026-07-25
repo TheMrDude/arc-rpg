@@ -51,6 +51,7 @@ export async function POST(request) {
           .select('transformed_text')
           .eq('user_id', member.user_id)
           .eq('completed', true)
+          .eq('status', 'active')
           .gte('completed_at', sevenDaysAgo)
           .limit(10);
 

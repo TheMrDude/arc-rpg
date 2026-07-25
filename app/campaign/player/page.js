@@ -66,6 +66,7 @@ export default function PlayerCampaignPage() {
         .select('id, transformed_text, completed_at, xp_value')
         .eq('user_id', authUser.id)
         .eq('completed', true)
+        .eq('status', 'active')
         .gte('completed_at', sevenDaysAgo)
         .order('completed_at', { ascending: false });
       setRecentQuests(questsData || []);

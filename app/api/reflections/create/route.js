@@ -74,6 +74,7 @@ export async function POST(request) {
       .from('quests')
       .select('id, user_id')
       .eq('id', questId)
+      .eq('status', 'active')
       .single();
 
     if (questError || !quest) {

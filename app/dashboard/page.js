@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Gem, BookOpen, ScrollText, Swords, Shield, Dices, Coins, Flame, Volume2, VolumeX, ClipboardList, RefreshCw, Package, PartyPopper, LogOut, Award } from 'lucide-react';
+import { Gem, BookOpen, ScrollText, Swords, Shield, Dices, Coins, Flame, Volume2, VolumeX, ClipboardList, Package, PartyPopper, LogOut, Award } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { useSound } from '@/app/components/SoundProvider';
@@ -11,6 +11,7 @@ import { getUnlockedSkills } from '@/lib/skills';
 import { checkBossEncounter } from '@/lib/encounters';
 import { getCompanion } from '@/lib/companions';
 import { getDashboardSections, getNewUnlocks } from '@/lib/dashboardVisibility';
+import { FREE_TIER_QUEST_LIMIT, countHabitsTowardLimit } from '@/lib/quest-limits';
 import OnboardingTutorial from '@/app/components/OnboardingTutorial';
 import NotificationSetup from '@/app/components/NotificationSetup';
 import QuestCompletionCelebration from '@/app/components/QuestCompletionCelebration';
@@ -21,7 +22,6 @@ import JournalEntry from '@/app/components/JournalEntry';
 import JournalTimeline from '@/app/components/JournalTimeline';
 import OnThisDay from '@/app/components/OnThisDay';
 import PremiumWelcome from '@/app/components/PremiumWelcome';
-import RecurringQuests from '@/app/components/RecurringQuests';
 import ArchetypeSwitcher from '@/app/components/ArchetypeSwitcher';
 import TemplateLibrary from '@/app/components/TemplateLibrary';
 import EquipmentShop from '@/app/components/EquipmentShop';
@@ -75,9 +75,11 @@ export default function DashboardPage() {
   const [quests, setQuests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [newQuestText, setNewQuestText] = useState('');
+  // Daily by default: a habit that returns on its own is the point of the app,
+  // and requiring a child to opt in would hide it behind a decision.
+  const [recurrence, setRecurrence] = useState('daily');
   // difficulty is now AI-assigned, no user selection needed
   const [adding, setAdding] = useState(false);
-  const [generating, setGenerating] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   // Celebration states
@@ -162,7 +164,7 @@ export default function DashboardPage() {
   useEffect(() => {
     document.title = "Dashboard | HabitQuest";
     const tab = new URLSearchParams(window.location.search).get('tab');
-    if (['quests', 'recurring', 'templates', 'equipment', 'journal', 'events'].includes(tab)) {
+    if (['quests', 'templates', 'equipment', 'journal', 'events'].includes(tab)) {
       setActiveTab(tab);
     }
     loadUserData();
@@ -246,6 +248,7 @@ export default function DashboardPage() {
         .from('quests')
         .select('*')
         .eq('user_id', user.id)
+        .eq('status', 'active')
         .order('created_at', { ascending: false });
 
       setQuests(questsData || []);
@@ -318,9 +321,13 @@ export default function DashboardPage() {
     // First-party funnel: is this the user's very first habit? (no PII)
     const isFirstHabit = quests.length === 0;
 
-    // Check habit limit for free users
+    // Check habit limit for free users.
+    // Auto-generated recurring instances are excluded: a daily habit produces a
+    // new instance every morning without being asked, so counting them would
+    // lock a free user out of adding habits because of quests they never
+    // created. Superseded rows are excluded by the loader's status filter.
     const isPro = profile?.is_premium || profile?.subscription_status === 'active' || profile?.subscription_tier === 'pro';
-    if (!isPro && quests.filter(q => !q.completed).length >= 3) {
+    if (!isPro && countHabitsTowardLimit(quests) >= FREE_TIER_QUEST_LIMIT) {
       setShowHabitLimitModal(true);
       return;
     }
@@ -347,6 +354,7 @@ export default function DashboardPage() {
         body: JSON.stringify({
           questText,
           archetype: profile.archetype,
+          recurrence,
         }),
       });
 
@@ -370,24 +378,28 @@ export default function DashboardPage() {
       const aiDifficulty = data.difficulty || 'medium';
       const aiXp = data.xpValue || 25;
 
-      const { error } = await supabase
-        .from('quests')
-        .insert({
-          user_id: user.id,
-          original_text: questText,
-          transformed_text: data.transformedText,
-          difficulty: aiDifficulty,
-          xp_value: aiXp,
-          completed: false,
-          story_thread: data.storyThread || null,
-          narrative_impact: data.narrativeImpact || null,
-        });
+      // A recurring habit is already saved server-side, rule and first instance
+      // together. Only a one-off still needs inserting from here.
+      if (!data.firstQuest) {
+        const { error } = await supabase
+          .from('quests')
+          .insert({
+            user_id: user.id,
+            original_text: questText,
+            transformed_text: data.transformedText,
+            difficulty: aiDifficulty,
+            xp_value: aiXp,
+            completed: false,
+            story_thread: data.storyThread || null,
+            narrative_impact: data.narrativeImpact || null,
+          });
 
-      if (error) {
-        console.error('Database insert error:', error);
-        alert(`Failed to save quest: ${error.message}`);
-        setAdding(false);
-        return;
+        if (error) {
+          console.error('Database insert error:', error);
+          alert(`Failed to save quest: ${error.message}`);
+          setAdding(false);
+          return;
+        }
       }
 
       trackQuestCreated(aiDifficulty, profile.archetype);
@@ -401,6 +413,29 @@ export default function DashboardPage() {
       alert(`Failed to add quest: ${error.message || 'Unknown error'}`);
     } finally {
       setAdding(false);
+    }
+  }
+
+  // Stops a habit from coming back. Deliberately pause (is_active = false)
+  // rather than delete: the rule keeps its history, today's already-generated
+  // quest stays completable, and nothing the child earned disappears.
+  async function stopRecurring(recurringQuestId) {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const response = await fetch('/api/recurring-quests/update', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ quest_id: recurringQuestId, is_active: false }),
+      });
+
+      if (response.ok) loadUserData();
+    } catch (error) {
+      console.error('Error stopping recurring quest:', error);
     }
   }
 
@@ -882,45 +917,6 @@ export default function DashboardPage() {
     setProfile({ ...profile, gold: newGold });
   };
 
-  async function generateQuestsFromTemplates() {
-    if (generating) return;
-    setGenerating(true);
-    try {
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      if (sessionError || !session || !session.access_token) {
-        console.error('Session error:', sessionError);
-        alert('Session expired. Please log in again.');
-        router.push('/login');
-        setGenerating(false);
-        return;
-      }
-
-      const response = await fetch('/api/generate-from-templates', {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${session.access_token}` },
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        alert(data.message || data.error || 'Failed to generate quests');
-        setGenerating(false);
-        return;
-      }
-
-      if (data.questsCreated === 0) {
-        alert('No new quests to generate. Templates may have already generated quests recently.');
-      } else {
-        alert(`Successfully generated ${data.questsCreated} quests!`);
-        loadUserData();
-      }
-    } catch (error) {
-      console.error('Error generating quests:', error);
-      alert(`Failed to generate quests: ${error.message || 'Unknown error'}`);
-    } finally {
-      setGenerating(false);
-    }
-  }
 
   async function handleLogout() {
     await supabase.auth.signOut();
@@ -995,7 +991,11 @@ export default function DashboardPage() {
                 onSwitch={loadUserData}
               />
             )}
-            {sections.skillTree && isPremium && (
+            {/* Ungated. /skills has no level or tier check of its own, and the
+                tree is worth seeing before you can spend on it -- it shows what
+                the next points unlock. Previously this was the only entry point
+                and it needed level 10 plus Pro. */}
+            {(
               <button
                 onClick={() => router.push('/skills')}
                 className={`kq-chip font-bold text-xs transition-all ${
@@ -1021,6 +1021,16 @@ export default function DashboardPage() {
                 className="kq-chip bg-navy text-cream font-bold text-xs transition-all"
               >
                 <ScrollText size={13} className="inline -mt-0.5 mr-1" /> History
+              </button>
+            )}
+            {/* Below level 10 there is no journal tab, and the bottom nav is
+                mobile-only, so desktop had no way in at all. */}
+            {!sections.tabBar && (
+              <button
+                onClick={() => router.push('/journal')}
+                className="kq-chip bg-purple text-white font-bold text-xs transition-all"
+              >
+                <BookOpen size={13} className="inline -mt-0.5 mr-1" /> Journal
               </button>
             )}
             {/* Legendary Badges — quiet entry point, only shown when the flag is on */}
@@ -1166,7 +1176,6 @@ export default function DashboardPage() {
             <div className="flex flex-wrap gap-2">
               {[
                 { key: 'quests', Icon: ClipboardList, label: 'Quests', color: '#FF7B6B' },
-                { key: 'recurring', Icon: RefreshCw, label: 'Recurring', color: '#57D7F5' },
                 { key: 'templates', Icon: Package, label: 'Templates', color: '#FFC83D' },
                 { key: 'equipment', Icon: Swords, label: 'Equipment', color: '#4CAF7D' },
                 { key: 'journal', Icon: BookOpen, label: 'Journal', color: '#9B6BE0' },
@@ -1217,6 +1226,8 @@ export default function DashboardPage() {
                 adding={adding}
                 questText={newQuestText}
                 setQuestText={setNewQuestText}
+                recurrence={recurrence}
+                setRecurrence={setRecurrence}
               />
             </div>
 
@@ -1238,6 +1249,24 @@ export default function DashboardPage() {
                       <div className="text-xs text-gold mt-2 font-bold">
                         {quest.difficulty} | {quest.xp_value} XP
                       </div>
+                      {/* Recurring controls live on the quest itself now that
+                          there is no separate management tab. Stopping a habit
+                          leaves today's quest alone -- only tomorrow changes. */}
+                      {quest.recurring_quest_id && (
+                        <div className="flex items-center gap-2 flex-wrap mt-2">
+                          <span className="kq-chip bg-aqua/10 text-hero-blue border border-aqua/20 text-[10px] font-black">
+                            🔄 COMES BACK
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => stopRecurring(quest.recurring_quest_id)}
+                            style={{ minHeight: 44, touchAction: 'manipulation' }}
+                            className="px-3 text-xs font-bold text-navy/50 hover:text-coral underline"
+                          >
+                            Stop repeating
+                          </button>
+                        </div>
+                      )}
                     </div>
                     <motion.button
                       onClick={(e) => completeQuest(quest.id, quest.xp_value, e)}
@@ -1309,15 +1338,6 @@ export default function DashboardPage() {
         )}
 
         {/* ── TAB CONTENT (Level 10+) ── */}
-
-        {/* Recurring Quests Tab */}
-        {sections.tabBar && activeTab === 'recurring' && (
-          <RecurringQuests
-            isPremium={isPremium}
-            archetype={profile.archetype}
-            onQuestCreated={() => loadUserData()}
-          />
-        )}
 
         {/* Templates Tab */}
         {sections.tabBar && activeTab === 'templates' && (
@@ -1597,7 +1617,10 @@ export default function DashboardPage() {
           if (sections.tabBar) {
             setActiveTab('journal');
           } else {
-            setShowJournalSection(true);
+            // setShowJournalSection only drives a block that lives inside the
+            // level-10 journal tab, so below level 10 this button did nothing
+            // at all. The standalone page has no level check.
+            router.push('/journal');
           }
         }}
       />
@@ -1618,7 +1641,7 @@ export default function DashboardPage() {
         isOpen={showHabitLimitModal}
         onClose={() => setShowHabitLimitModal(false)}
         onUpgrade={() => { setShowHabitLimitModal(false); router.push('/pricing'); }}
-        currentHabits={quests.filter(q => !q.completed).length}
+        currentHabits={countHabitsTowardLimit(quests)}
       />
 
       {/* Milestone testimonial prompt (feature-flagged) */}

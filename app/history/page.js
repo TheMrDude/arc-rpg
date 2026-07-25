@@ -27,6 +27,7 @@ export default function HistoryPage() {
         .select('*')
         .eq('user_id', user.id)
         .eq('completed', true)
+        .eq('status', 'active')
         .order('completed_at', { ascending: false });
 
       setQuests(questsData || []);

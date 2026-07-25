@@ -122,6 +122,7 @@ export async function POST(request) {
       .select('transformed_text, original_text')
       .eq('user_id', user.id)
       .eq('completed', true)
+      .eq('status', 'active')
       .order('completed_at', { ascending: false })
       .limit(5);
 

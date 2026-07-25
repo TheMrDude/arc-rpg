@@ -56,6 +56,7 @@ export async function GET(request) {
       .select('original_text, transformed_text, difficulty')
       .eq('user_id', user.id)
       .eq('completed', true)
+      .eq('status', 'active')
       .order('completed_at', { ascending: false })
       .limit(15);
 
@@ -64,7 +65,8 @@ export async function GET(request) {
       .from('quests')
       .select('original_text')
       .eq('user_id', user.id)
-      .eq('completed', false);
+      .eq('completed', false)
+      .eq('status', 'active');
 
     const completedList = (completedQuests || []).map(q => `- ${q.original_text}`).join('\\n');
     const activeList = (activeQuests || []).map(q => q.original_text).join(', ');

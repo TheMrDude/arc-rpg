@@ -1,6 +1,8 @@
 'use client';
 
+import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { FREE_TIER_QUEST_LIMIT } from '@/lib/quest-limits';
 
 interface HabitLimitModalProps {
   isOpen: boolean;
@@ -10,6 +12,17 @@ interface HabitLimitModalProps {
 }
 
 export default function HabitLimitModal({ isOpen, onClose, onUpgrade, currentHabits }: HabitLimitModalProps) {
+  // Third close path, alongside the backdrop tap and the dismiss button. This
+  // app is used by children, so an upgrade prompt must never be a dead end.
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' || e.key === 'Esc') onClose();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [isOpen, onClose]);
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -63,7 +76,7 @@ export default function HabitLimitModal({ isOpen, onClose, onUpgrade, currentHab
               onClick={onClose}
               className="w-full text-navy/40 hover:text-navy/70 text-sm font-bold transition-colors"
             >
-              I'll stick with 3 habits for now
+              I'll stick with {FREE_TIER_QUEST_LIMIT} habits for now
             </button>
           </motion.div>
         </motion.div>

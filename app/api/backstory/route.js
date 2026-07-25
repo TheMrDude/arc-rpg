@@ -55,6 +55,7 @@ export async function POST(request) {
       .from('quests')
       .select('original_text, transformed_text, difficulty, completed, created_at')
       .eq('user_id', user.id)
+      .eq('status', 'active')
       .order('created_at', { ascending: true });
 
     const completedCount = quests?.filter(q => q.completed).length || 0;

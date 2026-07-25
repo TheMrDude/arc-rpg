@@ -5,12 +5,14 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import GoldShop from '@/app/components/GoldShop';
+import EquipmentShop from '@/app/components/EquipmentShop';
 
 export default function ShopPage() {
   const router = useRouter();
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const isPremium = profile?.is_premium || profile?.subscription_status === 'active';
 
   useEffect(() => {
     loadUserData();
@@ -118,14 +120,28 @@ export default function ShopPage() {
           </div>
         </div>
 
+        {/* Equipment shop, rendered here rather than linked.
+            The only other way in is the dashboard equipment tab, which needs
+            level 10, so a Pro subscriber below level 10 could not reach gear
+            they were paying for -- including the six catalogue items marked
+            required_level = 1. The button that used to sit here pointed at
+            that same level-gated tab, so for anyone under level 10 it led to a
+            page that renders nothing.
+
+            EquipmentShop returns null for free users; equipment is a Pro
+            feature and that gate is deliberately left alone. Free users see
+            the gold shop above, exactly as before. */}
+        <div className="mt-8">
+          <EquipmentShop
+            isPremium={isPremium}
+            gold={profile?.gold || 0}
+            onGoldChange={(newGold) => setProfile((p) => (p ? { ...p, gold: newGold } : p))}
+            onEquipmentChange={() => {}}
+          />
+        </div>
+
         {/* Navigation */}
         <div className="flex justify-center gap-4 mt-8">
-          <button
-            onClick={() => router.push('/dashboard?tab=equipment')}
-            className="kq-btn kq-btn-blue"
-          >
-            ⚔️ Equipment Shop
-          </button>
           <button
             onClick={() => router.push('/dashboard')}
             className="kq-btn kq-btn-ghost"

@@ -70,7 +70,7 @@ If you felt like garbage, avoided opening the app, and eventually deleted it, th
 
 ## Try the anti-guilt approach free
 
-HabitQuest is free forever for up to 3 habits: no credit card, no trial countdown. Pick your archetype, add one real habit, and watch the AI turn it into a quest.
+HabitQuest is free forever for up to 10 habits: no credit card, no trial countdown. Pick your archetype, add one real habit, and watch the AI turn it into a quest.
 
 Start your quest free at [habitquest.dev](https://habitquest.dev?utm_source=blog&utm_medium=cta&utm_campaign=best_habit_apps_2026)
 
