@@ -201,7 +201,7 @@ export default function LandingPage() {
               { '@type': 'Question', name: 'What age is HabitQuest for?', acceptedAnswer: { '@type': 'Answer', text: 'Ages 4 and up. The game world is bright and friendly enough for little ones and deep enough (worlds, pets, boss battles) that big kids, teens, and grown-ups keep playing too.' } },
               { '@type': 'Question', name: 'What if my kid misses a day?', acceptedAnswer: { '@type': 'Answer', text: 'Nothing bad happens. No streak resets, no guilt screens, no "you failed" messages. Their hero just picks up where they left off. Building habits should feel encouraging, not like punishment.' } },
               { '@type': 'Question', name: 'Is it safe and ad-free?', acceptedAnswer: { '@type': 'Answer', text: 'Yes. HabitQuest is ad-free and built to be a calm, safe place for kids to build routines and independence.' } },
-              { '@type': 'Question', name: 'What do I get for free?', acceptedAnswer: { '@type': 'Answer', text: 'Track up to 3 habits, pick your hero, and turn habits into quests — free forever. Pro unlocks unlimited quests, boss battles, pets, gear, and every world.' } },
+              { '@type': 'Question', name: 'What do I get for free?', acceptedAnswer: { '@type': 'Answer', text: 'Track up to 10 habits, pick your hero, and turn habits into quests — free forever. Pro unlocks unlimited quests, boss battles, pets, gear, and every world.' } },
               { '@type': 'Question', name: 'Do I need to download anything?', acceptedAnswer: { '@type': 'Answer', text: 'Nope. It works in any browser on any device. You can install it as an app on a phone if you like (it\'s a PWA), but it\'s not required.' } },
             ],
           }),
@@ -636,7 +636,7 @@ export default function LandingPage() {
               <div className="kq-display text-4xl text-hero-blue mb-1">$0</div>
               <p className="text-navy/50 text-sm font-bold mb-5">forever</p>
               <ul className="space-y-2.5 text-navy/80 text-sm font-semibold mb-6 flex-1">
-                <li className="flex gap-2"><span className="text-emerald" aria-hidden="true">✓</span> 3 quests (habits)</li>
+                <li className="flex gap-2"><span className="text-emerald" aria-hidden="true">✓</span> 10 quests (habits)</li>
                 <li className="flex gap-2"><span className="text-emerald" aria-hidden="true">✓</span> Pick your hero</li>
                 <li className="flex gap-2"><span className="text-emerald" aria-hidden="true">✓</span> Explore the world map</li>
                 <li className="flex gap-2"><span className="text-emerald" aria-hidden="true">✓</span> Level up &amp; earn XP</li>
@@ -708,7 +708,7 @@ export default function LandingPage() {
               { q: 'What age is it for?', a: 'Ages 4 and up — bright and friendly for littles, deep enough (worlds, pets, boss battles) that big kids, teens, and grown-ups keep playing too.' },
               { q: 'What if my kid misses a day?', a: 'Nothing bad happens. No streak resets, no guilt screens. Their hero just picks up where they left off.' },
               { q: 'Is it safe and ad-free?', a: 'Yes — ad-free, private, and designed to be a calm, safe place to build routines.' },
-              { q: 'What do I get for free?', a: 'Track up to 3 habits, pick your hero, and turn habits into quests — free forever. Pro unlocks unlimited quests, boss battles, pets, gear, and every world.' },
+              { q: 'What do I get for free?', a: 'Track up to 10 habits, pick your hero, and turn habits into quests — free forever. Pro unlocks unlimited quests, boss battles, pets, gear, and every world.' },
               { q: 'Do I need to download anything?', a: 'Nope. Works in any browser on any device. You can install it as an app on a phone (it’s a PWA), but it’s not required.' },
             ].map((item) => (
               <div key={item.q} className="kq-card p-6">

@@ -184,7 +184,7 @@ export default function PricingPage() {
             <p className="text-navy/50 text-sm font-bold mb-6">Free forever</p>
 
             <ul className="space-y-3 text-navy/80 text-sm font-semibold mb-8 flex-1">
-              <li className="flex items-start gap-2"><span className="text-emerald">✓</span> 3 quests (habits)</li>
+              <li className="flex items-start gap-2"><span className="text-emerald">✓</span> 10 quests (habits)</li>
               <li className="flex items-start gap-2"><span className="text-emerald">✓</span> XP &amp; leveling</li>
               <li className="flex items-start gap-2"><span className="text-emerald">✓</span> Pick your hero</li>
               <li className="flex items-start gap-2"><span className="text-emerald">✓</span> Turn habits into quests</li>

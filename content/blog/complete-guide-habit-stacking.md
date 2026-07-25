@@ -83,4 +83,4 @@ The part I actually care about, though, is what happens when you miss a day. The
 
 Pick one anchor you already do every day without thinking. Attach one tiny habit to it. Run it for a week before you add anything else. That's the whole system, and it works better than five new habits started on a Monday ever will.
 
-Try building your first habit stack as a quest chain at [habitquest.dev](https://habitquest.dev?utm_source=blog&utm_medium=cta&utm_campaign=habit_stacking_guide). It's free for your first three habits, and it's built for brains that need a system, not more willpower.
+Try building your first habit stack as a quest chain at [habitquest.dev](https://habitquest.dev?utm_source=blog&utm_medium=cta&utm_campaign=habit_stacking_guide). It's free for your first ten habits, and it's built for brains that need a system, not more willpower.

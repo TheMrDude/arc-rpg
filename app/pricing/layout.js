@@ -5,19 +5,19 @@
 export const metadata = {
   title: 'HabitQuest Pricing — Free to Start, No Punishment',
   description:
-    'Start free forever with 3 quests, your own hero, and XP. Pro unlocks unlimited quests, boss battles, gear, and quest chains. Cancel anytime.',
+    'Start free forever with 10 quests, your own hero, and XP. Pro unlocks unlimited quests, boss battles, gear, and quest chains. Cancel anytime.',
   alternates: { canonical: '/pricing' },
   openGraph: {
     url: '/pricing',
     title: 'HabitQuest Pricing — Free to Start, No Punishment',
     description:
-      'Start free forever with 3 quests, your own hero, and XP. Pro unlocks unlimited quests, boss battles, gear, and quest chains. Cancel anytime.',
+      'Start free forever with 10 quests, your own hero, and XP. Pro unlocks unlimited quests, boss battles, gear, and quest chains. Cancel anytime.',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'HabitQuest Pricing — Free to Start, No Punishment',
     description:
-      'Start free forever with 3 quests, your own hero, and XP. Pro unlocks unlimited quests, boss battles, gear, and quest chains.',
+      'Start free forever with 10 quests, your own hero, and XP. Pro unlocks unlimited quests, boss battles, gear, and quest chains.',
   },
 };
 

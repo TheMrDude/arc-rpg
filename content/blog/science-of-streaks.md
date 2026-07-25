@@ -54,4 +54,4 @@ What you get instead is XP that accumulates and a character that keeps progressi
 
 If a 63-day streak breaking has ever cost you three months of not doing something you actually wanted to keep doing, the problem was never you. It was the math of the system you were using.
 
-Try a habit system built around recovery instead of punishment at [habitquest.dev](https://habitquest.dev?utm_source=blog&utm_medium=cta&utm_campaign=science_of_streaks). Free for your first three habits, no streak to lose.
+Try a habit system built around recovery instead of punishment at [habitquest.dev](https://habitquest.dev?utm_source=blog&utm_medium=cta&utm_campaign=science_of_streaks). Free for your first ten habits, no streak to lose.

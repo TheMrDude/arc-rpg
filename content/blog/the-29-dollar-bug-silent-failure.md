@@ -50,7 +50,7 @@ That is not a small design detail. It is the whole reason audits happen at all.
 
 Whether or not you ever touch my app, do the walkthrough: pick the one routine you are most confident about and verify it against reality this week. Confidence is exactly where silent failure hides. It hid a 12x billing bug in mine.
 
-And if you want a tracker built for honest audits, one where a missed day is a data point instead of a disaster, HabitQuest is free to start: 3 habits, full RPG mechanics, no credit card, set up in about a minute. Your habits become quests, your progress unlocks a world map, and nothing ever resets to zero.
+And if you want a tracker built for honest audits, one where a missed day is a data point instead of a disaster, HabitQuest is free to start: 10 habits, full RPG mechanics, no credit card, set up in about a minute. Your habits become quests, your progress unlocks a world map, and nothing ever resets to zero.
 
 The buy button works now too. I checked. Twice.
 

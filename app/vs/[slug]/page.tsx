@@ -46,7 +46,7 @@ export const COMPETITORS: Competitor[] = [
       { label: 'Social', them: 'Parties, guilds, challenges, big community', us: 'Solo-first campaign (party play in beta)' },
       { label: 'ADHD fit', them: 'Feature-dense; can overwhelm', us: 'Built ADHD-first: no shame spirals, fast wins' },
       { label: 'AI features', them: 'None built-in', us: 'AI turns boring tasks into quests' },
-      { label: 'Price', them: 'Free; premium subscription for extras', us: 'Free (3 habits); Pro $5/mo or $29/yr Early Bird' },
+      { label: 'Price', them: 'Free; premium subscription for extras', us: 'Free (10 habits); Pro $5/mo or $29/yr Early Bird' },
       { label: 'Platform', them: 'iOS, Android, web', us: 'Web app (installable PWA on any device)' },
     ],
     theyWin: {
@@ -70,7 +70,7 @@ export const COMPETITORS: Competitor[] = [
     faqs: [
       { q: 'Is HabitQuest just a Habitica clone?', a: 'No. Both are RPG habit trackers, but they run on opposite engines. Habitica motivates with loss (miss a habit, take damage). HabitQuest motivates with momentum (progress accumulates, misses are non-events). If loss aversion works for you, Habitica is great. If it has burned you out before, that is the problem HabitQuest exists to solve.' },
       { q: 'Which is better for ADHD, Habitica or HabitQuest?', a: 'HabitQuest was designed ADHD-first: no streak punishment, instant first wins in onboarding, and AI that turns vague tasks into concrete quests. Habitica can work for ADHD users, but its damage mechanic and dense interface are common drop-off points.' },
-      { q: 'Can I use HabitQuest for free?', a: 'Yes. The free plan includes 3 habits, XP and leveling, and archetype selection, with no time limit. Pro is $5/mo (or $29/yr Early Bird) and unlocks unlimited habits, boss battles, equipment, quest chains, and the journal.' },
+      { q: 'Can I use HabitQuest for free?', a: 'Yes. The free plan includes 10 habits, XP and leveling, and archetype selection, with no time limit. Pro is $5/mo (or $29/yr Early Bird) and unlocks unlimited habits, boss battles, equipment, quest chains, and the journal.' },
     ],
   },
   {
@@ -93,7 +93,7 @@ export const COMPETITORS: Competitor[] = [
       { label: 'Design', them: 'Minimalist, gorgeous, Apple-native', us: 'Dark fantasy RPG with quests and loot' },
       { label: 'Health integration', them: 'Deep Apple Health integration', us: 'None yet' },
       { label: 'Platform', them: 'iOS, iPadOS, watchOS only', us: 'Web app (PWA), works on any device' },
-      { label: 'Price', them: 'One-time purchase on the App Store', us: 'Free (3 habits); Pro $5/mo or $29/yr Early Bird' },
+      { label: 'Price', them: 'One-time purchase on the App Store', us: 'Free (10 habits); Pro $5/mo or $29/yr Early Bird' },
       { label: 'ADHD fit', them: 'Great for consistent brains; harsh after slips', us: 'Built for inconsistent weeks and comebacks' },
     ],
     theyWin: {
@@ -140,7 +140,7 @@ export const COMPETITORS: Competitor[] = [
       { label: 'Miss a day', them: 'Nothing bad happens', us: 'Nothing bad happens' },
       { label: 'Depth', them: 'Light gamification, focus on reflection and mood', us: 'Equipment, quest chains, journal, campaign layer' },
       { label: 'ADHD fit', them: 'Excellent; very low pressure', us: 'Excellent; low pressure with more game to chew on' },
-      { label: 'Price', them: 'Free; Finch Plus subscription for extras', us: 'Free (3 habits); Pro $5/mo or $29/yr Early Bird' },
+      { label: 'Price', them: 'Free; Finch Plus subscription for extras', us: 'Free (10 habits); Pro $5/mo or $29/yr Early Bird' },
       { label: 'Platform', them: 'iOS and Android apps', us: 'Web app (installable PWA on any device)' },
     ],
     theyWin: {
@@ -187,7 +187,7 @@ export const COMPETITORS: Competitor[] = [
       { label: 'Simplicity', them: 'Extremely simple, near zero learning curve', us: 'Simple to start, more game as you go' },
       { label: 'Motivation style', them: 'Do not break the chain', us: 'Build momentum, advance the story' },
       { label: 'Platform', them: 'Web, iOS, Android', us: 'Web app (installable PWA on any device)' },
-      { label: 'Price', them: 'Free trial; paid subscription', us: 'Free (3 habits); Pro $5/mo or $29/yr Early Bird' },
+      { label: 'Price', them: 'Free trial; paid subscription', us: 'Free (10 habits); Pro $5/mo or $29/yr Early Bird' },
       { label: 'Extras', them: 'Stats and simple charts', us: 'Boss battles, equipment, journal, AI quests' },
     ],
     theyWin: {
@@ -211,7 +211,7 @@ export const COMPETITORS: Competitor[] = [
     faqs: [
       { q: 'Is a calendar grid or a gamified tracker more effective?', a: 'It depends on how you respond to visible gaps. Research on loss aversion suggests broken chains demotivate many people more than chains motivate them. If gaps fuel you, a grid like Everyday works. If gaps shame you into quitting, a no-punishment system like HabitQuest tends to survive real life better.' },
       { q: 'Does HabitQuest show a history calendar?', a: 'HabitQuest tracks your history and shows progress through XP, levels, weekly summaries, and a world map that fills in, but it deliberately never renders a grid of missed days.' },
-      { q: 'Is HabitQuest free like Everyday’s trial?', a: 'HabitQuest’s free plan is permanent, not a trial: 3 habits, XP and leveling, and archetype selection for as long as you want. Pro is $5/mo or $29/yr Early Bird.' },
+      { q: 'Is HabitQuest free like Everyday’s trial?', a: 'HabitQuest’s free plan is permanent, not a trial: 10 habits, XP and leveling, and archetype selection for as long as you want. Pro is $5/mo or $29/yr Early Bird.' },
     ],
   },
   {
@@ -234,7 +234,7 @@ export const COMPETITORS: Competitor[] = [
       { label: 'Style', them: 'Coach: the app leads, you follow', us: 'Game: you lead, the app rewards' },
       { label: 'Content', them: 'Coaching audio, meditations, challenges', us: 'Boss battles, equipment, journal, AI quests' },
       { label: 'Notifications', them: 'Famously heavy by default', us: 'Light touch; the game pulls, it does not nag' },
-      { label: 'Price', them: 'About $40/yr subscription; limited free tier', us: 'Free (3 habits); Pro $5/mo or $29/yr Early Bird' },
+      { label: 'Price', them: 'About $40/yr subscription; limited free tier', us: 'Free (10 habits); Pro $5/mo or $29/yr Early Bird' },
       { label: 'Platform', them: 'iOS and Android apps', us: 'Web app (installable PWA on any device)' },
     ],
     theyWin: {
@@ -279,7 +279,7 @@ export const COMPETITORS: Competitor[] = [
       { label: 'Core mechanic', them: 'Check-ins with a habit strength score', us: 'RPG quests, XP, and momentum' },
       { label: 'Miss a day', them: 'Strength dips gradually; no hard reset', us: 'Nothing resets; your progress stays' },
       { label: 'Motivation layer', them: 'Charts and statistics', us: 'Story, boss battles, loot, world map' },
-      { label: 'Price', them: 'Completely free, open source, no ads', us: 'Free (3 habits); Pro $5/mo or $29/yr Early Bird' },
+      { label: 'Price', them: 'Completely free, open source, no ads', us: 'Free (10 habits); Pro $5/mo or $29/yr Early Bird' },
       { label: 'Privacy', them: 'Local-only data, no account needed', us: 'Cloud account; data synced across devices' },
       { label: 'Platform', them: 'Android only', us: 'Web app (PWA), works on any device' },
       { label: 'AI features', them: 'None', us: 'AI turns boring tasks into quests' },
@@ -304,7 +304,7 @@ export const COMPETITORS: Competitor[] = [
       'Loop actually handles misses gracefully: your habit strength dips a little instead of resetting, which is the same philosophy HabitQuest runs on. The difference is what greets you afterward. Loop greets you with a chart that dipped. HabitQuest greets you with a story that kept your seat warm. Both are kind; only one is fun.',
     faqs: [
       { q: 'Is Loop Habit Tracker available on iPhone?', a: 'No. Loop is Android-only and the developers have said an iOS version is not planned. If you want Loop’s no-punishment philosophy on an iPhone, HabitQuest runs as an installable web app on any device, including iOS.' },
-      { q: 'Why pay for HabitQuest when Loop is free?', a: 'If charts keep you consistent, do not pay; Loop is excellent and free. HabitQuest is for people who need more than data to stay engaged. The free plan (3 habits, XP, leveling) never expires, so you can find out which type you are without spending anything.' },
+      { q: 'Why pay for HabitQuest when Loop is free?', a: 'If charts keep you consistent, do not pay; Loop is excellent and free. HabitQuest is for people who need more than data to stay engaged. The free plan (10 habits, XP, leveling) never expires, so you can find out which type you are without spending anything.' },
       { q: 'Do Loop and HabitQuest both avoid streak punishment?', a: 'Yes. Loop’s habit strength score softens misses instead of resetting them, and HabitQuest removes visible miss-tracking entirely. Both reject the broken-chain model; they just wrap that philosophy in very different experiences: statistics versus story.' },
     ],
   },
@@ -328,7 +328,7 @@ export const COMPETITORS: Competitor[] = [
       { label: 'Design', them: 'Minimal, professional dashboard', us: 'Dark fantasy RPG with quests and loot' },
       { label: 'Integrations', them: 'Apple Health, calendars, API, Zapier', us: 'None yet' },
       { label: 'Platform', them: 'iOS, Android, Mac, web', us: 'Web app (installable PWA on any device)' },
-      { label: 'Price', them: 'Free (3 habits); premium ~$30/yr or $60 lifetime', us: 'Free (3 habits); Pro $5/mo or $29/yr Early Bird' },
+      { label: 'Price', them: 'Free (3 habits); premium ~$30/yr or $60 lifetime', us: 'Free (10 habits); Pro $5/mo or $29/yr Early Bird' },
       { label: 'Motivation style', them: 'Numbers, trends, consistency scores', us: 'Story, boss battles, world map' },
     ],
     theyWin: {
@@ -350,7 +350,7 @@ export const COMPETITORS: Competitor[] = [
     missADay:
       'Habitify handles a miss like an analyst: the streak breaks, the gap is logged, and your completion rate absorbs the hit. Fair, accurate, and for some people quietly demoralizing. HabitQuest handles a miss like a game master: nothing on screen accuses you, and the next quest is simply waiting. Honest data versus honest kindness; pick the one your brain responds to.',
     faqs: [
-      { q: 'Is Habitify or HabitQuest better value?', a: 'They cost about the same per year (Habitify premium is roughly $30/yr or $60 lifetime; HabitQuest Pro is $29/yr Early Bird or $5/mo), and both free plans include 3 habits. The value question is really which one you will still open in March: dashboards and integrations, or quests and momentum.' },
+      { q: 'Is Habitify or HabitQuest better value?', a: 'They cost about the same per year (Habitify premium is roughly $30/yr or $60 lifetime; HabitQuest Pro is $29/yr Early Bird or $5/mo), and HabitQuest’s free plan includes 10 habits to Habitify’s 3. The value question is really which one you will still open in March: dashboards and integrations, or quests and momentum.' },
       { q: 'Does Habitify punish missed days?', a: 'It does not punish, but it does display: broken streaks and gaps appear in your stats and completion rates. If seeing that record motivates you, Habitify is a fine choice. If it reads like a report card of failure, HabitQuest was built to remove exactly that.' },
       { q: 'Can HabitQuest replace Habitify’s integrations?', a: 'Not today. If auto-tracking from Apple Health or calendar-based habits are core to your system, Habitify wins on integrations. HabitQuest’s bet is different: most habit apps are not abandoned for lack of integrations, they are abandoned for lack of motivation.' },
     ],
@@ -505,7 +505,7 @@ export default async function VsPage({ params }: { params: Promise<{ slug: strin
           {/* CTA */}
           <div className="mt-12 bg-gold/10 border-2 border-gold rounded-candy p-8 text-center">
             <h2 className="kq-display text-2xl font-bold text-navy mb-2">Your first quest takes 2 minutes</h2>
-            <p className="text-navy/70 mb-2">Free forever plan: 3 habits, full RPG mechanics, no credit card, 60-second setup.</p>
+            <p className="text-navy/70 mb-2">Free forever plan: 10 habits, full RPG mechanics, no credit card, 60-second setup.</p>
             <p className="text-coral font-semibold mb-6">Miss a day? Nothing resets. Ever. That is the whole point.</p>
             <Link href="/signup" className="kq-btn kq-btn-gold">
               Start Your Quest Free →
