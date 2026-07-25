@@ -4,20 +4,23 @@
 // untouched and still come from the root layout.
 export const metadata = {
   title: 'HabitQuest Pricing — Free to Start, No Punishment',
+  // These previously opened with the quest count, which sold the free tier in
+  // the search snippet, and named boss battles and quest chains as Pro when
+  // both are free. All three now lead with the ad-free, kid-safe angle.
   description:
-    'Start free forever with 10 quests, your own hero, and XP. Pro unlocks unlimited quests, boss battles, gear, and quest chains. Cancel anytime.',
+    'No ads, no data selling, no dark patterns — a habit tracker for kids funded by the people who use it. Free forever for 10 habits. Cancel anytime.',
   alternates: { canonical: '/pricing' },
   openGraph: {
     url: '/pricing',
     title: 'HabitQuest Pricing — Free to Start, No Punishment',
     description:
-      'Start free forever with 10 quests, your own hero, and XP. Pro unlocks unlimited quests, boss battles, gear, and quest chains. Cancel anytime.',
+      'No ads, no data selling, no dark patterns — a habit tracker for kids funded by the people who use it. Free forever for 10 habits. Cancel anytime.',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'HabitQuest Pricing — Free to Start, No Punishment',
     description:
-      'Start free forever with 10 quests, your own hero, and XP. Pro unlocks unlimited quests, boss battles, gear, and quest chains.',
+      'No ads, no data selling, no dark patterns — a kids habit tracker funded by the people who use it. Free forever for 10 habits.',
   },
 };
 

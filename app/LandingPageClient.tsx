@@ -201,7 +201,7 @@ export default function LandingPage() {
               { '@type': 'Question', name: 'What age is HabitQuest for?', acceptedAnswer: { '@type': 'Answer', text: 'Ages 4 and up. The game world is bright and friendly enough for little ones and deep enough (worlds, pets, boss battles) that big kids, teens, and grown-ups keep playing too.' } },
               { '@type': 'Question', name: 'What if my kid misses a day?', acceptedAnswer: { '@type': 'Answer', text: 'Nothing bad happens. No streak resets, no guilt screens, no "you failed" messages. Their hero just picks up where they left off. Building habits should feel encouraging, not like punishment.' } },
               { '@type': 'Question', name: 'Is it safe and ad-free?', acceptedAnswer: { '@type': 'Answer', text: 'Yes. HabitQuest is ad-free and built to be a calm, safe place for kids to build routines and independence.' } },
-              { '@type': 'Question', name: 'What do I get for free?', acceptedAnswer: { '@type': 'Answer', text: 'Track up to 10 habits, pick your hero, and turn habits into quests — free forever. Pro unlocks unlimited quests, boss battles, pets, gear, and every world.' } },
+              { '@type': 'Question', name: 'What do I get for free?', acceptedAnswer: { '@type': 'Answer', text: "Track up to 10 habits, and every one of them can repeat daily on its own. Pick your hero, battle the weekly boss, and explore the map. Free forever, no credit card. Pro adds unlimited quests, the gear shop, and hero switching — and it's what keeps HabitQuest ad-free. No ads, no data selling, no dark patterns, funded by the people who use it." } },
               { '@type': 'Question', name: 'Do I need to download anything?', acceptedAnswer: { '@type': 'Answer', text: 'Nope. It works in any browser on any device. You can install it as an app on a phone if you like (it\'s a PWA), but it\'s not required.' } },
             ],
           }),
@@ -636,27 +636,28 @@ export default function LandingPage() {
               <div className="kq-display text-4xl text-hero-blue mb-1">$0</div>
               <p className="text-navy/50 text-sm font-bold mb-5">forever</p>
               <ul className="space-y-2.5 text-navy/80 text-sm font-semibold mb-6 flex-1">
-                <li className="flex gap-2"><span className="text-emerald" aria-hidden="true">✓</span> 10 quests (habits)</li>
-                <li className="flex gap-2"><span className="text-emerald" aria-hidden="true">✓</span> Pick your hero</li>
+                <li className="flex gap-2"><span className="text-emerald" aria-hidden="true">✓</span> 10 quests (habits) — all can repeat daily</li>
+                <li className="flex gap-2"><span className="text-emerald" aria-hidden="true">✓</span> Pick your hero and grow a companion</li>
+                <li className="flex gap-2"><span className="text-emerald" aria-hidden="true">✓</span> Battle the weekly boss</li>
                 <li className="flex gap-2"><span className="text-emerald" aria-hidden="true">✓</span> Explore the world map</li>
-                <li className="flex gap-2"><span className="text-emerald" aria-hidden="true">✓</span> Level up &amp; earn XP</li>
+                <li className="flex gap-2"><span className="text-emerald" aria-hidden="true">✓</span> Level up, earn XP and gold</li>
               </ul>
               <button onClick={goToSignup} className="kq-btn kq-btn-blue w-full">Start Free</button>
             </div>
 
-            {/* Pro Monthly — Most Popular, gold border, lifted */}
+            {/* Pro Monthly — gold border, lifted. No badge: the free tier is
+                generous enough now that ranking the plans against each other is
+                not the honest pitch. */}
             <div className="kq-card p-6 flex flex-col relative -translate-y-0 md:-translate-y-4 shadow-candy-lg" style={{ boxShadow: '0 0 0 4px #FFC83D, 0 20px 45px rgba(36,59,90,0.2)' }}>
-              <span className="absolute -top-3 left-1/2 -translate-x-1/2 kq-chip bg-gold text-[#5a4300] text-xs py-1 px-4 whitespace-nowrap">⭐ Most Popular</span>
               <h3 className="kq-display text-2xl text-navy mb-1">Pro</h3>
               <div className="kq-display text-4xl text-navy mb-1">$5<span className="text-lg text-navy/40">/mo</span></div>
               <p className="text-navy/50 text-sm font-bold mb-5">billed monthly</p>
               <ul className="space-y-2.5 text-navy/80 text-sm font-semibold mb-6 flex-1">
-                <li className="flex gap-2"><span className="text-gold" aria-hidden="true">★</span> <strong className="text-navy">Boss battles</strong> &amp; raids</li>
                 <li className="flex gap-2"><span className="text-gold" aria-hidden="true">★</span> <strong className="text-navy">Unlimited</strong> quests</li>
-                <li className="flex gap-2"><span className="text-gold" aria-hidden="true">★</span> Gear &amp; equipment shop</li>
-                <li className="flex gap-2"><span className="text-gold" aria-hidden="true">★</span> Quest chains</li>
-                <li className="flex gap-2"><span className="text-gold" aria-hidden="true">★</span> Hero journal</li>
-                <li className="flex gap-2"><span className="text-gold" aria-hidden="true">★</span> Campaign adventures</li>
+                <li className="flex gap-2"><span className="text-gold" aria-hidden="true">★</span> The gear shop — armour and equipment that boost your XP</li>
+                <li className="flex gap-2"><span className="text-gold" aria-hidden="true">★</span> Switch your hero any time</li>
+                <li className="flex gap-2"><span className="text-gold" aria-hidden="true">★</span> Momentum Boost</li>
+                <li className="flex gap-2"><span className="text-gold" aria-hidden="true">★</span> Keeps HabitQuest ad-free and independent</li>
               </ul>
               <button onClick={() => router.push('/signup?plan=pro_monthly')} className="kq-btn kq-btn-gold w-full">Get Pro</button>
             </div>
@@ -670,14 +671,14 @@ export default function LandingPage() {
               <ul className="space-y-2.5 text-navy/80 text-sm font-semibold mb-6 flex-1">
                 <li className="flex gap-2"><span className="text-emerald" aria-hidden="true">✓</span> Everything in Pro</li>
                 <li className="flex gap-2"><span className="text-emerald" aria-hidden="true">✓</span> Save 50% vs monthly</li>
-                <li className="flex gap-2"><span className="text-emerald" aria-hidden="true">✓</span> Lock in launch price</li>
+                <li className="flex gap-2"><span className="text-emerald" aria-hidden="true">✓</span> Locks in this price for good</li>
               </ul>
               <button onClick={() => router.push('/signup?plan=early_bird')} className="kq-btn kq-btn-emerald w-full">Get Early Bird</button>
             </div>
           </div>
 
           <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mt-8">
-            {['No credit card to start', 'No streaks, no guilt', 'Cancel Pro anytime'].map((p) => (
+            {['No credit card to start', 'No ads, ever', 'Cancel anytime'].map((p) => (
               <span key={p} className="kq-chip bg-white text-navy shadow-candy text-sm">
                 <span aria-hidden="true">✓</span> {p}
               </span>
@@ -708,7 +709,7 @@ export default function LandingPage() {
               { q: 'What age is it for?', a: 'Ages 4 and up — bright and friendly for littles, deep enough (worlds, pets, boss battles) that big kids, teens, and grown-ups keep playing too.' },
               { q: 'What if my kid misses a day?', a: 'Nothing bad happens. No streak resets, no guilt screens. Their hero just picks up where they left off.' },
               { q: 'Is it safe and ad-free?', a: 'Yes — ad-free, private, and designed to be a calm, safe place to build routines.' },
-              { q: 'What do I get for free?', a: 'Track up to 10 habits, pick your hero, and turn habits into quests — free forever. Pro unlocks unlimited quests, boss battles, pets, gear, and every world.' },
+              { q: 'What do I get for free?', a: "Track up to 10 habits, and every one of them can repeat daily on its own. Pick your hero, battle the weekly boss, and explore the map. Free forever, no credit card. Pro adds unlimited quests, the gear shop, and hero switching — and it's what keeps HabitQuest ad-free. No ads, no data selling, no dark patterns, funded by the people who use it." },
               { q: 'Do I need to download anything?', a: 'Nope. Works in any browser on any device. You can install it as an app on a phone (it’s a PWA), but it’s not required.' },
             ].map((item) => (
               <div key={item.q} className="kq-card p-6">

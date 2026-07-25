@@ -41,30 +41,20 @@ export default function HabitLimitModal({ isOpen, onClose, onUpgrade, currentHab
             onClick={(e) => e.stopPropagation()}
           >
             <div className="text-5xl mb-4">&#x2694;&#xFE0F;</div>
+            {/* Previously sold "Boss battles & equipment shop" and "Quest
+                chains & journal" as Pro unlocks. Boss battles and quest chains
+                are free at level 1, so this was selling the reader things they
+                already had. */}
             <h2 className="kq-display text-2xl font-black text-navy mb-3">
-              You've Mastered the Starter Path!
+              You&apos;ve got {currentHabits} habits on the go
             </h2>
             <p className="text-navy/60 mb-2">
-              You're tracking {currentHabits} habits, that's impressive!
+              That&apos;s the free tier, and it&apos;s a lot. Pro removes the limit and adds
+              the gear shop, so your hero can start kitting out.
             </p>
             <p className="text-coral font-bold mb-6">
-              Ready for unlimited quests and the full experience?
+              It&apos;s also what keeps HabitQuest ad-free.
             </p>
-
-            <div className="space-y-3 text-left mb-6">
-              <div className="flex items-center gap-3 text-sm text-navy/70">
-                <span className="text-emerald">&#x2713;</span> Unlimited habits & quests
-              </div>
-              <div className="flex items-center gap-3 text-sm text-navy/70">
-                <span className="text-emerald">&#x2713;</span> Boss battles & equipment shop
-              </div>
-              <div className="flex items-center gap-3 text-sm text-navy/70">
-                <span className="text-emerald">&#x2713;</span> Quest chains & journal
-              </div>
-              <div className="flex items-center gap-3 text-sm text-navy/70">
-                <span className="text-emerald">&#x2713;</span> 7-day free trial available
-              </div>
-            </div>
 
             <button
               onClick={onUpgrade}

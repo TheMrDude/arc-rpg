@@ -53,19 +53,23 @@ const LEVEL_UNLOCKS = {
 };
 
 // Pro upsell moments shown to free users at early level-ups.
-// Each ties the pitch to what Pro unlocks next. No guilt, ever.
+// Each ties the pitch to what Pro actually unlocks. No guilt, ever.
+//
+// These previously promised boss battles (level 3 and 5) and quest chains
+// (level 8), all of which are free from level 1 -- so the pitch was selling the
+// reader things they already had, at the exact moment they were enjoying them.
 const PRO_MOMENTS = {
   3: {
     headline: 'Level 3 already? You are on a roll.',
-    copy: 'Pro heroes quest without limits: unlimited habits and boss battles worthy of your momentum.'
+    copy: 'Free gives you 10 habits. Pro lifts the limit entirely, so nothing caps your momentum.'
   },
   5: {
     headline: 'A true adventurer needs gear.',
-    copy: 'Pro unlocks equipment and epic boss battles. Suit up and see how far this hero goes.'
+    copy: 'Pro unlocks the gear shop: armour and equipment that boost the XP you earn. Suit up and see how far this hero goes.'
   },
   8: {
     headline: 'Your saga is getting good.',
-    copy: 'Pro adds quest chains and the hero journal, so every chapter of your story gets written.'
+    copy: 'Pro lets you switch hero any time, and keeps HabitQuest ad-free and independent.'
   }
 };
 

@@ -185,14 +185,15 @@ export default function PricingPage() {
             <p className="text-navy/50 text-sm font-bold mb-6">Free forever</p>
 
             <ul className="space-y-3 text-navy/80 text-sm font-semibold mb-8 flex-1">
-              <li className="flex items-start gap-2"><span className="text-emerald">✓</span> 10 quests (habits)</li>
-              <li className="flex items-start gap-2"><span className="text-emerald">✓</span> XP &amp; leveling</li>
-              <li className="flex items-start gap-2"><span className="text-emerald">✓</span> Pick your hero</li>
-              <li className="flex items-start gap-2"><span className="text-emerald">✓</span> Turn habits into quests</li>
-              <li className="flex items-start gap-2"><span className="text-navy/30">—</span> <span className="text-navy/40">Boss battles</span></li>
-              <li className="flex items-start gap-2"><span className="text-navy/30">—</span> <span className="text-navy/40">Gear &amp; equipment shop</span></li>
-              <li className="flex items-start gap-2"><span className="text-navy/30">—</span> <span className="text-navy/40">Quest chains</span></li>
-              <li className="flex items-start gap-2"><span className="text-navy/30">—</span> <span className="text-navy/40">Hero journal</span></li>
+              {/* No struck-through list any more. It said boss battles and
+                  quest chains were withheld from free users; both have always
+                  been free at level 1, and the journal is limited rather than
+                  absent. */}
+              <li className="flex items-start gap-2"><span className="text-emerald">✓</span> 10 quests (habits) — all can repeat daily</li>
+              <li className="flex items-start gap-2"><span className="text-emerald">✓</span> Pick your hero and grow a companion</li>
+              <li className="flex items-start gap-2"><span className="text-emerald">✓</span> Battle the weekly boss</li>
+              <li className="flex items-start gap-2"><span className="text-emerald">✓</span> Explore the world map</li>
+              <li className="flex items-start gap-2"><span className="text-emerald">✓</span> Level up, earn XP and gold</li>
             </ul>
 
             <button
@@ -211,9 +212,6 @@ export default function PricingPage() {
             className="kq-card p-8 flex flex-col relative md:-translate-y-4"
             style={{ boxShadow: '0 0 0 4px #FFC83D, 0 20px 45px rgba(36,59,90,0.2)' }}
           >
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 kq-chip bg-gold text-[#5a4300] text-xs py-1 px-4 whitespace-nowrap">
-              ⭐ Most Popular
-            </div>
             <h3 className="kq-display text-xl text-navy mb-1">Pro</h3>
             {isYearly ? (
               <>
@@ -234,15 +232,19 @@ export default function PricingPage() {
             )}
 
             <ul className="space-y-3 text-navy/80 text-sm font-semibold mb-8 flex-1">
+              {/* Only what is actually gated behind the premium check. Boss
+                  battles, quest chains and the campaign were listed here and
+                  are free; "Priority support" had no implementation at all. */}
               <li className="flex items-start gap-2"><span className="text-gold">★</span> <strong className="text-navy">Unlimited</strong> quests</li>
-              <li className="flex items-start gap-2"><span className="text-gold">★</span> Boss battles &amp; raids</li>
-              <li className="flex items-start gap-2"><span className="text-gold">★</span> Gear &amp; equipment shop</li>
-              <li className="flex items-start gap-2"><span className="text-gold">★</span> Quest chains</li>
-              <li className="flex items-start gap-2"><span className="text-gold">★</span> Hero journal</li>
-              <li className="flex items-start gap-2"><span className="text-gold">★</span> Weekly digest emails</li>
-              <li className="flex items-start gap-2"><span className="text-gold">★</span> Priority support</li>
+              <li className="flex items-start gap-2"><span className="text-gold">★</span> The gear shop — armour and equipment that boost your XP</li>
+              <li className="flex items-start gap-2"><span className="text-gold">★</span> Switch your hero any time</li>
+              <li className="flex items-start gap-2"><span className="text-gold">★</span> Momentum Boost</li>
+              <li className="flex items-start gap-2"><span className="text-gold">★</span> Keeps HabitQuest ad-free and independent</li>
               {isYearly && (
-                <li className="flex items-start gap-2"><span className="text-emerald">✓</span> <strong className="text-navy">Save 50%</strong> vs monthly</li>
+                <>
+                  <li className="flex items-start gap-2"><span className="text-emerald">✓</span> <strong className="text-navy">Save 50%</strong> vs monthly</li>
+                  <li className="flex items-start gap-2"><span className="text-emerald">✓</span> Locks in this price for good</li>
+                </>
               )}
             </ul>
 
@@ -329,17 +331,18 @@ export default function PricingPage() {
           className="text-center space-y-4 pb-12"
         >
           <div className="flex flex-wrap justify-center items-center gap-6 mb-6">
+            {/* Same three as the landing page, so the two surfaces agree. */}
             <div className="flex items-center gap-2 text-hero-blue">
-              <span className="text-2xl">🔒</span>
-              <span className="font-extrabold">Secure via Stripe</span>
+              <span className="text-2xl">✓</span>
+              <span className="font-extrabold">No credit card to start</span>
             </div>
             <div className="flex items-center gap-2 text-emerald">
               <span className="text-2xl">✓</span>
-              <span className="font-extrabold">Cancel anytime</span>
+              <span className="font-extrabold">No ads, ever</span>
             </div>
             <div className="flex items-center gap-2 text-gold">
-              <span className="text-2xl">♾️</span>
-              <span className="font-extrabold">Free tier forever</span>
+              <span className="text-2xl">✓</span>
+              <span className="font-extrabold">Cancel anytime</span>
             </div>
           </div>
 
