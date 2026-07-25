@@ -3,6 +3,7 @@ import JournalEntry from '@/app/components/JournalEntry';
 export const metadata = {
   title: 'Quest Journal | HabitQuest',
   description: 'Transform your daily experiences into epic tales with the HabitQuest journal.',
+  alternates: { canonical: '/journal' },
 };
 
 /**

@@ -30,6 +30,9 @@ export const metadata = {
   openGraph: {
     title: 'HabitQuest - Build Habits You Actually Keep',
     description: 'Most habit apps punish you for missing a day. HabitQuest turns your habits into epic RPG quests, so building consistency actually feels fun.',
+    // This openGraph block is the homepage's own and the site-wide default.
+    // Every route that cares sets its own og:url next to its canonical
+    // (/blog, /blog/*, /vs, /vs/*, /pricing, /quiz all do).
     url: 'https://habitquest.dev',
     siteName: 'HabitQuest',
     images: [
@@ -50,9 +53,11 @@ export const metadata = {
     images: ['https://habitquest.dev/og-image.png'],
     creator: '@officialmrdude',
   },
-  alternates: {
-    canonical: 'https://habitquest.dev',
-  },
+  // No `alternates.canonical` here on purpose. Root metadata is inherited by
+  // every route, so a static canonical told Google that /blog/*, /vs/* and
+  // every other page were duplicates of the homepage. Each route now declares
+  // its own canonical; anything that does not gets no canonical tag, and
+  // Google self-canonicalises to the crawled URL.
   robots: {
     index: true,
     follow: true,
