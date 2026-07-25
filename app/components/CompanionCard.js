@@ -63,9 +63,12 @@ export default function CompanionCard({ companion, reducedMotion = false, onRena
             </span>
           </div>
 
-          {/* Renaming stays available forever, not just at the arrival moment.
-              Wording covers both cases: never named, or named and changing. */}
-          {onRename && (
+          {/* Renaming stays available forever, not just at the hatch. The one
+              exception is an unnamed egg: offering "Give them a name" there
+              invites naming a creature nobody has met yet, which is exactly what
+              moving the prompt to the hatch was meant to stop. An egg that has
+              somehow been named can still be changed. */}
+          {onRename && !(stage === 0 && !customName) && (
             <button
               type="button"
               onClick={onRename}
@@ -92,10 +95,22 @@ export default function CompanionCard({ companion, reducedMotion = false, onRena
                   transition={{ type: 'spring', stiffness: 120, damping: 20 }}
                 />
               </div>
-              <p className="text-xs text-navy/60 mt-1">
-                {nextEvolveIn} quest{nextEvolveIn === 1 ? '' : 's'} until they become{' '}
-                <span className="text-emerald font-bold">{nextStageTitle}</span>
-              </p>
+              {stage === 0 ? (
+                /* The egg is the first goal a brand-new account has. "3 quests
+                   until they become Ember Pup" buries that in a species name
+                   nobody has met yet; "Hatches in 3 quests" is a countdown a
+                   child can hold in their head. Same number, stated as a target.
+                   Larger and coloured because at stage 0 this line is the whole
+                   reason the card is on the dashboard. */
+                <p className="text-sm font-bold text-emerald mt-1.5">
+                  🥚 Hatches in {nextEvolveIn} quest{nextEvolveIn === 1 ? '' : 's'}
+                </p>
+              ) : (
+                <p className="text-xs text-navy/60 mt-1">
+                  {nextEvolveIn} quest{nextEvolveIn === 1 ? '' : 's'} until they become{' '}
+                  <span className="text-emerald font-bold">{nextStageTitle}</span>
+                </p>
+              )}
             </div>
           )}
         </div>
