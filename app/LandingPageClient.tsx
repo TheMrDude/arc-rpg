@@ -637,7 +637,7 @@ export default function LandingPage() {
               <p className="text-navy/50 text-sm font-bold mb-5">forever</p>
               <ul className="space-y-2.5 text-navy/80 text-sm font-semibold mb-6 flex-1">
                 <li className="flex gap-2"><span className="text-emerald" aria-hidden="true">✓</span> 10 quests (habits) — all can repeat daily</li>
-                <li className="flex gap-2"><span className="text-emerald" aria-hidden="true">✓</span> Pick your hero and grow a companion</li>
+                <li className="flex gap-2"><span className="text-emerald" aria-hidden="true">✓</span> Pick your hero and name your companion</li>
                 <li className="flex gap-2"><span className="text-emerald" aria-hidden="true">✓</span> Battle the weekly boss</li>
                 <li className="flex gap-2"><span className="text-emerald" aria-hidden="true">✓</span> Explore the world map</li>
                 <li className="flex gap-2"><span className="text-emerald" aria-hidden="true">✓</span> Level up, earn XP and gold</li>
@@ -655,8 +655,9 @@ export default function LandingPage() {
               <ul className="space-y-2.5 text-navy/80 text-sm font-semibold mb-6 flex-1">
                 <li className="flex gap-2"><span className="text-gold" aria-hidden="true">★</span> <strong className="text-navy">Unlimited</strong> quests</li>
                 <li className="flex gap-2"><span className="text-gold" aria-hidden="true">★</span> The gear shop — armour and equipment that boost your XP</li>
-                <li className="flex gap-2"><span className="text-gold" aria-hidden="true">★</span> Switch your hero any time</li>
-                <li className="flex gap-2"><span className="text-gold" aria-hidden="true">★</span> Momentum Boost</li>
+                <li className="flex gap-2"><span className="text-gold" aria-hidden="true">★</span> The skill tree — spend the skill points you earn as you level</li>
+                <li className="flex gap-2"><span className="text-gold" aria-hidden="true">★</span> Quest templates, your journey log, and Journal &ldquo;On This Day&rdquo;</li>
+                <li className="flex gap-2"><span className="text-gold" aria-hidden="true">★</span> Switch your hero any time, and Momentum Boost</li>
                 <li className="flex gap-2"><span className="text-gold" aria-hidden="true">★</span> Keeps HabitQuest ad-free and independent</li>
               </ul>
               <button onClick={() => router.push('/signup?plan=pro_monthly')} className="kq-btn kq-btn-gold w-full">Get Pro</button>

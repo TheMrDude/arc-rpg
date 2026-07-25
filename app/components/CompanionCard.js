@@ -8,12 +8,14 @@ import { STAGE_THRESHOLDS } from '@/lib/companions';
  * completed and is always glad to see you. No decay, no guilt: away
  * time just means it naps until your next quest wakes it.
  */
-export default function CompanionCard({ companion, reducedMotion = false }) {
+export default function CompanionCard({ companion, reducedMotion = false, onRename }) {
   if (!companion) return null;
 
   const {
     emoji,
     name,
+    speciesName,
+    customName,
     stage,
     stageTitle,
     questsCompleted,
@@ -55,9 +57,24 @@ export default function CompanionCard({ companion, reducedMotion = false }) {
               {name}
             </h3>
             <span className="kq-chip text-[10px] font-bold text-navy/60 bg-cream border border-stone">
-              Companion
+              {/* Once a companion has a nickname, the chip carries the species
+                  so the creature it actually is never disappears. */}
+              {customName ? speciesName : 'Companion'}
             </span>
           </div>
+
+          {/* Renaming stays available forever, not just at the arrival moment.
+              Wording covers both cases: never named, or named and changing. */}
+          {onRename && (
+            <button
+              type="button"
+              onClick={onRename}
+              style={{ minHeight: 44, touchAction: 'manipulation' }}
+              className="text-xs font-bold text-navy/50 hover:text-emerald underline"
+            >
+              {customName ? 'Change name' : 'Give them a name'}
+            </button>
+          )}
 
           <p className="text-sm text-navy/70 mt-1">{mood}</p>
 

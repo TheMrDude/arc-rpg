@@ -90,24 +90,19 @@ export default function PricingPage() {
     }
   }
 
-  if (loading) {
-    // Render the real page heading even while user/profile data loads. This is
-    // the server-rendered HTML crawlers see, so it must contain the page's
-    // single h1 rather than a bare spinner.
-    return (
-      <div className="kidquest min-h-screen bg-cream p-4 sm:p-6 lg:p-8">
-        <div className="max-w-5xl mx-auto text-center">
-          <h1 className="kq-display text-4xl sm:text-5xl lg:text-6xl text-navy mb-4 mt-8">
-            Pick Your <span className="text-hero-blue">Adventure Pass</span>
-          </h1>
-          <p className="text-navy/60 text-lg font-semibold mb-10">
-            Start free. Upgrade when you&apos;re ready for the full adventure.
-          </p>
-          <div className="text-navy/50 text-lg font-extrabold">Loading plans…</div>
-        </div>
-      </div>
-    );
-  }
+  // No loading early-return. It used to replace the whole page with
+  // "Loading plans…" until the auth check resolved, and because that state
+  // starts true it was also the entire server-rendered response -- so crawlers
+  // saw a heading and a spinner, never the plan copy.
+  //
+  // None of the card content depends on the user. Only the CTAs do, and every
+  // one of them already handles a null user: isPro is false, isFreeUser is
+  // falsy, hadTrial is false, and the Stripe links simply render without the
+  // email/client_reference_id prefill. So the server now emits the correct
+  // logged-out view and hydration swaps in the personalised CTAs.
+  //
+  // `loading` now only holds back the logged-out trial CTA, so a signed-in
+  // visitor does not see "7-Day Free Trial" flash before auth resolves.
 
   return (
     <div className="kidquest min-h-screen bg-cream text-navy p-4 sm:p-6 lg:p-8">
@@ -190,7 +185,7 @@ export default function PricingPage() {
                   been free at level 1, and the journal is limited rather than
                   absent. */}
               <li className="flex items-start gap-2"><span className="text-emerald">✓</span> 10 quests (habits) — all can repeat daily</li>
-              <li className="flex items-start gap-2"><span className="text-emerald">✓</span> Pick your hero and grow a companion</li>
+              <li className="flex items-start gap-2"><span className="text-emerald">✓</span> Pick your hero and name your companion</li>
               <li className="flex items-start gap-2"><span className="text-emerald">✓</span> Battle the weekly boss</li>
               <li className="flex items-start gap-2"><span className="text-emerald">✓</span> Explore the world map</li>
               <li className="flex items-start gap-2"><span className="text-emerald">✓</span> Level up, earn XP and gold</li>
@@ -237,8 +232,9 @@ export default function PricingPage() {
                   are free; "Priority support" had no implementation at all. */}
               <li className="flex items-start gap-2"><span className="text-gold">★</span> <strong className="text-navy">Unlimited</strong> quests</li>
               <li className="flex items-start gap-2"><span className="text-gold">★</span> The gear shop — armour and equipment that boost your XP</li>
-              <li className="flex items-start gap-2"><span className="text-gold">★</span> Switch your hero any time</li>
-              <li className="flex items-start gap-2"><span className="text-gold">★</span> Momentum Boost</li>
+              <li className="flex items-start gap-2"><span className="text-gold">★</span> The skill tree — spend the skill points you earn as you level</li>
+              <li className="flex items-start gap-2"><span className="text-gold">★</span> Quest templates, your journey log, and Journal &ldquo;On This Day&rdquo;</li>
+              <li className="flex items-start gap-2"><span className="text-gold">★</span> Switch your hero any time, and Momentum Boost</li>
               <li className="flex items-start gap-2"><span className="text-gold">★</span> Keeps HabitQuest ad-free and independent</li>
               {isYearly && (
                 <>
@@ -266,7 +262,7 @@ export default function PricingPage() {
                 >
                   {isYearly ? 'Get Early Bird for $29/yr' : 'Go Pro for $5/mo'}
                 </a>
-                {!user && !hadTrial && (
+                {!loading && !user && !hadTrial && (
                   <button
                     onClick={() => router.push('/signup')}
                     className="kq-btn kq-btn-ghost w-full text-sm py-2 min-h-0"

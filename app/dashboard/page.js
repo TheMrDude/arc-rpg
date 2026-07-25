@@ -39,6 +39,7 @@ import MomentumBoost from '@/app/components/MomentumBoost';
 import MomentumMeter from '@/app/components/MomentumMeter';
 import WeeklyBossCard from '@/app/components/WeeklyBossCard';
 import CompanionCard from '@/app/components/CompanionCard';
+import CompanionNamingPrompt from '@/app/components/CompanionNamingPrompt';
 import CrossroadsCard from '@/app/components/CrossroadsCard';
 import MapWidget from '@/app/components/MapWidget';
 import BottomNav from '@/app/components/BottomNav';
@@ -134,6 +135,10 @@ export default function DashboardPage() {
   // Upgrade prompt states
   const [upgradePromptTrigger, setUpgradePromptTrigger] = useState(null);
   const [questsCompletedToday, setQuestsCompletedToday] = useState(0);
+
+  // Companion naming: the arrival prompt, and the rename entry point on the
+  // companion card.
+  const [showCompanionNaming, setShowCompanionNaming] = useState(false);
 
   // Habit limit modal state
   const [showHabitLimitModal, setShowHabitLimitModal] = useState(false);
@@ -933,6 +938,26 @@ export default function DashboardPage() {
     }, 500);
   }
 
+  // The arrival moment: the companion has just become visible and has never
+  // been named. Prompt once, then remember the dismissal locally so a child who
+  // taps "Maybe later" is not asked again on every dashboard load. Naming stays
+  // available forever from the companion card.
+  //
+  // Must sit above the `loading` early return: hooks have to run in the same
+  // order on every render. It therefore derives the companion itself rather
+  // than using the `creature` computed further down.
+  const companionNamingKey = user ? `companion_named_prompt_${user.id}` : null;
+  useEffect(() => {
+    if (!profile || !companionNamingKey) return;
+    if (typeof window === 'undefined') return;
+    const visible = getDashboardSections(profile).companion;
+    if (!visible) return;
+    const c = getCompanion(profile, quests);
+    if (!c || c.customName) return;
+    if (window.localStorage.getItem(companionNamingKey)) return;
+    setShowCompanionNaming(true);
+  }, [profile, quests, companionNamingKey]);
+
   if (loading) {
     return (
       <div className="kidquest min-h-screen bg-cream flex items-center justify-center">
@@ -946,6 +971,39 @@ export default function DashboardPage() {
   const unlockedSkills = profile ? getUnlockedSkills(profile.archetype, profile.level) : [];
   const bossEncounter = checkBossEncounter(quests);
   const creature = sections.companion ? getCompanion(profile, quests) : null;
+
+
+  async function saveCompanionName(name) {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const response = await fetch('/api/companion/name', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ name }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // Update in place so the card renames instantly, without a full reload.
+        setProfile((p) => (p ? { ...p, companion_name: data.companion_name } : p));
+      }
+    } catch (error) {
+      console.error('Error saving companion name:', error);
+    } finally {
+      if (companionNamingKey) window.localStorage.setItem(companionNamingKey, '1');
+      setShowCompanionNaming(false);
+    }
+  }
+
+  function skipCompanionNaming() {
+    if (companionNamingKey) window.localStorage.setItem(companionNamingKey, '1');
+    setShowCompanionNaming(false);
+  }
   const activeQuestsList = quests.filter(q => !q.completed);
   const isNewUser = (profile?.level || 1) <= 2 && activeQuestsList.length === 0;
   // First-win fast path: brand-new account, nothing completed, nothing created
@@ -992,11 +1050,13 @@ export default function DashboardPage() {
                 onSwitch={loadUserData}
               />
             )}
-            {/* Ungated. /skills has no level or tier check of its own, and the
-                tree is worth seeing before you can spend on it -- it shows what
-                the next points unlock. Previously this was the only entry point
-                and it needed level 10 plus Pro. */}
-            {(
+            {/* Premium only. A previous change ungated this chip on the belief
+                that /skills was free; it is not -- skills/page.js redirects
+                non-premium users straight back here, so the chip was a dead end
+                for every free user. Re-gated to match the page. The level-10
+                requirement is deliberately NOT restored: nothing on the page
+                needs it. */}
+            {resolveIsPremium(profile) && (
               <button
                 onClick={() => router.push('/skills')}
                 className={`kq-chip font-bold text-xs transition-all ${
@@ -1112,7 +1172,13 @@ export default function DashboardPage() {
         </div>
 
         {/* Living Companion — grows with total quests, never guilts */}
-        {creature && <CompanionCard companion={creature} reducedMotion={prefersReducedMotion} />}
+        {creature && (
+          <CompanionCard
+            companion={creature}
+            reducedMotion={prefersReducedMotion}
+            onRename={() => setShowCompanionNaming(true)}
+          />
+        )}
 
         {/* Chronicle — narrative recap, daily "previously on", weekly chapter card */}
         <ChroniclePanel profile={profile} userId={user?.id} />
@@ -1638,6 +1704,14 @@ export default function DashboardPage() {
       )}
 
       {/* Habit Limit Modal */}
+      <CompanionNamingPrompt
+        show={showCompanionNaming && !!creature}
+        emoji={creature?.emoji}
+        speciesName={creature?.speciesName}
+        onSave={saveCompanionName}
+        onSkip={skipCompanionNaming}
+      />
+
       <HabitLimitModal
         isOpen={showHabitLimitModal}
         onClose={() => setShowHabitLimitModal(false)}
