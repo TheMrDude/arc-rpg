@@ -40,7 +40,11 @@ export async function middleware(request) {
     '/onboarding',
     '/select-archetype',
     '/setup',
-    '/quiz',
+    // Note: '/quiz' is intentionally NOT in this list — the archetype quiz is a
+    // top-of-funnel marketing page. While it was protected, crawlers (and
+    // prospects who had not signed up) got a 307 to /login, so it could never
+    // rank or convert. It is purely client-side and needs no session. Kept out
+    // of publicRoutes too, so signed-in users can still retake it.
     '/history',
     '/skills',
     '/shop',
