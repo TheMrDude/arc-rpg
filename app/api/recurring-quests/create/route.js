@@ -154,7 +154,11 @@ DIFFICULTY: [easy OR medium OR hard]`;
       return NextResponse.json({ error: 'Failed to create recurring quest' }, { status: 500 });
     }
 
-    // Generate first quest instance immediately
+    // Generate first quest instance immediately.
+    // Stamped with recurring_quest_id so the cron can supersede it later. An
+    // unstamped first instance would be invisible to the generator's provenance
+    // query, so the next run would add a second active instance instead of
+    // replacing this one -- the exact defect Phase 1 exists to remove.
     let firstQuest = null;
     try {
       const { data: quest } = await supabaseAdmin
@@ -166,6 +170,8 @@ DIFFICULTY: [easy OR medium OR hard]`;
           difficulty: aiDifficulty,
           xp_value: xpValue,
           completed: false,
+          status: 'active',
+          recurring_quest_id: recurringQuest.id,
         })
         .select()
         .single();
