@@ -111,8 +111,16 @@ export default function RootLayout({ children }) {
           }}
         />
 
-        {/* Facebook Pixel */}
-        {process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID && (
+        {/* Facebook Pixel — behavioural ad tracking.
+            HabitQuest is a child-directed service, and running third-party
+            advertising trackers on a child-directed site is the single biggest
+            children's-privacy exposure we have. So this is OFF unless BOTH the
+            pixel id and an explicit opt-in flag are set:
+              NEXT_PUBLIC_FACEBOOK_PIXEL_ID=<id>
+              NEXT_PUBLIC_ENABLE_AD_TRACKING=true
+            Do not enable it for pages a child may use without first getting
+            proper advice on COPPA / children's advertising rules. */}
+        {process.env.NEXT_PUBLIC_ENABLE_AD_TRACKING === 'true' && process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID && (
           <>
             <Script id="facebook-pixel" strategy="afterInteractive">
               {`

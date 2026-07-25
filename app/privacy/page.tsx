@@ -199,11 +199,57 @@ export default function PrivacyPolicy() {
           </section>
 
           <section className="mb-8">
-            <h2 className="kq-display text-2xl font-bold mb-4 text-navy">Children's Privacy</h2>
+            <h2 className="kq-display text-2xl font-bold mb-4 text-navy">Children&apos;s Privacy</h2>
             <p className="text-navy/80 mb-4">
-              HabitQuest is not intended for children under 13 years old. We do not knowingly collect
-              personal information from children under 13. If you believe we have collected information
-              from a child under 13, please contact us immediately.
+              HabitQuest is meant to be fun for kids, and we take children&apos;s privacy seriously.
+              Our approach is to collect as little as possible and to keep a grown-up in charge of
+              the account.
+            </p>
+
+            <h3 className="text-xl font-semibold mb-3 mt-6 text-navy">Accounts are owned by a parent or guardian</h3>
+            <p className="text-navy/80 mb-4">
+              Accounts may only be created by someone 18 or older. A child does not create their own
+              account &mdash; a parent or guardian sets it up and supervises its use. That means the
+              registration details we hold (email address and, if you subscribe, billing information
+              handled by Stripe) belong to the adult, not the child.
+            </p>
+
+            <h3 className="text-xl font-semibold mb-3 mt-6 text-navy">What we ask you not to enter</h3>
+            <p className="text-navy/80 mb-4">
+              Please do not enter a child&apos;s real full name, date of birth, school, home address,
+              phone number, photo, or precise location anywhere in HabitQuest. A first name or made-up
+              hero name is all the app needs. We do not ask children for personal details, and we
+              never require them to share information to play.
+            </p>
+
+            <h3 className="text-xl font-semibold mb-3 mt-6 text-navy">No behavioural advertising to children</h3>
+            <p className="text-navy/80 mb-4">
+              HabitQuest is ad-free. We do not show advertising to children, we do not sell or share
+              personal information, and we do not use children&apos;s information to build advertising
+              profiles or for targeted advertising.
+            </p>
+
+            <h3 className="text-xl font-semibold mb-3 mt-6 text-navy">Parental rights</h3>
+            <p className="text-navy/80 mb-4">
+              As the account holder, a parent or guardian can at any time ask us to show them what
+              information is associated with the account, correct it, export it, or delete the account
+              and its data entirely. Contact us and we will action it. You can also stop using
+              HabitQuest at any time and delete the account from settings.
+            </p>
+
+            <h3 className="text-xl font-semibold mb-3 mt-6 text-navy">If a child signed up without a parent</h3>
+            <p className="text-navy/80 mb-4">
+              We do not knowingly allow children to register their own accounts. If we learn that a
+              child created an account without a parent or guardian, we will delete that account and
+              its associated data. If you believe this has happened, please contact us and we will
+              remove it promptly.
+            </p>
+
+            <h3 className="text-xl font-semibold mb-3 mt-6 text-navy">A note on quest text and AI</h3>
+            <p className="text-navy/80 mb-4">
+              When you turn a habit into a quest, the text you type is sent to our AI provider to
+              generate the quest wording. Please keep that text free of personal details &mdash;
+              &ldquo;read for 20 minutes&rdquo; rather than anything identifying.
             </p>
           </section>
 

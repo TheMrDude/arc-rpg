@@ -15,6 +15,9 @@ function SignupForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [referralCode, setReferralCode] = useState('');
+  // Grown-up affirmation — accounts must be created by an adult (18+), who is
+  // either the user or the child's parent/guardian. Gates the submit button.
+  const [isGuardian, setIsGuardian] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
@@ -259,10 +262,10 @@ function SignupForm() {
           <p className="text-navy/60 mb-2 font-bold text-sm sm:text-base">
             {hasPreviewQuest ? 'Complete your quest and create your hero' : 'Create your hero and jump in.'}
           </p>
-          {/* Younger players need a grown-up to create the account (and for
-              under-13s that consent is a legal requirement, not just a nicety). */}
+          {/* Accounts are parent/guardian-owned. Kids play on a grown-up's
+              account under supervision — see /terms and /privacy. */}
           <div className="kq-chip bg-[#57D7F5]/20 text-[#0b3a45] text-xs mt-2 mb-1">
-            <span aria-hidden="true">👨‍👩‍👧</span> Under 13? A parent or guardian should set this up
+            <span aria-hidden="true">👨‍👩‍👧</span> A grown-up sets this up &mdash; kids play on their account
           </div>
           {hasPreviewQuest && (
             <p className="text-emerald text-sm mb-4 font-extrabold">
@@ -337,11 +340,28 @@ function SignupForm() {
             )}
           </div>
 
+          {/* Required grown-up affirmation. Accounts are owned by an adult; a
+              child plays on it under supervision. Keeps us out of collecting
+              registration details directly from a child. */}
+          <label className="flex items-start gap-2.5 mb-5 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={isGuardian}
+              onChange={(e) => setIsGuardian(e.target.checked)}
+              required
+              className="mt-1 w-5 h-5 flex-shrink-0 accent-[#4F7DF3] cursor-pointer"
+            />
+            <span className="text-navy/70 text-xs font-bold leading-relaxed">
+              I&apos;m 18 or older, and I&apos;m creating this account for myself or as the parent or
+              guardian of the child who will use it.
+            </span>
+          </label>
+
           <motion.button
             type="submit"
-            disabled={loading}
-            whileHover={!loading ? { scale: 1.02 } : {}}
-            whileTap={!loading ? { scale: 0.98 } : {}}
+            disabled={loading || !isGuardian}
+            whileHover={!loading && isGuardian ? { scale: 1.02 } : {}}
+            whileTap={!loading && isGuardian ? { scale: 0.98 } : {}}
             className="kq-btn kq-btn-gold w-full disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {loading ? '⏳ Creating Account...' : hasPreviewQuest ? '🎉 Complete Quest & Sign Up' : '🚀 Sign Up & Begin Quest'}
