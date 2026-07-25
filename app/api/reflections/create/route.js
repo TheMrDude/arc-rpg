@@ -126,33 +126,57 @@ export async function POST(request) {
       );
     }
 
-    // Award +10 XP bonus
+    // Award +10 XP bonus.
+    //
+    // This used to call an increment_xp RPC that does not exist in the schema
+    // and never has. The call failed every time, the error was swallowed
+    // because the reflection itself had already saved, and the route then read
+    // XP straight back and reported the unchanged value as `newXP` -- so it
+    // returned 200 while awarding nothing.
+    //
+    // Done inline rather than by writing the missing function, because that is
+    // how every other XP award in this codebase works, and because a bare
+    // increment would not touch `level`: complete-quest recomputes level from
+    // XP on the same update, and a reflection that pushed a user past a 100 XP
+    // boundary would otherwise leave them at the old level. Same formula as
+    // complete-quest, deliberately.
     const xpBonus = 10;
-    const { error: xpError } = await supabaseAdmin.rpc('increment_xp', {
-      user_id: user.id,
-      xp_amount: xpBonus
-    });
+    let newXP = null;
+    let newLevel = null;
 
-    if (xpError) {
-      console.error('Error awarding XP bonus:', xpError);
-      // Reflection was saved, so still return success
+    const { data: current } = await supabaseAdmin
+      .from('profiles')
+      .select('xp, level')
+      .eq('id', user.id)
+      .single();
+
+    if (current) {
+      newXP = (current.xp || 0) + xpBonus;
+      newLevel = Math.floor(newXP / 100) + 1;
+
+      const { error: xpError } = await supabaseAdmin
+        .from('profiles')
+        .update({ xp: newXP, level: newLevel })
+        .eq('id', user.id);
+
+      if (xpError) {
+        console.error('Error awarding XP bonus:', xpError);
+        // Reflection was saved, so still return success -- but report the XP
+        // the user actually has, not the value we hoped to write.
+        newXP = current.xp || 0;
+        newLevel = current.level || 1;
+      }
     }
 
     // Welcome Quest chain: first reflection satisfies step 6. Never throws.
     const welcomeChain = await advanceWelcomeChain(user.id, 'reflection_created');
 
-    // Get updated XP
-    const { data: profile } = await supabaseAdmin
-      .from('profiles')
-      .select('xp')
-      .eq('id', user.id)
-      .single();
-
     return NextResponse.json({
       success: true,
       reflection,
       xpBonus,
-      newXP: profile?.xp || 0,
+      newXP: newXP ?? 0,
+      newLevel: newLevel ?? 1,
       welcome_chain: welcomeChain,
       message: 'Reflection saved successfully!'
     });

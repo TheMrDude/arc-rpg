@@ -43,7 +43,13 @@ export default function WelcomeQuestChain({ userId, refreshKey = 0 }: WelcomeQue
           .select('*')
           .eq('user_id', userId)
           .eq('chain_id', 'welcome_quest')
-          .single(),
+          // maybeSingle, not single: PostgREST answers .single() with a 406
+          // when it matches zero rows, and a user with no enrolment row is a
+          // normal state, not an error. Every account is enrolled by
+          // trigger_auto_enroll_welcome_quest now and the pre-trigger accounts
+          // have been backfilled, but an unenrolled user should render nothing
+          // rather than throw a 406 into the console on every dashboard load.
+          .maybeSingle(),
         supabase
           .from('quest_chain_steps')
           .select('*')
