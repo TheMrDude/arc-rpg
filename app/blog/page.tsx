@@ -5,6 +5,7 @@ import GlobalFooter from '@/app/components/GlobalFooter';
 export const metadata = {
   title: 'Blog | HabitQuest: Habits, Productivity & Gamification',
   description: 'Science-backed articles on building better habits through gamification, productivity systems for ADHD, and how RPG mechanics make habit tracking actually fun.',
+  alternates: { canonical: '/blog' },
   openGraph: {
     title: 'Blog | HabitQuest',
     description: 'Science-backed articles on habits, productivity, and gamification.',
