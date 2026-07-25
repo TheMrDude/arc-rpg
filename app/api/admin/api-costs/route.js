@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/admin-auth';
 import { getSupabaseAdminClient } from '@/lib/supabase-server';
+import { isPremium as resolveIsPremium } from '@/lib/premium';
 
 export const dynamic = 'force-dynamic';
 
@@ -99,7 +100,7 @@ export async function GET(request) {
 
       const endpoint = rl.endpoint;
       const requests = rl.request_count;
-      const isPremium = rl.profiles?.is_premium || rl.profiles?.subscription_status === 'active';
+      const isPremium = resolveIsPremium(rl.profiles);
 
       // Get token estimates
       const tokenEst = ENDPOINT_TOKEN_ESTIMATES[endpoint] || { input: 500, output: 200 };

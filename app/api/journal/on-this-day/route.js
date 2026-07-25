@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { isPremium as resolveIsPremium } from '@/lib/premium';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -44,7 +45,7 @@ export async function GET(request) {
       .eq('id', user.id)
       .single();
 
-    const isPremium = profile?.is_premium || profile?.subscription_status === 'active';
+    const isPremium = resolveIsPremium(profile);
 
     if (!isPremium) {
       return NextResponse.json(

@@ -6,13 +6,14 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import GoldShop from '@/app/components/GoldShop';
 import EquipmentShop from '@/app/components/EquipmentShop';
+import { isPremium as resolveIsPremium } from '@/lib/premium';
 
 export default function ShopPage() {
   const router = useRouter();
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
-  const isPremium = profile?.is_premium || profile?.subscription_status === 'active';
+  const isPremium = resolveIsPremium(profile);
 
   useEffect(() => {
     loadUserData();

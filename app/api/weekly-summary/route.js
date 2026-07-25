@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { createClient } from '@supabase/supabase-js';
+import { isPremium as resolveIsPremium } from '@/lib/premium';
 
 // Force dynamic rendering to prevent caching of authenticated requests
 export const dynamic = 'force-dynamic';
@@ -42,7 +43,7 @@ export async function GET(request) {
       .eq('id', user.id)
       .single();
 
-    const isPremium = profile?.subscription_status === 'active';
+    const isPremium = resolveIsPremium(profile);
 
     // Calculate current week range (Monday to Sunday)
     const now = new Date();
@@ -270,7 +271,7 @@ export async function POST(request) {
       .eq('id', user.id)
       .single();
 
-    const isPremium = profile?.subscription_status === 'active';
+    const isPremium = resolveIsPremium(profile);
 
     if (!isPremium) {
       return NextResponse.json({ error: 'Premium feature' }, { status: 403 });

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { createClient } from '@supabase/supabase-js';
 import { checkRateLimit, createRateLimitResponse } from '@/lib/rate-limiter';
+import { isPremium as resolveIsPremium } from '@/lib/premium';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -95,7 +96,7 @@ export async function POST(request) {
       .eq('id', user.id)
       .single();
 
-    const isPremium = profile?.subscription_status === 'active' || profile?.is_premium === true;
+    const isPremium = resolveIsPremium(profile);
     const userLevel = profile?.level || 1;
     const storyArc = Math.floor(userLevel / 10); // Story arc based on level
 

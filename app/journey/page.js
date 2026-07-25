@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
+import { isPremium as resolveIsPremium } from '@/lib/premium';
 
 export default function JourneyPage() {
   const router = useRouter();
@@ -43,7 +44,7 @@ export default function JourneyPage() {
       setProfile(profileData);
 
       // Check if premium
-      if (profileData.subscription_status !== 'active' && !profileData.is_premium) {
+      if (!resolveIsPremium(profileData)) {
         router.push('/pricing');
         return;
       }

@@ -1,4 +1,5 @@
 import { SupabaseClient } from '@supabase/supabase-js';
+import { isPremium as resolveIsPremium } from './premium';
 
 export type SubscriptionTier = 'free' | 'pro';
 
@@ -68,7 +69,7 @@ export async function getSubscriptionStatus(
   const trialDaysRemaining = getTrialDaysRemaining(data ?? {});
 
   const tier: SubscriptionTier =
-    (data?.subscription_tier === 'pro' && data?.subscription_status === 'active') || inTrial
+    resolveIsPremium(data) || inTrial
       ? 'pro'
       : 'free';
 
