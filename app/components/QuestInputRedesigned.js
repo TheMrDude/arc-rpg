@@ -15,7 +15,29 @@ const HINT_EXAMPLES = [
   '"Cook a healthy meal"',
 ];
 
-export default function QuestInputRedesigned({ onAddQuest, adding, questText, setQuestText }) {
+// Daily is first and is the default. Most habits a child enters are things they
+// mean to do again, and defaulting to a one-off would quietly make the app's
+// main promise -- the quest comes back by itself -- opt-in.
+const RECURRENCE_CHOICES = [
+  { value: 'daily', icon: '☀️', label: 'Every day' },
+  { value: 'weekly', icon: '📅', label: 'Every week' },
+  { value: 'once', icon: '1️⃣', label: 'Just once' },
+];
+
+const RECURRENCE_BLURB = {
+  daily: 'This quest comes back every day. You never have to add it again.',
+  weekly: 'This quest comes back every week. You never have to add it again.',
+  once: 'This quest happens one time.',
+};
+
+export default function QuestInputRedesigned({
+  onAddQuest,
+  adding,
+  questText,
+  setQuestText,
+  recurrence = 'daily',
+  setRecurrence,
+}) {
   const [hintIndex, setHintIndex] = useState(0);
   const inputRef = useRef(null);
 
@@ -60,6 +82,37 @@ export default function QuestInputRedesigned({ onAddQuest, adding, questText, se
           {adding ? '⏳ Adding...' : '⚡ Add Quest'}
         </button>
       </div>
+
+      {/* How often? Daily is preselected, so a child who ignores this control
+          entirely still gets a habit that returns on its own. */}
+      {setRecurrence && (
+        <div className="mt-4">
+          <div className="kq-label mb-2" id="recurrence-label">How often?</div>
+          <div className="flex flex-wrap gap-2" role="group" aria-labelledby="recurrence-label">
+            {RECURRENCE_CHOICES.map((choice) => {
+              const selected = recurrence === choice.value;
+              return (
+                <button
+                  key={choice.value}
+                  type="button"
+                  onClick={() => setRecurrence(choice.value)}
+                  aria-pressed={selected}
+                  style={{ minHeight: 44, touchAction: 'manipulation' }}
+                  className={
+                    'flex-1 min-w-[104px] px-4 rounded-candy font-bold text-sm border-2 transition-all ' +
+                    (selected
+                      ? 'bg-aqua/20 border-aqua text-hero-blue'
+                      : 'bg-cream border-stone text-navy/60 hover:border-aqua/50')
+                  }
+                >
+                  <span aria-hidden="true">{choice.icon}</span> {choice.label}
+                </button>
+              );
+            })}
+          </div>
+          <p className="text-[11px] text-navy/60 mt-2">{RECURRENCE_BLURB[recurrence]}</p>
+        </div>
+      )}
 
       {/* Hint + AI difficulty note */}
       <p className="text-xs text-navy/60 mt-3">
