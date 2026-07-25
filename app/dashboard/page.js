@@ -9,7 +9,7 @@ import { useSound } from '@/app/components/SoundProvider';
 import { usePrefersReducedMotion } from '@/lib/hooks/usePrefersReducedMotion';
 import { getUnlockedSkills } from '@/lib/skills';
 import { checkBossEncounter } from '@/lib/encounters';
-import { getCompanion } from '@/lib/companions';
+import { getCompanion, companionStage } from '@/lib/companions';
 import { getDashboardSections, getNewUnlocks } from '@/lib/dashboardVisibility';
 import { FREE_TIER_QUEST_LIMIT, countHabitsTowardLimit } from '@/lib/quest-limits';
 import { isPremium as resolveIsPremium } from '@/lib/premium';
@@ -136,9 +136,11 @@ export default function DashboardPage() {
   const [upgradePromptTrigger, setUpgradePromptTrigger] = useState(null);
   const [questsCompletedToday, setQuestsCompletedToday] = useState(0);
 
-  // Companion naming: the arrival prompt, and the rename entry point on the
-  // companion card.
+  // Companion naming: the hatch prompt, and the rename entry point on the
+  // companion card. Same dialog, different framing -- a rename should not
+  // announce that an egg hatched.
   const [showCompanionNaming, setShowCompanionNaming] = useState(false);
+  const [companionNamingMode, setCompanionNamingMode] = useState('hatch');
 
   // Habit limit modal state
   const [showHabitLimitModal, setShowHabitLimitModal] = useState(false);
@@ -938,23 +940,26 @@ export default function DashboardPage() {
     }, 500);
   }
 
-  // The arrival moment: the companion has just become visible and has never
-  // been named. Prompt once, then remember the dismissal locally so a child who
-  // taps "Maybe later" is not asked again on every dashboard load. Naming stays
-  // available forever from the companion card.
+  // The hatch. The egg has been counting down on the companion card since the
+  // account was created, and at STAGE_THRESHOLDS[1] completed quests it becomes
+  // a creature -- that is the moment worth naming, not signup. One condition
+  // does both jobs: a brand-new user hits it the instant their third quest
+  // lands, and an existing account already past three quests hits it on its next
+  // dashboard load, which is the catch-up path.
   //
   // Must sit above the `loading` early return: hooks have to run in the same
-  // order on every render. It therefore derives the companion itself rather
-  // than using the `creature` computed further down.
+  // order on every render. It therefore derives the stage itself rather than
+  // using the `creature` computed further down.
   //
-  // Naming normally happens during onboarding, one screen after the hero is
-  // chosen. This is the catch-up path for accounts created before that existed:
-  // prompt once if they have never been asked. The flag is a profile column, not
-  // localStorage, so a second device does not ask again.
+  // companion_name_prompted is a profile column, not localStorage, so a child
+  // who taps "I'll decide later" is not asked again on a second device. Naming
+  // stays available forever from the companion card.
   useEffect(() => {
     if (!profile) return;
     if (profile.companion_name) return;
     if (profile.companion_name_prompted) return;
+    if (companionStage(profile.quests_completed || 0) < 1) return;
+    setCompanionNamingMode('hatch');
     setShowCompanionNaming(true);
   }, [profile]);
 
@@ -1191,7 +1196,7 @@ export default function DashboardPage() {
           <CompanionCard
             companion={creature}
             reducedMotion={prefersReducedMotion}
-            onRename={() => setShowCompanionNaming(true)}
+            onRename={() => { setCompanionNamingMode('rename'); setShowCompanionNaming(true); }}
           />
         )}
 
@@ -1718,15 +1723,32 @@ export default function DashboardPage() {
         />
       )}
 
-      {/* Habit Limit Modal */}
+      {/* The hatch lands on the third quest completion, which is also when the
+          quest celebration, a possible reflection, and a possible dice roll or
+          chest drop are all queued. Stacking the hatch on top of confetti buries
+          it. The flag is set immediately but rendering waits for the reward
+          modals to clear, so the hatch gets the screen to itself. */}
       <CompanionNamingPrompt
-        show={showCompanionNaming && !!creature}
+        show={
+          showCompanionNaming &&
+          !!creature &&
+          !showQuestCelebration &&
+          !showReflection &&
+          !showMilestoneCelebration &&
+          !showDiceRoll &&
+          !showChestDrop
+        }
         emoji={creature?.emoji}
         speciesName={creature?.speciesName}
+        species={creature?.species}
+        lore={creature?.lore}
+        mode={companionNamingMode}
+        reducedMotion={prefersReducedMotion}
         onSave={saveCompanionName}
         onSkip={skipCompanionNaming}
       />
 
+      {/* Habit Limit Modal */}
       <HabitLimitModal
         isOpen={showHabitLimitModal}
         onClose={() => setShowHabitLimitModal(false)}

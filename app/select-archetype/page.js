@@ -3,8 +3,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { COMPANION_SPECIES } from '@/lib/companions';
-import CompanionNamingPrompt from '@/app/components/CompanionNamingPrompt';
 
 // Seeker first: it's the pre-selected default, so it should be the first card seen
 const ARCHETYPES = [
@@ -45,10 +43,6 @@ export default function SelectArchetypePage() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  // Companion naming, shown after the archetype is saved and before the
-  // dashboard. namingArchetype drives which species is offered as the default.
-  const [showNaming, setShowNaming] = useState(false);
-  const [namingArchetype, setNamingArchetype] = useState(null);
   // Seeker pre-selected: the page should never block on an unmade choice
   const [selectedArchetype, setSelectedArchetype] = useState('seeker');
 
@@ -116,44 +110,6 @@ export default function SelectArchetypePage() {
     }, 1500);
   }
 
-  const companionDef = namingArchetype
-    ? COMPANION_SPECIES[namingArchetype] || COMPANION_SPECIES.default
-    : null;
-
-  // Both paths mark the prompt answered server-side and then continue to the
-  // dashboard. A failed save must never trap a child on this screen, so the
-  // navigation happens regardless.
-  async function finishNaming(name) {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        await fetch('/api/companion/name', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${session.access_token}`,
-          },
-          body: JSON.stringify({ name }),
-        });
-      }
-    } catch (error) {
-      console.error('Error saving companion name:', error);
-    } finally {
-      setShowNaming(false);
-      router.push('/dashboard');
-    }
-  }
-
-  async function saveCompanionName(name) {
-    await finishNaming(name);
-  }
-
-  function skipCompanionName() {
-    // null clears the name, so the species default stands, and still records
-    // that the prompt was answered.
-    finishNaming(null);
-  }
-
   async function handleSelectArchetype(archetypeId) {
     const archetype = archetypeId || selectedArchetype;
     if (!archetype || saving) return;
@@ -190,14 +146,11 @@ export default function SelectArchetypePage() {
         throw error;
       }
 
-      // Pick your hero, meet your companion, name it -- all in the first
-      // session. The prompt used to fire at the companion's level-3 arrival,
-      // which almost nobody reached: 15 of 17 accounts are level 1 and 9 have
-      // never completed a quest, so the strongest attachment moment in the app
-      // sat behind a wall. It now happens here, one screen after the hero is
-      // chosen, before the dashboard is ever seen.
-      setNamingArchetype(archetype);
-      setShowNaming(true);
+      // Straight to the dashboard. Naming deliberately does NOT happen here:
+      // naming a creature you have not met yet is hollow, and the unhatched egg
+      // is a better first goal than a placeholder to label. The prompt fires at
+      // the hatch instead.
+      router.push('/dashboard');
     } catch (error) {
       console.error('Error selecting archetype:', error);
       alert(`Failed to select archetype: ${error.message}\n\nPlease try again or contact support.`);
@@ -375,16 +328,6 @@ export default function SelectArchetypePage() {
         </div>
       )}
 
-      {/* Prefilled with the species name ("Emberwolf"), not the stage-0 name
-          ("A Warm Egg") -- the species reads like a pet name a child would keep
-          with one tap, and it stays the same as the creature grows. */}
-      <CompanionNamingPrompt
-        show={showNaming}
-        emoji={companionDef?.stages?.[0]?.emoji}
-        speciesName={companionDef?.species}
-        onSave={saveCompanionName}
-        onSkip={skipCompanionName}
-      />
     </div>
   );
 }
