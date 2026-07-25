@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { supabase } from '@/lib/supabase';
+import { isPremium as resolveIsPremium } from '@/lib/premium';
 
 const STRIPE_LINK_PRO_MONTHLY = 'https://buy.stripe.com/fZubJ02TX5SngCc6dadZ602';
 const STRIPE_LINK_PRO_YEARLY = 'https://buy.stripe.com/14A3cu9il0y3adObxudZ603'; // $29 CAD/yr Early Bird (fixed 2026-07-11: old link was $29/mo, deactivated)
@@ -50,7 +51,7 @@ export default function PricingPage() {
   // Pro, 50% cheaper). Defaults to yearly so the better value leads.
   const [isYearly, setIsYearly] = useState(true);
 
-  const isPro = profile?.subscription_tier === 'pro' && profile?.subscription_status === 'active';
+  const isPro = resolveIsPremium(profile);
   const isInTrial = profile?.trial_ends_at && new Date(profile.trial_ends_at) > new Date();
   const hadTrial = !!profile?.trial_ends_at;
   const isFreeUser = user && !isPro && !isInTrial;

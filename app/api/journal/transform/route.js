@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { createClient } from '@supabase/supabase-js';
 import { checkRateLimit, createRateLimitResponse } from '@/lib/rate-limiter';
+import { isPremium as resolveIsPremium } from '@/lib/premium';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -97,7 +98,7 @@ export async function POST(request) {
       .eq('id', user.id)
       .single();
 
-    const isPremium = profile?.is_premium || profile?.subscription_status === 'active';
+    const isPremium = resolveIsPremium(profile);
 
     // Determine transformation depth
     const transformationType = isPremium ? 'deep' : 'basic';

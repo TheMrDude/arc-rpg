@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { isPremium as resolveIsPremium } from '@/lib/premium';
 
 export default function UpgradePrompt({ trigger, profile }) {
   const router = useRouter();
@@ -65,7 +66,7 @@ export default function UpgradePrompt({ trigger, profile }) {
 
   useEffect(() => {
     if (!trigger || dismissed) return;
-    if (profile?.is_premium || profile?.subscription_status === 'active') return;
+    if (resolveIsPremium(profile)) return;
 
     // Check if this prompt was recently dismissed (don't show again for 24h)
     const dismissKey = `upgrade_dismissed_${trigger}`;

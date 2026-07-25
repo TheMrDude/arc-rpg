@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/admin-auth';
 import { getSupabaseAdminClient } from '@/lib/supabase-server';
+import { isPremium as resolveIsPremium } from '@/lib/premium';
 
 export const dynamic = 'force-dynamic';
 
@@ -94,7 +95,7 @@ export async function GET(request) {
         userRequests[rl.user_id] = {
           userId: rl.user_id,
           totalRequests: 0,
-          isPremium: rl.profiles?.is_premium || rl.profiles?.subscription_status === 'active',
+          isPremium: resolveIsPremium(rl.profiles),
           archetype: rl.profiles?.archetype,
           level: rl.profiles?.level
         };

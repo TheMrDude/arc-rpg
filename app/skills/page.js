@@ -4,6 +4,7 @@ import GlobalFooter from '@/app/components/GlobalFooter';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import { isPremium as resolveIsPremium } from '@/lib/premium';
 
 // Define skill trees
 const SKILL_TREES = {
@@ -87,7 +88,7 @@ export default function SkillsPage() {
       setProfile(profileData);
 
       // Check if user is premium (either via subscription or is_premium flag)
-      if (profileData.subscription_status !== 'active' && !profileData.is_premium) {
+      if (!resolveIsPremium(profileData)) {
         router.push('/dashboard');
         return;
       }

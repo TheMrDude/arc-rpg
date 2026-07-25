@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { authenticateRequest } from '@/lib/api-auth';
 import { getSupabaseAdminClient } from '@/lib/supabase-server';
+import { isPremium as resolveIsPremium } from '@/lib/premium';
 
 export const dynamic = 'force-dynamic';
 
@@ -50,7 +51,7 @@ export async function POST(request) {
       }, { status: 500 });
     }
 
-    if (profile?.is_premium || profile?.subscription_status === 'active') {
+    if (resolveIsPremium(profile)) {
       console.log('User already has premium access:', userId);
       return NextResponse.json({
         error: 'Already premium',

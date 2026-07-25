@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { isPremium as resolveIsPremium } from '@/lib/premium';
 
 export default function AchievementBadges({ profile, quests }) {
   const [unlockedBadges, setUnlockedBadges] = useState(() => {
@@ -67,7 +68,7 @@ export default function AchievementBadges({ profile, quests }) {
       name: 'Pro Member',
       description: 'Unlock Pro status',
       icon: '⭐',
-      condition: (p) => p.is_premium || p.subscription_status === 'active'
+      condition: (p) => resolveIsPremium(p)
     },
   ];
 

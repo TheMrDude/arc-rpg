@@ -110,11 +110,10 @@ export async function POST(request) {
       .eq('id', user.id)
       .single();
 
-    const isPremium = profile?.subscription_status === 'active';
-    // The recurring-quest allowance uses the broader test that the create route
-    // it replaces used. Kept separate from `isPremium` above, which only sizes
-    // the AI response and whose narrower meaning is left untouched.
-    const isPremiumForLimits = profile?.is_premium || profile?.subscription_status === 'active';
+    // One answer for this route now. It previously used
+    // subscription_status === 'active' alone, which called every comped account
+    // free -- including accounts granted Pro by hand.
+    const isPremium = resolveIsPremium(profile);
     const userLevel = profile?.level || 1;
     const currentThread = profile?.current_story_thread || null;
     const storyProgress = profile?.story_progress || { recent_events: [], ongoing_conflicts: [], npcs_met: [], thread_completion: 0 };
@@ -257,7 +256,7 @@ Now transform the task above:`;
     let firstQuest = null;
 
     if (isRecurring) {
-      if (!isPremiumForLimits) {
+      if (!isPremium) {
         const { count } = await supabaseAdmin
           .from('recurring_quests')
           .select('id', { count: 'exact', head: true })

@@ -12,6 +12,7 @@ import { checkBossEncounter } from '@/lib/encounters';
 import { getCompanion } from '@/lib/companions';
 import { getDashboardSections, getNewUnlocks } from '@/lib/dashboardVisibility';
 import { FREE_TIER_QUEST_LIMIT, countHabitsTowardLimit } from '@/lib/quest-limits';
+import { isPremium as resolveIsPremium } from '@/lib/premium';
 import OnboardingTutorial from '@/app/components/OnboardingTutorial';
 import NotificationSetup from '@/app/components/NotificationSetup';
 import QuestCompletionCelebration from '@/app/components/QuestCompletionCelebration';
@@ -177,7 +178,7 @@ export default function DashboardPage() {
   }, [showJournalSection, user]);
 
   useEffect(() => {
-    if (user && (profile?.is_premium || profile?.subscription_status === 'active')) {
+    if (user && resolveIsPremium(profile)) {
       loadEventBadge();
       const interval = setInterval(loadEventBadge, 30000);
       return () => clearInterval(interval);
@@ -326,7 +327,7 @@ export default function DashboardPage() {
     // new instance every morning without being asked, so counting them would
     // lock a free user out of adding habits because of quests they never
     // created. Superseded rows are excluded by the loader's status filter.
-    const isPro = profile?.is_premium || profile?.subscription_status === 'active' || profile?.subscription_tier === 'pro';
+    const isPro = resolveIsPremium(profile);
     if (!isPro && countHabitsTowardLimit(quests) >= FREE_TIER_QUEST_LIMIT) {
       setShowHabitLimitModal(true);
       return;
@@ -625,12 +626,12 @@ export default function DashboardPage() {
       setChainRefresh((v) => v + 1);
 
       // Refresh event badge
-      if (profile?.is_premium || profile?.subscription_status === 'active') {
+      if (resolveIsPremium(profile)) {
         loadEventBadge();
       }
 
       // Trigger upgrade prompts for non-premium users
-      if (!(profile?.is_premium || profile?.subscription_status === 'active')) {
+      if (!resolveIsPremium(profile)) {
         const newCount = questsCompletedToday + 1;
         setQuestsCompletedToday(newCount);
 
@@ -940,7 +941,7 @@ export default function DashboardPage() {
     );
   }
 
-  const isPremium = profile?.is_premium || profile?.subscription_status === 'active';
+  const isPremium = resolveIsPremium(profile);
   const sections = getDashboardSections(profile);
   const unlockedSkills = profile ? getUnlockedSkills(profile.archetype, profile.level) : [];
   const bossEncounter = checkBossEncounter(quests);

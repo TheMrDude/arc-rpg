@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { authenticateRequest } from '@/lib/api-auth';
 import { getSupabaseAdminClient } from '@/lib/supabase-server';
+import { isPremium as resolveIsPremium } from '@/lib/premium';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,11 +27,11 @@ export async function POST(request) {
     // Check if user is premium and can switch
     const { data: profile } = await supabaseAdmin
       .from('profiles')
-      .select('is_premium, archetype, last_archetype_switch_date')
+      .select('is_premium, subscription_status, archetype, last_archetype_switch_date')
       .eq('id', user.id)
       .single();
 
-    if (!profile?.is_premium) {
+    if (!resolveIsPremium(profile)) {
       return NextResponse.json(
         { error: 'Premium feature - upgrade to switch archetypes' },
         { status: 403 }

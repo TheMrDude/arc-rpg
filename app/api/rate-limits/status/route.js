@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { authenticateRequest } from '@/lib/api-auth';
 import { getSupabaseAdminClient } from '@/lib/supabase-server';
 import { RATE_LIMITS } from '@/lib/rate-limiter';
+import { isPremium as resolveIsPremium } from '@/lib/premium';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,7 +28,7 @@ export async function GET(request) {
       .eq('id', user.id)
       .single();
 
-    const isPremium = profile?.is_premium || profile?.subscription_status === 'active';
+    const isPremium = resolveIsPremium(profile);
 
     // Calculate current 24-hour window start
     const windowStart = new Date();
