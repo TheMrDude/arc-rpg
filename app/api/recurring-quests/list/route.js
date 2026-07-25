@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { authenticateRequest } from '@/lib/api-auth';
 import { getSupabaseAdminClient } from '@/lib/supabase-server';
+import { FREE_TIER_QUEST_LIMIT } from '@/lib/quest-limits';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,7 +41,7 @@ export async function GET(request) {
       success: true,
       recurring_quests: quests || [],
       count: activeCount,
-      limit: isPremium ? null : 3,
+      limit: isPremium ? null : FREE_TIER_QUEST_LIMIT,
       is_premium: isPremium,
     });
   } catch (error) {

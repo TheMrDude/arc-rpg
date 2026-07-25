@@ -105,6 +105,7 @@ export async function POST(request) {
       .select('transformed_text, completed_at, story_thread, narrative_impact')
       .eq('user_id', user.id)
       .eq('completed', true)
+      .eq('status', 'active')
       .order('completed_at', { ascending: false })
       .limit(5);
 

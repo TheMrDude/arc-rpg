@@ -3,6 +3,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { authenticateRequest } from '@/lib/api-auth';
 import { getSupabaseAdminClient } from '@/lib/supabase-server';
 import { checkRateLimit, createRateLimitResponse } from '@/lib/rate-limiter';
+import { FREE_TIER_QUEST_LIMIT } from '@/lib/quest-limits';
 
 export const dynamic = 'force-dynamic';
 
@@ -30,7 +31,8 @@ export async function POST(request) {
 
     const isPremium = profile.is_premium || profile.subscription_status === 'active';
 
-    // Free tier: limit to 3 active recurring quests
+    // Free tier: same allowance as ordinary habits, so all of a free user's
+    // habits may be recurring.
     if (!isPremium) {
       const { count } = await supabaseAdmin
         .from('recurring_quests')
@@ -38,9 +40,9 @@ export async function POST(request) {
         .eq('user_id', user.id)
         .eq('is_active', true);
 
-      if (count >= 3) {
+      if (count >= FREE_TIER_QUEST_LIMIT) {
         return NextResponse.json({
-          error: 'Free tier limited to 3 recurring quests. Upgrade to Pro for unlimited.',
+          error: `Free tier limited to ${FREE_TIER_QUEST_LIMIT} recurring quests. Upgrade to Pro for unlimited.`,
           limit_reached: true,
         }, { status: 403 });
       }

@@ -31,7 +31,7 @@ export async function GET() {
     ] = await Promise.all([
       supabase.from('profiles').select('*', { count: 'exact', head: true }),
       supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('is_premium', true),
-      supabase.from('quests').select('*', { count: 'exact', head: true }).eq('completed', true).gte('completed_at', today.toISOString()),
+      supabase.from('quests').select('*', { count: 'exact', head: true }).eq('completed', true).eq('status', 'active').gte('completed_at', today.toISOString()),
     ]);
 
     // Update cache

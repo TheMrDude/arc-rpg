@@ -78,6 +78,7 @@ export async function GET(request, { params }) {
           .select('transformed_text, completed_at, xp_value')
           .eq('user_id', member.user_id)
           .eq('completed', true)
+          .eq('status', 'active')
           .gte('completed_at', sevenDaysAgo)
           .order('completed_at', { ascending: false })
           .limit(10);

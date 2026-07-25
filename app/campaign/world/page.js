@@ -43,7 +43,8 @@ export default function WorldMapPage() {
         .from('quests')
         .select('id', { count: 'exact', head: true })
         .eq('user_id', user.id)
-        .eq('completed', true);
+        .eq('completed', true)
+        .eq('status', 'active');
 
       // Check if user is a DM of any campaign
       const { data: dmCampaign } = await supabase

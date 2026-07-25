@@ -11,6 +11,7 @@ import { getUnlockedSkills } from '@/lib/skills';
 import { checkBossEncounter } from '@/lib/encounters';
 import { getCompanion } from '@/lib/companions';
 import { getDashboardSections, getNewUnlocks } from '@/lib/dashboardVisibility';
+import { FREE_TIER_QUEST_LIMIT, countHabitsTowardLimit } from '@/lib/quest-limits';
 import OnboardingTutorial from '@/app/components/OnboardingTutorial';
 import NotificationSetup from '@/app/components/NotificationSetup';
 import QuestCompletionCelebration from '@/app/components/QuestCompletionCelebration';
@@ -246,6 +247,7 @@ export default function DashboardPage() {
         .from('quests')
         .select('*')
         .eq('user_id', user.id)
+        .eq('status', 'active')
         .order('created_at', { ascending: false });
 
       setQuests(questsData || []);
@@ -318,9 +320,13 @@ export default function DashboardPage() {
     // First-party funnel: is this the user's very first habit? (no PII)
     const isFirstHabit = quests.length === 0;
 
-    // Check habit limit for free users
+    // Check habit limit for free users.
+    // Auto-generated recurring instances are excluded: a daily habit produces a
+    // new instance every morning without being asked, so counting them would
+    // lock a free user out of adding habits because of quests they never
+    // created. Superseded rows are excluded by the loader's status filter.
     const isPro = profile?.is_premium || profile?.subscription_status === 'active' || profile?.subscription_tier === 'pro';
-    if (!isPro && quests.filter(q => !q.completed).length >= 3) {
+    if (!isPro && countHabitsTowardLimit(quests) >= FREE_TIER_QUEST_LIMIT) {
       setShowHabitLimitModal(true);
       return;
     }
@@ -1618,7 +1624,7 @@ export default function DashboardPage() {
         isOpen={showHabitLimitModal}
         onClose={() => setShowHabitLimitModal(false)}
         onUpgrade={() => { setShowHabitLimitModal(false); router.push('/pricing'); }}
-        currentHabits={quests.filter(q => !q.completed).length}
+        currentHabits={countHabitsTowardLimit(quests)}
       />
 
       {/* Milestone testimonial prompt (feature-flagged) */}

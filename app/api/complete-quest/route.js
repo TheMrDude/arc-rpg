@@ -47,6 +47,10 @@ export async function POST(request) {
       .select('*')
       .eq('id', quest_id)
       .eq('user_id', user.id)
+      // A superseded instance is not completable. Without this filter a client
+      // holding a stale quest id could still cash in an archived recurring
+      // instance for its XP and gold long after it was replaced.
+      .eq('status', 'active')
       .single();
 
     if (questError || !quest) {
@@ -354,6 +358,7 @@ export async function POST(request) {
           .select('completed_at')
           .eq('user_id', user.id)
           .eq('completed', true)
+          .eq('status', 'active')
           .gte('completed_at', sevenDaysAgo);
 
         const activeDays = new Set(

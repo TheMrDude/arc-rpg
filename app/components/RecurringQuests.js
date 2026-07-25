@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/lib/supabase-client';
+import { FREE_TIER_QUEST_LIMIT } from '@/lib/quest-limits';
 
 const RECURRENCE_OPTIONS = [
   { value: 'daily', label: 'Daily', icon: '📅' },
@@ -251,7 +252,7 @@ export default function RecurringQuests({ isPremium, archetype, onQuestCreated }
   const [quests, setQuests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [questLimit, setQuestLimit] = useState(3);
+  const [questLimit, setQuestLimit] = useState(FREE_TIER_QUEST_LIMIT);
   const [activeCount, setActiveCount] = useState(0);
 
   useEffect(() => {
