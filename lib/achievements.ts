@@ -135,56 +135,6 @@ export async function getAchievementStats(
 }
 
 /**
- * Check achievements for user (triggers database function)
- */
-export async function checkAchievements(
-  userId: string,
-  supabase: SupabaseClient
-): Promise<boolean> {
-  try {
-    const { error } = await supabase.rpc('check_achievements_for_user', {
-      p_user_id: userId,
-    });
-
-    if (error) {
-      console.error('Error checking achievements:', error);
-      return false;
-    }
-
-    return true;
-  } catch (error) {
-    console.error('Error in checkAchievements:', error);
-    return false;
-  }
-}
-
-/**
- * Unlock specific achievement
- */
-export async function unlockAchievement(
-  userId: string,
-  achievementKey: string,
-  supabase: SupabaseClient
-): Promise<boolean> {
-  try {
-    const { data, error } = await supabase.rpc('check_and_unlock_achievement', {
-      p_user_id: userId,
-      p_achievement_key: achievementKey,
-    });
-
-    if (error) {
-      console.error('Error unlocking achievement:', error);
-      return false;
-    }
-
-    return data || false;
-  } catch (error) {
-    console.error('Error in unlockAchievement:', error);
-    return false;
-  }
-}
-
-/**
  * Get rarity color for UI
  */
 export function getRarityColor(rarity: string): {

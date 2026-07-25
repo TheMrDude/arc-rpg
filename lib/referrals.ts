@@ -144,31 +144,6 @@ export async function applyReferralCode(
 }
 
 /**
- * Mark referral as completed (called when referred user completes first quest)
- */
-export async function completeReferral(
-  referredUserId: string,
-  supabase: SupabaseClient
-): Promise<boolean> {
-  try {
-    // Call the database function to process the referral
-    const { error } = await supabase.rpc('process_completed_referral', {
-      referred_user_id: referredUserId,
-    });
-
-    if (error) {
-      console.error('Error processing referral:', error);
-      return false;
-    }
-
-    return true;
-  } catch (error) {
-    console.error('Error in completeReferral:', error);
-    return false;
-  }
-}
-
-/**
  * Track quest share on social media
  */
 export async function trackQuestShare(
