@@ -5,7 +5,7 @@
 export const metadata = {
   title: 'Which Habit Archetype Are You? — HabitQuest',
   description:
-    'Take the free 2-minute quiz to find your habit archetype — Warrior, Seeker, Builder, Sage, or Shadow — and see which approach to building habits actually fits how you work.',
+    'Take the free 2-minute quiz to find your habit archetype — Warrior, Seeker, Builder, Sage, or Shadow — and see which way of building habits fits you.',
   openGraph: {
     title: 'Which Habit Archetype Are You? — HabitQuest',
     description:
