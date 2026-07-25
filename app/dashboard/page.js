@@ -991,7 +991,11 @@ export default function DashboardPage() {
                 onSwitch={loadUserData}
               />
             )}
-            {sections.skillTree && isPremium && (
+            {/* Ungated. /skills has no level or tier check of its own, and the
+                tree is worth seeing before you can spend on it -- it shows what
+                the next points unlock. Previously this was the only entry point
+                and it needed level 10 plus Pro. */}
+            {(
               <button
                 onClick={() => router.push('/skills')}
                 className={`kq-chip font-bold text-xs transition-all ${
@@ -1017,6 +1021,16 @@ export default function DashboardPage() {
                 className="kq-chip bg-navy text-cream font-bold text-xs transition-all"
               >
                 <ScrollText size={13} className="inline -mt-0.5 mr-1" /> History
+              </button>
+            )}
+            {/* Below level 10 there is no journal tab, and the bottom nav is
+                mobile-only, so desktop had no way in at all. */}
+            {!sections.tabBar && (
+              <button
+                onClick={() => router.push('/journal')}
+                className="kq-chip bg-purple text-white font-bold text-xs transition-all"
+              >
+                <BookOpen size={13} className="inline -mt-0.5 mr-1" /> Journal
               </button>
             )}
             {/* Legendary Badges — quiet entry point, only shown when the flag is on */}
@@ -1603,7 +1617,10 @@ export default function DashboardPage() {
           if (sections.tabBar) {
             setActiveTab('journal');
           } else {
-            setShowJournalSection(true);
+            // setShowJournalSection only drives a block that lives inside the
+            // level-10 journal tab, so below level 10 this button did nothing
+            // at all. The standalone page has no level check.
+            router.push('/journal');
           }
         }}
       />
