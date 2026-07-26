@@ -13,6 +13,7 @@ export default function CompanionCard({ companion, reducedMotion = false, onRena
 
   const {
     emoji,
+    image,
     name,
     speciesName,
     customName,
@@ -37,7 +38,7 @@ export default function CompanionCard({ companion, reducedMotion = false, onRena
     <div className="kq-card border-2 border-emerald/30 p-5 mb-6">
       <div className="flex items-center gap-4">
         <motion.span
-          className="text-5xl select-none"
+          className="select-none flex-shrink-0"
           animate={
             reducedMotion
               ? {}
@@ -48,7 +49,18 @@ export default function CompanionCard({ companion, reducedMotion = false, onRena
           transition={{ duration: stage === 0 ? 2.4 : 2, repeat: Infinity, ease: 'easeInOut' }}
           aria-hidden="true"
         >
-          {emoji}
+          {/* The stage's art when it exists, otherwise the emoji at the same
+              footprint. Art is shown large here -- this card is the companion's
+              showcase, and even the painterly stages read clearly at this size. */}
+          {image ? (
+            <img
+              src={image}
+              alt=""
+              className="w-16 h-16 object-contain"
+            />
+          ) : (
+            <span className="text-5xl block">{emoji}</span>
+          )}
         </motion.span>
 
         <div className="flex-1 min-w-0">

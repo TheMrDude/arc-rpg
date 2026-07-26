@@ -71,11 +71,11 @@ export default function CompactCharacterCard({ profile, creature, isPremium }) {
           <div className="flex items-center justify-between mt-1">
             {creature ? (
               <div className="flex items-center gap-2">
-                {creature.image ? (
+                {creature.portrait || creature.image ? (
                   <img
-                    src={creature.image}
+                    src={creature.portrait || creature.image}
                     alt={creature.name}
-                    className="w-5 h-5 object-contain rounded"
+                    className="w-5 h-5 object-cover rounded"
                   />
                 ) : (
                   <span className="text-sm">{creature.emoji}</span>
