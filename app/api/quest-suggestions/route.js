@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { createClient } from '@supabase/supabase-js';
 import { checkAIRateLimit, logAIUsage } from '@/lib/aiRateLimiting';
+import { NARRATION_FLOOR } from '@/lib/narrationConstraints';
 
 export const dynamic = 'force-dynamic';
 
@@ -73,6 +74,8 @@ export async function GET(request) {
 
     // Create AI prompt
     const prompt = `You are a quest advisor for a ${profile.archetype} at Level ${profile.level}.
+
+${NARRATION_FLOOR}
 
 RECENTLY COMPLETED:
 ${completedList || '(None yet)'}

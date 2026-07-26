@@ -3,6 +3,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { createClient } from '@supabase/supabase-js';
 import { checkRateLimit, createRateLimitResponse } from '@/lib/rate-limiter';
 import { FREE_TIER_QUEST_LIMIT } from '@/lib/quest-limits';
+import { NARRATION_FLOOR } from '@/lib/narrationConstraints';
 import { isPremium as resolveIsPremium } from '@/lib/premium';
 
 // Force dynamic rendering
@@ -26,6 +27,38 @@ const supabaseAnon = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
+
+// Words that mean the model leaked its own instructions rather than answering.
+// If any of these survive into the text, it is not a quest.
+const FORMAT_MARKERS = [
+  'QUEST:', 'DIFFICULTY:', 'STORY_THREAD:', 'NARRATIVE_IMPACT:', 'TASK:',
+  'AUDIENCE AND TONE', 'NEVER WRITE', 'THE STEALTH RULE', 'OUTPUT FORMAT',
+  'ALWAYS FINE', 'WORST CASE', 'CRAFT:',
+];
+
+const MAX_FALLBACK_WORDS = 40;
+
+/**
+ * Try to rescue a usable quest sentence from a response that missed the format.
+ * Returns null rather than guessing: the caller then uses the player's own task
+ * text, which is always safe because the player wrote it.
+ */
+function salvageQuestText(response) {
+  if (!response) return null;
+
+  // Prefer the first one or two sentences of prose before any JSON or fence.
+  const beforeStructure = response.split(/```|\{/)[0] || '';
+  const sentences = beforeStructure.match(/[^.!?]+[.!?]+/g);
+  const candidate = (sentences ? sentences.slice(0, 2).join(' ') : beforeStructure).trim();
+
+  if (!candidate) return null;
+  if (candidate.split(/\s+/).length > MAX_FALLBACK_WORDS) return null;
+  if (candidate.length < 12) return null;
+  const upper = candidate.toUpperCase();
+  if (FORMAT_MARKERS.some((m) => upper.includes(m))) return null;
+
+  return candidate;
+}
 
 export async function POST(request) {
   try {
@@ -157,52 +190,83 @@ export async function POST(request) {
       recentQuestContext += `\n\nCreate continuity with the ongoing story. Reference the current thread, conflicts, or characters naturally. If this quest could advance the current thread, do so. Otherwise, let it be a standalone adventure.`;
     }
 
+    // Two of these were the problem. "heroic battle or conquest" and "stealth
+    // mission" are what produced combat and covert-operation framing; the rest
+    // audited clean and are unchanged.
     const archetypeStyles = {
-      warrior: 'Transform this into a heroic battle or conquest. Use bold, action-oriented language.',
+      warrior: 'Transform this into a bold challenge met head-on. Courage, not combat: the obstacle is the task itself, never a person.',
       builder: 'Transform this into a construction or creation project. Use engineering and crafting language.',
-      shadow: 'Transform this into a stealth mission or cunning strategy. Use mysterious, strategic language.',
+      shadow: 'Transform this into a quiet, clever plan. Noticing what others miss, moving softly, solving it before anyone notices.',
       sage: 'Transform this into a quest for knowledge or wisdom. Use mystical, intellectual language.',
       seeker: 'Transform this into an exploration or discovery adventure. Use curious, adventurous language.',
     };
 
-    const prompt = `You are a quest generator for an RPG game with ongoing story threads.
+    // Ordering is deliberate. The floor comes EARLY, before anything can drift,
+    // and the strict output format plus the examples come LAST, immediately
+    // before the model's turn -- which is the mitigation for a large constraint
+    // block pushing the model off a format the parser depends on.
+    const prompt = `You are the storyteller for HabitQuest, a children's adventure game. You turn a
+real task a child typed into a short, exciting quest.
 
+${NARRATION_FLOOR}
+
+ARCHETYPE VOICE
 Archetype: ${archetype.toUpperCase()}
-Style: ${archetypeStyles[archetype] || archetypeStyles.warrior}
+Style: ${archetypeStyles[archetype] || archetypeStyles.seeker}
+
+PLAYER CONTEXT
 Player Level: ${userLevel}
 ${recentQuestContext}
 
+THE TASK TO TRANSFORM
 Original task: "${sanitizedQuestText}"
-${isRecurring ? `\nThis is a RECURRING habit that repeats ${recurrenceType === 'daily' ? 'daily' : 'weekly'}.` : ''}
+${isRecurring ? `This is a RECURRING habit that repeats ${recurrenceType === 'daily' ? 'daily' : 'weekly'}. Make it feel like an ongoing duty or ritual, not a one-time mission.` : ''}
 
-Transform this boring task into an epic RPG quest that fits the ongoing story. Keep the quest description to 1-2 sentences. Make it exciting and match the archetype style.${isRecurring ? ' Since this is a recurring habit, make it feel like an ongoing duty or ritual, not a one-time mission.' : ''}
+LENGTH
+Write ONE sentence of 12 to 22 words. Two short sentences are fine if it reads
+better, but never more than 30 words in total.
 
-Then, assess the difficulty of the ORIGINAL task (not the RPG version) and provide story metadata.
+DIFFICULTY (assess the ORIGINAL task, not the quest version)
+- EASY: under 15 minutes, low effort, routine (drink water, make bed, feed the cat)
+- MEDIUM: 15-60 minutes or moderate effort (go for a run, tidy a room, practise piano)
+- HARD: 60+ minutes, high effort, or real willpower (a full workout, a long essay)
 
-Difficulty guidelines:
-- EASY: Quick tasks under 15 minutes, low effort, routine (e.g., "drink water", "take vitamins", "make bed", "check email")
-- MEDIUM: Tasks requiring 15-60 minutes or moderate effort (e.g., "go for a run", "study for an hour", "cook dinner", "clean the house")
-- HARD: Tasks requiring 60+ minutes, high effort, or significant willpower (e.g., "complete a full workout", "write 2000 words", "deep clean entire apartment", "study for exam for 3 hours")
+OUTPUT FORMAT -- reply with EXACTLY these four lines and nothing else. No
+preamble, no JSON, no code fences, no commentary:
 
-IMPORTANT: You MUST format your response EXACTLY like this (no JSON, no extra formatting):
-
-QUEST: [Your epic 1-2 sentence quest description here]
+QUEST: [your 12-22 word quest]
 DIFFICULTY: [easy OR medium OR hard]
 STORY_THREAD: [brief story thread name OR "none"]
 NARRATIVE_IMPACT: [short impact phrase OR "none"]
 
-Example:
-QUEST: Infiltrate the goblin encampment under cover of darkness and retrieve the stolen supply manifest before dawn breaks.
+Examples of the transformation, showing what the child typed and what it became:
+
+TASK: read 3 chapters
+QUEST: Slip into the quiet corner of the library and read three more chapters before the lamps go out.
+DIFFICULTY: easy
+STORY_THREAD: The Unfinished Book
+NARRATIVE_IMPACT: One chapter closer to the ending
+
+TASK: tidy my room
+QUEST: Face the mountain of clutter in your room and win back the floor, one armful at a time.
 DIFFICULTY: medium
-STORY_THREAD: The Shadow War
-NARRATIVE_IMPACT: Weakens enemy supply lines
+STORY_THREAD: The Reclaimed Room
+NARRATIVE_IMPACT: The floor is yours again
+
+TASK: help my friend with homework
+QUEST: Sit with your friend and untangle the homework that has been beating them all week.
+DIFFICULTY: easy
+STORY_THREAD: The Kindest Kind of Strong
+NARRATIVE_IMPACT: They will ask you again tomorrow, and that is the reward
 
 Now transform the task above:`;
 
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-5',
       thinking: { type: 'disabled' },
-      max_tokens: isPremium ? 300 : 200,
+      // 12-22 words needs nowhere near 200. Both tiers stay under the new bound;
+      // a tighter ceiling makes a 40-word run-on structurally harder.
+      max_tokens: isPremium ? 160 : 140,
       messages: [{ role: 'user', content: prompt }],
     });
 
@@ -226,17 +290,35 @@ Now transform the task above:`;
       const rawDifficulty = difficultyMatch ? difficultyMatch[1].trim().toLowerCase() : 'medium';
       aiDifficulty = ['easy', 'medium', 'hard'].includes(rawDifficulty) ? rawDifficulty : 'medium';
     } else {
-      // Fallback: try to extract just the narrative part before any JSON
-      const jsonMatch = response.match(/^(.+?)(?=\s*\{|\s*```json)/s);
-      if (jsonMatch) {
-        transformedText = jsonMatch[1].trim();
+      // FALLBACK. This path used to end in `transformedText = response` -- the raw
+      // model output. A parse failure therefore became narration a child reads,
+      // which is the exact class of failure this whole change exists to stop. It
+      // also silently paid out medium XP and logged nothing, so nobody could see
+      // it happening.
+      //
+      // Now: salvage a candidate, refuse it unless it looks like a quest, and
+      // otherwise fall back to the player's OWN words. Their task text is always
+      // safe, because they wrote it.
+      const salvaged = salvageQuestText(response);
+      if (salvaged) {
+        transformedText = salvaged;
       } else {
-        const sentences = response.match(/[^.!?]+[.!?]+/g);
-        transformedText = sentences ? sentences.slice(0, 2).join(' ').trim() : response;
+        transformedText = sanitizedQuestText;
       }
       storyThread = null;
       narrativeImpact = null;
-      aiDifficulty = 'medium'; // fallback
+      // Lowest tier, not medium. Paying 25 XP for a broken response is an
+      // invisible economy event; paying 10 is a visible non-event.
+      aiDifficulty = 'easy';
+
+      console.warn('transform-quest: response did not match the expected format', {
+        userId: user.id,
+        usedSalvage: Boolean(salvaged),
+        usedPlayerText: !salvaged,
+        responseLength: response.length,
+        responsePreview: response.slice(0, 120),
+        timestamp: new Date().toISOString(),
+      });
     }
 
     // Clean up story thread and narrative impact
