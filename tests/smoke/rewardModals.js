@@ -61,21 +61,42 @@ async function clearRewardModals(page, { expect, max = 8, settleMs = 900 } = {})
                 : '';
             return `${n.tagName.toLowerCase()}${n.id ? '#' + n.id : ''}${cls} [z:${cs.zIndex}, pos:${cs.position}, pe:${cs.pointerEvents}]`;
           };
+          // The class-trail up from the blocker names the component that owns it,
+          // even when the blocker itself is a bare styled-jsx div with no
+          // identifying class of its own.
+          const ancestry = (n) => {
+            const trail = [];
+            for (let a = n; a && a !== document.body && trail.length < 8; a = a.parentElement) {
+              const cls =
+                typeof a.className === 'string' && a.className.trim()
+                  ? '.' + a.className.trim().split(/\s+/).filter((c) => !/^jsx-/.test(c)).slice(0, 2).join('.')
+                  : '';
+              trail.push(`${a.tagName.toLowerCase()}${a.id ? '#' + a.id : ''}${cls}`);
+            }
+            return trail.join(' < ');
+          };
           const covered = hit && hit !== el && !el.contains(hit);
           return {
             box: { x: Math.round(r.x), y: Math.round(r.y), w: Math.round(r.width), h: Math.round(r.height) },
             disabled: el.disabled === true,
             coveredBy: covered ? describe(hit) : null,
+            blockerAncestry: covered ? ancestry(hit) : null,
+            blockerHtml: covered ? (hit.outerHTML || '').replace(/\s+/g, ' ').slice(0, 160) : null,
+            matchedAncestry: ancestry(el),
           };
         })
         .catch(() => null);
 
       const cause = diag
         ? diag.coveredBy
-          ? `a tap at its centre lands on ${diag.coveredBy} instead`
+          ? `a tap at its centre lands on ${diag.coveredBy} instead.\n` +
+            `    blocker ancestry: ${diag.blockerAncestry}\n` +
+            `    blocker html: ${diag.blockerHtml}\n` +
+            `    matched-button ancestry: ${diag.matchedAncestry}`
           : diag.disabled
           ? 'the button is disabled'
-          : `the button is uncovered and enabled at ${JSON.stringify(diag.box)} -- likely still moving (unstable)`
+          : `the button is uncovered and enabled at ${JSON.stringify(diag.box)} -- likely still moving (unstable).\n` +
+            `    matched-button ancestry: ${diag.matchedAncestry}`
         : 'could not inspect the button';
 
       throw new Error(
