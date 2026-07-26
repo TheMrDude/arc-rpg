@@ -95,12 +95,24 @@ export default function CharacterPanel({ profile, creature, isPremium, equipment
               </defs>
             </svg>
             <div
-              className="absolute inset-0 m-auto w-[70px] h-[70px] rounded-full border-2 border-stone bg-cream flex items-center justify-center select-none"
+              className="absolute inset-0 m-auto w-[70px] h-[70px] rounded-full border-2 border-stone bg-cream flex items-center justify-center select-none overflow-hidden"
               title={creature.stageTitle}
               role="img"
               aria-label={`${creature.name}, ${creature.stageTitle}`}
             >
-              <span className="text-[34px] leading-none">{creature.emoji}</span>
+              {/* The companion art at its current stage, or the emoji until art
+                  exists. `object-cover` fills the circle from the square source;
+                  `portrait` prefers an optional tight crop and otherwise reuses
+                  the full render. */}
+              {creature.portrait ? (
+                <img
+                  src={creature.portrait}
+                  alt=""
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-[34px] leading-none">{creature.emoji}</span>
+              )}
             </div>
             <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-gold border-2 border-white flex items-center justify-center">
               <span className="text-[10px] font-black text-navy">{profile.level}</span>
