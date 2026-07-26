@@ -169,18 +169,37 @@ export default function RootLayout({ children }) {
             Requires Web Analytics to be enabled for the project in the Vercel dashboard. */}
         <Analytics />
 
-        {/* Service Worker Registration */}
+        {/* Service Worker Registration.
+
+            Registered with the build id in the URL. That is what makes a deploy
+            invalidate the cache: a different script URL is a different worker to
+            the browser, so it installs, and the worker reads ?v= to name its
+            cache and delete every older habitquest-* one on activate.
+
+            controllerchange then reloads once, so a tab open across a deploy
+            picks up the new build instead of running until it is closed. The
+            guard matters -- without it, claim() on every new worker would loop
+            the page. */}
         <Script id="register-sw" strategy="afterInteractive">
           {`
             if ('serviceWorker' in navigator) {
               window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                  .then(registration => {
-                    console.log('SW registered:', registration);
-                  })
+                navigator.serviceWorker.register('/sw.js?v=${process.env.NEXT_PUBLIC_BUILD_ID || 'dev'}')
                   .catch(error => {
                     console.log('SW registration failed:', error);
                   });
+
+                // Only a REPLACED controller means the page is running an older
+                // build. On a first visit there is no controller yet, and
+                // claim() fires this event too -- reloading there would flash
+                // the page for every new user, mid-signup.
+                var hadController = !!navigator.serviceWorker.controller;
+                var reloading = false;
+                navigator.serviceWorker.addEventListener('controllerchange', function () {
+                  if (!hadController || reloading) return;
+                  reloading = true;
+                  window.location.reload();
+                });
               });
             }
           `}
