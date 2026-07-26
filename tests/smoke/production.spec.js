@@ -82,6 +82,44 @@ async function readProfile(id) {
 }
 
 /**
+ * Clear the overlays a brand-new account lands under before anything on the
+ * dashboard can be touched. The first live run that got this far died clicking
+ * "Add Quest" because THREE fixed layers were in front of it: the onboarding
+ * tutorial's full-screen backdrop (bg-black/70 z-50), its card (z-[60]), and a
+ * MomentumBoost card (bottom-6 right-6 z-50).
+ *
+ * Dismissed the way a person would -- by clicking the real dismiss controls,
+ * never with { force: true }. Forcing a click through an overlay would make the
+ * test pass while a child was still stuck behind it, which is the exact failure
+ * mode this suite exists to catch.
+ */
+async function dismissFirstRunOverlays(page) {
+  // Onboarding tutorial: skip rather than walk the steps. The tutorial's content
+  // is not what this test is for, and stepping through it is more to go stale.
+  const skip = page.getByRole('button', { name: /Skip tutorial/i });
+  if (await skip.count()) {
+    await skip.first().click({ timeout: 10_000 }).catch(() => {});
+    await page.waitForTimeout(700);
+  }
+
+  // MomentumBoost and anything else with an explicit decline.
+  for (const label of [/Not Now/i, /Close this Momentum Boost message/i, /Maybe later/i]) {
+    const btn = page.getByRole('button', { name: label });
+    if (await btn.count()) {
+      await btn.first().click({ timeout: 8_000 }).catch(() => {});
+      await page.waitForTimeout(500);
+    }
+  }
+
+  // Assert the way in is actually clear, so a NEW blocking overlay fails here
+  // with a clear cause instead of timing out on a click 60 lines later.
+  await expect(
+    page.getByRole('button', { name: /Add Quest/i }),
+    'the quest input is still behind an overlay after dismissing first-run modals'
+  ).toBeVisible({ timeout: 20_000 });
+}
+
+/**
  * Dismiss whatever the reward chain put on screen. Completing a quest can queue
  * a celebration, a reflection, a dice roll and a chest drop, and which of them
  * appear is partly random -- so this drains rather than assumes.
@@ -187,6 +225,8 @@ test('production smoke: the five paths a real user touches', async ({ page }) =>
     await expect(page.getByRole('heading', { name: /^Level \d+$/ })).toBeVisible({
       timeout: 30_000,
     });
+
+    await dismissFirstRunOverlays(page);
   });
 
   // ── 5a. Companion at the correct stage for 0 quests ───────────────────────
