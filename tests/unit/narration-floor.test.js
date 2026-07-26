@@ -17,6 +17,9 @@ const ROOT = path.join(__dirname, '../..');
 // state the intent; the test then proves the import is really present.
 const CHILD_FACING_NARRATION_ROUTES = [
   'app/api/transform-quest/route.js',
+  // The landing-page demo. Unauthenticated, so this is the one a parent
+  // evaluating the app hits first and the one the original audit missed.
+  'app/api/preview-quest/route.ts',
   'app/api/transform-journal/route.js',
   'app/api/journal/transform/route.js',
   'app/api/crossroads/generate/route.js',
@@ -63,11 +66,6 @@ describe('narration floor', () => {
       'app/api/campaign/generate-plot-hook/route.js': 'tabletop GM tool, adult-facing',
       'app/api/campaign/npc-dialogue/route.js': 'tabletop GM tool, adult-facing',
       'app/api/campaign/session-recap/route.js': 'tabletop GM tool, adult-facing',
-      // KNOWN GAP, deliberately recorded as a failure rather than an exemption:
-      // preview-quest is the unauthenticated landing-page demo. It generates
-      // quest prose a child reads and it does NOT import the floor. It is listed
-      // here so this test documents it; remove the entry when it is floored.
-      'app/api/preview-quest/route.ts': 'KNOWN GAP -- child-facing, not yet floored',
     };
 
     const walk = (dir) =>
