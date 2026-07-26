@@ -1,0 +1,87 @@
+name: Production smoke
+
+# THIS REPOSITORY IS PUBLIC.
+#
+# The only automatic trigger is `deployment_status`, which fires from the Vercel
+# integration and can only be raised by someone with write access to this repo.
+# There is deliberately no `pull_request` or `pull_request_target` trigger: on a
+# public repo either one lets a stranger's branch run in a context that can read
+# SMOKE_SERVICE_ROLE_KEY. Do not add one. If you need to test a change to this
+# workflow, push the branch and use the manual trigger below.
+on:
+  deployment_status:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: 'Base URL to smoke test'
+        required: false
+        default: 'https://habitquest.dev'
+
+# Read-only. The job needs no write access to anything in GitHub.
+permissions:
+  contents: read
+
+concurrency:
+  # Two deploys close together would otherwise race for the same smoke account
+  # prefix and the same sweep. Newer wins.
+  group: production-smoke
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    # Forks cannot reach the secrets, but the guard is explicit so a fork's CI
+    # shows a clean skip rather than a confusing failure.
+    if: >-
+      github.repository == 'TheMrDude/arc-rpg' &&
+      (
+        github.event_name == 'workflow_dispatch' ||
+        (
+          github.event.deployment_status.state == 'success' &&
+          (
+            github.event.deployment_status.environment == 'Production' ||
+            github.event.deployment_status.environment == 'production'
+          )
+        )
+      )
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # Chromium only. The other engines would triple install time for a test
+      # that exists to answer one question quickly.
+      - run: npx playwright install --with-deps chromium
+
+      - name: Resolve target URL
+        id: target
+        run: |
+          URL="${{ github.event.inputs.url || github.event.deployment_status.environment_url }}"
+          if [ -z "$URL" ]; then URL="https://habitquest.dev"; fi
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+          echo "Smoke testing $URL"
+
+      - name: Run smoke test
+        env:
+          SMOKE_BASE_URL: ${{ steps.target.outputs.url }}
+          SMOKE_SUPABASE_URL: ${{ secrets.SMOKE_SUPABASE_URL }}
+          SMOKE_SERVICE_ROLE_KEY: ${{ secrets.SMOKE_SERVICE_ROLE_KEY }}
+        run: npm run test:smoke
+
+      - name: Upload trace on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-trace-${{ github.run_id }}
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+          if-no-files-found: ignore

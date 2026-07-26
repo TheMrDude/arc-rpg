@@ -18,7 +18,8 @@
     "test:rate-limits": "jest tests/security/rate-limiting.test.js",
     "test:race-conditions": "jest tests/security/race-conditions.test.js",
     "test:input-validation": "jest tests/security/input-validation.test.js",
-    "test:payment": "jest tests/security/payment.test.js"
+    "test:payment": "jest tests/security/payment.test.js",
+    "test:smoke": "playwright test"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.67.0",
@@ -45,6 +46,7 @@
     "zustand": "^5.0.8"
   },
   "devDependencies": {
+    "@playwright/test": "^1.49.1",
     "@types/canvas-confetti": "^1.9.0",
     "@types/react": "19.2.2",
     "autoprefixer": "^10.4.16",
