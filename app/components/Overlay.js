@@ -64,6 +64,15 @@ export default function Overlay({
   title,
   /** Visually hide the title but keep it for screen readers. */
   hideTitle = false,
+  /**
+   * Id of a heading the CALLER already renders visibly. When set, the dialog
+   * takes its accessible name from that element and the shell renders no title
+   * of its own -- so an overlay that shows its own "Your egg hatched!" heading
+   * does not also carry a hidden duplicate (two matches for the same text, read
+   * twice by a screen reader). The dialog's name then matches what is on screen,
+   * which is the accessible-name-from-content best case.
+   */
+  labelledBy = null,
   tone = 'light',
   /** Label on the close button, for when "Close" is not the right word. */
   closeLabel = 'Close',
@@ -193,7 +202,7 @@ export default function Overlay({
         ref={surfaceRef}
         role="dialog"
         aria-modal="true"
-        aria-labelledby={titleId}
+        aria-labelledby={labelledBy || titleId}
         data-overlay-surface=""
         tabIndex={-1}
         className={className}
@@ -233,30 +242,37 @@ export default function Overlay({
             background: palette.surface,
           }}
         >
-          <h2
-            id={titleId}
-            className="kq-display"
-            style={{
-              flex: 1,
-              minWidth: 0,
-              margin: 0,
-              fontSize: '1.25rem',
-              lineHeight: 1.2,
-              color: palette.text,
-              ...(hideTitle
-                ? {
-                    position: 'absolute',
-                    width: 1,
-                    height: 1,
-                    overflow: 'hidden',
-                    clip: 'rect(0 0 0 0)',
-                    whiteSpace: 'nowrap',
-                  }
-                : null),
-            }}
-          >
-            {title}
-          </h2>
+          {/* When the caller names the dialog with its own visible heading
+              (labelledBy), the shell renders no title -- just a spacer so the
+              close button stays right-aligned -- and adds no hidden duplicate. */}
+          {labelledBy ? (
+            <div style={{ flex: 1 }} aria-hidden="true" />
+          ) : (
+            <h2
+              id={titleId}
+              className="kq-display"
+              style={{
+                flex: 1,
+                minWidth: 0,
+                margin: 0,
+                fontSize: '1.25rem',
+                lineHeight: 1.2,
+                color: palette.text,
+                ...(hideTitle
+                  ? {
+                      position: 'absolute',
+                      width: 1,
+                      height: 1,
+                      overflow: 'hidden',
+                      clip: 'rect(0 0 0 0)',
+                      whiteSpace: 'nowrap',
+                    }
+                  : null),
+              }}
+            >
+              {title}
+            </h2>
+          )}
 
           {/* Close path 3 of 3: a real button, 44px, always visible. */}
           <button

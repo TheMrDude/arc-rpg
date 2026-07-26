@@ -59,7 +59,8 @@ test.describe('MomentumBoost full-screen catcher', () => {
     await serve(page, page_(''));
     await page.goto('http://localhost/fixture');
     const dismissed = await clearRewardModals(page, { expect });
-    expect(dismissed).toEqual(['✕']);
+    // Recorded by accessible name (aria-label="Close"), not the bare "✕" glyph.
+    expect(dismissed).toEqual(['Close']);
   });
 
   test('an open shell overlay is dismissed before a page button behind it', async ({ page }) => {
@@ -81,9 +82,10 @@ test.describe('MomentumBoost full-screen catcher', () => {
     );
     await page.goto('http://localhost/fixture');
     const dismissed = await clearRewardModals(page, { expect });
-    // The overlay's ✕ (aria-label) was dismissed FIRST, not the covered page
-    // button, and the drain then completed cleanly.
+    // The overlay's ✕ (aria-label "Continue your journey") was dismissed FIRST,
+    // not the covered page button, and the drain then cleared the now-uncovered
+    // page "Close" ✕. Both recorded by accessible name.
     expect(dismissed[0]).toBe('Continue your journey');
-    expect(dismissed).toContain('✕');
+    expect(dismissed).toContain('Close');
   });
 });
