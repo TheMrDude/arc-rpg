@@ -3,6 +3,8 @@ import Anthropic from '@anthropic-ai/sdk';
 import { createClient } from '@supabase/supabase-js';
 import { checkRateLimit, createRateLimitResponse } from '@/lib/rate-limiter';
 import { isPremium as resolveIsPremium } from '@/lib/premium';
+import { NARRATION_FLOOR } from '@/lib/narrationConstraints';
+import { ARCHETYPE_JOURNAL_VOICES, DEFAULT_JOURNAL_VOICE } from '@/lib/archetypeVoices';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -113,13 +115,6 @@ export async function POST(request) {
       ? `\n\nRECENT REFLECTIONS (for continuity):\n${recentEntries.map(e => `- ${e.transformed_narrative} (mood: ${e.mood || 'neutral'})`).join('\n')}\n\nCreate subtle continuity with these recent reflections if appropriate.`
       : '';
 
-    const archetypeVoices = {
-      warrior: 'determined, courageous, action-oriented - frames struggles as battles to overcome',
-      builder: 'pragmatic, constructive, steady - frames challenges as projects to build through',
-      shadow: 'introspective, strategic, deep - frames emotions as inner landscapes to navigate',
-      sage: 'wise, reflective, philosophical - frames experiences as lessons and growth',
-      seeker: 'curious, adventurous, open - frames life as an ongoing journey of discovery',
-    };
 
     const moodContext = mood
       ? `Current mood: ${mood}/5 (${mood === 1 ? 'struggling' : mood === 2 ? 'difficult' : mood === 3 ? 'neutral' : mood === 4 ? 'good' : 'thriving'})`
@@ -127,7 +122,9 @@ export async function POST(request) {
 
     const prompt = `You are transforming a user's personal journal entry into an epic narrative that fits their ${archetype.toUpperCase()} character in an ongoing RPG story.
 
-ARCHETYPE VOICE: ${archetypeVoices[archetype] || archetypeVoices.warrior}
+${NARRATION_FLOOR}
+
+ARCHETYPE VOICE: ${ARCHETYPE_JOURNAL_VOICES[archetype] || DEFAULT_JOURNAL_VOICE}
 CURRENT STORY STATE: Arc ${storyArc}, Level ${userLevel}
 ${moodContext}
 ${recentContext}
@@ -141,7 +138,7 @@ Transform this into a NARRATIVE (150-250 words) that:
 3. References their ongoing story arc subtly (don't force it)
 4. Frames growth/learning as character development
 5. Ends with forward momentum (hope, not despair) - even difficult days are part of the hero's journey
-6. Matches the ${archetype} voice - ${archetypeVoices[archetype]}
+6. Matches the ${archetype} voice - ${ARCHETYPE_JOURNAL_VOICES[archetype] || DEFAULT_JOURNAL_VOICE}
 
 IMPORTANT TONE RULES:
 - If mood is low (1-2): Acknowledge the struggle, but frame it as a temporary challenge the hero will overcome

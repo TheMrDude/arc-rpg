@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { createClient } from '@supabase/supabase-js';
 import { checkAIRateLimit, logAIUsage } from '@/lib/aiRateLimiting';
+import { NARRATION_FLOOR } from '@/lib/narrationConstraints';
 
 export const dynamic = 'force-dynamic';
 
@@ -75,6 +76,8 @@ export async function POST(request) {
 
     // Create AI prompt for backstory
     const prompt = `You are a master storyteller crafting an epic RPG character backstory.
+
+${NARRATION_FLOOR}
 
 CHARACTER PROFILE:
 - Archetype: ${profile.archetype}

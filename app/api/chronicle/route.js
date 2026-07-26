@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import Anthropic from '@anthropic-ai/sdk';
 import { authenticateRequest } from '@/lib/api-auth';
+import { NARRATION_FLOOR } from '@/lib/narrationConstraints';
 
 export const dynamic = 'force-dynamic';
 
@@ -61,6 +62,8 @@ export async function GET(request) {
     let text = null;
     try {
       const systemPrompt = `You are the Dungeon Master of HabitQuest narrating a hero's "story so far" — a warm, ${tone} recap of their recent deeds on the road.
+
+${NARRATION_FLOOR}
 
 RULES:
 - 2 to 3 sentences. One short paragraph. No lists.
