@@ -76,6 +76,48 @@ git show 057cbe0:public/images/companions/seeker/1.png > /tmp/master-1.png
 
 Keep full-resolution masters wherever the art itself is commissioned and stored.
 
+## Size budget: full-frame illustration (maps, backgrounds)
+
+**1200 × 1600, WebP, quality 80–85, under 250 KB, no alpha.**
+
+Different numbers *and a different format* from the companion budget above, and
+the reason is worth stating because the two pull in opposite directions.
+Companions need **transparency** and sit on flat colour, so palette PNG is right.
+A full-frame illustration fills the frame — no transparency to preserve — and is
+almost entirely **continuous gradient**: aged parchment, painted shading, hazy
+distance. Palette quantisation is the worst possible choice for that.
+
+Measured on a comparably painterly asset at 1200 × 1600:
+
+| Format | Setting | Size |
+| ------ | ------- | ---- |
+| PNG    | full colour | **4085 KB** |
+| PNG    | palette 256 | **813 KB** |
+| JPEG   | q80 mozjpeg | 211 KB |
+| **WebP** | **q85**   | **207 KB** |
+| **WebP** | **q80**   | **153 KB** |
+| WebP   | q75         | 116 KB |
+
+So PNG is 4–20× the cost for no benefit here. WebP is supported everywhere the
+app runs, Silk on Fire tablets included.
+
+```js
+await sharp(src)
+  .resize(1200, 1600, { fit: 'cover' })
+  .webp({ quality: 82, effort: 6 })
+  .toFile(dest);
+```
+
+1200 × 1600 is sized from the real slot, not chosen for roundness: the world map
+renders at roughly 816 px CSS wide on desktop (`max-w-6xl` page minus the `w-72`
+region panel) and ~600 px on a Fire HD, so 1200 covers 2× DPR on the tablet that
+matters. Keep the generator's larger output as the master and downscale.
+
+Note that a raster map replaces an **8.8 KB SVG**, so this is a ~23× increase on
+that one asset. It is the right trade for art a child wants to stare at, and it
+lands on `/campaign/world` rather than in the dashboard's first-load path — but
+it should be a decision, not a surprise.
+
 ## Verifying a new file
 
 Confirm it still reads correctly at the sizes it renders — 64 px on the
