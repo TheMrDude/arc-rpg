@@ -42,11 +42,47 @@ async function clearRewardModals(page, { expect, max = 8, settleMs = 900 } = {})
       // No force, no catch. A reward modal a child cannot dismiss must go red.
       await button.click({ timeout: 5000 });
     } catch (err) {
+      // Name the culprit in the LOG, not just a trace artifact. A click times out
+      // because the button is covered, moving, or disabled -- so report which,
+      // and what a tap at its centre would actually land on. This is the
+      // difference between "some modal is stuck" and a one-line fix.
+      const diag = await button
+        .evaluate((el) => {
+          const r = el.getBoundingClientRect();
+          const cx = r.left + r.width / 2;
+          const cy = r.top + r.height / 2;
+          const hit = document.elementFromPoint(cx, cy);
+          const describe = (n) => {
+            if (!n) return 'nothing';
+            const cs = getComputedStyle(n);
+            const cls =
+              typeof n.className === 'string' && n.className.trim()
+                ? '.' + n.className.trim().split(/\s+/).slice(0, 3).join('.')
+                : '';
+            return `${n.tagName.toLowerCase()}${n.id ? '#' + n.id : ''}${cls} [z:${cs.zIndex}, pos:${cs.position}, pe:${cs.pointerEvents}]`;
+          };
+          const covered = hit && hit !== el && !el.contains(hit);
+          return {
+            box: { x: Math.round(r.x), y: Math.round(r.y), w: Math.round(r.width), h: Math.round(r.height) },
+            disabled: el.disabled === true,
+            coveredBy: covered ? describe(hit) : null,
+          };
+        })
+        .catch(() => null);
+
+      const cause = diag
+        ? diag.coveredBy
+          ? `a tap at its centre lands on ${diag.coveredBy} instead`
+          : diag.disabled
+          ? 'the button is disabled'
+          : `the button is uncovered and enabled at ${JSON.stringify(diag.box)} -- likely still moving (unstable)`
+        : 'could not inspect the button';
+
       throw new Error(
         `reward modal "${name.trim()}" is on screen but its dismiss button could not ` +
           `be clicked after ${dismissed.length} previous dismissal(s) ` +
           `[${dismissed.join(' -> ') || 'none'}]. A child would be stuck here. ` +
-          `Underlying error: ${String(err.message).split('\n')[0]}`
+          `Why: ${cause}. Underlying error: ${String(err.message).split('\n')[0]}`
       );
     }
     dismissed.push(name.trim());
