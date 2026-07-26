@@ -143,19 +143,40 @@ test('production smoke: the five paths a real user touches', async ({ page }) =>
     await expect(page.locator('button[type="submit"]')).toBeEnabled();
     await page.locator('button[type="submit"]').click();
 
-    // Email confirmation is on, so the UI stops here. Confirm out of band --
-    // this is the only step the test cannot do the way a person would.
-    await page.waitForTimeout(6000);
+    // Signup has two legitimate outcomes depending on whether the Supabase
+    // project requires email confirmation, and the test must not encode a guess
+    // about which. With confirmation OFF, signUp returns a session and the page
+    // pushes straight to /select-archetype. With it ON, there is no session and
+    // the page shows the "confirmation scroll" state instead.
+    //
+    // The first version assumed confirmation was always required and went to
+    // /login unconditionally. That failed: a session already existed, and
+    // /login's own effect redirects an authenticated visitor away, so the email
+    // field it was waiting for never appeared.
+    const reachedApp = await page
+      .waitForURL(/\/(select-archetype|dashboard)/, { timeout: 25_000 })
+      .then(() => true)
+      .catch(() => false);
+
+    // Either way the auth user must exist -- later steps read its profile by id.
     const user = await findUserByEmail(email);
     expect(user, 'signup did not create an auth user').toBeTruthy();
     userId = user.id;
-    await admin.auth.admin.updateUserById(userId, { email_confirm: true });
 
-    await page.goto('/login');
-    await page.locator('input[type="email"]').fill(email);
-    await page.locator('input[type="password"]').first().fill(password);
-    await page.locator('button[type="submit"]').click();
-    await page.waitForURL(/\/(select-archetype|dashboard)/, { timeout: 45_000 });
+    if (reachedApp) {
+      console.log('signup returned a session; no confirmation step needed');
+    } else {
+      // Confirm out of band. This is the only step the test cannot do the way a
+      // person would, because it needs the email we cannot read.
+      console.log('signup is awaiting confirmation; confirming and logging in');
+      await admin.auth.admin.updateUserById(userId, { email_confirm: true });
+
+      await page.goto('/login');
+      await page.locator('input[type="email"]').fill(email);
+      await page.locator('input[type="password"]').first().fill(password);
+      await page.locator('button[type="submit"]').click();
+      await page.waitForURL(/\/(select-archetype|dashboard)/, { timeout: 45_000 });
+    }
 
     if (page.url().includes('select-archetype')) {
       await expect(page.getByRole('heading', { name: /Choose Your Egg/i })).toBeVisible();
