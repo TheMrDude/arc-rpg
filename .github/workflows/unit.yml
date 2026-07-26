@@ -1,13 +1,18 @@
 name: Unit tests
 
-# Every push and every PR. No secrets, no network, no production writes, so this
-# is safe on a public repo -- the whole job is Jest over pure functions in lib/.
+# Every PR commit and every merge to main. No secrets, no network, no production
+# writes, so this is safe on a public repo -- the whole job is Jest over pure
+# functions in lib/.
 #
 # It is a separate workflow from overlays.yml deliberately: this finishes in
 # seconds without a browser or a Next build, and it should stay the fastest
 # signal in the repo so there is never a reason to skip it.
 on:
+  # Branch pushes and PRs both fire, so a PR branch would run this twice per
+  # commit. Restricting push to the default branch means: every PR commit runs it
+  # once via pull_request, and every merge to main runs it once via push.
   push:
+    branches: [main]
   pull_request:
 
 permissions:

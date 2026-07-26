@@ -1,11 +1,16 @@
 name: Overlay invariants
 
-# Runs on every push and PR. No network, no secrets, no production writes -- it
+# Runs on every PR commit and every merge to main. No network, no secrets, no
+# production writes -- it
 # bundles the real shell into a harness and drives it in a browser. Safe on a
 # public repo and fast enough to gate a merge, which is where this belongs: the
 # overlay bugs it checks for reached a nine-year-old because nothing gated them.
 on:
+  # Branch pushes and PRs both fire, so a PR branch would run this twice per
+  # commit. Restricting push to the default branch means: every PR commit runs it
+  # once via pull_request, and every merge to main runs it once via push.
   push:
+    branches: [main]
   pull_request:
 
 permissions:
