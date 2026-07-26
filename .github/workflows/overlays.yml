@@ -1,0 +1,53 @@
+name: Overlay invariants
+
+# Runs on every PR commit and every merge to main. No network, no secrets, no
+# production writes -- it
+# bundles the real shell into a harness and drives it in a browser. Safe on a
+# public repo and fast enough to gate a merge, which is where this belongs: the
+# overlay bugs it checks for reached a nine-year-old because nothing gated them.
+on:
+  # Branch pushes and PRs both fire, so a PR branch would run this twice per
+  # commit. Restricting push to the default branch means: every PR commit runs it
+  # once via pull_request, and every merge to main runs it once via push.
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: overlays-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  overlays:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+
+      # The harness loads the real compiled CSS, because globals.css's
+      # `body { color: #FFFFFF }` is the reason two of these bugs existed. A
+      # harness without it would prove nothing.
+      - run: npx next build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder
+
+      - run: npm run test:overlays
+
+      - name: Upload trace on failure
+        if: failure()
+        uses: actions/upload-artifact@v5
+        with:
+          name: overlay-trace-${{ github.run_id }}
+          path: test-results/
+          retention-days: 7
+          if-no-files-found: ignore

@@ -7,10 +7,13 @@
  * field, and a stale service worker serving a bundle that was fine when it
  * was built.
  *
- * Six checks, one account, one browser, in order. It is deliberately one
- * user's path rather than six independent tests -- if signup breaks, the
- * others cannot tell you anything, and pretending otherwise just produces
- * five more red lines to read.
+ * Build identity first, then one account walking one browser through the paths a
+ * real user touches, in order. Identity comes first because every other check is
+ * meaningless if you cannot say which build it ran against.
+ *
+ * Deliberately one user's path rather than N independent tests -- if signup
+ * breaks, the others cannot tell you anything, and pretending otherwise just
+ * produces more red lines to read.
  *
  * It writes to the production database: one account and three quests per
  * deploy, deleted at the end. Accounts are prefixed `smoke+` so they can be
@@ -20,6 +23,9 @@
  */
 const { test, expect } = require('@playwright/test');
 const { createClient } = require('@supabase/supabase-js');
+const { smokeCredentials, buildMismatchReason, stepLedger } = require('./checks');
+// Extracted and proven against fixtures in tests/overlays/reward-dismiss.spec.js.
+const { clearRewardModals } = require('./rewardModals');
 
 const SUPABASE_URL = process.env.SMOKE_SUPABASE_URL;
 const SERVICE_ROLE_KEY = process.env.SMOKE_SERVICE_ROLE_KEY;
@@ -34,8 +40,14 @@ const admin =
     : null;
 
 const runId = `${process.env.GITHUB_RUN_ID || Date.now()}-${process.env.GITHUB_RUN_ATTEMPT || '1'}`;
-const email = `${SMOKE_PREFIX}${runId}@habitquest.dev`;
-const password = `Smoke!${runId}aA1`;
+
+// HOLLOW PASS 3, fixed: a distinct account per retry attempt. See
+// tests/smoke/checks.js for why, and tests/unit/smoke-checks.test.js for the
+// proof that it can fail.
+
+// The commit this run believes it is testing. Set by smoke.yml from the
+// deployment event; absent on a manual dispatch against an arbitrary URL.
+const EXPECTED_SHA = process.env.SMOKE_EXPECTED_SHA || null;
 
 let userId = null;
 
@@ -119,23 +131,6 @@ async function dismissFirstRunOverlays(page) {
   ).toBeVisible({ timeout: 20_000 });
 }
 
-/**
- * Dismiss whatever the reward chain put on screen. Completing a quest can queue
- * a celebration, a reflection, a dice roll and a chest drop, and which of them
- * appear is partly random -- so this drains rather than assumes.
- */
-async function clearRewardModals(page) {
-  const labels =
-    /Continue Your Journey|Continue|Claim|Awesome|Nice|Got it|Keep going|Close|Skip/i;
-  for (let i = 0; i < 8; i++) {
-    const button = page.getByRole('button', { name: labels }).first();
-    if (!(await button.count())) break;
-    if (!(await button.isVisible().catch(() => false))) break;
-    await button.click({ timeout: 5000 }).catch(() => {});
-    await page.waitForTimeout(900);
-  }
-}
-
 test.beforeAll(() => {
   // A smoke test that silently skips is worse than no smoke test: it is a green
   // tick that means nothing.
@@ -155,7 +150,45 @@ test.afterAll(async () => {
   }
 });
 
-test('production smoke: the five paths a real user touches', async ({ page }) => {
+/**
+ * HOLLOW PASS 1, fixed.
+ *
+ * Every check lived inside a test.step, and a test.step that never executes
+ * leaves no trace: an early `return`, a guard that short-circuits, or a refactor
+ * that drops a block produces a green tick over a run that checked less than it
+ * claimed. Playwright reports the test as passed either way.
+ *
+ * So the steps are declared up front, each one records itself, and the last
+ * assertion in the file compares what ran against what was promised. If a check
+ * is skipped, the suite fails naming it.
+ */
+const REQUIRED_STEPS = [
+  'build identity',
+  'signup',
+  'companion egg countdown',
+  'recurrence control',
+  'quest 1 created',
+  'quest 1 completed',
+  'quest 2 created',
+  'quest 2 completed',
+  'quest 3 created',
+  'quest 3 completed',
+  'xp and gold increased',
+  'hatch prompt legible',
+  'companion hatched',
+];
+
+test('production smoke: the right build, and the paths a real user touches', async ({ page }, testInfo) => {
+  const { email, password } = smokeCredentials(runId, testInfo.retry, SMOKE_PREFIX);
+  console.log(`smoke account: ${email} (attempt ${testInfo.retry + 1})`);
+
+  const ran = new Set();
+  /** Wraps test.step so a step cannot run without being recorded. */
+  const step = async (name, fn) => {
+    await test.step(name, fn);
+    ran.add(name);
+  };
+
   await sweepStaleSmokeAccounts();
 
   const failures = [];
@@ -165,8 +198,64 @@ test('production smoke: the five paths a real user touches', async ({ page }) =>
     }
   });
 
+  // ── 0. The build under test is the build that triggered this run ──────────
+  //
+  // HOLLOW PASS 4, fixed -- and the most important of the four. Before this, the
+  // suite never checked WHAT it was testing. Every green run was really the
+  // claim "some build of habitquest.dev works", which is compatible with:
+  //   - the deploy having failed, leaving the previous build live (the exact
+  //     failure that was live on this branch an hour ago: prebuild rejected an
+  //     invalid ESLint config, so Vercel served the old bundle);
+  //   - a newer deploy having landed mid-run, so the checks straddle two builds;
+  //   - a stale service worker serving a cached bundle from a previous commit,
+  //     which is a bug this suite was written specifically to catch and which it
+  //     could not have detected.
+  //
+  // buildId is inlined at build time by next.config.js, so a match proves the
+  // code answering us was compiled from the expected commit -- not merely
+  // deployed alongside it.
+  await step('build identity', async () => {
+    const res = await page.request.get('/api/version');
+    expect(res.status(), 'GET /api/version failed').toBe(200);
+    const version = await res.json();
+    console.log(`deployed build: ${JSON.stringify(version)}`);
+
+    // Never a hollow pass, even on a manual dispatch with no expected sha: a
+    // missing build id, or the 'dev' fallback, fails here regardless.
+    const reason = buildMismatchReason(EXPECTED_SHA, version);
+    expect(
+      reason,
+      `${reason} Nothing below this line would tell you about the commit you just pushed.`
+    ).toBeNull();
+
+    if (!EXPECTED_SHA) {
+      // Manual dispatch against an arbitrary URL. Report, do not guess.
+      console.log('SMOKE_EXPECTED_SHA not set (manual run); build match not asserted');
+      testInfo.annotations.push({
+        type: 'warning',
+        description: `build match NOT asserted; tested buildId ${version.buildId}`,
+      });
+      return;
+    }
+
+    // And the browser must agree with the API. layout.js inlines the same build
+    // id into the service-worker registration URL, so a service worker serving a
+    // stale HTML document shows up here as a mismatch between the two -- which
+    // the API check alone cannot see.
+    await page.goto('/');
+    const servedBuildId = await page.evaluate(
+      () => document.documentElement.innerHTML.match(/sw\.js\?v=([a-z0-9]+)/i)?.[1] || null
+    );
+    expect(
+      servedBuildId,
+      `the HTML served to the browser advertises build ${servedBuildId} while the API ` +
+        `reports ${version.buildId}. That gap is a stale cached document -- exactly the ` +
+        `service-worker bug this suite exists to catch.`
+    ).toBe(version.buildId);
+  });
+
   // ── 1. Sign up and reach the dashboard ────────────────────────────────────
-  await test.step('sign up and reach the dashboard', async () => {
+  await step('signup', async () => {
     await page.goto('/signup');
     await page.locator('input[type="email"]').fill(email);
     await page.locator('input[type="password"]').first().fill(password);
@@ -230,14 +319,14 @@ test('production smoke: the five paths a real user touches', async ({ page }) =>
   });
 
   // ── 5a. Companion at the correct stage for 0 quests ───────────────────────
-  await test.step('companion renders as an egg with the hatch countdown', async () => {
+  await step('companion egg countdown', async () => {
     const profile = await readProfile(userId);
     expect(profile.quests_completed || 0).toBe(0);
     await expect(page.getByText(/Hatches in 3 quests/i)).toBeVisible();
   });
 
   // ── 4. The recurrence control renders ─────────────────────────────────────
-  await test.step('the recurrence control renders', async () => {
+  await step('recurrence control', async () => {
     // Guarded by `{setRecurrence && …}` in QuestInputRedesigned, so it can
     // vanish silently if a refactor stops passing the prop. That is the whole
     // reason this check exists.
@@ -254,7 +343,7 @@ test('production smoke: the five paths a real user touches', async ({ page }) =>
   const before = await readProfile(userId);
 
   for (let n = 1; n <= 3; n++) {
-    await test.step(`create quest ${n} (transform-quest returns a transformed result)`, async () => {
+    await step(`quest ${n} created`, async () => {
       const raw = `smoke test quest ${n}`;
       const waitForTransform = page.waitForResponse(
         (r) => r.url().includes('/api/transform-quest') && r.request().method() === 'POST',
@@ -279,7 +368,7 @@ test('production smoke: the five paths a real user touches', async ({ page }) =>
       });
     });
 
-    await test.step(`complete quest ${n}`, async () => {
+    await step(`quest ${n} completed`, async () => {
       const waitForComplete = page.waitForResponse(
         (r) => r.url().includes('/api/complete-quest') && r.request().method() === 'POST',
         { timeout: 60_000 }
@@ -287,11 +376,11 @@ test('production smoke: the five paths a real user touches', async ({ page }) =>
       await page.getByRole('button', { name: /^Complete$/ }).first().click();
       const res = await waitForComplete;
       expect(res.status(), `complete-quest returned ${res.status()}`).toBeLessThan(300);
-      await clearRewardModals(page);
+      await clearRewardModals(page, { expect });
     });
   }
 
-  await test.step('XP and gold both increased', async () => {
+  await step('xp and gold increased', async () => {
     const after = await readProfile(userId);
     expect(after.xp, `xp ${before.xp} -> ${after.xp}`).toBeGreaterThan(before.xp);
     expect(after.gold, `gold ${before.gold} -> ${after.gold}`).toBeGreaterThan(before.gold);
@@ -299,7 +388,7 @@ test('production smoke: the five paths a real user touches', async ({ page }) =>
   });
 
   // ── 6. The naming input is legible ────────────────────────────────────────
-  await test.step('the hatch prompt appears and its input is legible', async () => {
+  await step('hatch prompt legible', async () => {
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible({ timeout: 30_000 });
     await expect(dialog.getByText(/Your egg hatched/i)).toBeVisible();
@@ -365,7 +454,7 @@ test('production smoke: the five paths a real user touches', async ({ page }) =>
   });
 
   // ── 5b. Companion advanced to the hatched stage ───────────────────────────
-  await test.step('companion advanced to stage 1 for 3 completed quests', async () => {
+  await step('companion hatched', async () => {
     const profile = await readProfile(userId);
     expect(profile.companion_name).toBe('Smokey');
     await expect(page.getByText(/Hatches in \d+ quest/i)).toBeHidden();
@@ -373,4 +462,19 @@ test('production smoke: the five paths a real user touches', async ({ page }) =>
   });
 
   expect(failures, `server errors during the run: ${failures.join(', ')}`).toEqual([]);
+
+  // The ledger. Everything above could pass while checking less than it claims,
+  // because a test.step that never runs leaves no evidence behind. This is the
+  // assertion that makes "six checks passed" mean six checks.
+  const { missing, undeclared } = stepLedger(REQUIRED_STEPS, ran);
+  expect(
+    missing,
+    `the run reported success but these checks never executed: ${missing.join(', ')}. ` +
+      `A skipped check is not a passing check.`
+  ).toEqual([]);
+  // And nothing ran that was not declared, which catches a step being renamed
+  // without the ledger being updated -- the way this guard would rot.
+  expect(undeclared, `steps ran that are not in REQUIRED_STEPS: ${undeclared.join(', ')}`).toEqual(
+    []
+  );
 });

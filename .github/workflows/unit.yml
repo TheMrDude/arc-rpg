@@ -1,0 +1,45 @@
+name: Unit tests
+
+# Every PR commit and every merge to main. No secrets, no network, no production
+# writes, so this is safe on a public repo -- the whole job is Jest over pure
+# functions in lib/.
+#
+# It is a separate workflow from overlays.yml deliberately: this finishes in
+# seconds without a browser or a Next build, and it should stay the fastest
+# signal in the repo so there is never a reason to skip it.
+on:
+  # Branch pushes and PRs both fire, so a PR branch would run this twice per
+  # commit. Restricting push to the default branch means: every PR commit runs it
+  # once via pull_request, and every merge to main runs it once via push.
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: unit-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+
+      # The guard verifier runs here as well as in prebuild. prebuild only
+      # protects a Vercel build; this makes an invalid ESLint config fail a PR
+      # before it can be merged. That config was broken for two days.
+      - run: npm run verify:guards
+
+      # jest.config.js sets passWithNoTests: false, so a testMatch that stops
+      # matching anything fails this step instead of reporting a green run over
+      # zero tests.
+      - run: npm test

@@ -6,7 +6,7 @@
 const { defineConfig, devices } = require('@playwright/test');
 
 module.exports = defineConfig({
-  testDir: './tests/smoke',
+  testDir: './tests',
   // The five checks are one user's path, so they run in order in a single file
   // and a failure early makes the rest meaningless. No sharding, no parallelism.
   fullyParallel: false,
@@ -32,10 +32,33 @@ module.exports = defineConfig({
   },
   projects: [
     {
-      name: 'mobile-chromium',
+      // Production smoke: runs after deploy, needs the network.
+      name: 'smoke',
+      testMatch: /smoke\/.*\.spec\.js/,
       // She uses a tablet. Testing a desktop viewport would miss the layout the
       // actual user sees.
       use: { ...devices['Pixel 7'] },
+    },
+    {
+      // Overlay invariants: no network, no production writes, fast enough to gate
+      // every push. Fire tablet viewport, which is where the traps were found.
+      name: 'overlays',
+      testMatch: /overlays\/.*\.spec\.js/,
+      retries: 0,
+      timeout: 60_000,
+      use: {
+        viewport: { width: 600, height: 960 },
+        baseURL: undefined,
+        // Geometry assertions must not race the open animation: mid-flight the
+        // surface is still at scale(0.98), which measured the 44px close button
+        // at 43.4px. This also exercises the reduced-motion path.
+        reducedMotion: 'reduce',
+        // CI installs its own Chromium. A sandbox with one pre-installed can
+        // point at it instead via PW_CHROMIUM_PATH; unset, this is a no-op.
+        ...(process.env.PW_CHROMIUM_PATH
+          ? { launchOptions: { executablePath: process.env.PW_CHROMIUM_PATH } }
+          : {}),
+      },
     },
   ],
 });
