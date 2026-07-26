@@ -1,24 +1,30 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { createPortal } from 'react-dom';
 import { RARITY_COLORS } from '@/lib/encounterTable';
+import Overlay from './Overlay';
+import { useOverlaySlot, OVERLAY_PRIORITY } from '@/lib/overlayQueue';
 
 export default function DiceRoll({ encounter, onClaim, show }) {
   const [phase, setPhase] = useState('waiting'); // waiting -> spinning -> landed -> reveal
   const [displayNumber, setDisplayNumber] = useState('?');
   const spinIntervalRef = useRef(null);
 
+  // Priority-3 reward. `onClaim` is routed through the queue's idempotent
+  // claimReward at the call site, so all four of the shell's close paths (✕,
+  // Escape, backdrop, the Claim button) pay out exactly once.
+  const visible = useOverlaySlot('dice-roll', OVERLAY_PRIORITY.REWARD, Boolean(show && encounter));
+
   useEffect(() => {
-    if (!show || !encounter) return;
-    // Reset to waiting state when a new encounter appears
+    if (!visible || !encounter) return;
+    // Reset to waiting state when the encounter reaches the screen.
     setPhase('waiting');
     setDisplayNumber('?');
 
     return () => {
       if (spinIntervalRef.current) clearInterval(spinIntervalRef.current);
     };
-  }, [show, encounter]);
+  }, [visible, encounter]);
 
   function handleRoll() {
     if (phase !== 'waiting' || !encounter) return;
@@ -40,131 +46,143 @@ export default function DiceRoll({ encounter, onClaim, show }) {
     }, 1500);
   }
 
-  if (!show || !encounter) return null;
-
-  const rarity = RARITY_COLORS[encounter.rarity] || RARITY_COLORS.common;
-  const isLegendary = encounter.rarity === 'legendary';
+  const rarity = encounter
+    ? RARITY_COLORS[encounter.rarity] || RARITY_COLORS.common
+    : RARITY_COLORS.common;
+  const isLegendary = encounter?.rarity === 'legendary';
 
   // Reward description
   let rewardText = '';
-  switch (encounter.rewardType) {
-    case 'gold': rewardText = `+${encounter.rewardValue} Gold`; break;
-    case 'gold_loss': rewardText = `-${encounter.rewardValue} Gold`; break;
-    case 'bonus_xp': rewardText = `+${encounter.rewardValue} bonus XP on next ${encounter.effectQuestsRemaining > 1 ? encounter.effectQuestsRemaining + ' quests' : 'quest'}`; break;
-    case 'critical_hit': rewardText = `+${encounter.rewardValue} Gold + 2x XP on next quest`; break;
-    case 'none': rewardText = 'No effect'; break;
-    default: rewardText = '';
+  if (encounter) {
+    switch (encounter.rewardType) {
+      case 'gold': rewardText = `+${encounter.rewardValue} Gold`; break;
+      case 'gold_loss': rewardText = `-${encounter.rewardValue} Gold`; break;
+      case 'bonus_xp': rewardText = `+${encounter.rewardValue} bonus XP on next ${encounter.effectQuestsRemaining > 1 ? encounter.effectQuestsRemaining + ' quests' : 'quest'}`; break;
+      case 'critical_hit': rewardText = `+${encounter.rewardValue} Gold + 2x XP on next quest`; break;
+      case 'none': rewardText = 'No effect'; break;
+      default: rewardText = '';
+    }
   }
 
-  if (typeof document === 'undefined') return null;
+  // The shell owns the backdrop, the three close paths, the scroll lock and the
+  // z-index. tone="dark" puts `.kidquest` back on the portal root, which is what
+  // was missing before: `kq-card`'s background died outside that scope, leaving
+  // the reveal card's text-navy/60 sitting on the raw black backdrop at ~1.2:1.
+  return (
+    <Overlay
+      open={visible}
+      onClose={onClaim}
+      tone="dark"
+      title="Random Encounter"
+      hideTitle
+      closeLabel="Claim reward"
+    >
+      {encounter && (
+        <div className="flex flex-col items-center gap-6 py-2">
+          {/* Header text — waiting phase */}
+          {phase === 'waiting' && (
+            <div className="text-center mb-2" style={{ animation: 'fadeIn 0.3s ease' }}>
+              <h2 className="kq-display text-xl text-gold mb-2">
+                ✨ Random Encounter!
+              </h2>
+              <p className="text-cream/70 text-sm">Something fun is waiting for you...</p>
+            </div>
+          )}
 
-  return createPortal(
-    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/85" style={{ animation: 'fadeIn 0.3s ease' }}>
-      <div className="flex flex-col items-center gap-6 p-8">
-
-        {/* Header text — waiting phase */}
-        {phase === 'waiting' && (
-          <div className="text-center mb-2" style={{ animation: 'fadeIn 0.3s ease' }}>
-            <h2 className="kq-display text-xl text-gold mb-2">
-              ✨ Random Encounter!
-            </h2>
-            <p className="text-cream/70 text-sm">Something fun is waiting for you...</p>
-          </div>
-        )}
-
-        {/* D10 Dice */}
-        <div className="relative">
-          <div
-            onClick={handleRoll}
-            className="dice-d10"
-            style={{
-              cursor: phase === 'waiting' ? 'pointer' : 'default',
-              borderColor: (phase === 'landed' || phase === 'reveal') ? rarity.border : '#FFC83D',
-              boxShadow: (phase === 'landed' || phase === 'reveal')
-                ? `0 0 ${isLegendary ? '50' : '40'}px ${rarity.glow}`
-                : '0 0 20px rgba(255, 200, 61, 0.35)',
-              animation: phase === 'waiting' ? 'dicePulse 1.5s ease-in-out infinite' :
-                         phase === 'spinning' ? 'diceRoll 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)' :
-                         phase === 'landed' ? 'diceBounce 0.3s ease' :
-                         isLegendary ? 'legendaryPulse 0.5s ease-in-out infinite alternate' : 'none',
-            }}
-          >
-            <span
-              className="kq-display text-[2.5rem]"
-              style={{ color: (phase === 'landed' || phase === 'reveal') ? rarity.text : '#FFC83D' }}
+          {/* D10 Dice */}
+          <div className="relative">
+            <div
+              onClick={handleRoll}
+              className="dice-d10"
+              style={{
+                cursor: phase === 'waiting' ? 'pointer' : 'default',
+                borderColor: (phase === 'landed' || phase === 'reveal') ? rarity.border : '#FFC83D',
+                boxShadow: (phase === 'landed' || phase === 'reveal')
+                  ? `0 0 ${isLegendary ? '50' : '40'}px ${rarity.glow}`
+                  : '0 0 20px rgba(255, 200, 61, 0.35)',
+                animation: phase === 'waiting' ? 'dicePulse 1.5s ease-in-out infinite' :
+                           phase === 'spinning' ? 'diceRoll 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)' :
+                           phase === 'landed' ? 'diceBounce 0.3s ease' :
+                           isLegendary ? 'legendaryPulse 0.5s ease-in-out infinite alternate' : 'none',
+              }}
             >
-              {displayNumber}
-            </span>
+              <span
+                className="kq-display text-[2.5rem]"
+                style={{ color: (phase === 'landed' || phase === 'reveal') ? rarity.text : '#FFC83D' }}
+              >
+                {displayNumber}
+              </span>
+            </div>
+
+            {/* Legendary particles */}
+            {isLegendary && (phase === 'landed' || phase === 'reveal') && (
+              <div className="absolute inset-0 pointer-events-none">
+                {[...Array(12)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="absolute w-2 h-2 rounded-full bg-gold"
+                    style={{
+                      left: '50%',
+                      top: '50%',
+                      animation: `particle ${1 + Math.random()}s ease-out infinite`,
+                      animationDelay: `${Math.random() * 0.5}s`,
+                      transform: `rotate(${i * 30}deg) translateY(-60px)`,
+                    }}
+                  />
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Legendary particles */}
-          {isLegendary && (phase === 'landed' || phase === 'reveal') && (
-            <div className="absolute inset-0 pointer-events-none">
-              {[...Array(12)].map((_, i) => (
-                <div
-                  key={i}
-                  className="absolute w-2 h-2 rounded-full bg-gold"
-                  style={{
-                    left: '50%',
-                    top: '50%',
-                    animation: `particle ${1 + Math.random()}s ease-out infinite`,
-                    animationDelay: `${Math.random() * 0.5}s`,
-                    transform: `rotate(${i * 30}deg) translateY(-60px)`,
-                  }}
-                />
-              ))}
+          {/* Tap to roll label — waiting phase */}
+          {phase === 'waiting' && (
+            <p
+              className="text-gold text-sm font-bold"
+              style={{ animation: 'dicePulse 1.5s ease-in-out infinite' }}
+            >
+              Tap to roll!
+            </p>
+          )}
+
+          {/* Encounter name — landed phase */}
+          {phase === 'landed' && (
+            <p className="kq-display text-xl text-cream" style={{ animation: 'fadeIn 0.3s ease' }}>
+              {encounter.icon} {encounter.name}
+            </p>
+          )}
+
+          {/* Encounter Card — reveal phase */}
+          {phase === 'reveal' && (
+            <div
+              className="kq-card p-6 max-w-[350px] w-full text-center"
+              style={{
+                borderWidth: '2px',
+                borderStyle: 'solid',
+                borderColor: rarity.border,
+                boxShadow: `0 0 30px ${rarity.glow}`,
+                animation: 'slideUp 0.4s ease',
+              }}
+            >
+              <div className="text-5xl mb-3">{encounter.icon}</div>
+              <h3 className="kq-display text-xl mb-2" style={{ color: rarity.text }}>
+                {encounter.name}
+              </h3>
+              <div className="w-16 h-0.5 mx-auto mb-3" style={{ backgroundColor: rarity.border }} />
+              <p className="text-navy/60 italic mb-4 text-[0.95rem]">&ldquo;{encounter.description}&rdquo;</p>
+              <p className="text-sm font-bold text-hero-blue mb-4">Reward: {rewardText}</p>
+              <button
+                onClick={onClaim}
+                className="kq-btn kq-btn-gold px-8 py-3 text-base"
+              >
+                ✨ Claim Reward
+              </button>
+              <p className="text-xs mt-3 font-semibold" style={{ color: rarity.text }}>
+                — {encounter.rarity} Encounter —
+              </p>
             </div>
           )}
         </div>
-
-        {/* Tap to roll label — waiting phase */}
-        {phase === 'waiting' && (
-          <p
-            className="text-gold text-sm font-bold"
-            style={{ animation: 'dicePulse 1.5s ease-in-out infinite' }}
-          >
-            Tap to roll!
-          </p>
-        )}
-
-        {/* Encounter name — landed phase */}
-        {phase === 'landed' && (
-          <p className="kq-display text-xl text-cream" style={{ animation: 'fadeIn 0.3s ease' }}>
-            {encounter.icon} {encounter.name}
-          </p>
-        )}
-
-        {/* Encounter Card — reveal phase */}
-        {phase === 'reveal' && (
-          <div
-            className="kq-card p-6 max-w-[350px] w-[90vw] text-center"
-            style={{
-              borderWidth: '2px',
-              borderStyle: 'solid',
-              borderColor: rarity.border,
-              boxShadow: `0 0 30px ${rarity.glow}`,
-              animation: 'slideUp 0.4s ease',
-            }}
-          >
-            <div className="text-5xl mb-3">{encounter.icon}</div>
-            <h3 className="kq-display text-xl mb-2" style={{ color: rarity.text }}>
-              {encounter.name}
-            </h3>
-            <div className="w-16 h-0.5 mx-auto mb-3" style={{ backgroundColor: rarity.border }} />
-            <p className="text-navy/60 italic mb-4 text-[0.95rem]">&ldquo;{encounter.description}&rdquo;</p>
-            <p className="text-sm font-bold text-hero-blue mb-4">Reward: {rewardText}</p>
-            <button
-              onClick={onClaim}
-              className="kq-btn kq-btn-gold px-8 py-3 text-base"
-            >
-              ✨ Claim Reward
-            </button>
-            <p className="text-xs mt-3 font-semibold" style={{ color: rarity.text }}>
-              — {encounter.rarity} Encounter —
-            </p>
-          </div>
-        )}
-      </div>
+      )}
 
       <style jsx>{`
         .dice-d10 {
@@ -215,7 +233,6 @@ export default function DiceRoll({ encounter, onClaim, show }) {
           to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
-    </div>,
-    document.body
+    </Overlay>
   );
 }

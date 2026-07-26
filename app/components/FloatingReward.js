@@ -1,6 +1,7 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
+import { Z_TOAST } from './Overlay';
 
 /**
  * Small "+N" text that floats up and fades near a reward counter
@@ -17,8 +18,8 @@ export default function FloatingReward({ show, text, color = '#FFD93D', targetId
   return (
     <AnimatePresence>
       <motion.div
-        className="pointer-events-none fixed z-[60] font-black text-lg"
-        style={{ left: rect.left + rect.width / 2, top: rect.top, color, transform: 'translateX(-50%)' }}
+        className="pointer-events-none fixed font-black text-lg"
+        style={{ left: rect.left + rect.width / 2, top: rect.top, color, transform: 'translateX(-50%)', zIndex: Z_TOAST }}
         initial={{ opacity: 1, y: 0 }}
         animate={reducedMotion ? { opacity: 0 } : { opacity: 0, y: -28 }}
         transition={{ duration: reducedMotion ? 0.2 : 0.55, ease: 'easeOut' }}

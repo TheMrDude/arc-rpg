@@ -1,24 +1,26 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { createPortal } from 'react-dom';
+import Overlay from './Overlay';
+import { useOverlaySlot, OVERLAY_PRIORITY } from '@/lib/overlayQueue';
 
 export default function EventStoryModal({ show, eventName, eventIcon, story, onClose }) {
   const [phase, setPhase] = useState('celebration'); // celebration -> loading -> story
   const [displayedText, setDisplayedText] = useState('');
 
+  // Priority-4 narrative: yields to rewards and blocking overlays, never stacks.
+  const visible = useOverlaySlot('event-story', OVERLAY_PRIORITY.NARRATIVE, show);
+
   useEffect(() => {
-    if (show) {
-      document.body.style.overflow = 'hidden';
-      setPhase(story ? 'story' : 'celebration');
-      setDisplayedText('');
-      return () => { document.body.style.overflow = ''; };
-    }
-  }, [show, story]);
+    if (!visible) return undefined;
+    setPhase(story ? 'story' : 'celebration');
+    setDisplayedText('');
+    return undefined;
+  }, [visible, story]);
 
   // Typewriter effect for story text
   useEffect(() => {
-    if (phase === 'story' && story?.chapter_text) {
+    if (visible && phase === 'story' && story?.chapter_text) {
       const text = story.chapter_text;
       let i = 0;
       const interval = setInterval(() => {
@@ -28,33 +30,21 @@ export default function EventStoryModal({ show, eventName, eventIcon, story, onC
       }, 15);
       return () => clearInterval(interval);
     }
-  }, [phase, story]);
+    return undefined;
+  }, [visible, phase, story]);
 
-  if (!show) return null;
-  if (typeof document === 'undefined') return null;
-
-  return createPortal(
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        background: 'rgba(0, 0, 0, 0.92)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 65,
-        padding: '1rem',
-        animation: 'eventFadeIn 0.5s ease',
-      }}
+  // The shell owns the backdrop, the three close paths, the scroll lock (its own
+  // `document.body.style.overflow` juggling is gone) and the z-index.
+  return (
+    <Overlay
+      open={visible}
+      onClose={onClose}
+      tone="dark"
+      title={eventName || 'Event Complete'}
+      hideTitle
+      closeLabel="Continue your journey"
     >
-      <div
-        style={{
-          maxWidth: 520,
-          width: '100%',
-          maxHeight: '90vh',
-          overflowY: 'auto',
-        }}
-      >
+      <div style={{ animation: 'eventFadeIn 0.5s ease' }}>
         {/* Celebration Phase */}
         {phase === 'celebration' && (
           <div style={{ textAlign: 'center', animation: 'eventSlideUp 0.6s ease' }}>
@@ -237,7 +227,6 @@ export default function EventStoryModal({ show, eventName, eventIcon, story, onC
           to { transform: rotate(360deg); }
         }
       `}</style>
-    </div>,
-    document.body
+    </Overlay>
   );
 }
