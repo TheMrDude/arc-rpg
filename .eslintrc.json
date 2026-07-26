@@ -1,8 +1,16 @@
 {
   "extends": ["next/core-web-vitals"],
+  "env": { "browser": true, "node": true, "es2022": true },
   "rules": {
     "react/no-unescaped-entities": "off",
     "@next/next/no-img-element": "warn",
     "react-hooks/exhaustive-deps": "warn"
-  }
+  },
+  "overrides": [
+    {
+      "comment": "no-undef is what would have caught the transform-quest outage: resolveIsPremium was called but never imported, which the bundler happily compiled and only threw at request time. Scoped to JS/JSX because TypeScript already reports undefined identifiers in .ts/.tsx, and no-undef misreads React-as-a-type-namespace there.",
+      "files": ["**/*.js", "**/*.jsx", "**/*.mjs"],
+      "rules": { "no-undef": "error" }
+    }
+  ]
 }
