@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import Anthropic from '@anthropic-ai/sdk';
 import { authenticateRequest } from '@/lib/api-auth';
 import { crossroadsMilestone, pickScenario } from '@/lib/crossroads';
+import { NARRATION_FLOOR } from '@/lib/narrationConstraints';
 
 export const dynamic = 'force-dynamic';
 
@@ -142,6 +143,8 @@ export async function POST(request) {
 
 HARD RULES (never break these):
 - This is a warm, guilt-free world. NEVER reference streaks, missed days, failure, laziness, or shame. There is no "bad" outcome — a complication is a funny or interesting turn, never a punishment.
+${NARRATION_FLOOR}
+
 - Both choices ALWAYS lead somewhere good. The worst case is a charming inconvenience.
 - Keep it whimsical and grounded, like a friendly tabletop DM. No violence beyond cartoon scuffles.
 

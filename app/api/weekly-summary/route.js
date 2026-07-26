@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { createClient } from '@supabase/supabase-js';
 import { isPremium as resolveIsPremium } from '@/lib/premium';
+import { NARRATION_FLOOR } from '@/lib/narrationConstraints';
 
 // Force dynamic rendering to prevent caching of authenticated requests
 export const dynamic = 'force-dynamic';
@@ -137,6 +138,8 @@ export async function GET(request) {
         : '';
 
       const prompt = `You are writing Chapter ${currentChapter} of a ${profile.archetype}'s personal epic journey in an RPG-style productivity adventure.
+
+${NARRATION_FLOOR}
 
 PREVIOUS CHAPTER ENDING:
 "${lastEvent}"
@@ -343,6 +346,8 @@ export async function POST(request) {
       : '';
 
     const prompt = `You are writing Chapter ${currentChapter} of a ${profile.archetype}'s personal epic journey in an RPG-style productivity adventure.
+
+${NARRATION_FLOOR}
 
 PREVIOUS CHAPTER ENDING:
 "${lastEvent}"

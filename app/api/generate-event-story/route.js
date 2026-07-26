@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import Anthropic from '@anthropic-ai/sdk';
 import { authenticateRequest } from '@/lib/api-auth';
+import { NARRATION_FLOOR } from '@/lib/narrationConstraints';
 
 export const dynamic = 'force-dynamic';
 
@@ -100,6 +101,8 @@ export async function POST(request) {
       .join('\n') || '- Various quests completed';
 
     const prompt = `You are the narrator for a gamified habit tracker called HabitQuest. The player has just completed a seasonal event called "${event.name}".
+
+${NARRATION_FLOOR}
 
 Player details:
 - Archetype: ${archetype}
