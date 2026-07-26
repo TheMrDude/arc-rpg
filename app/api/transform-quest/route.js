@@ -3,6 +3,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { createClient } from '@supabase/supabase-js';
 import { checkRateLimit, createRateLimitResponse } from '@/lib/rate-limiter';
 import { FREE_TIER_QUEST_LIMIT } from '@/lib/quest-limits';
+import { isPremium as resolveIsPremium } from '@/lib/premium';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
