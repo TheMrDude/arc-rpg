@@ -7,7 +7,6 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { useSound } from '@/app/components/SoundProvider';
 import { usePrefersReducedMotion } from '@/lib/hooks/usePrefersReducedMotion';
-import { getUnlockedSkills } from '@/lib/skills';
 import { checkBossEncounter } from '@/lib/encounters';
 import { getCompanion, companionStage } from '@/lib/companions';
 import { getDashboardSections, getNewUnlocks } from '@/lib/dashboardVisibility';
@@ -23,7 +22,6 @@ import JournalEntry from '@/app/components/JournalEntry';
 import JournalTimeline from '@/app/components/JournalTimeline';
 import OnThisDay from '@/app/components/OnThisDay';
 import PremiumWelcome from '@/app/components/PremiumWelcome';
-import ArchetypeSwitcher from '@/app/components/ArchetypeSwitcher';
 import TemplateLibrary from '@/app/components/TemplateLibrary';
 import EquipmentShop from '@/app/components/EquipmentShop';
 import StoryProgress from '@/app/components/StoryProgress';
@@ -973,7 +971,6 @@ export default function DashboardPage() {
 
   const isPremium = resolveIsPremium(profile);
   const sections = getDashboardSections(profile);
-  const unlockedSkills = profile ? getUnlockedSkills(profile.archetype, profile.level) : [];
   const bossEncounter = checkBossEncounter(quests);
   const creature = sections.companion ? getCompanion(profile, quests) : null;
 
@@ -1064,13 +1061,6 @@ export default function DashboardPage() {
         {/* Top Navigation Bar */}
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2 flex-wrap">
-            {sections.switchArchetype && isPremium && (
-              <ArchetypeSwitcher
-                currentArchetype={profile.archetype}
-                isPremium={true}
-                onSwitch={loadUserData}
-              />
-            )}
             {/* Premium only. A previous change ungated this chip on the belief
                 that /skills was free; it is not -- skills/page.js redirects
                 non-premium users straight back here, so the chip was a dead end
@@ -1390,21 +1380,6 @@ export default function DashboardPage() {
         {sections.yourStory && profile && (sections.tabBar ? activeTab === 'quests' : true) && (
           <div className="mb-6">
             <StoryProgress profile={profile} />
-          </div>
-        )}
-
-        {/* Unlocked Skills — Level 5+ */}
-        {sections.unlockedSkills && unlockedSkills.length > 0 && (sections.tabBar ? activeTab === 'quests' : true) && (
-          <div className="kq-card p-6 mb-6">
-            <h3 className="text-xl font-bold kq-display text-gold mb-4">Unlocked Skills</h3>
-            <div className="grid md:grid-cols-2 gap-4">
-              {unlockedSkills.map((skill, i) => (
-                <div key={i} className="bg-cream p-4 rounded-candy border-2 border-stone">
-                  <div className="font-bold text-hero-blue">{skill.name}</div>
-                  <div className="text-sm text-navy/70">{skill.description}</div>
-                </div>
-              ))}
-            </div>
           </div>
         )}
 

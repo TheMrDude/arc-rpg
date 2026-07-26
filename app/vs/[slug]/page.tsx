@@ -70,7 +70,7 @@ export const COMPETITORS: Competitor[] = [
     faqs: [
       { q: 'Is HabitQuest just a Habitica clone?', a: 'No. Both are RPG habit trackers, but they run on opposite engines. Habitica motivates with loss (miss a habit, take damage). HabitQuest motivates with momentum (progress accumulates, misses are non-events). If loss aversion works for you, Habitica is great. If it has burned you out before, that is the problem HabitQuest exists to solve.' },
       { q: 'Which is better for ADHD, Habitica or HabitQuest?', a: 'HabitQuest was designed ADHD-first: no streak punishment, instant first wins in onboarding, and AI that turns vague tasks into concrete quests. Habitica can work for ADHD users, but its damage mechanic and dense interface are common drop-off points.' },
-      { q: 'Can I use HabitQuest for free?', a: 'Yes. The free plan includes 10 habits that can each repeat daily, XP and leveling, archetype selection, the weekly boss and the world map, with no time limit. Pro is $5/mo (or $29/yr Early Bird) and adds unlimited habits, the gear shop, and hero switching — and it is what keeps HabitQuest ad-free.' },
+      { q: 'Can I use HabitQuest for free?', a: 'Yes. The free plan includes 10 habits that can each repeat daily, XP and leveling, your companion, the weekly boss and the world map, with no time limit. Pro is $5/mo (or $29/yr Early Bird) and adds unlimited habits, the gear shop, quest templates, your journey history and Journal On This Day — and it is what keeps HabitQuest ad-free.' },
     ],
   },
   {

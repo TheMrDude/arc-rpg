@@ -169,18 +169,12 @@ export default function LandingPage() {
 
   // Heroes (P5.2) — reuse the EXISTING archetypes, restyled as collectible cards.
   const archetypes = [
-    { name: 'Warrior', image: '/images/archetypes/warrior.png', trait: 'Strength & Discipline', rarity: 'Epic', accent: 'coral' },
-    { name: 'Seeker', image: '/images/archetypes/seeker.png', trait: 'Curiosity & Growth', rarity: 'Rare', accent: 'aqua' },
-    { name: 'Builder', image: '/images/archetypes/builder.png', trait: 'Creation & Progress', rarity: 'Rare', accent: 'emerald' },
-    { name: 'Shadow', image: '/images/archetypes/shadow.png', trait: 'Strategy & Depth', rarity: 'Epic', accent: 'purple' },
-    { name: 'Sage', image: '/images/archetypes/sage.png', trait: 'Wisdom & Balance', rarity: 'Legendary', accent: 'gold' },
+    { name: 'Warrior', image: '/images/archetypes/warrior.png', trait: 'Strength & Discipline', accent: 'coral' },
+    { name: 'Seeker', image: '/images/archetypes/seeker.png', trait: 'Curiosity & Growth', accent: 'aqua' },
+    { name: 'Builder', image: '/images/archetypes/builder.png', trait: 'Creation & Progress', accent: 'emerald' },
+    { name: 'Shadow', image: '/images/archetypes/shadow.png', trait: 'Strategy & Depth', accent: 'purple' },
+    { name: 'Sage', image: '/images/archetypes/sage.png', trait: 'Wisdom & Balance', accent: 'gold' },
   ];
-
-  const rarityStyles: Record<string, string> = {
-    Rare: 'bg-[#57D7F5] text-[#0b3a45]',
-    Epic: 'bg-[#8B6CFF] text-white',
-    Legendary: 'bg-[#FFC83D] text-[#5a4300]',
-  };
 
   return (
     <div
@@ -201,7 +195,7 @@ export default function LandingPage() {
               { '@type': 'Question', name: 'What age is HabitQuest for?', acceptedAnswer: { '@type': 'Answer', text: 'Ages 4 and up. The game world is bright and friendly enough for little ones and deep enough (worlds, pets, boss battles) that big kids, teens, and grown-ups keep playing too.' } },
               { '@type': 'Question', name: 'What if my kid misses a day?', acceptedAnswer: { '@type': 'Answer', text: 'Nothing bad happens. No streak resets, no guilt screens, no "you failed" messages. Their hero just picks up where they left off. Building habits should feel encouraging, not like punishment.' } },
               { '@type': 'Question', name: 'Is it safe and ad-free?', acceptedAnswer: { '@type': 'Answer', text: 'Yes. HabitQuest is ad-free and built to be a calm, safe place for kids to build routines and independence.' } },
-              { '@type': 'Question', name: 'What do I get for free?', acceptedAnswer: { '@type': 'Answer', text: "Track up to 10 habits, and every one of them can repeat daily on its own. Pick your hero, battle the weekly boss, and explore the map. Free forever, no credit card. Pro adds unlimited quests, the gear shop, and hero switching — and it's what keeps HabitQuest ad-free. No ads, no data selling, no dark patterns, funded by the people who use it." } },
+              { '@type': 'Question', name: 'What do I get for free?', acceptedAnswer: { '@type': 'Answer', text: "Track up to 10 habits, and every one of them can repeat daily on its own. Choose your egg, battle the weekly boss, and explore the map. Free forever, no credit card. Pro adds unlimited quests, the gear shop, quest templates, your journey history and Journal On This Day — and it's what keeps HabitQuest ad-free. No ads, no data selling, no dark patterns, funded by the people who use it." } },
               { '@type': 'Question', name: 'Do I need to download anything?', acceptedAnswer: { '@type': 'Answer', text: 'Nope. It works in any browser on any device. You can install it as an app on a phone if you like (it\'s a PWA), but it\'s not required.' } },
             ],
           }),
@@ -460,7 +454,6 @@ export default function LandingPage() {
                 onClick={goToSignup}
                 className="kq-card kq-card-hover p-4 text-center group relative overflow-hidden"
               >
-                <span className={`absolute top-3 left-3 kq-chip text-xs py-0.5 px-2 z-10 ${rarityStyles[a.rarity]}`}>{a.rarity}</span>
                 {/* TODO: swap archetype PNG for illustrated mascot art */}
                 <div className="relative w-full aspect-square mb-3 rounded-2xl overflow-hidden bg-[#ECE7DD]">
                   <Image src={a.image} alt={`${a.name} hero character`} fill className="object-cover group-hover:scale-110 transition-transform" />
@@ -710,7 +703,7 @@ export default function LandingPage() {
               { q: 'What age is it for?', a: 'Ages 4 and up — bright and friendly for littles, deep enough (worlds, pets, boss battles) that big kids, teens, and grown-ups keep playing too.' },
               { q: 'What if my kid misses a day?', a: 'Nothing bad happens. No streak resets, no guilt screens. Their hero just picks up where they left off.' },
               { q: 'Is it safe and ad-free?', a: 'Yes — ad-free, private, and designed to be a calm, safe place to build routines.' },
-              { q: 'What do I get for free?', a: "Track up to 10 habits, and every one of them can repeat daily on its own. Pick your hero, battle the weekly boss, and explore the map. Free forever, no credit card. Pro adds unlimited quests, the gear shop, and hero switching — and it's what keeps HabitQuest ad-free. No ads, no data selling, no dark patterns, funded by the people who use it." },
+              { q: 'What do I get for free?', a: "Track up to 10 habits, and every one of them can repeat daily on its own. Choose your egg, battle the weekly boss, and explore the map. Free forever, no credit card. Pro adds unlimited quests, the gear shop, quest templates, your journey history and Journal On This Day — and it's what keeps HabitQuest ad-free. No ads, no data selling, no dark patterns, funded by the people who use it." },
               { q: 'Do I need to download anything?', a: 'Nope. Works in any browser on any device. You can install it as an app on a phone (it’s a PWA), but it’s not required.' },
             ].map((item) => (
               <div key={item.q} className="kq-card p-6">

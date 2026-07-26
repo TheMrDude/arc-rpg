@@ -83,7 +83,14 @@ export default function CompanionNamingPrompt({
   const atCap = name.length >= MAX;
 
   return createPortal(
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+    // `kidquest` matters here and is not decoration. Every kq-* rule in
+    // globals.css is scoped under `.kidquest`, which lives on a div inside the
+    // dashboard -- and this dialog portals to document.body, outside it. So
+    // `.kidquest .kq-input { color: var(--kq-ink); background: #fff }` never
+    // applied, the input inherited `body { color: #FFFFFF }` from the app's dark
+    // theme, and a child typed white text into a white box. It saved correctly,
+    // which is why it looked like nothing was happening rather than like a bug.
+    <div className="kidquest fixed inset-0 z-[60] flex items-center justify-center p-4">
       <div
         className="absolute inset-0 bg-navy/70 backdrop-blur-sm"
         style={{ touchAction: 'manipulation' }}
@@ -136,9 +143,24 @@ export default function CompanionNamingPrompt({
             onKeyDown={(e) => { if (e.key === 'Enter') handleSave(); }}
             maxLength={MAX}
             aria-label="Your companion's name"
+            placeholder="Type a name"
             disabled={!revealed}
-            className="kq-input w-full text-center text-lg"
-            style={{ fontSize: '16px' }}
+            className="companion-name-input kq-input w-full text-center text-lg"
+            style={{
+              // Belt and braces on top of the .kidquest scope above: stated
+              // outright so this field cannot go invisible again if the class is
+              // ever dropped, if a UA forces a dark palette on form controls
+              // (Silk on Fire tablets does), or if color-mix is unsupported.
+              // colorScheme pins the control to a light rendering so the browser
+              // does not invert the background out from under the text.
+              fontSize: '16px',
+              color: '#2b2b3a',
+              backgroundColor: '#ffffff',
+              caretColor: '#2b2b3a',
+              colorScheme: 'light',
+              WebkitTextFillColor: '#2b2b3a',
+              opacity: 1,
+            }}
           />
           <p className="text-xs text-navy/40 mt-1 mb-3 h-4" aria-live="polite">
             {atCap ? `${MAX} letters is the most a name can be` : ''}
@@ -165,6 +187,30 @@ export default function CompanionNamingPrompt({
         </div>
 
         <style jsx>{`
+          /* Stated as a solid colour, not color-mix: globals.css derives the
+             placeholder with color-mix(), which older Silk builds drop, and a
+             dropped declaration falls back to the inherited white. */
+          /* -webkit-text-fill-color has to be restated here: the inline style
+             sets it on the input to stop a UA dark palette bleaching the value,
+             and in Blink that wins over the placeholder color, which rendered
+             the placeholder at full text darkness -- indistinguishable from a
+             name already typed in. */
+          /* Two classes, deliberately: globals.css has
+             .kidquest .kq-input::placeholder at specificity (0,2,1), and a
+             single-class rule here loses to it. That rule computes the colour
+             with color-mix at 40% alpha, which measures 2.31:1 against white --
+             below the 3:1 floor for placeholder text. Matching its specificity
+             and adding the styled-jsx class puts this one ahead. */
+          .companion-name-input.kq-input::placeholder {
+            color: #6b6b7a;
+            -webkit-text-fill-color: #6b6b7a;
+            opacity: 1;
+          }
+          .companion-name-input:disabled {
+            color: #2b2b3a;
+            -webkit-text-fill-color: #2b2b3a;
+            opacity: 1;
+          }
           @keyframes companionHatchPop {
             0% { transform: scale(0.3) rotate(-12deg); opacity: 0; }
             55% { transform: scale(1.18) rotate(4deg); opacity: 1; }

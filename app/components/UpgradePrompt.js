@@ -51,15 +51,19 @@ export default function UpgradePrompt({ trigger, profile }) {
     },
     skill_tree_locked: {
       title: 'Skill Points Available!',
-      subtitle: '💎 You have skill points ready to spend',
-      message: 'Unlock the Skill Tree to gain powerful passive abilities that boost every quest.',
+      subtitle: '\ud83d\udc8e You have skill points ready to spend',
+      // Every benefit listed here used to describe a skill effect -- passive XP
+      // bonuses, gold multipliers, archetype abilities. None of them are
+      // implemented, so all four were claims the app does not back. The page
+      // itself is real and stays behind Pro; what it promises now matches it.
+      message: 'Spend your skill points in the Skill Tree, and get the rest of Pro with it.',
       benefits: [
-        'Passive XP bonuses on every quest',
-        'Gold multipliers for faster progression',
-        'Special abilities unique to your archetype',
-        'Unlock new skill tiers as you level up'
+        'Spend skill points across four skill trees',
+        'Unlimited quests instead of 10',
+        'The gear shop, quest templates and your journey history',
+        'No ads, ever \u2014 Pro is what funds the app'
       ],
-      cta: 'Unlock Skill Tree with Pro',
+      cta: 'Get Pro',
       delay: 1000
     }
   };
