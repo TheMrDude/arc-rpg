@@ -1,141 +1,109 @@
-# HabitQuest Security Test Suite
+# Tests
 
-Automated tests for security fixes and critical functionality.
+What is actually verified, and what is not. Read the second half.
 
-## Overview
+## What runs
 
-This test suite validates all security fixes from the comprehensive security audit:
-- Authentication and authorization
-- Rate limiting
-- Race condition prevention
-- Input validation
-- Payment security
-- Database security
-
-## Prerequisites
+| Suite | Runner | Runs on | Count | Needs |
+|---|---|---|---|---|
+| `tests/unit/` | Jest | every push + PR (`unit.yml`) | 51 | nothing |
+| `tests/overlays/` | Playwright | every push + PR (`overlays.yml`) | 22 | Chromium + `next build` |
+| `tests/smoke/` | Playwright | after each production deploy (`smoke.yml`) | 13 checks | live prod + service-role key |
+| `scripts/verify-guards.mjs` | node | `prebuild` + `unit.yml` | 4 guards | nothing |
+| `scripts/prove-overlay-guards.mjs` | node | on demand | 10 mutations | Chromium |
 
 ```bash
-npm install --save-dev jest @testing-library/react @testing-library/jest-dom
-npm install --save-dev node-fetch
+npm test              # jest, tests/unit only
+npm run test:overlays # playwright overlay invariants
+npm run test:smoke    # playwright against production
+npm run verify:guards # prove ESLint's no-undef can fail
 ```
 
-## Environment Setup
+## What was deleted, and why
 
-Create `.env.test` file:
+`tests/security/` contained five files and 49 tests. It reported **46 passing**. The
+real number of tests that verified anything was **zero**. Deleted, not skipped:
 
-```env
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
-TEST_USER_EMAIL=test@example.com
-TEST_USER_PASSWORD=test_password_123
-ADMIN_EMAILS=admin@habitquest.com
-```
+| File | Tests | What they actually did |
+|---|---|---|
+| `auth.test.js` | 9 | Suite threw on import — `Missing Supabase credentials`. Never ran once. |
+| `input-validation.test.js` | 14 | All 14 `fetch('http://localhost:3000/...')`, all behind `if (!token) return`. |
+| `payment.test.js` | 19 | 5 fetched localhost; 14 were `expect(true).toBe(true)` beside a comment. |
+| `race-conditions.test.js` | 9 | 4 fetched localhost; 5 were `expect(true).toBe(true)`. |
+| `rate-limiting.test.js` | 7 | All 7 fetched localhost via a helper, all behind a token check. |
 
-## Running Tests
+Two things made this invisible:
 
-```bash
-# Run all tests
-npm test
+1. **No server.** Every request went to `http://localhost:3000`, which is not
+   running in CI or on a laptop during `npm test`. The tests early-returned on a
+   missing `TEST_USER_TOKEN` before reaching the request, so they reported green.
+2. **No ESM transform.** Jest could not parse `import`/`export`, so
+   `require('../lib/premium')` threw. *No test in this repository could import a
+   line of application code.* That is why every suite reached for HTTP instead.
+   Fixed by `tests/esbuild-transform.js`.
 
-# Run specific test suite
-npm test auth.test.js
-npm test rate-limiting.test.js
-npm test race-conditions.test.js
+The file named `payment.test.js` held a test called *"should validate Stripe
+signature on webhook"* that had never executed. A green suite with that name is
+worse than no file, because it answers a question it never asked.
 
-# Run with coverage
-npm test -- --coverage
+The old `tests/README.md` claimed, with checkmarks, that SQL injection
+prevention, XSS prevention, payment security and race-condition atomicity were
+all verified. None of them were.
 
-# Run in watch mode
-npm test -- --watch
-```
+## Coverage that genuinely exists
 
-## Test Suites
+**Unit (51)** — real functions, called directly, each proven to fail under mutation:
 
-### 1. Authentication Tests (`auth.test.js`)
-- ✅ Validates Bearer token authentication
-- ✅ Blocks unauthenticated requests
-- ✅ Prevents cross-user data access
-- ✅ Admin authorization checks
+- `isPremium()` (8) — the comped shape (`is_premium` true + subscription
+  inactive), Stripe-only subscribers, `subscription_tier` explicitly *not* an
+  entitlement, null-safety, no truthy coercion.
+- `countHabitsTowardLimit()` (7) — the recurring-instance accumulation defect
+  that locked a 3-habit user out of creating a fourth.
+- `createRateLimitResponse()` (7) — 429 shape, headers, `Remaining` never
+  negative, burst vs daily copy, no raw reason codes shown to a user.
+- Narration floor (12) — all nine child-facing AI routes import `NARRATION_FLOOR`,
+  the stealth rule survives, **and a new Anthropic route that skips the floor
+  fails the build** unless explicitly exempted with a reason.
 
-### 2. Rate Limiting Tests (`rate-limiting.test.js`)
-- ✅ Enforces request limits per endpoint
-- ✅ Different limits for free vs premium users
-- ✅ Burst protection
-- ✅ Proper 429 responses with retry headers
+- Smoke-test guards (17) — the three hollow-pass decisions from the smoke suite
+  (`tests/smoke/checks.js`), each asserted in both directions: a stale build, a
+  newer build landing mid-run, a `dev` build id, a retry reusing one account, and
+  a declared check that never executed.
 
-### 3. Race Condition Tests (`race-conditions.test.js`)
-- ✅ Quest completion atomicity
-- ✅ Founder spot reservation atomicity
-- ✅ Gold transaction integrity
-- ✅ Concurrent request handling
+**Overlay invariants (22)** — one shell, three close paths, scroll lock restores,
+4.5:1 contrast measured in a browser, no z-index above the band, and six fixtures
+proving `clearRewardModals` goes red on a modal a child could not dismiss. 9 of 10
+deliberate breaks detected; the tenth is labelled unproven in
+`scripts/prove-overlay-guards.mjs`.
 
-### 4. Input Validation Tests (`input-validation.test.js`)
-- ✅ SQL injection prevention
-- ✅ XSS prevention
-- ✅ Parameter validation
-- ✅ Size limits enforcement
+**Production smoke (13 checks)** — build identity first, then signup, quest
+creation through the live AI route, completion, contrast, hatching. A step ledger
+asserts every declared check actually executed.
 
-### 5. Payment Security Tests (`payment.test.js`)
-- ✅ Checkout authentication required
-- ✅ Prevents duplicate premium claims
-- ✅ Founder spot atomicity
-- ✅ Metadata validation for webhooks
+## Coverage that does NOT exist
 
-## Manual Testing
+Deleting the fake suites did not create these gaps; it revealed them. Nothing
+below is tested today:
 
-Some tests require manual verification:
+| Area | Status |
+|---|---|
+| Stripe webhook signature validation | **Untested.** Highest-value gap. Needs a signed-payload unit test against the handler; no server required. |
+| Checkout auth (401 on no/invalid token) | **Untested.** Was three localhost tests. |
+| SQL injection / XSS on quest + journal input | **Untested.** RLS and parameterised queries are the actual defence; neither is asserted. |
+| Founder-spot atomicity | **Untested.** Needs concurrent calls against a real DB. |
+| Quest-completion double-award | **Untested.** Was covered by placeholders. |
+| Rate limit *enforcement* (only the 429 shape is covered) | **Untested.** Needs a DB. |
+| `salvageQuestText()` fallback | **Untested** — not exported from the route. The malformed-response path that sets `aiDifficulty = 'easy'` has no test. |
+| `preview-quest` narration | **Known gap.** Unauthenticated landing-page demo, calls Anthropic, generates quest prose a child reads, does **not** import the narration floor. Recorded as a named exemption in `narration-floor.test.js` so it cannot be forgotten. |
 
-### Penetration Testing
-See `/security/penetration-test-plan.md` for detailed manual test cases.
+## Rules for adding a test here
 
-### Database Migration
-1. Back up production database
-2. Run migration in staging: `/supabase/migrations/20251115150614_security_fixes.sql`
-3. Verify RLS policies: Check test queries in migration file
-4. Monitor performance: Query execution times
-5. Deploy to production during low-traffic period
-
-## Continuous Monitoring
-
-After deployment, monitor:
-- Rate limit violations: `SELECT * FROM api_rate_limits WHERE request_count > limit`
-- Failed auth attempts: Check application logs
-- API costs: `/api/admin/api-costs`
-- Security events: `SELECT * FROM audit_logs WHERE event_type LIKE 'security_%'`
-
-## Success Criteria
-
-All tests must pass before deploying to production:
-- ✅ 100% of authentication tests pass
-- ✅ 100% of rate limiting tests pass
-- ✅ 100% of race condition tests pass
-- ✅ 100% of input validation tests pass
-- ✅ 100% of payment security tests pass
-- ✅ Manual penetration tests show no critical vulnerabilities
-
-## Rollback Plan
-
-If issues are detected after deployment:
-
-1. **Immediate**: Revert API route changes
-   ```bash
-   git revert HEAD
-   git push
-   ```
-
-2. **Database**: Rollback migration
-   ```sql
-   -- Run in Supabase SQL Editor
-   -- Restore previous function versions from backup
-   ```
-
-3. **Monitor**: Check error logs for 30 minutes after rollback
-
-## Support
-
-For test failures or questions:
-- Review test output for specific error messages
-- Check `/security/SECURITY-AUDIT-REPORT.md` for context
-- Verify environment variables are set correctly
-- Ensure test database is properly configured
+1. **It must import the code it tests.** A test that only makes HTTP requests to
+   a server nobody starts is not a test.
+2. **Prove it can fail.** Break the thing on purpose, watch it go red, restore.
+   `scripts/prove-overlay-guards.mjs` is the pattern.
+3. **No `expect(true).toBe(true)`.** If the test cannot be written yet, write the
+   gap into the table above instead. A documented gap is honest; a passing
+   placeholder is a lie with a green tick next to it.
+4. **No skip-on-missing-env.** `if (!process.env.X) return` turns an unrun test
+   into a passing one. Either the test runs everywhere or it does not exist.

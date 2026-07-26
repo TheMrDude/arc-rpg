@@ -68,9 +68,31 @@ jobs:
           echo "url=$URL" >> "$GITHUB_OUTPUT"
           echo "Smoke testing $URL"
 
+      # The commit this run is supposed to be testing. Without it the suite can
+      # only report "some build works", which is what it did for its whole life
+      # so far -- a green run was compatible with the deploy having failed and
+      # the previous build still being live.
+      #
+      # Only set on deployment_status, where the deployment names its own commit.
+      # A workflow_dispatch can point at any URL, so asserting github.sha there
+      # would produce false failures; the test logs the build it found instead
+      # and annotates the run as unasserted.
+      - name: Resolve expected commit
+        id: build
+        run: |
+          if [ "${{ github.event_name }}" = "deployment_status" ]; then
+            SHA="${{ github.event.deployment.sha || github.sha }}"
+            echo "Expecting production to serve commit $SHA"
+          else
+            SHA=""
+            echo "Manual dispatch: build match will not be asserted"
+          fi
+          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+
       - name: Run smoke test
         env:
           SMOKE_BASE_URL: ${{ steps.target.outputs.url }}
+          SMOKE_EXPECTED_SHA: ${{ steps.build.outputs.sha }}
           SMOKE_SUPABASE_URL: ${{ secrets.SMOKE_SUPABASE_URL }}
           SMOKE_SERVICE_ROLE_KEY: ${{ secrets.SMOKE_SERVICE_ROLE_KEY }}
         run: npm run test:smoke
