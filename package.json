@@ -20,7 +20,9 @@
     "test:input-validation": "jest tests/security/input-validation.test.js",
     "test:payment": "jest tests/security/payment.test.js",
     "test:smoke": "playwright test --project=smoke",
-    "test:overlays": "playwright test --project=overlays"
+    "test:overlays": "playwright test --project=overlays",
+    "verify:guards": "node scripts/verify-guards.mjs",
+    "prebuild": "node scripts/verify-guards.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.67.0",

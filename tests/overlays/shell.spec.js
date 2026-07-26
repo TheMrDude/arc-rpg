@@ -158,6 +158,15 @@ test.describe('overlay shell', () => {
     const after = await page.locator('[data-overlay-close]').boundingBox();
     expect(Math.abs(after.y - before.y), 'close button stayed put').toBeLessThan(2);
     await expect(page.locator('[data-overlay-close]')).toBeVisible();
+
+    // Mutation testing found this gap: scrolling the BODY is not the only way the
+    // close button can leave the screen. If the surface itself becomes
+    // scrollable, the header scrolls away with everything else and the button is
+    // gone -- and the assertions above all still pass, because they only ever
+    // scroll the body. So assert the surface cannot scroll at all.
+    const surfaceScrolls = await page.locator('[data-overlay-surface]')
+      .evaluate((el) => el.scrollHeight > el.clientHeight + 2);
+    expect(surfaceScrolls, 'the surface itself must never scroll; only its body may').toBe(false);
   });
 
   for (const tone of ['light', 'dark']) {
