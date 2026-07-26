@@ -1,5 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // The service worker is registered as /sw.js?v=<this>, which makes every
+  // deploy a byte-different script URL (forcing a reinstall) and gives the
+  // worker a per-deploy cache name to delete the previous one by. Falls back to
+  // 'dev' locally, where the commit sha is absent.
+  env: {
+    NEXT_PUBLIC_BUILD_ID:
+      process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 12) || 'dev',
+  },
   webpack: (config, { webpack }) => {
     // The wagmi/viem wallet stack (used only by the optional /badges claim
     // flow) pulls in Coinbase's baseAccount connector, which statically
