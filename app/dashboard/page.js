@@ -12,6 +12,7 @@ import { getCompanion, companionStage } from '@/lib/companions';
 import { getDashboardSections, getNewUnlocks } from '@/lib/dashboardVisibility';
 import { FREE_TIER_QUEST_LIMIT, countHabitsTowardLimit } from '@/lib/quest-limits';
 import { isPremium as resolveIsPremium } from '@/lib/premium';
+import { claimReward } from '@/lib/overlayQueue';
 import OnboardingTutorial from '@/app/components/OnboardingTutorial';
 import NotificationSetup from '@/app/components/NotificationSetup';
 import QuestCompletionCelebration from '@/app/components/QuestCompletionCelebration';
@@ -733,6 +734,12 @@ export default function DashboardPage() {
   }, []);
 
   const handleDiceClaimReward = () => {
+    // Idempotency guarded at the source (the queue), not here: the shell's ✕,
+    // Escape and backdrop all route to this same handler alongside the Claim
+    // button, and a fast double input used to run it twice. claimReward returns
+    // true once per encounter instance; every other path in the same tick is a
+    // no-op.
+    if (!claimReward('dice-roll')) return;
     setShowDiceRoll(false);
     setEncounterData(null);
     encounterRef.current = null;
@@ -1556,6 +1563,10 @@ export default function DashboardPage() {
         <MilestoneCelebration
           show={showMilestoneCelebration}
           onClose={() => {
+            // Same idempotent guard as the dice reward: all four close paths
+            // route here, so pay the acknowledgement out (and clear the queued
+            // reward) exactly once.
+            if (!claimReward('milestone-celebration')) return;
             setShowMilestoneCelebration(false);
             setMilestoneData(null);
           }}

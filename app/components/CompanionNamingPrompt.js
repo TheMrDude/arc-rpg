@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { createPortal } from 'react-dom';
+import Overlay from './Overlay';
+import { useOverlaySlot, OVERLAY_PRIORITY } from '@/lib/overlayQueue';
 
 const MAX = 20;
 
@@ -39,33 +40,24 @@ export default function CompanionNamingPrompt({
   // who has asked for less movement should not be made to wait for a flourish.
   const [revealed, setRevealed] = useState(false);
 
-  useEffect(() => {
-    if (show) setName(speciesName || '');
-  }, [show, speciesName]);
+  // Priority-2 blocking: outranks rewards and narrative in the queue. It waits
+  // its turn behind nothing lower and never stacks under confetti.
+  const visible = useOverlaySlot('companion-naming', OVERLAY_PRIORITY.BLOCKING, show);
 
   useEffect(() => {
-    if (!show) return;
+    if (visible) setName(speciesName || '');
+  }, [visible, speciesName]);
+
+  useEffect(() => {
+    if (!visible) return undefined;
     if (!isHatch || reducedMotion) {
       setRevealed(true);
-      return;
+      return undefined;
     }
     setRevealed(false);
     const timer = setTimeout(() => setRevealed(true), 1100);
     return () => clearTimeout(timer);
-  }, [show, isHatch, reducedMotion]);
-
-  // Escape closes it the same way Skip does, so this can never be a dead end.
-  useEffect(() => {
-    if (!show) return;
-    const onKeyDown = (e) => {
-      if (e.key === 'Escape' || e.key === 'Esc') onSkip();
-    };
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [show, onSkip]);
-
-  if (!show) return null;
-  if (typeof document === 'undefined') return null;
+  }, [visible, isHatch, reducedMotion]);
 
   const handleSave = async () => {
     if (saving) return;
@@ -82,25 +74,24 @@ export default function CompanionNamingPrompt({
   // as an explanation for why typing stopped.
   const atCap = name.length >= MAX;
 
-  return createPortal(
-    // `kidquest` matters here and is not decoration. Every kq-* rule in
-    // globals.css is scoped under `.kidquest`, which lives on a div inside the
-    // dashboard -- and this dialog portals to document.body, outside it. So
-    // `.kidquest .kq-input { color: var(--kq-ink); background: #fff }` never
-    // applied, the input inherited `body { color: #FFFFFF }` from the app's dark
-    // theme, and a child typed white text into a white box. It saved correctly,
-    // which is why it looked like nothing was happening rather than like a bug.
-    <div className="kidquest fixed inset-0 z-[60] flex items-center justify-center p-4">
+  // The shell owns the backdrop, the three close paths (Escape/✕/backdrop all
+  // skip, the same as "I'll decide later" -- this is never a dead end), the
+  // scroll lock and the z-index. It also restores the `.kidquest` scope on the
+  // portal root, which is what the input's colour fix used to carry alone: the
+  // field inherited `body { color:#FFFFFF }` outside that scope and a child typed
+  // white on white. The inline colours below stay as belt-and-braces anyway.
+  return (
+    <Overlay
+      open={visible}
+      onClose={onSkip}
+      tone="light"
+      title={isHatch ? 'Your egg hatched!' : 'Change their name'}
+      hideTitle
+      closeLabel="I'll decide later"
+    >
       <div
-        className="absolute inset-0 bg-navy/70 backdrop-blur-sm"
-        style={{ touchAction: 'manipulation' }}
-        onClick={onSkip}
-        aria-hidden="true"
-      />
-      <div
-        className="kq-card relative border-2 border-emerald p-6 max-w-sm w-full text-center shadow-candy-lg"
-        role="dialog"
-        aria-modal="true"
+        className="text-center"
+        role="group"
         aria-labelledby="companion-naming-title"
       >
         {/* What hatched, before anything is asked of her. */}
@@ -147,7 +138,7 @@ export default function CompanionNamingPrompt({
             disabled={!revealed}
             className="companion-name-input kq-input w-full text-center text-lg"
             style={{
-              // Belt and braces on top of the .kidquest scope above: stated
+              // Belt and braces on top of the shell's `.kidquest` root: stated
               // outright so this field cannot go invisible again if the class is
               // ever dropped, if a UA forces a dark palette on form controls
               // (Silk on Fire tablets does), or if color-mix is unsupported.
@@ -218,7 +209,6 @@ export default function CompanionNamingPrompt({
           }
         `}</style>
       </div>
-    </div>,
-    document.body
+    </Overlay>
   );
 }

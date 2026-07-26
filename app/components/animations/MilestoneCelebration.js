@@ -6,6 +6,8 @@ import confetti from 'canvas-confetti';
 import { useSound } from '../SoundProvider';
 import { usePrefersReducedMotion } from '@/lib/hooks/usePrefersReducedMotion';
 import ShareToSocial from '../ShareToSocial';
+import Overlay from '../Overlay';
+import { useOverlaySlot, OVERLAY_PRIORITY } from '@/lib/overlayQueue';
 
 
 // Unlock data for different levels
@@ -81,22 +83,20 @@ export default function MilestoneCelebration({
   unlocks: customUnlocks,
   isPremium = false
 }) {
-  const [canClose, setCanClose] = useState(false);
   const [confettiActive, setConfettiActive] = useState(false);
   const [proMomentDismissed, setProMomentDismissed] = useState(false);
   const { play } = useSound();
   const reducedMotion = usePrefersReducedMotion();
 
-  useEffect(() => {
-    if (show) {
-      // Prevent closing for first 1.5 seconds — this is meant to feel like
-      // an event, not a toast, so it intentionally holds past the 800ms cap
-      // that applies to the rest of the celebration juice.
-      setCanClose(false);
-      const timer = setTimeout(() => {
-        setCanClose(true);
-      }, 1500);
+  // Priority-3 reward: waits its turn behind anything higher, never stacks, and
+  // is remembered across a navigation so it is not silently dropped.
+  const visible = useOverlaySlot('milestone-celebration', OVERLAY_PRIORITY.REWARD, show);
 
+  useEffect(() => {
+    // Fire the confetti and sound when it actually reaches the screen (holds the
+    // slot), not merely when `show` flips -- otherwise it celebrates behind
+    // whatever overlay is currently up.
+    if (visible) {
       if (!reducedMotion) {
         // Start continuous confetti
         setConfettiActive(true);
@@ -137,16 +137,8 @@ export default function MilestoneCelebration({
       }
 
       play(type === 'level' ? 'level-up' : 'streak-milestone');
-
-      return () => clearTimeout(timer);
     }
-  }, [show, type]);
-
-  const handleClose = () => {
-    if (canClose) {
-      onClose();
-    }
-  };
+  }, [visible, type]);
 
   // Get emoji based on type
   const getEmoji = () => {
@@ -188,35 +180,26 @@ export default function MilestoneCelebration({
     ? PRO_MOMENTS[milestone]
     : null;
 
+  // The shell owns the backdrop, the three close paths (all live immediately --
+  // the old 1.5s canClose lock is gone, celebrations are closable at once), the
+  // scroll lock, and the single z-index. Its title is hidden so the big level
+  // numeral below can be the moment, while the ✕ stays reachable.
   return (
-    <AnimatePresence>
-      {show && (
-        <motion.div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-        >
-          {/* Dark Overlay */}
+    <Overlay
+      open={visible}
+      onClose={onClose}
+      title={getTitle()}
+      hideTitle
+      tone="light"
+      reducedMotion={reducedMotion}
+      closeLabel="Continue your journey"
+    >
+      <AnimatePresence>
+        {visible && (
           <motion.div
-            className="absolute inset-0 bg-black bg-opacity-60 backdrop-blur-md"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={handleClose}
-            style={{ cursor: canClose ? 'pointer' : 'not-allowed' }}
-          />
-
-          {/* Modal Card */}
-          <motion.div
-            className="relative bg-white rounded-candy shadow-candy-lg max-w-2xl w-full overflow-hidden"
-            initial={{ scale: 0.8, opacity: 0, rotateZ: -5 }}
-            animate={{
-              scale: 1,
-              opacity: 1,
-              rotateZ: [0, 5, -5, 0]
-            }}
-            exit={{ scale: 0.8, opacity: 0 }}
+            className="rounded-candy overflow-hidden -mx-4 -mt-2"
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
             transition={{
               type: 'spring',
               stiffness: 300,
@@ -224,7 +207,7 @@ export default function MilestoneCelebration({
             }}
           >
             {/* Header Section */}
-            <div className="bg-gradient-to-br from-purple via-coral to-gold p-12 text-center relative overflow-hidden">
+            <div className="bg-gradient-to-br from-purple via-coral to-gold p-8 text-center relative overflow-hidden">
               {/* Background Animation */}
               <motion.div
                 className="absolute inset-0 bg-gradient-to-br from-gold via-coral to-purple opacity-50"
@@ -318,7 +301,7 @@ export default function MilestoneCelebration({
             </div>
 
             {/* Body Content */}
-            <div className="p-8">
+            <div className="pt-6">
               {/* Congratulatory Message */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -428,70 +411,48 @@ export default function MilestoneCelebration({
                 </motion.div>
               )}
 
-              {/* Action Buttons */}
+              {/* Action Buttons. Closable immediately -- no canClose gate. */}
               <div className="space-y-3">
                 <motion.button
-                  onClick={handleClose}
-                  disabled={!canClose}
+                  onClick={onClose}
                   initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: canClose ? 1 : 0.5, y: 0 }}
+                  animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 1 }}
-                  whileHover={canClose ? { scale: 1.05 } : {}}
-                  whileTap={canClose ? { scale: 0.95 } : {}}
-                  className={`
-                    w-full py-4 px-6
-                    font-black text-xl
-                    transition-all duration-200
-                    ${canClose
-                      ? 'kq-btn kq-btn-gold cursor-pointer'
-                      : 'kq-btn kq-btn-ghost opacity-50 cursor-not-allowed'
-                    }
-                  `}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="w-full py-4 px-6 font-black text-xl transition-all duration-200 kq-btn kq-btn-gold cursor-pointer"
                 >
-                  {canClose ? '✨ Continue Your Journey' : '⏳ Celebrating...'}
+                  ✨ Continue Your Journey
                 </motion.button>
 
                 {/* Share Achievement */}
-                {canClose && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 1.2 }}
-                  >
-                    <ShareToSocial
-                      content={{
-                        title:
-                          type === 'level'
-                            ? `Just hit Level ${milestone}${levelTitle ? ` (${levelTitle})` : ''} in HabitQuest! ⚡`
-                            : type === 'streak'
-                            ? `${milestone} active days in HabitQuest! 🔥`
-                            : `Achievement unlocked in HabitQuest: ${milestone}! 🏆`,
-                        description: 'Turning real life into an RPG, one quest at a time. No streaks, no guilt.',
-                        hashtags: ['HabitQuest', 'LevelUp', 'Gamification', 'Productivity'],
-                      }}
-                      title="📢 Share Achievement"
-                      compact={true}
-                      showLabels={true}
-                    />
-                  </motion.div>
-                )}
-              </div>
-
-              {/* Cannot Close Message */}
-              {!canClose && (
-                <motion.p
+                <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="text-center text-sm text-navy/50 mt-4"
+                  transition={{ delay: 1.2 }}
                 >
-                  Savor this moment... ✨
-                </motion.p>
-              )}
+                  <ShareToSocial
+                    content={{
+                      title:
+                        type === 'level'
+                          ? `Just hit Level ${milestone}${levelTitle ? ` (${levelTitle})` : ''} in HabitQuest! ⚡`
+                          : type === 'streak'
+                          ? `${milestone} active days in HabitQuest! 🔥`
+                          : `Achievement unlocked in HabitQuest: ${milestone}! 🏆`,
+                      description: 'Turning real life into an RPG, one quest at a time. No streaks, no guilt.',
+                      hashtags: ['HabitQuest', 'LevelUp', 'Gamification', 'Productivity'],
+                    }}
+                    title="📢 Share Achievement"
+                    compact={true}
+                    showLabels={true}
+                  />
+                </motion.div>
+              </div>
             </div>
           </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+        )}
+      </AnimatePresence>
+    </Overlay>
   );
 }
 

@@ -6,7 +6,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import QuestInput from './components/QuestInput';
 import QuestPreview from './components/QuestPreview';
-import ExitIntentPopup from './components/ExitIntentPopup';
 import EmailCapture from './components/EmailCapture';
 import ScrollDepthTracker from './components/ScrollDepthTracker';
 import CollectionBand from './components/CollectionBand';
@@ -156,10 +155,6 @@ export default function LandingPage() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleExitIntentTryPreview = () => {
-    questInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   };
 
   const goToSignup = () => router.push('/signup');
@@ -819,9 +814,6 @@ export default function LandingPage() {
 
       {/* Quest Preview Modal */}
       {previewQuest && <QuestPreview quest={previewQuest} onClose={() => setPreviewQuest(null)} />}
-
-      {/* Exit Intent Popup */}
-      <ExitIntentPopup onTryPreview={handleExitIntentTryPreview} />
     </div>
   );
 }

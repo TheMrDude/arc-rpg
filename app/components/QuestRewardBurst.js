@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect, useState } from 'react';
+import { Z_TOAST } from './Overlay';
 
 /**
  * Small orbs that fly from the point of the completed quest card to the
@@ -34,7 +35,9 @@ export default function QuestRewardBurst({ show, originX, originY, onComplete, r
 
   return (
     <AnimatePresence>
-      <div className="pointer-events-none fixed inset-0 z-[60]">
+      {/* Toast band: above an open modal (which lives at 9000/9001) but
+          pointer-events:none, so it decorates without covering any buttons. */}
+      <div className="pointer-events-none fixed inset-0" style={{ zIndex: Z_TOAST }}>
         {Array.from({ length: orbCount }).map((_, i) => (
           <motion.div
             key={i}

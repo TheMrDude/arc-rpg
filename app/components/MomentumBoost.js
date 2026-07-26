@@ -18,7 +18,13 @@ export default function MomentumBoost({ quests, profile, isPremium, onBoostUsed 
     const activeDays = computeActiveDays(quests || [], profile.momentum_boost_week);
     const boostAlreadyUsed = profile.momentum_boost_week === getIsoWeekKey();
 
-    setShowPrompt(isLateInWeek && activeDays < MOMENTUM_GOAL_DAYS && !boostAlreadyUsed);
+    // Gate on real activity. "Behind on momentum" only means something to
+    // someone who has started: a brand-new, zero-quest account is at 0 active
+    // days and was being told, late every week, that it was falling behind on a
+    // week it never began. Only prompt once at least one day has been earned.
+    const hasStarted = activeDays > 0;
+
+    setShowPrompt(hasStarted && isLateInWeek && activeDays < MOMENTUM_GOAL_DAYS && !boostAlreadyUsed);
   }, [quests, profile, dismissed]);
 
   // Close path 3 of 3: Escape key. Deliberately self-contained -- it sets both
