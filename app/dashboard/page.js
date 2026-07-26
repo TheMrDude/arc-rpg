@@ -684,6 +684,12 @@ export default function DashboardPage() {
   }
 
   const handleCelebrationClose = () => {
+    // Idempotent at the source: the shell gives this reward four close paths
+    // (✕, Escape, backdrop, Continue) and this handler advances the whole reward
+    // flow -- reflection, dice, milestone, the occasional gold prompt. Firing it
+    // twice in a tick would schedule that flow twice. claimReward returns true
+    // once per quest-completion instance; the next completion re-arms it.
+    if (!claimReward('quest-celebration')) return;
     setShowQuestCelebration(false);
 
     // Tomorrow-quest hook: the component itself guards once-per-day and
