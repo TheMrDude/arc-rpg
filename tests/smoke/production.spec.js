@@ -132,6 +132,15 @@ test('production smoke: the five paths a real user touches', async ({ page }) =>
     await page.goto('/signup');
     await page.locator('input[type="email"]').fill(email);
     await page.locator('input[type="password"]').first().fill(password);
+
+    // The submit button is `disabled={loading || !isGuardian}`: signup is gated
+    // behind the grown-up affirmation checkbox, which is a real COPPA control and
+    // not something to route around. A person has to tick it, so the test does
+    // too. This is the step the first live run died on -- the selector harness
+    // only covered dashboard components, never this form.
+    const guardian = page.locator('input[type="checkbox"]').first();
+    await guardian.check();
+    await expect(page.locator('button[type="submit"]')).toBeEnabled();
     await page.locator('button[type="submit"]').click();
 
     // Email confirmation is on, so the UI stops here. Confirm out of band --
