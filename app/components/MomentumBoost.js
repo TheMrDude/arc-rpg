@@ -27,7 +27,7 @@ export default function MomentumBoost({ quests, profile, isPremium, onBoostUsed 
     setShowPrompt(hasStarted && isLateInWeek && activeDays < MOMENTUM_GOAL_DAYS && !boostAlreadyUsed);
   }, [quests, profile, dismissed]);
 
-  // Close path 3 of 3: Escape key. Deliberately self-contained -- it sets both
+  // Close path 2 of 2: Escape key. Deliberately self-contained -- it sets both
   // pieces of state itself rather than going through a shared handler, so it
   // still works even if the button or backdrop path is broken.
   useEffect(() => {
@@ -80,22 +80,17 @@ export default function MomentumBoost({ quests, profile, isPremium, onBoostUsed 
     }
   };
 
+  // No full-screen tap-catcher. It was a `fixed inset-0 z-40` transparent layer
+  // for tap-outside-to-dismiss, and its comment reasoned only about MomentumBoost's
+  // OWN card ("below z-50, never covers its buttons") -- while in fact it blanketed
+  // the entire dashboard at z-40 and swallowed the first tap on everything below it.
+  // The production smoke caught it exactly: after a quest completion the
+  // TomorrowQuestHook card's "Close" button sat under this catcher, and a tap meant
+  // for it "landed on div.fixed.inset-0.z-40 instead" -- a child would be stuck.
+  // A non-blocking corner card does not get a full-screen interceptor; it keeps its
+  // explicit Dismiss button and Escape.
   return (
-    <>
-      {/* Close path 2 of 3: tap outside the card. Intentionally transparent so
-          the card's appearance is unchanged -- this only captures taps. Sits at
-          z-40, below the card's z-50, so it never covers the buttons. Both
-          onClick and onTouchEnd are wired because older Chromium/Silk builds
-          are unreliable about synthesising click on non-button elements;
-          dismissing twice is idempotent, so a double-fire is harmless. */}
-      <div
-        className="fixed inset-0 z-40"
-        style={{ background: 'transparent', touchAction: 'manipulation' }}
-        onClick={handleDismiss}
-        onTouchEnd={handleDismiss}
-        aria-hidden="true"
-      />
-      <div className="fixed bottom-6 right-6 max-w-sm z-50 animate-slide-in-up">
+    <div className="fixed bottom-6 right-6 max-w-sm z-50 animate-slide-in-up">
         <div className="kq-card border-2 border-emerald p-6">
           <div className="flex items-start gap-4">
             <div className="text-5xl">🌊</div>
@@ -110,7 +105,7 @@ export default function MomentumBoost({ quests, profile, isPremium, onBoostUsed 
                     Use your weekly Momentum Boost to count today, no quest needed.
                   </p>
                   <div className="flex gap-2">
-                    {/* Close path 1 of 3: a real <button> with an accessible
+                    {/* Close path 1 of 2: a real <button> with an accessible
                         label and a >=44px hit area. */}
                     <button
                       type="button"
@@ -149,7 +144,7 @@ export default function MomentumBoost({ quests, profile, isPremium, onBoostUsed 
                   >
                     Upgrade for Momentum Boost
                   </button>
-                  {/* Close path 1 of 3: a real <button> with an accessible label.
+                  {/* Close path 1 of 2: a real <button> with an accessible label.
                       py-3 plus minHeight/minWidth give it a >=44px hit area. It
                       previously had no padding at all, so on a tablet the
                       tappable strip was only ~16px tall and sat directly above
@@ -169,6 +164,5 @@ export default function MomentumBoost({ quests, profile, isPremium, onBoostUsed 
           </div>
         </div>
       </div>
-    </>
   );
 }
