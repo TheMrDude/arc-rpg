@@ -32,12 +32,65 @@ const DISMISS_LABELS =
 async function clearRewardModals(page, { expect, max = 8, settleMs = 900 } = {}) {
   const dismissed = [];
 
-  for (let i = 0; i < max; i++) {
-    const button = page.getByRole('button', { name: DISMISS_LABELS }).first();
-    if (!(await button.count())) break;
-    if (!(await button.isVisible().catch(() => false))) break;
+  // Is a tap at this control's own centre actually delivered to it? A child taps
+  // what is on top; so must this. Returns false for a control sitting BEHIND an
+  // open overlay's backdrop -- which is what made the first version pick the wrong
+  // button. The production smoke landed on a dashboard "Close" button that was
+  // earlier in the DOM than -- and covered by -- an open reward overlay portalled
+  // to <body>. `.first()` in document order chose the covered one and called the
+  // screen "stuck"; a real child would have tapped the overlay's own ✕ on top.
+  const isTopmost = (loc) =>
+    loc
+      .evaluate((el) => {
+        const r = el.getBoundingClientRect();
+        if (r.width === 0 || r.height === 0) return false;
+        const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+        return !!hit && (hit === el || el.contains(hit));
+      })
+      .catch(() => false);
 
-    const name = (await button.textContent().catch(() => '')) || '(unnamed)';
+  for (let i = 0; i < max; i++) {
+    // Pick the dismiss control a child would actually tap: the topmost one.
+    let target = null;
+    let name = '';
+
+    // 1. A migrated overlay renders inside the shared shell, which guarantees its
+    //    close button is the topmost thing on screen and exposes it as
+    //    [data-overlay-close]. Prefer it -- it is always the ✕ a child taps, and
+    //    it sidesteps the document-order trap entirely. .last(), so the most
+    //    recently opened overlay wins if two ever coexist.
+    const shellClose = page.locator('[data-overlay-surface] [data-overlay-close]').last();
+    if (
+      (await shellClose.count()) &&
+      (await shellClose.isVisible().catch(() => false)) &&
+      (await isTopmost(shellClose))
+    ) {
+      target = shellClose;
+      name = (await shellClose.getAttribute('aria-label').catch(() => '')) || '✕';
+    } else {
+      // 2. Fallback for reward modals not yet on the shell (e.g. ChestDropReveal):
+      //    the first labelled dismiss control that is genuinely on top, so a real
+      //    tap would reach it -- never one covered by an overlay it sits behind.
+      const candidates = page.getByRole('button', { name: DISMISS_LABELS });
+      const count = await candidates.count();
+      for (let k = 0; k < count; k++) {
+        const c = candidates.nth(k);
+        if (!(await c.isVisible().catch(() => false))) continue;
+        if (!(await isTopmost(c))) continue;
+        target = c;
+        name = (await c.textContent().catch(() => '')) || '(unnamed)';
+        break;
+      }
+    }
+
+    // Nothing clickable to dismiss. Either the screen is already clear, or a
+    // genuinely stuck overlay remains -- the hit-test on the quest input below
+    // decides which, and reds if a child would be trapped. This is the same trap
+    // detection as before; it just no longer fires on a harmless button parked
+    // behind an overlay that has its own reachable ✕.
+    if (!target) break;
+
+    const button = target;
     try {
       // No force, no catch. A reward modal a child cannot dismiss must go red.
       await button.click({ timeout: 5000 });
