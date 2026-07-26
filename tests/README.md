@@ -6,7 +6,7 @@ What is actually verified, and what is not. Read the second half.
 
 | Suite | Runner | Runs on | Count | Needs |
 |---|---|---|---|---|
-| `tests/unit/` | Jest | every push + PR (`unit.yml`) | 51 | nothing |
+| `tests/unit/` | Jest | every push + PR (`unit.yml`) | 103 | nothing |
 | `tests/overlays/` | Playwright | every push + PR (`overlays.yml`) | 22 | Chromium + `next build` |
 | `tests/smoke/` | Playwright | after each production deploy (`smoke.yml`) | 13 checks | live prod + service-role key |
 | `scripts/verify-guards.mjs` | node | `prebuild` + `unit.yml` | 4 guards | nothing |
@@ -52,7 +52,7 @@ all verified. None of them were.
 
 ## Coverage that genuinely exists
 
-**Unit (51)** — real functions, called directly, each proven to fail under mutation:
+**Unit (103)** — real functions, called directly, each proven to fail under mutation:
 
 - `isPremium()` (8) — the comped shape (`is_premium` true + subscription
   inactive), Stripe-only subscribers, `subscription_tier` explicitly *not* an
@@ -61,9 +61,25 @@ all verified. None of them were.
   that locked a 3-habit user out of creating a fourth.
 - `createRateLimitResponse()` (7) — 429 shape, headers, `Remaining` never
   negative, burst vs daily copy, no raw reason codes shown to a user.
-- Narration floor (12) — all nine child-facing AI routes import `NARRATION_FLOOR`,
-  the stealth rule survives, **and a new Anthropic route that skips the floor
-  fails the build** unless explicitly exempted with a reason.
+- Narration floor (13) — all **ten** child-facing AI routes import
+  `NARRATION_FLOOR` (including `preview-quest`, the unauthenticated landing-page
+  demo), the stealth rule survives, **and a new Anthropic route that skips the
+  floor fails the build** unless explicitly exempted with a reason.
+- Stripe webhook signatures (16) — both live webhook routes, against the real
+  Stripe SDK with real HMAC signatures. Unsigned, garbage-signed, wrong-secret,
+  tampered-body, stale-timestamp replay, and a byte-different-but-JSON-equal body
+  are each rejected; a correctly signed payload is accepted. Proven by three
+  mutations, including turning the verification failure into a 200.
+- `parseQuestLine` / `salvageQuestText` (18) — the malformed-response path shared
+  by `transform-quest` and `preview-quest`. Every leak marker, the word bound, and
+  a format-compliant line that still leaked instructions.
+- Rate-limit window arithmetic (11) — the `EXTRACT(MINUTE)` defect, now fixed.
+  Both formulas are reimplemented so the safety claim is executable: windows of
+  1, 5 and 60 minutes are byte-identical before and after, and only the daily and
+  weekly ones move. A migration that reverted the formula fails this suite.
+- Anonymous rate limiting (14) — the spoofable-IP bypass, written from the
+  attacker's side: a rotating fake `x-forwarded-for` prefix must land in one
+  bucket, and an unidentifiable caller must be denied rather than pooled.
 
 - Smoke-test guards (17) — the three hollow-pass decisions from the smoke suite
   (`tests/smoke/checks.js`), each asserted in both directions: a stale build, a
@@ -87,14 +103,13 @@ below is tested today:
 
 | Area | Status |
 |---|---|
-| Stripe webhook signature validation | **Untested.** Highest-value gap. Needs a signed-payload unit test against the handler; no server required. |
 | Checkout auth (401 on no/invalid token) | **Untested.** Was three localhost tests. |
 | SQL injection / XSS on quest + journal input | **Untested.** RLS and parameterised queries are the actual defence; neither is asserted. |
 | Founder-spot atomicity | **Untested.** Needs concurrent calls against a real DB. |
 | Quest-completion double-award | **Untested.** Was covered by placeholders. |
 | Rate limit *enforcement* (only the 429 shape is covered) | **Untested.** Needs a DB. |
-| `salvageQuestText()` fallback | **Untested** — not exported from the route. The malformed-response path that sets `aiDifficulty = 'easy'` has no test. |
-| `preview-quest` narration | **Known gap.** Unauthenticated landing-page demo, calls Anthropic, generates quest prose a child reads, does **not** import the narration floor. Recorded as a named exemption in `narration-floor.test.js` so it cannot be forgotten. |
+| `aiDifficulty = 'easy'` on parse failure | **Partly covered.** `parseQuestLine` is tested; the route's XP-downgrade branch around it is not. |
+| Rate limit *enforcement* against a live database | **Untested in CI.** The window arithmetic is guarded by `rate-limit-window.test.js`, and enforcement was verified against production with a forced-rollback probe, but nothing exercises the RPC on every commit — that would need a database in CI. |
 
 ## Rules for adding a test here
 

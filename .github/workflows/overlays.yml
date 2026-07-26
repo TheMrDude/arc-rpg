@@ -1,16 +1,12 @@
 name: Overlay invariants
 
-# Runs on every PR commit and every merge to main. No network, no secrets, no
-# production writes -- it
+# Runs on every push and every fork PR. No network, no secrets, no production
+# writes -- it
 # bundles the real shell into a harness and drives it in a browser. Safe on a
 # public repo and fast enough to gate a merge, which is where this belongs: the
 # overlay bugs it checks for reached a nine-year-old because nothing gated them.
 on:
-  # Branch pushes and PRs both fire, so a PR branch would run this twice per
-  # commit. Restricting push to the default branch means: every PR commit runs it
-  # once via pull_request, and every merge to main runs it once via push.
   push:
-    branches: [main]
   pull_request:
 
 permissions:
@@ -22,6 +18,16 @@ concurrency:
 
 jobs:
   overlays:
+    # Runs on every push, plus PRs from forks.
+    #
+    # push and pull_request both fire for a branch in THIS repo, which would run
+    # everything twice per commit. Restricting push to main was the wrong fix: a
+    # feature branch pushed before its PR exists then got no CI at all. This
+    # condition keeps one run per commit while still covering fork PRs, where
+    # push does not fire here.
+    if: >-
+      github.event_name == 'push' ||
+      github.event.pull_request.head.repo.full_name != github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 12
     steps:

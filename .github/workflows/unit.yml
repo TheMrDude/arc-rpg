@@ -1,18 +1,14 @@
 name: Unit tests
 
-# Every PR commit and every merge to main. No secrets, no network, no production
-# writes, so this is safe on a public repo -- the whole job is Jest over pure
-# functions in lib/.
+# Every push and every fork PR -- see the job condition below for why it is
+# expressed that way. No secrets, no network, no production writes, so this is
+# safe on a public repo: the whole job is Jest over pure functions in lib/.
 #
 # It is a separate workflow from overlays.yml deliberately: this finishes in
 # seconds without a browser or a Next build, and it should stay the fastest
 # signal in the repo so there is never a reason to skip it.
 on:
-  # Branch pushes and PRs both fire, so a PR branch would run this twice per
-  # commit. Restricting push to the default branch means: every PR commit runs it
-  # once via pull_request, and every merge to main runs it once via push.
   push:
-    branches: [main]
   pull_request:
 
 permissions:
@@ -24,6 +20,16 @@ concurrency:
 
 jobs:
   unit:
+    # Runs on every push, plus PRs from forks.
+    #
+    # push and pull_request both fire for a branch in THIS repo, which would run
+    # everything twice per commit. Restricting push to main was the wrong fix: a
+    # feature branch pushed before its PR exists then got no CI at all. This
+    # condition keeps one run per commit while still covering fork PRs, where
+    # push does not fire here.
+    if: >-
+      github.event_name == 'push' ||
+      github.event.pull_request.head.repo.full_name != github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 6
     steps:

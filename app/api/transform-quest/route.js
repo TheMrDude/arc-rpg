@@ -5,6 +5,9 @@ import { checkRateLimit, createRateLimitResponse } from '@/lib/rate-limiter';
 import { FREE_TIER_QUEST_LIMIT } from '@/lib/quest-limits';
 import { NARRATION_FLOOR } from '@/lib/narrationConstraints';
 import { isPremium as resolveIsPremium } from '@/lib/premium';
+// Shared with app/api/preview-quest so the landing-page demo cannot have less
+// safety than the logged-in route. See lib/questTextSafety.js.
+import { salvageQuestText } from '@/lib/questTextSafety';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -27,38 +30,6 @@ const supabaseAnon = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
-
-// Words that mean the model leaked its own instructions rather than answering.
-// If any of these survive into the text, it is not a quest.
-const FORMAT_MARKERS = [
-  'QUEST:', 'DIFFICULTY:', 'STORY_THREAD:', 'NARRATIVE_IMPACT:', 'TASK:',
-  'AUDIENCE AND TONE', 'NEVER WRITE', 'THE STEALTH RULE', 'OUTPUT FORMAT',
-  'ALWAYS FINE', 'WORST CASE', 'CRAFT:',
-];
-
-const MAX_FALLBACK_WORDS = 40;
-
-/**
- * Try to rescue a usable quest sentence from a response that missed the format.
- * Returns null rather than guessing: the caller then uses the player's own task
- * text, which is always safe because the player wrote it.
- */
-function salvageQuestText(response) {
-  if (!response) return null;
-
-  // Prefer the first one or two sentences of prose before any JSON or fence.
-  const beforeStructure = response.split(/```|\{/)[0] || '';
-  const sentences = beforeStructure.match(/[^.!?]+[.!?]+/g);
-  const candidate = (sentences ? sentences.slice(0, 2).join(' ') : beforeStructure).trim();
-
-  if (!candidate) return null;
-  if (candidate.split(/\s+/).length > MAX_FALLBACK_WORDS) return null;
-  if (candidate.length < 12) return null;
-  const upper = candidate.toUpperCase();
-  if (FORMAT_MARKERS.some((m) => upper.includes(m))) return null;
-
-  return candidate;
-}
 
 export async function POST(request) {
   try {
