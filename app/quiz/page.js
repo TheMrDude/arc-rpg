@@ -190,7 +190,7 @@ export default function QuizPage() {
                 </li>
                 <li className="flex items-start">
                   <span className="text-emerald mr-2">✓</span>
-                  <span>Level up and unlock abilities</span>
+                  <span>Level up and watch your companion grow</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-emerald mr-2">✓</span>

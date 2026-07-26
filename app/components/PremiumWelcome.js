@@ -12,9 +12,9 @@ const FEATURE_SLIDES = [
     color: '#4F7DF3',
   },
   {
-    icon: '🎭',
-    title: 'Switch Archetypes',
-    description: 'Transform your hero anytime. Experiment with different playstyles as your journey evolves.',
+    icon: '📜',
+    title: 'Quest Templates',
+    description: 'Save a set of quests once and drop the whole routine in whenever you need it.',
     color: '#FF7B6B',
   },
   {
