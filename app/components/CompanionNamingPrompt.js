@@ -85,8 +85,7 @@ export default function CompanionNamingPrompt({
       open={visible}
       onClose={onSkip}
       tone="light"
-      title={isHatch ? 'Your egg hatched!' : 'Change their name'}
-      hideTitle
+      labelledBy="companion-naming-title"
       closeLabel="I'll decide later"
     >
       <div

@@ -50,37 +50,35 @@ async function clearRewardModals(page, { expect, max = 8, settleMs = 900 } = {})
       .catch(() => false);
 
   for (let i = 0; i < max; i++) {
-    // Pick the dismiss control a child would actually tap: the topmost one.
+    // Pick the dismiss control a child would actually tap: the topmost REWARD
+    // control. Match on DISMISS_LABELS, never on the raw shell close button --
+    // that would also dismiss a blocking prompt like the companion hatch (whose
+    // ✕ reads "I'll decide later", deliberately NOT a reward label), which the
+    // smoke's very next step needs to still be on screen. A reward overlay's own
+    // ✕ carries a reward label ("Continue your journey", "Claim reward"), so
+    // DISMISS_LABELS reaches it; the hatch is left alone.
     let target = null;
     let name = '';
 
-    // 1. A migrated overlay renders inside the shared shell, which guarantees its
-    //    close button is the topmost thing on screen and exposes it as
-    //    [data-overlay-close]. Prefer it -- it is always the ✕ a child taps, and
-    //    it sidesteps the document-order trap entirely. .last(), so the most
-    //    recently opened overlay wins if two ever coexist.
-    const shellClose = page.locator('[data-overlay-surface] [data-overlay-close]').last();
-    if (
-      (await shellClose.count()) &&
-      (await shellClose.isVisible().catch(() => false)) &&
-      (await isTopmost(shellClose))
-    ) {
-      target = shellClose;
-      name = (await shellClose.getAttribute('aria-label').catch(() => '')) || '✕';
-    } else {
-      // 2. Fallback for reward modals not yet on the shell (e.g. ChestDropReveal):
-      //    the first labelled dismiss control that is genuinely on top, so a real
-      //    tap would reach it -- never one covered by an overlay it sits behind.
-      const candidates = page.getByRole('button', { name: DISMISS_LABELS });
-      const count = await candidates.count();
-      for (let k = 0; k < count; k++) {
-        const c = candidates.nth(k);
-        if (!(await c.isVisible().catch(() => false))) continue;
-        if (!(await isTopmost(c))) continue;
-        target = c;
-        name = (await c.textContent().catch(() => '')) || '(unnamed)';
-        break;
-      }
+    // The first labelled dismiss control that is genuinely on top, so a real tap
+    // would reach it -- never one covered by an overlay it sits behind (the
+    // document-order trap the production smoke hit).
+    const candidates = page.getByRole('button', { name: DISMISS_LABELS });
+    const count = await candidates.count();
+    for (let k = 0; k < count; k++) {
+      const c = candidates.nth(k);
+      if (!(await c.isVisible().catch(() => false))) continue;
+      if (!(await isTopmost(c))) continue;
+      target = c;
+      // The accessible name -- what getByRole matched on and what a screen
+      // reader announces. A reward overlay's ✕ carries its intent in aria-label
+      // ("Continue your journey"), and its bare "✕" text content would name the
+      // control uselessly in a failure message; prefer the label.
+      name =
+        (await c.getAttribute('aria-label').catch(() => null)) ||
+        (await c.textContent().catch(() => '')) ||
+        '(unnamed)';
+      break;
     }
 
     // Nothing clickable to dismiss. Either the screen is already clear, or a
@@ -161,6 +159,34 @@ async function clearRewardModals(page, { expect, max = 8, settleMs = 900 } = {})
     }
     dismissed.push(name.trim());
     await page.waitForTimeout(settleMs);
+  }
+
+  // A blocking prompt she must answer -- the companion hatch, onboarding -- is a
+  // shell dialog whose controls are deliberately NOT reward labels (the hatch's ✕
+  // reads "I'll decide later"), so the drain above correctly leaves it up. That is
+  // not a stuck child: it is the next thing she does, and the smoke's very next
+  // step asserts it is on screen. Recognise it and stop, rather than failing the
+  // input hit-test it legitimately covers.
+  //
+  // This cannot mask a real trap. Any REWARD overlay still up would have carried a
+  // reward-labelled ✕ that the loop above dismissed; and if a dialog's own control
+  // were genuinely covered (the bug this suite catches), the topmost hit-test
+  // below fails and `answerable` is false, so we fall through and red as before.
+  const blockingDialog = page.locator('[data-overlay-surface][role="dialog"]');
+  if (await blockingDialog.count()) {
+    const answerable = await blockingDialog.first().evaluate((surf) => {
+      const controls = surf.querySelectorAll(
+        'button:not([disabled]), input:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])'
+      );
+      for (const el of controls) {
+        const r = el.getBoundingClientRect();
+        if (r.width === 0 || r.height === 0) continue;
+        const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+        if (hit && (hit === el || el.contains(hit))) return true;
+      }
+      return false;
+    });
+    if (answerable) return dismissed;
   }
 
   // The real exit condition: the dashboard is usable again. Running out of
