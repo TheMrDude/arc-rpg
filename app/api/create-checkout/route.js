@@ -102,37 +102,65 @@ export async function POST(request) {
     // Get origin from headers
     const origin = request.headers.get('origin') || 'https://habitquest.dev';
 
-    // Create Stripe checkout session
+    // Create Stripe checkout session for the one-time $47 Founders Lifetime
+    // purchase. Reuses the existing live one-time price (HabitQuest – Founder
+    // Access (Lifetime), CAD $47) so nothing new is created in Stripe and the
+    // $5/mo and $29/yr wiring is untouched. mode: 'payment' (not 'subscription')
+    // because there is no subscription behind a lifetime buyer.
+    const founderPriceId =
+      process.env.STRIPE_FOUNDER_LIFETIME_PRICE_ID || 'price_1SPMTlBFnAGLolxgQXw4f9yD';
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       mode: 'payment',
-      line_items: [
-        {
-          price_data: {
-            currency: 'usd',
-            product_data: {
-              name: 'HabitQuest Founder Access',
-              description: `Lifetime premium access. ${reservationResult.remaining} of 25 spots remaining.`,
-            },
-            unit_amount: 500, // $5.00/mo - server-side only! Note: primary checkout uses Stripe Payment Links, not this endpoint
-          },
-          quantity: 1,
-        },
-      ],
+      line_items: [{ price: founderPriceId, quantity: 1 }],
       success_url: `${origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/pricing`,
       client_reference_id: userId,
+      customer_email: user.email || undefined,
       metadata: {
-        supabase_user_id: userId,  // FIX: Match webhook expectation
-        transaction_type: 'premium_subscription',
-        spots_remaining: reservationResult.remaining,
+        supabase_user_id: userId,          // webhook + verify-checkout read this
+        transaction_type: 'founder_lifetime',
+        spots_remaining: String(reservationResult.remaining),
       },
-      // Expire session after 30 minutes
+      payment_intent_data: {
+        metadata: {
+          supabase_user_id: userId,
+          transaction_type: 'founder_lifetime',
+        },
+      },
+      // Expire session after 30 minutes. On expiry the webhook restores the spot.
       expires_at: Math.floor(Date.now() / 1000) + (30 * 60),
     });
 
+    // Record the reservation in the ledger so the webhook can idempotently grant
+    // on payment or restore the spot on expiry, keyed by this session id. If this
+    // fails we must NOT leave a claimed spot with no ledger row (restore-on-expiry
+    // would then no-op and the spot would be burned), so roll the claim back.
+    const { error: ledgerError } = await supabaseAdmin
+      .from('founder_claims')
+      .insert({ stripe_session_id: session.id, user_id: userId, status: 'reserved' });
+
+    if (ledgerError) {
+      console.error('Founder ledger insert failed, rolling back reservation:', {
+        error: ledgerError.message,
+        userId,
+        sessionId: session.id,
+        timestamp: new Date().toISOString(),
+      });
+      try {
+        await stripe.checkout.sessions.expire(session.id);
+      } catch (expireError) {
+        console.error('Failed to expire orphaned session:', expireError);
+      }
+      await supabaseAdmin.rpc('restore_founder_spot');
+      return NextResponse.json({
+        error: 'Unable to reserve founder spot'
+      }, { status: 500 });
+    }
+
     // Log successful checkout creation
-    console.log('Stripe session created:', {
+    console.log('Founder checkout session created:', {
       sessionId: session.id,
       userId,
       spotsRemaining: reservationResult.remaining,

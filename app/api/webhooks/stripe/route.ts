@@ -45,6 +45,55 @@ export async function POST(request: Request) {
   // ─── checkout.session.completed ────────────────────────────────────
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session;
+    const transactionType = session.metadata?.transaction_type;
+
+    // ── Founders Lifetime one-time payment ──────────────────────────
+    // A $47 one-time purchase (mode: 'payment'). Grant permanent Pro via the
+    // idempotent RPC, keyed by session id — a re-delivered event cannot grant
+    // twice or consume a second spot. Entitlement is is_premium (not
+    // subscription_status), so a lifetime buyer never lapses.
+    if (transactionType === 'founder_lifetime') {
+      if (session.payment_status !== 'paid') {
+        // Not actually paid — do nothing. Expiry/abandonment is handled by the
+        // checkout.session.expired branch below, which restores the spot.
+        return NextResponse.json({ received: true });
+      }
+
+      const userId =
+        (session.client_reference_id as string | null) ||
+        session.metadata?.supabase_user_id;
+
+      if (!userId) {
+        console.error('Webhook: founder_lifetime session has no user reference', {
+          sessionId: session.id,
+        });
+        return NextResponse.json({ error: 'No user reference' }, { status: 400 });
+      }
+
+      const { data, error } = await supabase.rpc('grant_founder_lifetime', {
+        p_session_id: session.id,
+        p_user_id: userId,
+        p_customer_id: typeof session.customer === 'string' ? session.customer : null,
+      });
+
+      if (error) {
+        console.error('Webhook: grant_founder_lifetime failed', {
+          error: error.message,
+          userId,
+          sessionId: session.id,
+        });
+        return NextResponse.json({ error: 'Founder grant failed' }, { status: 500 });
+      }
+
+      const result = Array.isArray(data) ? data[0] : data;
+      console.log('Webhook: founder lifetime processed', {
+        userId,
+        sessionId: session.id,
+        granted: result?.granted,
+        alreadyProcessed: result?.already_processed,
+      });
+      return NextResponse.json({ received: true });
+    }
 
     if (session.mode !== 'subscription') {
       // Not a subscription checkout — let other webhook handlers deal with it
@@ -97,6 +146,38 @@ export async function POST(request: Request) {
       email: customerEmail,
       subscriptionId: stripeSubscriptionId,
     });
+  }
+
+  // ─── checkout.session.expired ──────────────────────────────────────
+  // A founder checkout that was abandoned or timed out. Give the reserved spot
+  // back so an abandoned cart never permanently burns inventory. Idempotent:
+  // restore_founder_checkout only acts on a still-'reserved' session, so a
+  // duplicate delivery — or an expiry arriving after a (paid) grant — is a no-op.
+  if (event.type === 'checkout.session.expired') {
+    const session = event.data.object as Stripe.Checkout.Session;
+
+    if (session.metadata?.transaction_type === 'founder_lifetime') {
+      const { data, error } = await supabase.rpc('restore_founder_checkout', {
+        p_session_id: session.id,
+      });
+
+      if (error) {
+        console.error('Webhook: restore_founder_checkout failed', {
+          error: error.message,
+          sessionId: session.id,
+        });
+        return NextResponse.json({ error: 'Restore failed' }, { status: 500 });
+      }
+
+      const result = Array.isArray(data) ? data[0] : data;
+      console.log('Webhook: founder checkout expired', {
+        sessionId: session.id,
+        restored: result?.restored,
+        remaining: result?.remaining,
+      });
+    }
+
+    return NextResponse.json({ received: true });
   }
 
   // ─── customer.subscription.deleted ─────────────────────────────────

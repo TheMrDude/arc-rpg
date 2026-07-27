@@ -51,6 +51,57 @@ export default function PricingPage() {
   // Pro, 50% cheaper). Defaults to yearly so the better value leads.
   const [isYearly, setIsYearly] = useState(true);
 
+  // Founders Lifetime — live remaining count from founder_inventory (never
+  // hardcoded). `null` until loaded; the card renders only when available.
+  const [founder, setFounder] = useState(null);
+  const [founderBusy, setFounderBusy] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/founder-status')
+      .then((r) => r.json())
+      .then((d) => { if (!cancelled) setFounder(d); })
+      .catch(() => { if (!cancelled) setFounder({ available: false }); });
+    return () => { cancelled = true; };
+  }, []);
+
+  async function handleFounderCheckout() {
+    if (!user) {
+      router.push('/signup?next=/pricing');
+      return;
+    }
+    setFounderBusy(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        router.push('/login');
+        return;
+      }
+      const res = await fetch('/api/create-checkout', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${session.access_token}` },
+      });
+      const data = await res.json();
+      if (res.ok && data.url) {
+        window.location.href = data.url;
+        return;
+      }
+      if (res.status === 410) {
+        // Sold out between page load and click — hide the card cleanly.
+        setFounder({ available: false, remaining: 0 });
+        return;
+      }
+      alert(data.message || data.error || 'Could not start checkout. Please try again.');
+    } catch (err) {
+      console.error('Founder checkout error:', err);
+      alert('Something went wrong. Please try again.');
+    } finally {
+      setFounderBusy(false);
+    }
+  }
+
+  const founderAvailable = !!founder?.available && (founder?.remaining ?? 0) > 0;
+
   const isPro = resolveIsPremium(profile);
   const isInTrial = profile?.trial_ends_at && new Date(profile.trial_ends_at) > new Date();
   const hadTrial = !!profile?.trial_ends_at;
@@ -167,7 +218,7 @@ export default function PricingPage() {
           </div>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6 mb-16 max-w-3xl mx-auto">
+        <div className={`grid gap-6 mb-16 mx-auto ${founderAvailable ? 'md:grid-cols-3 max-w-5xl' : 'md:grid-cols-2 max-w-3xl'}`}>
           {/* Free Tier */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -282,6 +333,48 @@ export default function PricingPage() {
               </div>
             )}
           </motion.div>
+
+          {/* Founders Lifetime — only while spots remain. Disappears cleanly at 0. */}
+          {founderAvailable && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="kq-card p-8 flex flex-col relative border-2 border-navy"
+            >
+              <span className="absolute -top-3 left-1/2 -translate-x-1/2 kq-chip bg-navy text-white text-xs py-1 px-4 whitespace-nowrap">
+                {founder.remaining} of {founder.total ?? 25} left
+              </span>
+              <h3 className="kq-display text-xl text-navy mb-1">Founders Lifetime</h3>
+              <div className="kq-display text-4xl text-navy mb-1">
+                $47<span className="text-lg text-navy/40"> once</span>
+              </div>
+              <p className="text-navy/50 text-sm font-bold mb-6">
+                Pay once. Pro <strong className="text-navy">forever</strong> — no subscription.
+              </p>
+
+              <ul className="space-y-3 text-navy/80 text-sm font-semibold mb-8 flex-1">
+                <li className="flex items-start gap-2"><span className="text-gold">★</span> <strong className="text-navy">Everything in Pro</strong>, for life</li>
+                <li className="flex items-start gap-2"><span className="text-gold">★</span> One payment — never billed again</li>
+                <li className="flex items-start gap-2"><span className="text-gold">★</span> Locks in founder status permanently</li>
+                <li className="flex items-start gap-2"><span className="text-emerald">✓</span> Only <strong className="text-navy">25</strong> will ever be sold</li>
+              </ul>
+
+              {isPro ? (
+                <div className="kq-btn kq-btn-gold w-full opacity-50 cursor-not-allowed">
+                  You&apos;re already Pro
+                </div>
+              ) : (
+                <button
+                  onClick={handleFounderCheckout}
+                  disabled={founderBusy}
+                  className="kq-btn kq-btn-gold w-full disabled:opacity-50"
+                >
+                  {founderBusy ? 'Starting…' : 'Claim a Founders Pass'}
+                </button>
+              )}
+            </motion.div>
+          )}
 
         </div>
 

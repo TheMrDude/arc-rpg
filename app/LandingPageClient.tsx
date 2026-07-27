@@ -83,6 +83,10 @@ export default function LandingPage() {
   // mid-page demo, so /api/preview-quest wiring and rate limiting are shared.
   const [heroTask, setHeroTask] = useState('');
   const questInputRef = useRef<HTMLDivElement>(null);
+  // Founders Lifetime — live remaining count from founder_inventory (never
+  // hardcoded). Card renders only while spots remain.
+  const [founder, setFounder] = useState<{ remaining?: number; total?: number; available?: boolean } | null>(null);
+  const [founderBusy, setFounderBusy] = useState(false);
 
   useEffect(() => {
     trackEvent('landing_page_view', {});
@@ -160,6 +164,48 @@ export default function LandingPage() {
   const goToSignup = () => router.push('/signup');
   const scrollToWorld = () => {
     document.getElementById('world')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  // Load live Founders remaining count.
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/founder-status')
+      .then((r) => r.json())
+      .then((d) => { if (!cancelled) setFounder(d); })
+      .catch(() => { if (!cancelled) setFounder({ available: false }); });
+    return () => { cancelled = true; };
+  }, []);
+
+  const founderAvailable = !!founder?.available && (founder?.remaining ?? 0) > 0;
+
+  const handleFounderCheckout = async () => {
+    setFounderBusy(true);
+    try {
+      const { supabase } = await import('@/lib/supabase');
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        router.push('/signup?next=/pricing');
+        return;
+      }
+      const res = await fetch('/api/create-checkout', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+      const data = await res.json();
+      if (res.ok && data.url) {
+        window.location.href = data.url;
+        return;
+      }
+      if (res.status === 410) {
+        setFounder({ available: false, remaining: 0 });
+        return;
+      }
+      alert(data.message || data.error || 'Could not start checkout. Please try again.');
+    } catch {
+      alert('Something went wrong. Please try again.');
+    } finally {
+      setFounderBusy(false);
+    }
   };
 
   // Heroes (P5.2) — reuse the EXISTING archetypes, restyled as collectible cards.
@@ -617,7 +663,7 @@ export default function LandingPage() {
             <p className="text-navy/60 text-lg font-semibold">Start free forever. Upgrade any time.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6 max-w-5xl mx-auto items-stretch">
+          <div className={`grid grid-cols-1 gap-5 sm:gap-6 mx-auto items-stretch ${founderAvailable ? 'md:grid-cols-2 lg:grid-cols-4 max-w-6xl' : 'md:grid-cols-3 max-w-5xl'}`}>
             {/* Free */}
             <div className="kq-card p-6 flex flex-col">
               <h3 className="kq-display text-2xl text-navy mb-1">Free</h3>
@@ -664,6 +710,30 @@ export default function LandingPage() {
               </ul>
               <button onClick={() => router.push('/signup?plan=early_bird')} className="kq-btn kq-btn-emerald w-full">Get Early Bird</button>
             </div>
+
+            {/* Founders Lifetime — only while spots remain; disappears cleanly at 0. */}
+            {founderAvailable && (
+              <div className="kq-card p-6 flex flex-col relative border-2 border-navy">
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 kq-chip bg-navy text-white text-xs py-1 px-4 whitespace-nowrap">
+                  {founder!.remaining} of {founder!.total ?? 25} left
+                </span>
+                <h3 className="kq-display text-2xl text-navy mb-1">Founders Lifetime</h3>
+                <div className="kq-display text-4xl text-navy mb-1">$47<span className="text-lg text-navy/40"> once</span></div>
+                <p className="text-navy/50 text-sm font-bold mb-5">pay once, Pro forever</p>
+                <ul className="space-y-2.5 text-navy/80 text-sm font-semibold mb-6 flex-1">
+                  <li className="flex gap-2"><span className="text-gold" aria-hidden="true">★</span> <strong className="text-navy">Everything in Pro</strong>, for life</li>
+                  <li className="flex gap-2"><span className="text-gold" aria-hidden="true">★</span> One payment — never billed again</li>
+                  <li className="flex gap-2"><span className="text-emerald" aria-hidden="true">✓</span> Only 25 will ever be sold</li>
+                </ul>
+                <button
+                  onClick={handleFounderCheckout}
+                  disabled={founderBusy}
+                  className="kq-btn kq-btn-gold w-full disabled:opacity-50"
+                >
+                  {founderBusy ? 'Starting…' : 'Claim a Founders Pass'}
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mt-8">

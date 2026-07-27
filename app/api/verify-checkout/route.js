@@ -69,14 +69,46 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
-    // Check if this payment was already processed (idempotency)
+    // Founders Lifetime one-time purchase: grant permanent Pro via the same
+    // idempotent RPC the webhook uses. is_premium (not subscription_status), so
+    // the buyer never lapses; safe to call twice (page load + webhook).
+    const transactionType = session.metadata?.transaction_type || session.metadata?.type;
+    if (session.mode === 'payment' && transactionType === 'founder_lifetime') {
+      const { error: grantError } = await supabaseAdmin.rpc('grant_founder_lifetime', {
+        p_session_id: session_id,
+        p_user_id: authenticatedUserId,
+        p_customer_id: typeof session.customer === 'string' ? session.customer : null,
+      });
+
+      if (grantError) {
+        console.error('Verify checkout: founder grant failed', {
+          error: grantError.message,
+          userId: authenticatedUserId,
+          sessionId: session_id,
+          t: new Date().toISOString()
+        });
+        return NextResponse.json({ error: 'Failed to activate plan' }, { status: 500 });
+      }
+
+      console.log('Verify checkout: founder lifetime activated', {
+        userId: authenticatedUserId,
+        sessionId: session_id,
+        t: new Date().toISOString()
+      });
+      return NextResponse.json({ status: 'active' });
+    }
+
+    // Subscription checkout. Idempotency keyed by stripe_session_id (a real
+    // column; the former last_payment_session_id never existed, so every prior
+    // call 500'd here). Premium is granted server-side by the webhook too — this
+    // path just makes the success page reflect it immediately.
     const { data: existingProfile } = await supabaseAdmin
       .from('profiles')
-      .select('last_payment_session_id, subscription_status')
+      .select('stripe_session_id, subscription_status, premium_since')
       .eq('id', authenticatedUserId)
       .single();
 
-    if (existingProfile?.last_payment_session_id === session_id) {
+    if (existingProfile?.stripe_session_id === session_id) {
       console.log('Verify checkout: Payment already processed', {
         userId: authenticatedUserId,
         sessionId: session_id,
@@ -93,7 +125,7 @@ export async function POST(request) {
         subscription_status: 'active',
         is_premium: true,
         premium_since: existingProfile?.premium_since || new Date().toISOString(),
-        last_payment_session_id: session_id,
+        stripe_session_id: session_id,
       })
       .eq('id', authenticatedUserId);
 
