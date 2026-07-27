@@ -77,19 +77,20 @@ export default function ReflectionPrompt({ show, onClose, questId, questTitle, o
       tone="light"
       title="Quest Complete!"
       hideTitle
+      labelledBy={showSuccess ? 'reflection-success-title' : 'reflection-complete-title'}
       closeLabel="Skip for now"
     >
       {showSuccess ? (
         <div className="p-12 text-center">
           <div className="text-8xl mb-4">✨</div>
-          <h3 className="kq-display text-3xl text-emerald mb-2">+10 XP Earned!</h3>
+          <h3 id="reflection-success-title" className="kq-display text-3xl text-emerald mb-2">+10 XP Earned!</h3>
           <p className="text-navy/60 text-lg">Thank you for reflecting</p>
         </div>
       ) : (
         <>
           <div className="bg-gradient-to-br from-coral to-gold p-6 text-center rounded-candy -mx-4 -mt-2 mb-4">
             <div className="text-6xl mb-3">🎉</div>
-            <h2 className="kq-display text-2xl text-white mb-1">Quest Complete!</h2>
+            <h2 id="reflection-complete-title" className="kq-display text-2xl text-white mb-1">Quest Complete!</h2>
             <p className="text-white/90 font-semibold">{questTitle}</p>
           </div>
 

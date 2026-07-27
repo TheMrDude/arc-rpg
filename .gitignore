@@ -20,6 +20,8 @@ tests/overlays/harness/bundle.js
 tests/overlays/harness/app.css
 tests/overlays/harness/hatch-bundle.js
 tests/overlays/harness/hatch-index.html
+tests/overlays/harness/headings-bundle.js
+tests/overlays/harness/headings-index.html
 
 # Playwright run artifacts (traces, screenshots) -- never committed
 test-results/

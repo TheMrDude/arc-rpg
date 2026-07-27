@@ -70,6 +70,7 @@ export default function QuestCompletionCelebration({
       tone="light"
       title="Quest Complete!"
       hideTitle
+      labelledBy={rewards ? 'qcc-title' : undefined}
       closeLabel="Continue your journey"
       className="border-4 border-gold"
     >
@@ -91,6 +92,7 @@ export default function QuestCompletionCelebration({
             </motion.div>
 
             <motion.h2
+              id="qcc-title"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}

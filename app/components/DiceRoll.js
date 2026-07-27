@@ -75,6 +75,7 @@ export default function DiceRoll({ encounter, onClaim, show }) {
       tone="dark"
       title="Random Encounter"
       hideTitle
+      labelledBy={phase === 'waiting' ? 'dice-encounter-title' : undefined}
       closeLabel="Claim reward"
     >
       {encounter && (
@@ -82,7 +83,7 @@ export default function DiceRoll({ encounter, onClaim, show }) {
           {/* Header text — waiting phase */}
           {phase === 'waiting' && (
             <div className="text-center mb-2" style={{ animation: 'fadeIn 0.3s ease' }}>
-              <h2 className="kq-display text-xl text-gold mb-2">
+              <h2 id="dice-encounter-title" className="kq-display text-xl text-gold mb-2">
                 ✨ Random Encounter!
               </h2>
               <p className="text-cream/70 text-sm">Something fun is waiting for you...</p>
