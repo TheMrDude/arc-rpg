@@ -100,3 +100,29 @@ describe('storybook views', () => {
     expect(VALID_MEET_SLUGS.size).toBe(ROSTER_SIZE);
   });
 });
+
+describe('encounter cast faces', () => {
+  const { ENCOUNTER_TABLE } = require('@/lib/encounterTable');
+
+  test('every castKey points at real CAST art', () => {
+    for (const row of ENCOUNTER_TABLE) {
+      if (row.castKey) {
+        expect(CAST[row.castKey]).toBeDefined();
+        expect(CAST[row.castKey].src).toMatch(/^\/images\/cast\//);
+      }
+    }
+  });
+
+  test('castKey is display-only: reward fields intact on every row', () => {
+    for (const row of ENCOUNTER_TABLE) {
+      expect(typeof row.rewardType).toBe('string');
+      expect(Array.isArray(row.rewardRange)).toBe(true);
+      expect(row.icon).toBeTruthy();
+    }
+  });
+
+  test('Companion Gift keeps its emoji (no cast face by design)', () => {
+    const gift = ENCOUNTER_TABLE.find((e) => e.name === 'Companion Gift');
+    expect(gift.castKey).toBeUndefined();
+  });
+});

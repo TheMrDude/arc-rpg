@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import { RARITY_COLORS } from '@/lib/encounterTable';
+import { CAST } from '@/lib/cast';
 import Overlay from './Overlay';
 import { useOverlaySlot, OVERLAY_PRIORITY } from '@/lib/overlayQueue';
 
@@ -163,7 +165,20 @@ export default function DiceRoll({ encounter, onClaim, show }) {
                 animation: 'slideUp 0.4s ease',
               }}
             >
-              <div className="text-5xl mb-3">{encounter.icon}</div>
+              {/* The encounter's cast face when it has one (lib/encounterTable
+                  castKey); emoji for the rest. Display only. */}
+              {encounter.castKey && CAST[encounter.castKey] ? (
+                <Image
+                  src={CAST[encounter.castKey].src}
+                  alt={CAST[encounter.castKey].alt}
+                  width={300}
+                  height={200}
+                  loading="eager"
+                  className="mx-auto mb-3 h-28 w-auto rounded-candy object-cover"
+                />
+              ) : (
+                <div className="text-5xl mb-3">{encounter.icon}</div>
+              )}
               <h3 className="kq-display text-xl mb-2" style={{ color: rarity.text }}>
                 {encounter.name}
               </h3>

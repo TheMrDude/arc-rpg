@@ -15,6 +15,7 @@ import { isPremium as resolveIsPremium } from '@/lib/premium';
 import { claimReward } from '@/lib/overlayQueue';
 import { dueMeet, normalizeMet, ROSTER_SIZE } from '@/lib/storybook';
 import MeetCharacterOverlay from '@/app/components/MeetCharacterOverlay';
+import DailyGreeter from '@/app/components/DailyGreeter';
 import OnboardingTutorial from '@/app/components/OnboardingTutorial';
 import NotificationSetup from '@/app/components/NotificationSetup';
 import QuestCompletionCelebration from '@/app/components/QuestCompletionCelebration';
@@ -1257,6 +1258,10 @@ export default function DashboardPage() {
             reducedMotion={prefersReducedMotion}
           />
         </div>
+
+        {/* A cast character who is awake right now says hello -- the world
+            feels populated the moment the dashboard opens */}
+        <DailyGreeter />
 
         {/* Living Companion — grows with total quests, never guilts */}
         {creature && (
