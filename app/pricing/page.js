@@ -3,8 +3,10 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import { supabase } from '@/lib/supabase';
 import { isPremium as resolveIsPremium } from '@/lib/premium';
+import { CAST } from '@/lib/cast';
 
 const STRIPE_LINK_PRO_MONTHLY = 'https://buy.stripe.com/fZubJ02TX5SngCc6dadZ602';
 const STRIPE_LINK_PRO_YEARLY = 'https://buy.stripe.com/14A3cu9il0y3adObxudZ603'; // $29 CAD/yr Early Bird (fixed 2026-07-11: old link was $29/mo, deactivated)
@@ -122,6 +124,14 @@ export default function PricingPage() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
         >
+          <Image
+            src={CAST.prism_knight_b.src}
+            alt={CAST.prism_knight_b.alt}
+            width={160}
+            height={107}
+            loading="lazy"
+            className="mx-auto mb-3 h-20 w-auto object-contain"
+          />
           <h1 className="kq-display text-4xl sm:text-5xl lg:text-6xl text-navy mb-4">
             Pick Your <span className="text-hero-blue">Adventure Pass</span>
           </h1>

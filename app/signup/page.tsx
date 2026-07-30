@@ -3,11 +3,13 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import { supabase } from '@/lib/supabase';
 import { getStoredPreviewQuest, clearStoredPreviewQuest, handleFirstQuestCompletion } from '@/lib/onboarding';
 import { applyReferralCode } from '@/lib/referrals';
 import FirstQuestCelebration from '@/app/components/FirstQuestCelebration';
 import { track } from '@/lib/track';
+import { CAST } from '@/lib/cast';
 
 function SignupForm() {
   const router = useRouter();
@@ -186,9 +188,15 @@ function SignupForm() {
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ type: 'spring', delay: 0.2 }}
-            className="text-6xl mb-4"
           >
-            📜
+            <Image
+              src={CAST.paper_wisp.src}
+              alt={CAST.paper_wisp.alt}
+              width={160}
+              height={107}
+              loading="lazy"
+              className="mx-auto mb-4 h-20 w-auto object-contain"
+            />
           </motion.div>
 
           <h1 className="kq-display text-3xl text-emerald mb-4">
@@ -257,7 +265,14 @@ function SignupForm() {
           transition={{ delay: 0.2 }}
           className="text-center"
         >
-          <div className="text-5xl mb-2 kq-bob" aria-hidden="true">🚀</div>
+          <Image
+            src={CAST.sprig.src}
+            alt={CAST.sprig.alt}
+            width={160}
+            height={107}
+            loading="lazy"
+            className="mx-auto mb-2 h-16 w-auto object-contain kq-bob"
+          />
           <h1 className="kq-display text-3xl text-navy mb-1">Start Your Adventure</h1>
           <p className="text-navy/60 mb-2 font-bold text-sm sm:text-base">
             {hasPreviewQuest ? 'Complete your quest and create your hero' : 'Create your hero and jump in.'}

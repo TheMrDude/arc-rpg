@@ -3,7 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import { supabase } from '@/lib/supabase';
+import { CAST } from '@/lib/cast';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -75,7 +77,14 @@ export default function LoginPage() {
           transition={{ delay: 0.2 }}
           className="text-center mb-6"
         >
-          <div className="text-5xl mb-2 kq-bob" aria-hidden="true">🧭</div>
+          <Image
+            src={CAST.runeseeker.src}
+            alt={CAST.runeseeker.alt}
+            width={160}
+            height={107}
+            loading="lazy"
+            className="mx-auto mb-2 h-16 w-auto object-contain kq-bob"
+          />
           <h1 className="kq-display text-3xl text-navy mb-1">Welcome Back!</h1>
           <p className="text-navy/60 font-bold text-sm sm:text-base">
             Log in to jump back into your adventure.

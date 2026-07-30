@@ -1375,8 +1375,14 @@ export default function DashboardPage() {
                   ) : (
                     <EmptyState
                       icon="🍺"
+                      image={creature?.image}
+                      imageAlt={creature ? `${creature.name}, ${creature.stageTitle}` : ''}
                       title="The tavern is quiet"
-                      description="Too quiet. Post a quest on the board and get back to your adventure."
+                      description={
+                        creature
+                          ? `${creature.name} is waiting by an empty quest board. Post one and get back to your adventure.`
+                          : 'Too quiet. Post a quest on the board and get back to your adventure.'
+                      }
                       actionLabel="Post a Quest"
                       onAction={scrollToQuestInput}
                     />

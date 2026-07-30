@@ -1,6 +1,8 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { getAllPosts } from '@/lib/blog';
 import GlobalFooter from '@/app/components/GlobalFooter';
+import { CAST } from '@/lib/cast';
 
 export const metadata = {
   title: 'Blog | HabitQuest: Habits, Productivity & Gamification',
@@ -45,6 +47,14 @@ export default function BlogIndex() {
 
       <section className="pt-16 pb-12 px-4">
         <div className="max-w-4xl mx-auto text-center">
+          <Image
+            src={CAST.inkwraith.src}
+            alt={CAST.inkwraith.alt}
+            width={160}
+            height={107}
+            loading="lazy"
+            className="mx-auto mb-4 h-20 w-auto object-contain"
+          />
           <h1 className="kq-display text-4xl md:text-5xl font-bold mb-4">
             The HabitQuest <span className="text-hero-blue">Blog</span>
           </h1>

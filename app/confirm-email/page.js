@@ -2,7 +2,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { supabase } from '@/lib/supabase';
+import { CAST } from '@/lib/cast';
 
 export default function ConfirmEmailPage() {
   const router = useRouter();
@@ -43,21 +45,14 @@ export default function ConfirmEmailPage() {
       <div className="max-w-md w-full kq-card p-8">
         <div className="text-center">
           <div className="mb-6">
-            <div className="w-20 h-20 mx-auto bg-hero-blue/15 rounded-full flex items-center justify-center border-2 border-hero-blue/30">
-              <svg
-                className="w-10 h-10 text-hero-blue"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                />
-              </svg>
-            </div>
+            <Image
+              src={CAST.paper_wisp.src}
+              alt={CAST.paper_wisp.alt}
+              width={160}
+              height={107}
+              loading="lazy"
+              className="mx-auto h-20 w-auto object-contain"
+            />
           </div>
 
           <h1 className="kq-display text-3xl text-coral mb-4">

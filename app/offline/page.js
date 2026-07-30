@@ -1,10 +1,20 @@
 'use client';
 
+import Image from 'next/image';
+import { CAST } from '@/lib/cast';
+
 export default function OfflinePage() {
   return (
     <div className="kidquest min-h-screen bg-cream flex items-center justify-center p-8">
       <div className="text-center max-w-md kq-card p-8">
-        <div className="text-8xl mb-6">📡</div>
+        <Image
+          src={CAST.puddle_wisp.src}
+          alt={CAST.puddle_wisp.alt}
+          width={220}
+          height={147}
+          loading="lazy"
+          className="mx-auto mb-6 h-28 w-auto object-contain"
+        />
         <h1 className="kq-display text-4xl mb-4 text-coral">You're Offline</h1>
         <p className="text-xl text-navy/70 mb-6">
           Looks like your internet connection took a little break.

@@ -1,7 +1,9 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import GlobalFooter from '@/app/components/GlobalFooter';
 import EmailCapture from '@/app/components/EmailCapture';
+import { CAST } from '@/lib/cast';
 
 // ─── Comparison data ────────────────────────────────────────────────
 // Honest comparisons. Every page says who should NOT pick HabitQuest.
@@ -436,6 +438,15 @@ export default async function VsPage({ params }: { params: Promise<{ slug: strin
           <Link href="/vs" className="text-hero-blue hover:text-navy text-sm mb-6 inline-block transition-colors">
             ← All Comparisons
           </Link>
+
+          <Image
+            src={CAST.harlequin.src}
+            alt={CAST.harlequin.alt}
+            width={160}
+            height={107}
+            loading="lazy"
+            className="mb-4 h-20 w-auto object-contain"
+          />
 
           <h1 className="kq-display text-3xl md:text-4xl lg:text-5xl font-bold mb-6 leading-tight text-navy">
             HabitQuest vs <span className="text-hero-blue">{comp.name}</span>

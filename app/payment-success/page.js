@@ -2,7 +2,9 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { getSupabaseClient } from '@/lib/supabase-client';
+import { CAST } from '@/lib/cast';
 
 function PaymentSuccessContent() {
   const params = useSearchParams();
@@ -57,7 +59,14 @@ function PaymentSuccessContent() {
 
         {status === 'active' && (
           <div>
-            <div className="text-6xl mb-4">✅</div>
+            <Image
+              src={CAST.sunspin.src}
+              alt={CAST.sunspin.alt}
+              width={160}
+              height={107}
+              loading="lazy"
+              className="mx-auto mb-4 h-24 w-auto object-contain"
+            />
             <p className="text-emerald text-2xl font-bold mb-4">Your Premium Access is Active!</p>
             <p className="text-navy/70 mb-6 font-bold">Welcome to HabitQuest Pro!</p>
             <button

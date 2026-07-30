@@ -1,5 +1,7 @@
 'use client';
 import GlobalFooter from '@/app/components/GlobalFooter';
+import EmptyState from '@/app/components/EmptyState';
+import { CAST } from '@/lib/cast';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -76,7 +78,15 @@ export default function HistoryPage() {
               </div>
             ))}
             {quests.length === 0 && (
-              <p className="text-hero-blue text-center py-8 font-bold">No completed quests yet. Get started on your dashboard!</p>
+              <EmptyState
+                icon="📜"
+                image={CAST.acorn_ranger.src}
+                imageAlt={CAST.acorn_ranger.alt}
+                title="No adventures logged yet"
+                description="Acorn Ranger hasn't found a trail to follow. Complete a quest and this page fills in behind you."
+                actionLabel="Back to Dashboard"
+                onAction={() => router.push('/dashboard')}
+              />
             )}
           </div>
         </div>

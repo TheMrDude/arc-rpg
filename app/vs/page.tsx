@@ -1,5 +1,7 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import GlobalFooter from '@/app/components/GlobalFooter';
+import { CAST } from '@/lib/cast';
 
 export const metadata = {
   title: 'HabitQuest vs Other Habit Trackers: Honest Comparisons (2026)',
@@ -45,6 +47,14 @@ export default function VsIndex() {
 
       <section className="pt-16 pb-12 px-4">
         <div className="max-w-4xl mx-auto text-center">
+          <Image
+            src={CAST.harlequin.src}
+            alt={CAST.harlequin.alt}
+            width={160}
+            height={107}
+            loading="lazy"
+            className="mx-auto mb-4 h-20 w-auto object-contain"
+          />
           <h1 className="text-4xl md:text-5xl font-bold mb-4 kq-display">
             HabitQuest vs <span className="text-coral">Everyone</span>
           </h1>

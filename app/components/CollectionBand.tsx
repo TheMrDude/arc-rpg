@@ -12,22 +12,16 @@ import Image from 'next/image';
 const TOTAL_CHIBI = 47;
 
 // Characters with finished art. `id` maps to public/images/chibi/{id}.png,
-// `card` to the full-scene art in public/images/collection. Edit names/rarity
-// freely — this is just the marketing spotlight.
+// `card` to the full-scene art in public/images/collection. Edit names
+// freely — this is just the marketing spotlight. No rarity labels: these are
+// decorative collection characters, not a pickable/rarity-tiered system.
 const SPOTLIGHT = [
-  { id: 1, name: 'Shadow Dragon', card: '/images/collection/shadow-dragon.png', rarity: 'Legendary' },
-  { id: 3, name: 'Star Mage', card: '/images/collection/star-mage.png', rarity: 'Epic' },
-  { id: 2, name: 'Acorn Explorer', card: '/images/collection/acorn-explorer.png', rarity: 'Rare' },
-  { id: 4, name: 'Crystal Sleuth', card: '/images/collection/crystal-sleuth.png', rarity: 'Rare' },
-  { id: 5, name: 'Bloom Sprite', card: '/images/collection/bloom-sprite.png', rarity: 'Common' },
+  { id: 1, name: 'Shadow Dragon', card: '/images/collection/shadow-dragon.png' },
+  { id: 3, name: 'Star Mage', card: '/images/collection/star-mage.png' },
+  { id: 2, name: 'Acorn Explorer', card: '/images/collection/acorn-explorer.png' },
+  { id: 4, name: 'Crystal Sleuth', card: '/images/collection/crystal-sleuth.png' },
+  { id: 5, name: 'Bloom Sprite', card: '/images/collection/bloom-sprite.png' },
 ];
-
-const RARITY: Record<string, string> = {
-  Common: 'bg-white text-navy',
-  Rare: 'bg-[#57D7F5] text-[#0b3a45]',
-  Epic: 'bg-[#8B6CFF] text-white',
-  Legendary: 'bg-[#FFC83D] text-[#5a4300]',
-};
 
 function WallTile({ id }: { id: number }) {
   const [state, setState] = useState<'loading' | 'shown' | 'mystery'>('loading');
@@ -92,9 +86,6 @@ export default function CollectionBand({ onStart }: { onStart: () => void }) {
                 sizes="(max-width: 768px) 45vw, 20vw"
                 className="object-cover"
               />
-              <span className={`absolute top-2 left-2 kq-chip text-[11px] py-0.5 px-2 ${RARITY[c.rarity]}`}>
-                {c.rarity}
-              </span>
             </div>
             <div className="p-2.5 text-center">
               <h3 className="text-navy text-sm sm:text-base leading-tight">{c.name}</h3>

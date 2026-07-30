@@ -3,10 +3,12 @@ import GlobalFooter from '@/app/components/GlobalFooter';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { supabase } from '@/lib/supabase';
 import GoldShop from '@/app/components/GoldShop';
 import EquipmentShop from '@/app/components/EquipmentShop';
 import { isPremium as resolveIsPremium } from '@/lib/premium';
+import { CAST } from '@/lib/cast';
 
 export default function ShopPage() {
   const router = useRouter();
@@ -72,7 +74,14 @@ export default function ShopPage() {
         {/* Current Gold Display */}
         <div className="kq-card p-6 mb-8">
           <div className="flex items-center justify-center gap-3">
-            <span className="text-4xl">🪙</span>
+            <Image
+              src={CAST.satchel_raccoon.src}
+              alt={CAST.satchel_raccoon.alt}
+              width={80}
+              height={80}
+              loading="lazy"
+              className="h-16 w-16 object-contain rounded-candy"
+            />
             <div className="text-center">
               <p className="text-sm text-hero-blue font-bold">Current Balance</p>
               <p className="text-4xl font-bold text-gold kq-display">

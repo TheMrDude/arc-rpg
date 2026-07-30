@@ -3,6 +3,7 @@ import GlobalFooter from '@/app/components/GlobalFooter';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { supabase } from '@/lib/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
 import { isPremium as resolveIsPremium } from '@/lib/premium';
@@ -139,16 +140,30 @@ export default function JourneyPage() {
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-4xl kq-display text-navy mb-2">
-                📖 Your Epic Journey
-              </h1>
-              <p className="text-hero-blue text-lg font-semibold">
-                {/* Was "Level 3 seeker" -- the raw archetype value as a label
-                    for the player. The companion is the avatar now. */}
-                Chapter {profile?.story_chapter || 1} • Level {profile?.level || 1}
-                {profile ? ` • ${getCompanion(profile).name}` : ''}
-              </p>
+            <div className="flex items-center gap-4">
+              {/* Decorative lore art only -- the archetype still narrates this
+                  chapter in voice, it just isn't a pickable avatar. */}
+              {profile?.archetype && (
+                <Image
+                  src={`/images/archetypes/${profile.archetype}.png`}
+                  alt={`${profile.archetype.charAt(0).toUpperCase()}${profile.archetype.slice(1)} spirit, narrator of this chapter`}
+                  width={72}
+                  height={72}
+                  loading="lazy"
+                  className="w-16 h-16 rounded-candy object-cover hidden sm:block"
+                />
+              )}
+              <div>
+                <h1 className="text-4xl kq-display text-navy mb-2">
+                  📖 Your Epic Journey
+                </h1>
+                <p className="text-hero-blue text-lg font-semibold">
+                  {/* Was "Level 3 seeker" -- the raw archetype value as a label
+                      for the player. The companion is the avatar now. */}
+                  Chapter {profile?.story_chapter || 1} • Level {profile?.level || 1}
+                  {profile ? ` • ${getCompanion(profile).name}` : ''}
+                </p>
+              </div>
             </div>
             <button
               onClick={() => router.push('/dashboard')}
