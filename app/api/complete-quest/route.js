@@ -7,6 +7,7 @@ import { getIsoWeekKey } from '@/lib/date-utils';
 import { MOMENTUM_GOAL_DAYS } from '@/lib/momentum';
 import { advanceWelcomeChain } from '@/lib/quest-chain';
 import { getStoryBeat } from '@/lib/storyBeats';
+import { nextQuestsCompleted } from '@/lib/companions';
 
 const MOMENTUM_BONUS_XP = 25;
 
@@ -245,14 +246,38 @@ export async function POST(request) {
       }
     }
 
-    // Increment quests_completed counter
+    // Update the lifetime quests_completed counter. The companion hatch reads
+    // this and nothing else, so it must not drift low: `profile` here is a
+    // snapshot from the top of the request, and writing snapshot+1 loses an
+    // increment when two completions land together. The completed quest rows
+    // are authoritative (this quest's row committed above under the atomic
+    // completed=false guard), so derive the counter from their count and it
+    // self-heals instead of drifting. See nextQuestsCompleted in lib/companions.
     try {
-      await supabaseAdmin
+      const { count, error: countError } = await supabaseAdmin
+        .from('quests')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('completed', true);
+      const { error: counterError } = await supabaseAdmin
         .from('profiles')
-        .update({ quests_completed: (profile.quests_completed || 0) + 1 })
+        .update({
+          quests_completed: nextQuestsCompleted(
+            profile.quests_completed,
+            countError ? null : count
+          ),
+        })
         .eq('id', user.id);
+      if (counterError) throw counterError;
     } catch (err) {
-      // Column may not exist yet — ignore
+      // Not worth failing the completion over, but never silent: a missed write
+      // here is exactly how an egg fails to hatch on the quest that earned it.
+      // The dashboard catch-up prompt covers the user once a later write lands.
+      console.error('Failed to update quests_completed:', {
+        userId: user.id,
+        questId: quest_id,
+        error: err,
+      });
     }
 
     // D10 Random Encounter System (30% chance)

@@ -8,7 +8,7 @@ import { supabase } from '@/lib/supabase';
 import { useSound } from '@/app/components/SoundProvider';
 import { usePrefersReducedMotion } from '@/lib/hooks/usePrefersReducedMotion';
 import { checkBossEncounter } from '@/lib/encounters';
-import { getCompanion, companionStage } from '@/lib/companions';
+import { getCompanion, shouldPromptCompanionNaming } from '@/lib/companions';
 import { getDashboardSections, getNewUnlocks } from '@/lib/dashboardVisibility';
 import { FREE_TIER_QUEST_LIMIT, countHabitsTowardLimit } from '@/lib/quest-limits';
 import { isPremium as resolveIsPremium } from '@/lib/premium';
@@ -1019,10 +1019,7 @@ export default function DashboardPage() {
   // who taps "I'll decide later" is not asked again on a second device. Naming
   // stays available forever from the companion card.
   useEffect(() => {
-    if (!profile) return;
-    if (profile.companion_name) return;
-    if (profile.companion_name_prompted) return;
-    if (companionStage(profile.quests_completed || 0) < 1) return;
+    if (!shouldPromptCompanionNaming(profile)) return;
     setCompanionNamingMode('hatch');
     setShowCompanionNaming(true);
   }, [profile]);
