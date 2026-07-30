@@ -52,12 +52,16 @@ const QUESTS = [
 ] as const;
 
 // ─── Pets / companions (P5.3) ─────────────────────────────────────────
+// The five real companion lines at their hatchling stage -- the creature a
+// new player actually meets. Art from public/images/companions/{line}/1.png
+// (transparent, chibi). These replaced placeholder pets that never existed
+// in-game (Glow Fox, Happy Slime, ...).
 const PETS = [
-  { emoji: '🐉', name: 'Baby Dragon', tag: 'Fiery friend' },
-  { emoji: '🦊', name: 'Glow Fox', tag: 'Lights the way' },
-  { emoji: '🦉', name: 'Wise Owl', tag: 'Loves reading' },
-  { emoji: '🐢', name: 'Backpack Turtle', tag: 'Carries treasure' },
-  { emoji: '🫧', name: 'Happy Slime', tag: 'Always cheerful' },
+  { image: '/images/companions/warrior/1.png', name: 'Ember Pup', tag: 'Fiery friend' },
+  { image: '/images/companions/seeker/1.png', name: 'Trail Kit', tag: 'Finds every path' },
+  { image: '/images/companions/sage/1.png', name: 'Downy Owlet', tag: 'Loves quiet questions' },
+  { image: '/images/companions/builder/1.png', name: 'Pebblet', tag: 'Steady as stone' },
+  { image: '/images/companions/shadow/1.png', name: 'Dusk Kitten', tag: 'Moves first' },
 ] as const;
 
 // ─── Collectibles (P6.2) ──────────────────────────────────────────────
@@ -472,8 +476,14 @@ export default function LandingPage() {
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6">
             {PETS.map((p) => (
               <div key={p.name} className="kq-card kq-card-hover p-5 text-center">
-                {/* TODO: swap pet emoji for illustrated mascot art */}
-                <div className="text-5xl sm:text-6xl mb-3 kq-bob" aria-hidden="true">{p.emoji}</div>
+                <Image
+                  src={p.image}
+                  alt={`${p.name}, a hatchling companion`}
+                  width={112}
+                  height={112}
+                  loading="lazy"
+                  className="mx-auto mb-3 h-20 w-20 sm:h-24 sm:w-24 object-contain kq-bob"
+                />
                 <h3 className="text-navy text-base sm:text-lg leading-tight">{p.name}</h3>
                 <p className="text-navy/50 text-xs font-bold mt-1">{p.tag}</p>
               </div>
