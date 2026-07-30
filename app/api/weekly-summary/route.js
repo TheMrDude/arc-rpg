@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
+import { metCharacterNames } from '@/lib/storybook';
 import { createClient } from '@supabase/supabase-js';
 import { isPremium as resolveIsPremium } from '@/lib/premium';
 import { NARRATION_FLOOR } from '@/lib/narrationConstraints';
@@ -40,7 +41,7 @@ export async function GET(request) {
     // Get user profile including story progress
     const { data: profile } = await supabaseAdmin
       .from('profiles')
-      .select('subscription_status, archetype, level, current_streak, story_chapter, story_last_event')
+      .select('subscription_status, archetype, level, current_streak, story_chapter, story_last_event, met_characters')
       .eq('id', user.id)
       .single();
 
@@ -137,6 +138,8 @@ export async function GET(request) {
         ? `\n- Average Mood: ${avgMood}/5 (${avgMood < 2.5 ? 'struggling' : avgMood < 3.5 ? 'steady' : 'thriving'})`
         : '';
 
+      const cameoNames = metCharacterNames(profile.met_characters);
+
       const prompt = `You are writing Chapter ${currentChapter} of a ${profile.archetype}'s personal epic journey in an RPG-style productivity adventure.
 
 ${NARRATION_FLOOR}
@@ -151,6 +154,11 @@ ${journalNarratives ? `INNER REFLECTIONS (Journal Entries):
 ${journalNarratives}
 
 IMPORTANT: Weight these journal reflections heavily - they reveal the hero's inner emotional journey and should deeply influence the chapter's tone and narrative.
+` : ''}
+${cameoNames.length > 0 ? `FRIENDS THE HERO HAS MET (Storybook characters):
+${cameoNames.join(', ')}
+
+If it fits naturally, let ONE or TWO of these friends make a brief, warm cameo in the chapter (a wave, a word of encouragement, help on a quest). Never more than two, never forced, and they are always kind.
 ` : ''}
 STATS THIS WEEK:
 - Quests Completed: ${(quests || []).length}
@@ -270,7 +278,7 @@ export async function POST(request) {
     // Get user profile including story progress
     const { data: profile } = await supabaseAdmin
       .from('profiles')
-      .select('subscription_status, archetype, level, current_streak, story_chapter, story_last_event')
+      .select('subscription_status, archetype, level, current_streak, story_chapter, story_last_event, met_characters')
       .eq('id', user.id)
       .single();
 
@@ -345,6 +353,8 @@ export async function POST(request) {
       ? `\n- Average Mood: ${avgMood}/5 (${avgMood < 2.5 ? 'struggling' : avgMood < 3.5 ? 'steady' : 'thriving'})`
       : '';
 
+    const cameoNames = metCharacterNames(profile.met_characters);
+
     const prompt = `You are writing Chapter ${currentChapter} of a ${profile.archetype}'s personal epic journey in an RPG-style productivity adventure.
 
 ${NARRATION_FLOOR}
@@ -359,6 +369,11 @@ ${journalNarratives ? `INNER REFLECTIONS (Journal Entries):
 ${journalNarratives}
 
 IMPORTANT: Weight these journal reflections heavily - they reveal the hero's inner emotional journey and should deeply influence the chapter's tone and narrative.
+` : ''}
+${cameoNames.length > 0 ? `FRIENDS THE HERO HAS MET (Storybook characters):
+${cameoNames.join(', ')}
+
+If it fits naturally, let ONE or TWO of these friends make a brief, warm cameo in the chapter (a wave, a word of encouragement, help on a quest). Never more than two, never forced, and they are always kind.
 ` : ''}
 STATS THIS WEEK:
 - Quests Completed: ${(quests || []).length}

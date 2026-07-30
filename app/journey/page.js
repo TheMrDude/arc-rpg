@@ -8,6 +8,8 @@ import { supabase } from '@/lib/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
 import { isPremium as resolveIsPremium } from '@/lib/premium';
 import { getCompanion } from '@/lib/companions';
+import { normalizeMet } from '@/lib/storybook';
+import { CAST } from '@/lib/cast';
 
 export default function JourneyPage() {
   const router = useRouter();
@@ -177,6 +179,39 @@ export default function JourneyPage() {
             Every week, your quests and journal entries are woven into a fun story.
             Re-read your adventure from the beginning or generate this week's chapter.
           </p>
+
+          {/* Storybook cameos: friends already met may wander into chapters.
+              Newest three, linked to the Storybook. Pure decoration -- the
+              actual cameo happens inside the AI-written chapter text. */}
+          {normalizeMet(profile?.met_characters).length > 0 && (
+            <button
+              onClick={() => router.push('/storybook')}
+              className="flex items-center gap-2 mb-6 kq-chip bg-emerald/10 border-2 border-emerald/30 py-1.5 px-3"
+              title="Open your Storybook"
+            >
+              <span className="flex -space-x-2">
+                {normalizeMet(profile.met_characters)
+                  .slice(-3)
+                  .reverse()
+                  .map((slug) =>
+                    CAST[slug] ? (
+                      <Image
+                        key={slug}
+                        src={CAST[slug].src}
+                        alt={CAST[slug].name}
+                        width={32}
+                        height={32}
+                        loading="lazy"
+                        className="w-8 h-8 rounded-full border-2 border-white object-cover bg-cream"
+                      />
+                    ) : null
+                  )}
+              </span>
+              <span className="text-emerald text-xs font-bold">
+                Friends from your Storybook may appear in this chapter
+              </span>
+            </button>
+          )}
 
           {/* Generate Current Week Button */}
           <button

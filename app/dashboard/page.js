@@ -13,6 +13,8 @@ import { getDashboardSections, getNewUnlocks } from '@/lib/dashboardVisibility';
 import { FREE_TIER_QUEST_LIMIT, countHabitsTowardLimit } from '@/lib/quest-limits';
 import { isPremium as resolveIsPremium } from '@/lib/premium';
 import { claimReward } from '@/lib/overlayQueue';
+import { dueMeet, normalizeMet, ROSTER_SIZE } from '@/lib/storybook';
+import MeetCharacterOverlay from '@/app/components/MeetCharacterOverlay';
 import OnboardingTutorial from '@/app/components/OnboardingTutorial';
 import NotificationSetup from '@/app/components/NotificationSetup';
 import QuestCompletionCelebration from '@/app/components/QuestCompletionCelebration';
@@ -149,6 +151,13 @@ export default function DashboardPage() {
   const [encounterData, setEncounterData] = useState(null);
   const encounterRef = useRef(null); // ref to avoid stale closures
 
+  // Storybook meet: the next cast character due to be met, queued as a
+  // reward AFTER a quest completion in this session (never on plain page
+  // load, so a returning veteran catches up one friend per quest instead
+  // of being ambushed by a backlog).
+  const [pendingMeet, setPendingMeet] = useState(null);
+  const prevQuestsCompletedRef = useRef(null);
+
   // Milestone testimonial prompt (feature-flagged). pendingTestimonialRef holds
   // a milestone detected during quest completion so it can be surfaced AFTER the
   // celebration closes (a moment of earned pride, shown once).
@@ -208,6 +217,49 @@ export default function DashboardPage() {
       }
     }
   }, [profile?.level, profile?.quests_completed]);
+
+  // Storybook meets. Fires only when quests_completed INCREASES within this
+  // session -- the first profile load just primes the ref. dueMeet caps at
+  // one character, and the overlay queues at REWARD priority so it waits
+  // behind the celebration/dice/reflection chain for the quest that earned it.
+  useEffect(() => {
+    const qc = profile?.quests_completed;
+    if (qc === undefined || qc === null) return;
+    const prev = prevQuestsCompletedRef.current;
+    prevQuestsCompletedRef.current = qc;
+    if (prev === null || qc <= prev) return;
+    const due = dueMeet(qc, profile?.met_characters);
+    if (due) setPendingMeet(due);
+  }, [profile?.quests_completed]);
+
+  const handleMeetCharacter = async () => {
+    // Same idempotency pattern as the dice roll: all four of the shell's
+    // close paths land here; only the first call this instance records.
+    if (!claimReward('meet-character')) return;
+    const met = pendingMeet;
+    setPendingMeet(null);
+    if (!met) return;
+    // Optimistic: the Storybook shows the new friend immediately; the server
+    // write makes it permanent. If the write fails, dueMeet re-queues the
+    // same character after the next completed quest -- nothing is lost.
+    setProfile((p) =>
+      p ? { ...p, met_characters: [...normalizeMet(p.met_characters), met.slug] } : p
+    );
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) return;
+      await fetch('/api/storybook/meet', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ slug: met.slug }),
+      });
+    } catch (err) {
+      console.error('Storybook meet save failed:', err);
+    }
+  };
 
   async function loadActiveEffects() {
     try {
@@ -1108,6 +1160,17 @@ export default function DashboardPage() {
                 <ScrollText size={13} className="inline -mt-0.5 mr-1" /> History
               </button>
             )}
+            {/* Storybook: appears once the first character has been met, so a
+                brand-new account isn't shown a book of 40 mysteries. */}
+            {normalizeMet(profile?.met_characters).length > 0 && (
+              <button
+                onClick={() => router.push('/storybook')}
+                className="kq-chip bg-emerald/15 text-emerald border-2 border-emerald/40 font-bold text-xs transition-all"
+              >
+                <span aria-hidden="true" className="mr-1">📖</span>
+                Storybook {normalizeMet(profile?.met_characters).length}/{ROSTER_SIZE}
+              </button>
+            )}
             {/* Below level 10 there is no journal tab, and the bottom nav is
                 mobile-only, so desktop had no way in at all. */}
             {!sections.tabBar && (
@@ -1594,6 +1657,14 @@ export default function DashboardPage() {
         show={showDiceRoll}
         encounter={encounterData}
         onClaim={handleDiceClaimReward}
+      />
+
+      {/* Storybook character meet — earned every few quests, queues behind
+          the reward chain via the shared overlay queue */}
+      <MeetCharacterOverlay
+        show={Boolean(pendingMeet)}
+        character={pendingMeet}
+        onMeet={handleMeetCharacter}
       />
 
       {/* Chest drop reveal (mutually exclusive with dice roll encounter) */}
